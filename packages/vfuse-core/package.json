@@ -1,0 +1,33 @@
+{
+  "name": "vfuse-core",
+  "version": "1.0.0",
+  "description": "vfuse-core",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "aegir build",
+    "lint": "aegir lint",
+    "test": "aegir test",
+    "test:node": "aegir test -t node",
+    "test:browser": "aegir test -t browser",
+    "test:webworker": "aegir test -t webworker",
+    "test:electron-main": "aegir test -t electron-main",
+    "test:electron-renderer": "aegir test -t electron-renderer",
+    "coverage": "nyc --reporter=text --reporter=lcov npm run test:node",
+    "clean": "rimraf ./dist",
+    "dep-check": "aegir dep-check -i interface-ipfs-core -i ipfs-core-types -i abort-controller"
+  },
+  "author": "Luigi Serra",
+  "license": "MIT",
+  "devDependencies": {
+    "aegir": "^33.2.0"
+  },
+  "dependencies": {
+    "ipfs": "^0.55.1",
+    "libp2p-bootstrap": "^0.12.3",
+    "libp2p-mplex": "^0.10.3",
+    "libp2p-noise": "^3.0.0",
+    "libp2p-webrtc-direct": "^0.6.0",
+    "libp2p-webrtc-star": "^0.22.3",
+    "libp2p-websockets": "^0.15.7"
+  }
+}
