@@ -28,7 +28,7 @@ class Profile {
                     let p = JSON.parse(content)
                     this.wokflows = p.wokflows
                     this.rewards  = p.rewards
-                    log('Profile loaded : %O', p)
+                    console.log('Profile loaded : %O', p)
                 }else
                     throw new Error("Got some error during profile retrieving")
 
@@ -38,15 +38,15 @@ class Profile {
                     rewards: []
                 }
                 let profile = {
-                    //path: '/profile',
+                    path: 'profile.json',
                     content : JSON.stringify(new_profile)
                 }
                 let remote_profile = await this.net.ipfs.add(profile)
                 let published_profile = await this.net.ipfs.name.publish(remote_profile.cid.string)
                 this.id = published_profile.name
-                log('New remote profile created\nPreserve your PROFILE ID: %s\n', published_profile.name)
-                log('https://gateway.ipfs.io/ipns/%s',published_profile.name)
-                log('https://ipfs.io%s',published_profile.value)
+                console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', published_profile.name)
+                console.log('https://gateway.ipfs.io/ipns/%s',published_profile.name)
+                console.log('https://ipfs.io%s',published_profile.value)
             }
         }catch(e){
             log('Got some error during profile retrieving: %O', e)

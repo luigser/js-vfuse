@@ -22,6 +22,7 @@
     "aegir": "^33.2.0",
     "assert": "^2.0.0",
     "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
     "debug": "^4.3.1",
     "dirty-chai": "^2.0.1"
   },
@@ -35,7 +36,6 @@
     "libp2p-websockets": "^0.15.7"
   },
   "eslintConfig": {
-    "extends": "vfuse",
     "rules": {
       "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/explicit-function-return-type": "warn",

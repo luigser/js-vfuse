@@ -1,5 +1,4 @@
 'use strict'
-
 const VFuse = require('./src')
 
 const options = {

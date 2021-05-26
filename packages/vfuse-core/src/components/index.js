@@ -1,5 +1,5 @@
 'use strict'
-
+const log = require('debug')('vfuse:node')
 const Network = require('./network')
 const Profile = require('./profile')
 
@@ -14,8 +14,14 @@ class VFuse {
     }
 
     async start(){
+        console.log('Strating VFuse node...')
         await this.net.start()
         await this.profile.checkProfile()
+    }
+
+    async stop(){
+        console.log('Stopping VFuse node...')
+        await this.net.stop()
     }
 
     /**
