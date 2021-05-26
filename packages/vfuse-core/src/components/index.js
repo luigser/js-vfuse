@@ -1,6 +1,7 @@
 'use strict'
 
 const Network = require('./network')
+const Profile = require('./profile')
 
 class VFuse {
     /**
@@ -8,24 +9,19 @@ class VFuse {
      * @param {Options} config.options
      */
     constructor({options}) {
-        this._network = new Network({
-            peerId : options.peerId,
-            bootstrapNodes : options.bootstrapNodes
-        })
+        this.net = new Network(options)
+        this.profile = new Profile(this.net, options)
     }
 
     async start(){
-       this._network.start()
+        await this.net.start()
+        await this.profile.checkProfile()
     }
 
     /**
      * @param {Options} options
      */
     static async create (options = {}) {
-        options = {
-            ...getDefaultOptions(),
-            ...options
-        }
 
         const vfuse = new VFuse({
             options : options
@@ -36,10 +32,4 @@ class VFuse {
     }
 }
 
-const getDefaultOptions = () => ({
-    bootstrapNodes : [
-        '/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb',
-        '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN'
-    ]
-
-})
+module.exports = VFuse

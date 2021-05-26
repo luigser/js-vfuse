@@ -1,0 +1,56 @@
+'use strict'
+
+const log = require('debug')('vfuse:profile')
+
+class Profile {
+    /**
+     * @param {Object} network
+     * @param {Object} options
+     */
+    constructor ( network, options) {
+        this.id = options.id ? options.id : null
+        this.net = network
+        this.workflows = []
+        this.rewards   = []
+    }
+
+    async checkProfile(){
+        const content = []
+        try {
+            if(this.id){
+                for await (const file of this.net.ipfs.get(this.id)) {
+                    if (!file.content) continue;
+                    for await (const chunk of file.content) {
+                        content.push(chunk)
+                    }
+                }
+                if (content.length > 0) {
+                    let p = JSON.parse(content)
+                    this.wokflows = p.wokflows
+                    this.rewards  = p.rewards
+                    log('Profile loaded : %O', p)
+                }else
+                    throw new Error("Got some error during profile retrieving")
+
+            } else {
+                let new_profile = {
+                    workflows: [],
+                    rewards: []
+                }
+                let profile = {
+                    //path: '/profile',
+                    content : JSON.stringify(new_profile)
+                }
+                let remote_profile = await this.net.ipfs.add(profile)
+                let published_profile = await this.net.ipfs.name.publish(remote_profile.cid.string)
+                this.id = published_profile.name
+                log('New remote profile created\nPreserve your PROFILE ID: %s\n', published_profile.name)
+                log('https://gateway.ipfs.io/ipns/%s',published_profile.name)
+                log('https://ipfs.io%s',published_profile.value)
+            }
+        }catch(e){
+            log('Got some error during profile retrieving: %O', e)
+        }
+    }
+}
+module.exports = Profile

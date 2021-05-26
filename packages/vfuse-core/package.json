@@ -8,10 +8,10 @@
     "lint": "aegir lint",
     "test": "aegir test",
     "test:node": "aegir test -t node",
-    "test:browser": "aegir test -t browser",
-    "test:webworker": "aegir test -t webworker",
-    "test:electron-main": "aegir test -t electron-main",
-    "test:electron-renderer": "aegir test -t electron-renderer",
+    "test:browser": "aegir test --target browser",
+    "test:webworker": "aegir test --target webworker",
+    "test:electron-main": "aegir test --target electron-main",
+    "test:electron-renderer": "aegir test --target electron-renderer",
     "coverage": "nyc --reporter=text --reporter=lcov npm run test:node",
     "clean": "rimraf ./dist",
     "dep-check": "aegir dep-check -i interface-ipfs-core -i ipfs-core-types -i abort-controller"
@@ -19,7 +19,11 @@
   "author": "Luigi Serra",
   "license": "MIT",
   "devDependencies": {
-    "aegir": "^33.2.0"
+    "aegir": "^33.2.0",
+    "assert": "^2.0.0",
+    "chai": "^4.3.4",
+    "debug": "^4.3.1",
+    "dirty-chai": "^2.0.1"
   },
   "dependencies": {
     "ipfs": "^0.55.1",
@@ -29,5 +33,25 @@
     "libp2p-webrtc-direct": "^0.6.0",
     "libp2p-webrtc-star": "^0.22.3",
     "libp2p-websockets": "^0.15.7"
+  },
+  "eslintConfig": {
+    "extends": "vfuse",
+    "rules": {
+      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/explicit-function-return-type": "warn",
+      "@typescript-eslint/strict-boolean-expressions": "off"
+    },
+    "ignorePatterns": []
+  },
+  "contributors": [
+    "Luigi Setta <lserra@unisa.it>",
+    "Andrea Petta <apetta@unisa.it>"
+  ],
+  "files": [
+    "src",
+    "dist"
+  ],
+  "aegir": {
+    "tsRepo": false
   }
 }

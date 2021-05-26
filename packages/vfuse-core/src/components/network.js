@@ -13,12 +13,13 @@ class Network {
      * @param {Object} config
      * @param {Options} config.options
      */
-    constructor({ peerId, bootstrapNodes}) {
+    constructor(options) {
 
-        this._node = { ipfs: null, libp2p: null}
-        this._peerId= peerId
-        if(bootstrapNodes)
-            this._bootstrapNodes = bootstrapNodes
+        this.ipfs = null
+        this.libp2p = null
+        this.peerId= options.peerId
+        if(options.bootstrapNodes)
+            this.bootstrapNodes = options.bootstrapNodes
         else
             this._bootstrapNodes = [
             '/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb',
@@ -27,7 +28,7 @@ class Network {
     }
 
     async start(){
-        let node = await IPFS.create(
+        /*let node = await IPFS.create(
             {
                 repo: String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
                 config: {
@@ -36,7 +37,7 @@ class Network {
                         SignalServer: '127.0.0.1:2000',
                         //Gateway: "/ip4/127.0.0.1/tcp/8080"
                     },
-                    Bootstrap: this._bootstrapNodes,
+                    //Bootstrap: bootstrapNodes,
                     Discovery: {
                         MDNS : {
                             Enabled: true
@@ -72,16 +73,17 @@ class Network {
                     }
                 }
             }
-        )
-        this._node.ipfs = node
-        this._node.libp2p= node.libp2p
+        )*/
+        let node = await IPFS.create()
+        this.ipfs = node
+        this.libp2p= node.libp2p
     }
 
     /**
      * @param {Network} network
      */
-    static async stop(){
-        await this._node.ipfs.stop()
+    async stop(){
+        await this.ipfs.stop()
     }
 }
 
