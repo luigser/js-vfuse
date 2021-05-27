@@ -23,6 +23,7 @@ const options = {
 
 describe('Create with no new profile and python worker',  () => {
     it('create', async () => {
+        //Set worker in the browser context (do not do it before)
         options.worker = PythonWorker.getWebWorker()
         const node = await VFuse.create(options)
         expect(node).to.exist()
