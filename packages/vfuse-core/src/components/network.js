@@ -25,13 +25,15 @@ class Network {
             '/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb',
             '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN'
         ]
+        this.identity = options.identity
     }
 
     async start(){
-        /*let node = await IPFS.create(
+        let node = await IPFS.create(
             {
                 repo: String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
                 config: {
+                    Identity: this.identity,
                     Addresses: {
                         Swarm: [],
                         SignalServer: '127.0.0.1:2000',
@@ -44,7 +46,7 @@ class Network {
                         }
                     }
                 },
-                libp2p: {
+               /* libp2p: {
                     addresses: {
                         listen: [
                             '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
@@ -71,10 +73,10 @@ class Network {
                             }
                         }
                     }
-                }
+                }*/
             }
-        )*/
-        let node = await IPFS.create()
+        )
+        //let node = await IPFS.create()
         this.ipfs = node
         this.libp2p= node.libp2p
     }

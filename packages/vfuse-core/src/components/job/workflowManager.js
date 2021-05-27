@@ -27,7 +27,12 @@ class WorkflowManager{
         await this.runtime.load()
     }
 
+    getWorkflows(){
+        //get workflow from global IPFS queue
+    }
+
     addWorkflow(workflow){
+        //add workflow on IPFS
         this.workflowsQueue.push(workflow)
     }
 
@@ -38,22 +43,40 @@ class WorkflowManager{
         }
     }*/
 
-    async run(){
-        let workflow, job
+    async runJob(job){
         try {
-            for (let w in this.workflowsQueue) {
-                workflow = this.workflowsQueue[w]
-                workflow.status = Workflow.STATUS.RUNNING
-                for (let j in workflow.jobs) {
-                    job = workflow.jobs[j]
-                    await this.runtime.run(job)
-                    job.status = Job.SATUS.COMPLETED
-                }
-                workflow.status = Workflow.STATUS.COMPLETED
+            await this.runtime.run(job)
+            job.status = Job.SATUS.COMPLETED
+            //Communicate the job end to the network
+        }catch(e){
+            log("Got error during job execution: %o", e)
+        }
+    }
+
+    async runWorkflow(workflow){
+        try {
+            workflow.status = Workflow.STATUS.RUNNING
+            for (let j in workflow.jobs) {
+               await this.runJob(workflow.jobs[j])
             }
+            workflow.status = Workflow.STATUS.COMPLETED
+            //Communicate the workflow end to the network
         }catch(e){
             workflow.status = Workflow.STATUS.IDLE
             log("Got error during workflow execution: %o", e)
+        }
+
+    }
+
+    async runAllWokflows(){
+        let workflow
+        try {
+            for (let w in this.workflowsQueue) {
+                workflow = this.workflowsQueue[w]
+                await this.runWorkflow(workflow)
+            }
+        }catch(e){
+            log("Got error during workflows execution: %o", e)
         }
     }
 }

@@ -8,7 +8,7 @@ class Profile {
      * @param {Object} options
      */
     constructor ( network, options) {
-        this.id = options.id ? options.id : null
+        this.id = options.profileId ? options.profileId : null
         this.net = network
         this.workflows = []
         this.rewards   = []
@@ -18,7 +18,13 @@ class Profile {
         const content = []
         try {
             if(this.id){
-                for await (const file of this.net.ipfs.get(this.id)) {
+                let ipfs_profile = ""
+                for await (const name of this.net.ipfs.name.resolve('/ipns/' + this.id)) {
+                    ipfs_profile = name
+                    console.log(name)
+                }
+
+                for await (const file of this.net.ipfs.get(ipfs_profile)) {
                     if (!file.content) continue;
                     for await (const chunk of file.content) {
                         content.push(chunk)

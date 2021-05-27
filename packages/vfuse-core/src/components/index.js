@@ -25,8 +25,8 @@ class VFuse {
         return this.workflowManager.addWorkflow(workflow)
     }
 
-    async runWorkflows(){
-        await this.workflowManager.run();
+    async runAllWokflows(){
+        await this.workflowManager.runAllWokflows();
     }
 
     async stop(){
