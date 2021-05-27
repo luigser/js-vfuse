@@ -1,0 +1,11 @@
+{
+  "name": "vfuse-python-worker",
+  "version": "1.0.0",
+  "description": "Python worker for job execution",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Luigi Serra",
+  "license": "MIT"
+}

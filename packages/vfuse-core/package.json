@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": "aegir build",
+    "docs": "aegir docs",
     "lint": "aegir lint",
     "test": "aegir test",
     "test:node": "aegir test -t node",
