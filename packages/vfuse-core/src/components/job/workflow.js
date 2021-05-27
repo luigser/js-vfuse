@@ -1,8 +1,15 @@
 'use strict'
 
 class Workflow{
-    constructor() {
-        this.jobs = []
+    static STATUS = {
+        IDLE : 0,
+        RUNNING : 1,
+        COMPLETED : 2
+    }
+
+    constructor(jobs) {
+        this.status = Workflow.STATUS.IDLE
+        this.jobs = jobs || []
     }
 
     addJob(job){

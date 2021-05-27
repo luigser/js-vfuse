@@ -27,7 +27,7 @@ function parseLog(log) {
     .join('\n');
 }
 self.onmessage = async function(e) {
-  const { action } = e.data;
+  const { action, job } = e.data;
   if (action === 'init') {
     languagePluginLoader
       .then(() => {
@@ -56,12 +56,12 @@ self.onmessage = async function(e) {
           results: err.message
         });
       });
-  } else if (action === 'exec' && e.data.code) {
+  } else if (action === 'exec') {
     try {
-      self.pyodide.globals.code_to_run = e.data.code;
-      //await self.pyodide.loadPackagesFromImports(e.data.code);
+      self.pyodide.globals.code_to_run = job.code;
+      //await self.pyodide.loadPackagesFromImports(job.code);
       self.pyodide
-        //.runPythonAsync(e.data.code)
+        //.runPythonAsync(job.code)
         .runPythonAsync('run_code(code_to_run)')
         .then(results => {
           self.postMessage({ action: 'return', results });

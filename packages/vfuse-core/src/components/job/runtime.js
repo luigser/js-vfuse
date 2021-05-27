@@ -1,7 +1,7 @@
 'use strict'
-// mainly a Pyodide wrapper class now
-// but will serve as an abstraction around
-// any Wasm language module
+
+const Job = require('./job')
+
 class Runtime {
     constructor(worker, packages) {
         this.count = 0
@@ -25,22 +25,22 @@ class Runtime {
     }
 
     history() {
-        return this.history.map((x) => x.cmd).join('\n');
+        return this.history.map((x) => x.cmd).join('\n')
     }
 
     init() {
         // initialize Runtime
         const promise = new Promise((resolve, reject) => {
             this.worker.onmessage = (e) => {
-                const { action } = e.data;
+                const { action } = e.data
                 if (action === 'initialized') {
-                    resolve(this);
+                    resolve(this)
                 } else {
-                    reject(new Error('Runtime initialization failed'));
+                    reject(new Error('Runtime initialization failed'))
                 }
             };
         });
-        this.worker.postMessage({ action: 'init' });
+        this.worker.postMessage({ action: 'init' })
         return promise;
     }
 
@@ -48,61 +48,64 @@ class Runtime {
         // preload packages
         const promise = new Promise((resolve, reject) => {
             this.worker.onmessage = (e) => {
-                const { action } = e.data;
+                const { action } = e.data
                 if (action === 'loaded') {
-                    resolve(this);
+                    resolve(this)
                 } else {
-                    reject(new Error('Package preloading failed'));
+                    reject(new Error('Package preloading failed'))
                 }
             };
         });
 
-        this.worker.postMessage({ action: 'load', packages: this.packages });
+        this.worker.postMessage({ action: 'load', packages: this.packages })
         return promise;
     }
 
     async restart() {
-        const startTs = Date.now();
+        const startTs = Date.now()
 
-        this.worker.terminate();
-        this.packages.clear();
+        this.worker.terminate()
+        this.packages.clear()
 
-        await this.init();
-        await this.load(this.packages);
+        await this.init()
+        await this.load(this.packages)
 
-        const log = { start: startTs, end: Date.now(), cmd: '$RESTART SESSION$' };
-        this.history.push(log);
+        const log = { start: startTs, end: Date.now(), cmd: '$RESTART SESSION$' }
+        this.history.push(log)
     }
 
-    exec(code) {
+    exec(job) {
         const promise = new Promise((resolve, reject) => {
             this.worker.onmessage = (e) => {
-                const { action, results } = e.data;
+                const { action, results } = e.data
                 if (action === 'return') {
-                    resolve(results);
+                    resolve(results)
                 } else if (action === 'error') {
-                    reject(results);
+                    job.result = results
+                    job.status = Job.SATUS.ERROR
+                    reject(results)
                 } else {
-                    reject(new Error('Unknown Pyodide worker response'));
+                    reject(new Error('Unknown Pyodide worker response'))
                 }
-            };
-        });
+            }
+        })
 
         this.worker.postMessage({
             action: 'exec',
-            code,
-        });
-        return promise;
+            job: job,
+        })
+        return promise
     }
 
-    async run(code) {
-        const startTs = Date.now();
-        this.value = await this.exec(code);
+    async run(job) {
+        const startTs = Date.now()
+        const result = await this.exec(job)
+        job.result = result
 
-        const log = { start: startTs, end: Date.now(), cmd: code };
-        this.history.push(log);
+        const log = { start: startTs, end: Date.now(), cmd: job.code }
+        this.history.push(log)
 
-        return this;
+        return result
     }
 }
 

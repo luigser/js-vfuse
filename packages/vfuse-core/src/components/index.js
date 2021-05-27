@@ -2,7 +2,7 @@
 const log = require('debug')('vfuse:node')
 const Network = require('./network')
 const Profile = require('./profile')
-const JobManager = require('./job/jobManager')
+const WorkflowManager = require('./job/workflowManager')
 
 class VFuse {
     /**
@@ -11,14 +11,22 @@ class VFuse {
     constructor(options) {
         this.net = new Network(options)
         this.profile = new Profile(this.net, options)
-        this.jobManager = new JobManager(this.net, options)
+        this.workflowManager = new WorkflowManager(this.net, options)
     }
 
     async start(){
         console.log('Strating VFuse node...')
         await this.net.start()
-        await this.jobManager.start()
+        await this.workflowManager.start()
         await this.profile.checkProfile()
+    }
+    //Just for test
+    addWorkflow(workflow){
+        return this.workflowManager.addWorkflow(workflow)
+    }
+
+    async runWorkflows(){
+        await this.workflowManager.run();
     }
 
     async stop(){
@@ -32,7 +40,6 @@ class VFuse {
     static async create (options = {}) {
 
         const vfuse = new VFuse(options)
-
         await vfuse.start()
         return vfuse
     }

@@ -1,10 +1,19 @@
 'use strict'
 
 class Job{
-    constructor(func, data, dependencies) {
-        this.function = func
+    static SATUS = {
+        WAITING : 0,
+        READY: 1,
+        COMPLETED: 2,
+        ERROR: 3
+    }
+
+    constructor(code, data, dependencies) {
+        this.status = Job.SATUS.WAITING
+        this.code = code
         this.data = data
         this.dependencies = dependencies
+        this.result = null
     }
 }
 
