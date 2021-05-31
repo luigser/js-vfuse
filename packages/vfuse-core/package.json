@@ -35,7 +35,8 @@
     "libp2p-noise": "^3.0.0",
     "libp2p-webrtc-direct": "^0.6.0",
     "libp2p-webrtc-star": "^0.22.3",
-    "libp2p-websockets": "^0.15.7"
+    "libp2p-websockets": "^0.15.7",
+    "peer-id": "^0.14.8"
   },
   "eslintConfig": {
     "rules": {

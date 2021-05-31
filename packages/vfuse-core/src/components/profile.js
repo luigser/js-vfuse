@@ -68,7 +68,7 @@ class Profile {
             }
             let remote_profile = await this.net.ipfs.add(profile)
             let published_profile = await this.net.ipfs.name.publish(remote_profile.cid.string)
-            log("Profile sucessfully updated")
+            log("Profile successfully updated")
         }catch (e){
             log('Got some error during the profile update: %O', e)
         }
@@ -93,7 +93,7 @@ class Profile {
 
     async addJob(workflowId, job){
         try {
-            job.id = this.workflows[workflowId].jobs.lenght
+            job.id = this.workflows[workflowId].jobs.length
             this.workflows[workflowId].jobs.push(job)
             let new_profile = {
                 workflows: this.workflows,

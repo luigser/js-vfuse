@@ -83,8 +83,9 @@ describe('Check profile update',  () => {
 
         const node = await VFuse.create(options)
         expect(node).to.exist()
+        console.log("PeerID: %s",node.net.libp2p.peerId)
         console.log("Profile ID: %s",node.profile.id)
-        
+
         console.log('PROFILE WORKFLOWS BEFORE UPDATE')
         console.log(node.profile.workflows)
 

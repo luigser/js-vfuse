@@ -8,6 +8,7 @@ const WebRTCDirect = require('libp2p-webrtc-direct')
 const WebRTCStar = require('libp2p-webrtc-star')
 const Mplex = require('libp2p-mplex')
 const Gossipsub = require('libp2p-gossipsub')
+const PeerId = require('peer-id')
 
 class Network {
     /**
@@ -36,7 +37,7 @@ class Network {
     async start(){
         let node = await IPFS.create(
             {
-                repo: String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
+                repo: this.identity ? this.identity.PeerID : String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
                 config: {
                     Identity: this.identity,
                     Addresses: {
@@ -52,6 +53,7 @@ class Network {
                     }*/
                 },
                 libp2p: {
+                    peerId: PeerId.createFromCID(this.identity.PeerID),
                     /*addresses: {
                         listen: [
                             '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
