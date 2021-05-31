@@ -11,22 +11,26 @@ class VFuse {
     constructor(options) {
         this.net = new Network(options)
         this.profile = new Profile(this.net, options)
-        this.workflowManager = new WorkflowManager(this.net, options)
+        this.workflowManager = new WorkflowManager(this.net, this.profile, options)
     }
 
     async start(){
         console.log('Strating VFuse node...')
         await this.net.start()
         await this.workflowManager.start()
-        await this.profile.checkProfile()
+        await this.profile.check()
     }
-    //Just for test
-    addWorkflow(workflow){
-        return this.workflowManager.addWorkflow(workflow)
+
+    async createWorkflow(){
+       await this.workflowManager.createWorkflow()
     }
 
     async runAllWokflows(){
-        await this.workflowManager.runAllWokflows();
+        await this.workflowManager.runAllWokflows()
+    }
+    
+    async addJob(workflow, code, data, dependencies){
+        await this.workflowManager.addJob(workflow, code, data, dependencies)
     }
 
     async stop(){
@@ -38,7 +42,6 @@ class VFuse {
      * @param {Options} options
      */
     static async create (options = {}) {
-
         const vfuse = new VFuse(options)
         await vfuse.start()
         return vfuse

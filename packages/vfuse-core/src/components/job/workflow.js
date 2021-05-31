@@ -1,4 +1,11 @@
 'use strict'
+/*
+Here some consideration
+- Workflow could have a Job DAG to represent the dependencies
+- Job queue can be reprensented ad an array of arrays.
+  Each level represent the jobs dependencies form previous level
+  [[j1], [j2, j3]] => j2,j3 depend on j1 and they cannot be execute unitl j1 ends up
+*/
 
 class Workflow{
     static STATUS = {
@@ -7,12 +14,14 @@ class Workflow{
         COMPLETED : 2
     }
 
-    constructor(jobs) {
+    constructor() {
+        this.id = null
         this.status = Workflow.STATUS.IDLE
-        this.jobs = jobs || []
+        this.jobs = []
     }
 
     addJob(job){
+        //todo build execution array according to depedencies
         this.jobs.push(job)
     }
 }

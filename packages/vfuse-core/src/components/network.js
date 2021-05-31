@@ -7,6 +7,7 @@ const WebSockets = require('libp2p-websockets')
 const WebRTCDirect = require('libp2p-webrtc-direct')
 const WebRTCStar = require('libp2p-webrtc-star')
 const Mplex = require('libp2p-mplex')
+const Gossipsub = require('libp2p-gossipsub')
 
 class Network {
     /**
@@ -22,8 +23,12 @@ class Network {
             this.bootstrapNodes = options.bootstrapNodes
         else
             this._bootstrapNodes = [
-            '/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb',
-            '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN'
+                '/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ',
+                '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN',
+                '/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb',
+                '/dnsaddr/bootstrap.libp2p.io/p2p/QmZa1sAxajnQjVM8WjWXoMbmPd7NsWhfKsPkErzpm9wGkp',
+                '/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa',
+                '/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt'
         ]
         this.identity = options.identity
     }
@@ -40,25 +45,26 @@ class Network {
                         //Gateway: "/ip4/127.0.0.1/tcp/8080"
                     },
                     //Bootstrap: bootstrapNodes,
-                    Discovery: {
+                    /*Discovery: {
                         MDNS : {
                             Enabled: true
                         }
-                    }
+                    }*/
                 },
-               /* libp2p: {
-                    addresses: {
+                libp2p: {
+                    /*addresses: {
                         listen: [
                             '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
                             '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
                             '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star'
                         ]
-                    },
+                    },*/
                     modules: {
-                        transport: [WebSockets, WebRTCStar, WebRTCDirect],
+                        //transport: [WebSockets, WebRTCStar, WebRTCDirect],
                         connEncryption: [Noise],
                         streamMuxer: [Mplex],
-                        peerDiscovery: [ WebRTCStar, Bootstrap ]
+                        //peerDiscovery: [ WebRTCStar, Bootstrap ],
+                        pubsub: Gossipsub
                     },
                     config: {
                         peerDiscovery: {
@@ -73,7 +79,7 @@ class Network {
                             }
                         }
                     }
-                }*/
+                }
             }
         )
         //let node = await IPFS.create()

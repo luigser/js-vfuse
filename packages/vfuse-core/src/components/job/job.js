@@ -2,13 +2,14 @@
 
 class Job{
     static SATUS = {
-        WAITING : 0,
-        READY: 1,
-        COMPLETED: 2,
-        ERROR: 3
+        WAITING : 0,//due to dependencies
+        READY: 1,//no dependences and ready to be executed
+        COMPLETED: 2,//results are available
+        ERROR: 3//something wrong during the execution
     }
 
-    constructor(code, data, dependencies) {
+    constructor(id, code, data, dependencies) {
+        this.id = id
         this.status = Job.SATUS.WAITING
         this.code = code
         this.data = data

@@ -12,9 +12,10 @@ class WorkflowManager{
      * @param {Object} network
      * @param {Object} options
      */
-    constructor(network, options){
+    constructor(network, profile, options){
         try {
             this.net = network
+            this.profile = profile
             this.runtime = new Runtime(options.worker, options.packages)
             this.workflowsQueue = []
         }catch(e){
@@ -53,7 +54,8 @@ class WorkflowManager{
         }
     }
 
-    async runWorkflow(workflow){
+    async runWorkflow(workflowId){
+        let workflow = this.profile.getWorkflow(workflowId)
         try {
             workflow.status = Workflow.STATUS.RUNNING
             for (let j in workflow.jobs) {
@@ -77,6 +79,31 @@ class WorkflowManager{
             }
         }catch(e){
             log("Got error during workflows execution: %o", e)
+        }
+    }
+
+    async createWorkflow(){
+        try{
+            let workflow = new Workflow()
+            await this.profile.createWorkflow(workflow, [])
+            return workflow.id
+        }catch (e){
+            log('Got some error during the workflow creation: %O', e)
+        }
+    }
+
+    async addJob(workflow, code, data, dependencies){
+        try{
+            let job = new Job(
+                null,
+                code,
+                data,
+                dependencies
+            )
+            await this.profile.addJob(workflow, job)
+            return workflow.id
+        }catch (e){
+            log('Got some error during the workflow creation: %O', e)
         }
     }
 }
