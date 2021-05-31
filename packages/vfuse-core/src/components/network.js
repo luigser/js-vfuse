@@ -35,9 +35,12 @@ class Network {
     }
 
     async start(){
-        let node = await IPFS.create(
+
+        //const peerId = await PeerId.create({ bits: 256, keyType: 'ed25519' })
+
+        const node = await IPFS.create(
             {
-                repo: this.identity ? this.identity.PeerID : String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
+                repo: String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
                 config: {
                     Identity: this.identity,
                     Addresses: {

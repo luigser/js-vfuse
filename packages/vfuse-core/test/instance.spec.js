@@ -14,6 +14,7 @@ const Job = require('../src/components/job/job')
 const Workflow = require('../src/components/job/workflow')
 
 const options = {
+    peerId : "QmRHLmg8VaJTsRAzM98fYrw5RKcf4hQoJpY9jrF2YZVFuS",
     discoveryCallback : () => {},
     connectionCallback: () => {},
     getMessageFromProtocolCallback : () => {},
@@ -74,16 +75,20 @@ print(c)`,
 
 describe('Check profile update',  () => {
     it('Get profile and update', async () => {
-        options.profileId = "QmcaF94B9rHX4Gr1F9EZEue4Kx19L6DaHVB7tthAw7b2Bo"
+        options.profileId = "QmfJVGu62G9rpZjbhhJ7JCCBxcCsiHsKrsF3RGDh5y3cv9"
         options.identity = {
-            PeerID: "QmcNCn1m7TQ8E8C4VcbMaddXULyiCgfVXYvMvsYHZXpcJ1",
-            PrivKey: "CAASpgkwggSiAgEAAoIBAQCFxeBcNkBvHay7hD6Zxxd/mQuttV02eQ+vOS7ecEEHvKfaoQ2ppFuOirhQp/fxc1m0rHGofDC7YnILmEDIL3GB4bOzRahBKI0BC8DfrJvdI8HMBmfMxHbEKwOCaWYG8XeZKzmqCT+z1IoxFbD1ro06Nlj96QyI58+g7BnqIVO2VwxHECmJ7kC3lXMZn2IF9X84Gftneorgcwn5kgHnqQp41YlC5rq5yHuNk/YD/R3PLfxhSyJgizx0zyZqrktGcEIImQsDcR9CggNHr/dTSbVQpw+ch+ScBCEALpoUPc07b/U4raugsJ5xBNnegVHkeFqnD0M1eWVrSVY1MQiNbyvxAgMBAAECggEALk/4QdRicFWktHKvPYvovbsdiPEOKUq2PGKesFHKocQVlKJHWaDWNb4e24WbWFMoDl3ZJ4x/TpBhjVQTsXqDYITkMr995bkFQARyrL1UZLX5ZQoeq4yk1XtSxrZ4pRS55CRL3WtAS6DciuvIjPX2XN3t51Hkjg07G6pBuoX5NlnccYEO7WujP+aobDIN0P8DgKnH3zIyY2DB516nkQVi1vkN+2d2WTRKdrXGmDgnUh2H9pR5BWAjUXF78eFQdoatnEf5bjSjNAwnsGExew8ZcpMDNjwFkvXcRK1K70wnYRdw/J4EyJllgCmwSKJ8D3nVy3FS6tqnnEIhV9R+4TFRJQKBgQD7PK7j+uoYF51PKC8ynQKEu32RPkh6AAERbmYB68oNXWWd8ke4e8m0H+09o/Vye1wl3B2Hoehkos4GIoqC1xuNkBbAWSC51bN7et6JrnGuoPzCQa3V09qmQG6lwnKQ1NZUuGKbY0t4oX+S9TP3qnsJOCIzou7kIW5UaK/0llaLtwKBgQCITxw/rMB5xwVTmqqkbOZtF4MZ04L+BxOYv+E3iKNnnVnQ+ah0ln3ra8xSsVlxPU/P0R59YHGeZ+a7FJiab5a7RlxWwjXu1Tz4sRX2ezbdhKkY6KGfUTv7JLzVV0yK80RtmlWWAQ009RdDQILWWevtjZShw6ZEau3MN2DsuflVlwKBgHX0EqREnH19MMUGN8qKfrE0mYqEdGCa+eVmMIw8WJuXuurB4jxSGevwhWDIRqdeFXBM/Kw+Lq545UNqGh+9wFjhSl06OywkkeSqVirL9OGpAaJuVaArm98sJwa52TH4SzxxaRJNNxTGte+YIbLonmVAroYRvBjtPTByChJKNw3XAoGAacH3iO/f5pwj5dn6y9gycDHt5fvVhoK3EazOcOfy4FGVfi42JT8eM6pPvVkcrF+FrRfzMBPEE8NJoZ05SZmKuYK94hKNBeEsjUfYYoT27KghCtJzk8jTYOgAGwbAvI5CaUd1YA0w0gXXJrbGzMi35HgU+e1y82KDXg8ZhJJGgcECgYAF72/d4s+3LILRDp8xZWme1kxjOiox0I69VuV2kJ/MnF0t4DD814045GudFvT/QcpWQySDXT9Mb62ChQ38NwuN7bJv87UratjOgPBDt76mvV22xf1nym94yKEovWnLGgHTX9lR6LBahQ2NN4qj+zEOmbVY/vNJGa8KyBuVvjGUNQ=="
+            PeerID: 'QmRHLmg8VaJTsRAzM98fYrw5RKcf4hQoJpY9jrF2YZVFuS',
+            publicKey: 'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCYBH7eems357Oo2edlwWYTnSOBZgyD/JhCgOWizO+bFP2PMZr98ZYkGOjhACi/3n7LoPf6sJxYBsYeAijR2TGhCkMHEDeMaxfkIUxGqTei3eIsi6F2pnGKZZBoy/u/mldjZehwwXLbC+YwZXW/OdZBKU5IvIkN8QvotbSWUoysw +DGsrpgvmhM2ES8FLPPH2SJGznE7lm6ng8xkWHjg303ZQiXaJCKhRdC2oF1rStV+1b/aeHSoOZfLymHGDx44bgMXBOtgbHosIUWXY6Et63d4IJNjvZ7/+I/HuIINRW1r6e/qlZdaqRKJExS8rqZqrEPNlVDwppCCU1tdcO6LMhLAgMBAAE=',
+
         }
         options.worker = PythonWorker.getWebWorker()
 
         const node = await VFuse.create(options)
         expect(node).to.exist()
-        console.log("PeerID: %s",node.net.libp2p.peerId)
+
+        let id = await node.net.ipfs.id()
+
+        //console.log("IPFS PeerID: %s", id)
         console.log("Profile ID: %s",node.profile.id)
 
         console.log('PROFILE WORKFLOWS BEFORE UPDATE')
