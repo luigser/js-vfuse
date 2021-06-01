@@ -10,6 +10,7 @@ const Mplex = require('libp2p-mplex')
 const Gossipsub = require('libp2p-gossipsub')
 const PeerId = require('peer-id')
 const toString = require('uint8arrays/to-string')
+const fromString = require('uint8arrays/from-string')
 const Constants = require("./constants");
 
 class Network {
@@ -42,19 +43,19 @@ class Network {
         this.topicListeners.push(callback)
     }
 
-    topicHandler(data){
+    topicHandler(message){
         for(let l in this.topicListeners) {
-            //if(data.from !== this.profileId)
-               this.topicListeners[l](data)
+            if(message.from !== this.profileId)
+               this.topicListeners[l](JSON.parse(toString(message.data)))
         }
     }
 
     async initTopicsChannel(){
-        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, this.topicHandler )
+        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, this.topicHandler.bind(this) )
     }
 
     async send(data){
-        await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, data)
+        await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, fromString(JSON.stringify(data)))
     }
 
     async start(){
@@ -102,6 +103,7 @@ class Network {
             }
         )*/
         let node = await IPFS.create({
+            Bootstrap: this.bootstrapNodes,
             Pubsub : {
                 Enabled : true
             }

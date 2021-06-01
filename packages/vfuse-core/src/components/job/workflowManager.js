@@ -37,14 +37,15 @@ class WorkflowManager{
     }
 
     publishJobs(){
-        setTimeout(async function(){
+        setInterval(async function(){
             let jobsToPublish = []
             for (let w in this.profile.workflows) {
                 for (let j in this.profile.workflows[w].jobs) {
                     jobsToPublish.push(this.profile.workflows[w].jobs[j])
                 }
             }
-            await this.net.send(jobsToPublish)
+            if(jobsToPublish.length > 0)
+               await this.net.send(jobsToPublish)
         }.bind(this), 5000)
     }
 

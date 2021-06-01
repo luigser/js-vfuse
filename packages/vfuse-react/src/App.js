@@ -14,6 +14,7 @@ import './theme.css'
 import './App.css'
 
 function App() {
+    const [profileId, setProfileId] = useState(null)
   const [code, setCode] = useState(
       `import numpy as np 
 a = [[2, 0], [0, 2]]
@@ -25,61 +26,6 @@ print(c)`
   const [result, setResult] = useState("")
   const [vFuseNode, setVFuseNode] = useState(null);
   const [peers, setPeers] = useState([]);
-
-  useEffect(() => {
-      const init = async () => {
-          const options = {
-              profileId : "QmW6N57S6Nvna4vyLjMT4N6E7JSuzg7xaKXESvB57GniZh",
-              worker : PythonWorker.getWebWorker(),
-              discoveryCallback : () => {},
-              connectionCallback: () => {},
-              getMessageFromProtocolCallback : () => {},
-              bootstrapNodes : null,
-              packages: []
-          }
-
-          let node = await VFuse.create(options)
-          console.log("Profile ID: %s",node.profile.id)
-
-          console.log('VFuse NODE')
-          console.log({node})
-
-          /*const workflow = await node.createWorkflow();
-          console.log('WORKFLOW CREATION')
-          console.log(node.profile.workflows)*/
-          let workflow = 1
-          await node.addJob(
-              workflow,
-              `import numpy as np 
-a = [[2, 0], [0, 2]]
-b = [[4, 1], [2, 2]]
-c = np.dot(a, b)
-print(c)`,
-              [],
-              []
-          )
-
-          await node.addJob(
-              workflow,
-              `import numpy as np 
-a = [[12, 0], [0, 2]]
-b = [[4, 11], [2, 22]]
-c = np.dot(a, b)
-print(c)`,
-              [],
-              []
-          )
-
-          console.log('JOBS ADDED')
-          console.log(node.profile.workflows)
-      }
-
-      init();
-
-      return () => {
-          if(vFuseNode) vFuseNode?.stop()
-      }
-  }, []);
 
   const discoverCallback = async (peerId) => {
       console.log(`Found peer ${peerId.toB58String()}`)
@@ -123,110 +69,167 @@ print(c)`,
       vFuseNode.runCode(code, getMessageFromProtocolCallback)
     }
 
-  return (
-      <div className="App">
-          <Row>
-              <Col span={12}>
-                  <Space
-                      direction='vertical'
-                      size='small'
-                      style={{ textAlign : "left", width: '100%', fontSize: "18px"}}
-                  >
-                      <Typography.Title level={1} style={{ fontSize : "28px"}}>VFuse Notepad</Typography.Title>
-                      <Typography.Paragraph>Type yor code here</Typography.Paragraph>
-                  </Space>
-              </Col>
-              <Col span={12} >
-                  <Button type="primary" onClick={localRun}>Run</Button>
-              </Col>
-          </Row>
-          <Row className="box">
-              <Col span={24} style={{overflow: "scroll"}}>
-                  <Editor
-                      value={code}
-                      onValueChange={(code) => setCode(code)}
-                      highlight={code => highlight(code, languages.py)}
-                      padding={10}
-                      style={{
-                        height: "45vh",
-                        fontFamily: '"Fira code", "Fira Mono", monospace',
-                        fontSize: 12,
-                      }}
-                  />
-              </Col>
-          </Row>
-          {/*<Row className="box" style={{ marginTop: "24px"}}>
-              <Col span={12} >
-                  <Button type="primary" onClick={onSend}>Send Code</Button>
-              </Col>
-              <Col span={12} >
-                  <Input
-                      onChange={v => setNodeToSend(v.target.value)}
-                      allowClear
-                  />
-              </Col>
-          </Row>*/}
-          {/*<Row style={{marginTop: "24px"}}>
-              <Col span={24}>
-                  <Space
-                      direction='vertical'
-                      size='small'
-                      style={{ textAlign : "left", width: '100%', fontSize: "18px"}}
-                  >
-                      <Typography.Title level={1} style={{ fontSize : "28px"}}>Node</Typography.Title>
-                      <Typography.Paragraph>Here the node information and actions</Typography.Paragraph>
-                  </Space>
-              </Col>
-          </Row>
-          <Row className="box" style={{marginTop: "24px"}}>
-              <Col span={12}>
-                  <div className="label">PeerId</div>
-              </Col>
-              <Col span={12}>
-                  {vFuseNode?.node?.libp2p.peerId.toB58String()}
-              </Col>
-          </Row>
-          <Row className="box" style={{marginTop: "24px"}}>
-              <Col span={24}>
-                  <CTable
-                      dataSource={peers}
-                      api={{}}
-                      columns={columns}
-                  />
+    const start = async() => {
+          const options = {
+              profileId : profileId,//"QmW6N57S6Nvna4vyLjMT4N6E7JSuzg7xaKXESvB57GniZh",//QmeE1i8ft3ARk9KssYqeXKRTCAckUfB3kF3WijACaWxFLs
+              worker : PythonWorker.getWebWorker(),
+              discoveryCallback : () => {},
+              connectionCallback: () => {},
+              getMessageFromProtocolCallback : () => {},
+              bootstrapNodes : null,
+              packages: []
+          }
 
-              </Col>
-          </Row>*/}
-          <Row style={{marginTop: "24px"}}>
-              <Col span={24}>
-                  <Space
-                      direction='vertical'
-                      size='small'
-                      style={{ textAlign : "left", width: '100%', fontSize: "18px"}}
-                  >
-                      <Typography.Title level={1} style={{ fontSize : "28px"}}>Results</Typography.Title>
-                  </Space>
-              </Col>
-          </Row>
-          <Row className="box">
-              <Col span={24}>
-                  <code>{result}</code>
-                  <pre
-                      className="console"
-                      style={{
-                          color: "#ffffff",
-                          fontFamily: "monospace",
-                          "background": "black",
-                          textAlign: "left",
-                          fontSize: "12px",
-                          overflow: "scroll"
-                      }}
-                  >{result}
-                  </pre>
-              </Col>
-          </Row>
+          let node = await VFuse.create(options)
+          console.log("Profile ID: %s",node.profile.id)
 
-      </div>
-  );
+          console.log('VFuse NODE')
+          console.log({node})
+
+       /* const workflow = await node.createWorkflow();
+        console.log('WORKFLOW CREATION')
+        console.log(node.profile.workflows)
+        await node.addJob(
+            workflow,
+            `import numpy as np 
+a = [[2, 0], [0, 2]]
+b = [[4, 1], [2, 2]]
+c = np.dot(a, b)
+print(c)`,
+            [],
+            []
+        )
+
+        await node.addJob(
+            workflow,
+            `import numpy as np 
+a = [[12, 0], [0, 2]]
+b = [[4, 11], [2, 22]]
+c = np.dot(a, b)
+print(c)`,
+            [],
+            []
+        )
+
+        console.log('JOBS ADDED')
+        console.log(node.profile.workflows)*/
+    }
+
+    const onProfileIdChange = (e) =>{
+      setProfileId(e.nativeEvent.target.value)
+    }
+
+
+    return (
+        <div className="App">
+            <Row>
+                <Col span={10}>
+                    <Space
+                        direction='vertical'
+                        size='small'
+                        style={{ textAlign : "left", width: '100%', fontSize: "18px"}}
+                    >
+                        <Typography.Title level={1} style={{ fontSize : "28px"}}>VFuse Notepad</Typography.Title>
+                        <Typography.Paragraph>Type yor code here</Typography.Paragraph>
+                    </Space>
+                </Col>
+                <Col span={6} >
+                    <Input placeholder="Your Profile ID here" onChange={onProfileIdChange} />
+                </Col>
+                <Col span={4} >
+                    <Button type="primary" onClick={start}>Start</Button>
+                </Col>
+                <Col span={4} >
+                    <Button type="primary" onClick={localRun}>Run</Button>
+                </Col>
+            </Row>
+            <Row className="box">
+                <Col span={24} style={{overflow: "scroll"}}>
+                    <Editor
+                        value={code}
+                        onValueChange={(code) => setCode(code)}
+                        highlight={code => highlight(code, languages.py)}
+                        padding={10}
+                        style={{
+                          height: "45vh",
+                          fontFamily: '"Fira code", "Fira Mono", monospace',
+                          fontSize: 12,
+                        }}
+                    />
+                </Col>
+            </Row>
+            {/*<Row className="box" style={{ marginTop: "24px"}}>
+                <Col span={12} >
+                    <Button type="primary" onClick={onSend}>Send Code</Button>
+                </Col>
+                <Col span={12} >
+                    <Input
+                        onChange={v => setNodeToSend(v.target.value)}
+                        allowClear
+                    />
+                </Col>
+            </Row>*/}
+            {/*<Row style={{marginTop: "24px"}}>
+                <Col span={24}>
+                    <Space
+                        direction='vertical'
+                        size='small'
+                        style={{ textAlign : "left", width: '100%', fontSize: "18px"}}
+                    >
+                        <Typography.Title level={1} style={{ fontSize : "28px"}}>Node</Typography.Title>
+                        <Typography.Paragraph>Here the node information and actions</Typography.Paragraph>
+                    </Space>
+                </Col>
+            </Row>
+            <Row className="box" style={{marginTop: "24px"}}>
+                <Col span={12}>
+                    <div className="label">PeerId</div>
+                </Col>
+                <Col span={12}>
+                    {vFuseNode?.node?.libp2p.peerId.toB58String()}
+                </Col>
+            </Row>
+            <Row className="box" style={{marginTop: "24px"}}>
+                <Col span={24}>
+                    <CTable
+                        dataSource={peers}
+                        api={{}}
+                        columns={columns}
+                    />
+
+                </Col>
+            </Row>*/}
+            <Row style={{marginTop: "24px"}}>
+                <Col span={24}>
+                    <Space
+                        direction='vertical'
+                        size='small'
+                        style={{ textAlign : "left", width: '100%', fontSize: "18px"}}
+                    >
+                        <Typography.Title level={1} style={{ fontSize : "28px"}}>Results</Typography.Title>
+                    </Space>
+                </Col>
+            </Row>
+            <Row className="box">
+                <Col span={24}>
+                    <code>{result}</code>
+                    <pre
+                        className="console"
+                        style={{
+                            color: "#ffffff",
+                            fontFamily: "monospace",
+                            "background": "black",
+                            textAlign: "left",
+                            fontSize: "12px",
+                            overflow: "scroll"
+                        }}
+                    >{result}
+                    </pre>
+                </Col>
+            </Row>
+
+        </div>
+    );
 }
 
 export default App;
