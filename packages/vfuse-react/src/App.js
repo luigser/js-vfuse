@@ -45,12 +45,12 @@ print(c)`
           }
 
           let node = await VFuse.create(options)
-          let id = await node.net.ipfs.id()
-          console.log("IPFS PeerID: %s", id)
           console.log("Profile ID: %s",node.profile.id)
 
           console.log('VFuse NODE')
           console.log({node})
+
+          setVFuseNode(node)
 
           /*const workflow = await node.createWorkflow();
           console.log('WORKFLOW CREATION')
@@ -129,7 +129,7 @@ print(c)`,
                       size='small'
                       style={{ textAlign : "left", width: '100%', fontSize: "18px"}}
                   >
-                      <Typography.Title level={1} style={{ fontSize : "28px"}}>Code</Typography.Title>
+                      <Typography.Title level={1} style={{ fontSize : "28px"}}>VFuse Notepad</Typography.Title>
                       <Typography.Paragraph>Type yor code here</Typography.Paragraph>
                   </Space>
               </Col>
@@ -145,7 +145,7 @@ print(c)`,
                       highlight={code => highlight(code, languages.py)}
                       padding={10}
                       style={{
-                        height: "20vh",
+                        height: "45vh",
                         fontFamily: '"Fira code", "Fira Mono", monospace',
                         fontSize: 12,
                       }}
@@ -163,7 +163,7 @@ print(c)`,
                   />
               </Col>
           </Row>*/}
-          <Row style={{marginTop: "24px"}}>
+          {/*<Row style={{marginTop: "24px"}}>
               <Col span={24}>
                   <Space
                       direction='vertical'
@@ -192,7 +192,7 @@ print(c)`,
                   />
 
               </Col>
-          </Row>
+          </Row>*/}
           <Row style={{marginTop: "24px"}}>
               <Col span={24}>
                   <Space
@@ -200,14 +200,13 @@ print(c)`,
                       size='small'
                       style={{ textAlign : "left", width: '100%', fontSize: "18px"}}
                   >
-                      <Typography.Title level={1} style={{ fontSize : "28px"}}>Received Function</Typography.Title>
-                      <Typography.Paragraph>Execution result</Typography.Paragraph>
+                      <Typography.Title level={1} style={{ fontSize : "28px"}}>Results</Typography.Title>
                   </Space>
               </Col>
           </Row>
           <Row className="box">
               <Col span={24}>
-                  {/*<code>{result}</code>*/}
+                  <code>{result}</code>
                   <pre
                       className="console"
                       style={{

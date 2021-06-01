@@ -9,6 +9,7 @@ const WebRTCStar = require('libp2p-webrtc-star')
 const Mplex = require('libp2p-mplex')
 const Gossipsub = require('libp2p-gossipsub')
 const PeerId = require('peer-id')
+const toString = require('uint8arrays/to-string')
 
 class Network {
     /**
@@ -20,10 +21,11 @@ class Network {
         this.ipfs = null
         this.libp2p = null
         this.peerId= options.peerId
+        this.profileId= options.profileId
         if(options.bootstrapNodes)
             this.bootstrapNodes = options.bootstrapNodes
         else
-            this._bootstrapNodes = [
+            this.bootstrapNodes = [
                 '/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ',
                 '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN',
                 '/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb',
@@ -40,54 +42,49 @@ class Network {
 
         /*const node = await IPFS.create(
             {
-                repo: String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
-                config: {
-                    Identity: this.identity,
-                    Addresses: {
-                        Swarm: [],
-                        SignalServer: '127.0.0.1:2000',
-                        //Gateway: "/ip4/127.0.0.1/tcp/8080"
-                    },
-                    //Bootstrap: bootstrapNodes,
-                    //Discovery: {
-                    //    MDNS : {
-                    //        Enabled: true
-                    //    }
-                    //}
-                },
+                repo: this.profileId ? this.profileId : String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
                 libp2p: {
-                    peerId: this.identity ? PeerId.createFromCID(this.identity.PeerID) : null,
-                    //addresses: {
-                    //    listen: [
-                    //        '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
-                    //        '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
-                    //        '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star'
-                    //    ]
-                    //},
+                    //peerId: this.profileId ? PeerId.createFromCID(this.identity.PeerID) : null,
                     modules: {
-                        //transport: [WebSockets, WebRTCStar, WebRTCDirect],
                         connEncryption: [Noise],
                         streamMuxer: [Mplex],
-                        //peerDiscovery: [ WebRTCStar, Bootstrap ],
                         pubsub: Gossipsub
                     },
+                    peerDiscovery: [
+                        Bootstrap
+                    ],
                     config: {
                         peerDiscovery: {
-                            autoDial: true,
-                            [Bootstrap.tag]: {
-                                enabled: true,
-                                list: this._bootstrapNodes
-                            },
+                            autoDial: true, // auto dial to peers we find when we have less peers than `connectionManager.minPeers`
                             mdns: {
-                                interval: 20e3,
+                                interval: 10000,
                                 enabled: true
+                            },
+                            bootstrap: {
+                                interval: 30e3,
+                                enabled: true,
+                                list: this.bootstrapNodes
                             }
+                        },
+                        relay: {
+                            enabled: true,
+                            hop: {
+                                enabled: true,
+                                active: true
+                            }
+                        },
+                        pubsub: {
+                            enabled: true
                         }
                     }
                 }
             }
         )*/
-        let node = await IPFS.create()
+        let node = await IPFS.create({
+            Pubsub : {
+                Enabled : true
+            }
+        })
         this.ipfs = node
         this.libp2p= node.libp2p
     }
@@ -98,6 +95,53 @@ class Network {
     async stop(){
         await this.ipfs.stop()
     }
+
+    async create(data){
+        try{
+            let remote_data = await this.ipfs.add(data)
+            let published_data = await this.ipfs.name.publish(remote_data.cid.string)
+            return published_data
+        }catch (e){
+            console.log('Got some error during the profile creation: %O', e)
+            return null
+        }
+    }
+
+    async update(data){
+        try {
+            let remote_data = await this.ipfs.add(data)
+            let published_data = await this.ipfs.name.publish(remote_data.cid.string)
+            return published_data
+        }catch (e){
+            console.log('Got some error during the data update: %O', e)
+            return null
+        }
+    }
+
+    async get(cid) {
+        try {
+            let ipfs_data_addr = "", content = [], decodedData = null
+            for await (const name of this.ipfs.name.resolve('/ipns/' + cid)) {
+                ipfs_data_addr = name
+            }
+
+            for await (const file of this.ipfs.get(ipfs_data_addr)) {
+                if (!file.content) continue;
+                for await (const chunk of file.content) {
+                    content.push(chunk)
+                }
+            }
+            if (content.length > 0) {
+                decodedData = toString(content[0])
+            }
+            return decodedData
+        } catch (e) {
+            console.log('Got some error during data retrieving: %O', e)
+            return null
+        }
+    }
+
+
 }
 
 module.exports = Network
