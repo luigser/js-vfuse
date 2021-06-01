@@ -1,6 +1,7 @@
 'use strict'
 
 const log = require('debug')('vfuse:profile')
+const toString = require('uint8arrays/to-string')
 
 class Profile {
     /**
@@ -16,7 +17,7 @@ class Profile {
 
     async get() {
         try {
-            let ipfs_profile = "", constent = []
+            let ipfs_profile = "", content = []
             for await (const name of this.net.ipfs.name.resolve('/ipns/' + this.id)) {
                 ipfs_profile = name
                 log(name)
@@ -29,13 +30,14 @@ class Profile {
                 }
             }
             if (content.length > 0) {
-                let p = JSON.parse(content)
+                let decodedProfile = toString(content[0])
+                let p = JSON.parse(decodedProfile)
                 this.workflows = p.workflows
                 this.rewards = p.rewards
                 log('Profile loaded : %O', p)
             }
         }catch(e){
-            log('Got some error during profile retrieving: %O', e)
+            console.log('Got some error during profile retrieving: %O', e)
         }
     }
 
@@ -52,11 +54,11 @@ class Profile {
             let remote_profile = await this.net.ipfs.add(profile)
             let published_profile = await this.net.ipfs.name.publish(remote_profile.cid.string)
             this.id = published_profile.name
-            log('New remote profile created\nPreserve your PROFILE ID: %s\n', published_profile.name)
-            log('https://gateway.ipfs.io/ipns/%s',published_profile.name)
-            log('https://ipfs.io%s',published_profile.value)
+            console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', published_profile.name)
+            console.log('https://gateway.ipfs.io/ipns/%s',published_profile.name)
+            console.log('https://ipfs.io%s',published_profile.value)
         }catch (e){
-            log('Got some error during the profile creation: %O', e)
+            console.log('Got some error during the profile creation: %O', e)
         }
     }
 

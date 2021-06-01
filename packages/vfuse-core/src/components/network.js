@@ -38,7 +38,7 @@ class Network {
 
         //const peerId = await PeerId.create({ bits: 256, keyType: 'ed25519' })
 
-        const node = await IPFS.create(
+        /*const node = await IPFS.create(
             {
                 repo: String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
                 config: {
@@ -49,21 +49,21 @@ class Network {
                         //Gateway: "/ip4/127.0.0.1/tcp/8080"
                     },
                     //Bootstrap: bootstrapNodes,
-                    /*Discovery: {
-                        MDNS : {
-                            Enabled: true
-                        }
-                    }*/
+                    //Discovery: {
+                    //    MDNS : {
+                    //        Enabled: true
+                    //    }
+                    //}
                 },
                 libp2p: {
-                    peerId: PeerId.createFromCID(this.identity.PeerID),
-                    /*addresses: {
-                        listen: [
-                            '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
-                            '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
-                            '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star'
-                        ]
-                    },*/
+                    peerId: this.identity ? PeerId.createFromCID(this.identity.PeerID) : null,
+                    //addresses: {
+                    //    listen: [
+                    //        '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
+                    //        '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
+                    //        '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star'
+                    //    ]
+                    //},
                     modules: {
                         //transport: [WebSockets, WebRTCStar, WebRTCDirect],
                         connEncryption: [Noise],
@@ -86,8 +86,8 @@ class Network {
                     }
                 }
             }
-        )
-        //let node = await IPFS.create()
+        )*/
+        let node = await IPFS.create()
         this.ipfs = node
         this.libp2p= node.libp2p
     }

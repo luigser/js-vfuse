@@ -22,7 +22,7 @@ class VFuse {
     }
 
     async createWorkflow(){
-       await this.workflowManager.createWorkflow()
+       return await this.workflowManager.createWorkflow()
     }
 
     async runAllWokflows(){

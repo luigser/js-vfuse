@@ -7,16 +7,19 @@ Here some consideration
   [[j1], [j2, j3]] => j2,j3 depend on j1 and they cannot be execute unitl j1 ends up
 */
 
+const Constants = require("./constants");
+
 class Workflow{
-    static STATUS = {
+    //decomment in build
+   /* static STATUS = {
         IDLE : 0,
         RUNNING : 1,
         COMPLETED : 2
-    }
+    }*/
 
     constructor() {
         this.id = null
-        this.status = Workflow.STATUS.IDLE
+        this.status = Constants.WORKFLOW_STATUS.IDLE//Workflow.STATUS.IDLE
         this.jobs = []
     }
 

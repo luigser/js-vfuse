@@ -1,11 +1,45 @@
 {
   "name": "vfuse-react",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@ant-design/icons": "^4.5.0",
+    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/react": "^11.2.5",
+    "@testing-library/user-event": "^12.8.3",
+    "antd": "^4.14.0",
+    "lodash": "^4.17.21",
+    "prismjs": "^1.23.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-scripts": "4.0.3",
+    "react-simple-code-editor": "^0.11.0",
+    "web-vitals": "^1.1.1",
+    "vfuse-core": "file:C:\\Users\\Luigi\\WebstormProjects\\js-vfuse\\packages\\vfuse-core",
+    "vfuse-python-worker": "file:C:\\Users\\Luigi\\WebstormProjects\\js-vfuse\\packages\\vfuse-python-worker"
   },
-  "author": "Luigi Serra",
-  "license": "MIT"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

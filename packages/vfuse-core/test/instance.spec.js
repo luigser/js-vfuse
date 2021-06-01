@@ -10,8 +10,6 @@ chai.use(chaiHttp);
 
 const VFuse = require('../src')
 const PythonWorker = require('../../vfuse-python-worker/src')
-const Job = require('../src/components/job/job')
-const Workflow = require('../src/components/job/workflow')
 
 const options = {
     peerId : "QmRHLmg8VaJTsRAzM98fYrw5RKcf4hQoJpY9jrF2YZVFuS",
@@ -54,6 +52,19 @@ print(c)`,
     }).timeout(30000)
 })*/
 
+//New profile
+/*describe('Create  new profile and python worker',  () => {
+    it('create new profilee', async () => {
+        //Set worker in the browser context (do not do it before)
+        options.worker = PythonWorker.getWebWorker()
+        const node = await VFuse.create(options)
+
+        expect(node).to.exist()
+        console.log('PROFILE ID: %s', node.profile.id)
+
+    }).timeout(30000)
+})*/
+
 /*describe('Create with profile and python worker',  () => {
     it('create and run code in local runtime', async () => {
         options.profileId = "QmcaF94B9rHX4Gr1F9EZEue4Kx19L6DaHVB7tthAw7b2Bo"
@@ -71,11 +82,9 @@ print(c)`,
     }).timeout(30000)
 })*/
 
-
-
 describe('Check profile update',  () => {
     it('Get profile and update', async () => {
-        options.profileId = "QmfJVGu62G9rpZjbhhJ7JCCBxcCsiHsKrsF3RGDh5y3cv9"
+        options.profileId = "QmRv814XNzsfnQ5uypG8ehKpqu7SHDU2VuxDqdumzWV2E2"
         options.identity = {
             PeerID: 'QmRHLmg8VaJTsRAzM98fYrw5RKcf4hQoJpY9jrF2YZVFuS',
             publicKey: 'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCYBH7eems357Oo2edlwWYTnSOBZgyD/JhCgOWizO+bFP2PMZr98ZYkGOjhACi/3n7LoPf6sJxYBsYeAijR2TGhCkMHEDeMaxfkIUxGqTei3eIsi6F2pnGKZZBoy/u/mldjZehwwXLbC+YwZXW/OdZBKU5IvIkN8QvotbSWUoysw +DGsrpgvmhM2ES8FLPPH2SJGznE7lm6ng8xkWHjg303ZQiXaJCKhRdC2oF1rStV+1b/aeHSoOZfLymHGDx44bgMXBOtgbHosIUWXY6Et63d4IJNjvZ7/+I/HuIINRW1r6e/qlZdaqRKJExS8rqZqrEPNlVDwppCCU1tdcO6LMhLAgMBAAE=',
@@ -94,7 +103,7 @@ describe('Check profile update',  () => {
         console.log('PROFILE WORKFLOWS BEFORE UPDATE')
         console.log(node.profile.workflows)
 
-        const workflow = await node.createWorkflow();
+        /*const workflow = await node.createWorkflow();
         console.log('WORKFLOW CREATION')
         console.log(node.profile.workflows)
         expect(node.profile.workflows).to.have.lengthOf(2)
@@ -112,7 +121,7 @@ print(c)`,
 
         console.log('JOB ADDED')
         console.log(node.profile.workflows)
-        expect(node.profile.workflows[workflow].jobs).to.have.lengthOf(1)
+        expect(node.profile.workflows[workflow].jobs).to.have.lengthOf(1)*/
 
     }).timeout(30000)
 })

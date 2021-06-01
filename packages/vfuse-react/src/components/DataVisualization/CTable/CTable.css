@@ -1,0 +1,31 @@
+/* antd */
+
+.ant-table-small .ant-table-column-sorters {
+    padding: 0 !important;
+}
+
+/* custom */
+
+.ant-table-row{
+    cursor: pointer;
+}
+
+.ant-table-custom {
+    height: 100%;
+}
+
+.ant-table-custom .button-add {
+    margin-bottom: 16px;
+}
+
+.ant-table-custom .ant-table-body {
+    overflow: auto !important;
+    max-height: 100%!important;
+}
+
+.clickRowStyl {
+    /*background-color: #0b4b75a6;
+    color: #FFFFFF;*/
+}
+
+

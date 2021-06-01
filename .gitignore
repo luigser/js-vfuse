@@ -1,3 +1,5 @@
 /packages/vfuse-core/package-lock.json
 /packages/vfuse-core/node_modules
+/packages/vfuse-react/package-lock.json
+/packages/vfuse-react/node_modules
 package-lock.json

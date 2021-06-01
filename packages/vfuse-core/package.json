@@ -36,7 +36,8 @@
     "libp2p-webrtc-direct": "^0.6.0",
     "libp2p-webrtc-star": "^0.22.3",
     "libp2p-websockets": "^0.15.7",
-    "peer-id": "^0.14.8"
+    "peer-id": "^0.14.8",
+    "uint8arrays": "^2.1.5"
   },
   "eslintConfig": {
     "rules": {
