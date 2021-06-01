@@ -29,13 +29,7 @@ print(c)`
   useEffect(() => {
       const init = async () => {
           const options = {
-              profileId : "QmeE1i8ft3ARk9KssYqeXKRTCAckUfB3kF3WijACaWxFLs",
-              /*peerId : "QmRHLmg8VaJTsRAzM98fYrw5RKcf4hQoJpY9jrF2YZVFuS",
-              identity : {
-                  PeerID: 'QmRHLmg8VaJTsRAzM98fYrw5RKcf4hQoJpY9jrF2YZVFuS',
-                  publicKey: 'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCYBH7eems357Oo2edlwWYTnSOBZgyD/JhCgOWizO+bFP2PMZr98ZYkGOjhACi/3n7LoPf6sJxYBsYeAijR2TGhCkMHEDeMaxfkIUxGqTei3eIsi6F2pnGKZZBoy/u/mldjZehwwXLbC+YwZXW/OdZBKU5IvIkN8QvotbSWUoysw +DGsrpgvmhM2ES8FLPPH2SJGznE7lm6ng8xkWHjg303ZQiXaJCKhRdC2oF1rStV+1b/aeHSoOZfLymHGDx44bgMXBOtgbHosIUWXY6Et63d4IJNjvZ7/+I/HuIINRW1r6e/qlZdaqRKJExS8rqZqrEPNlVDwppCCU1tdcO6LMhLAgMBAAE=',
-
-              },*/
+              profileId : "QmW6N57S6Nvna4vyLjMT4N6E7JSuzg7xaKXESvB57GniZh",
               worker : PythonWorker.getWebWorker(),
               discoveryCallback : () => {},
               connectionCallback: () => {},
@@ -50,12 +44,10 @@ print(c)`
           console.log('VFuse NODE')
           console.log({node})
 
-          setVFuseNode(node)
-
           /*const workflow = await node.createWorkflow();
           console.log('WORKFLOW CREATION')
-          console.log(node.profile.workflows)
-
+          console.log(node.profile.workflows)*/
+          let workflow = 1
           await node.addJob(
               workflow,
               `import numpy as np 
@@ -67,8 +59,19 @@ print(c)`,
               []
           )
 
-          console.log('JOB ADDED')
-          console.log(node.profile.workflows)*/
+          await node.addJob(
+              workflow,
+              `import numpy as np 
+a = [[12, 0], [0, 2]]
+b = [[4, 11], [2, 22]]
+c = np.dot(a, b)
+print(c)`,
+              [],
+              []
+          )
+
+          console.log('JOBS ADDED')
+          console.log(node.profile.workflows)
       }
 
       init();

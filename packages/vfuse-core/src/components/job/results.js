@@ -17,7 +17,7 @@ class Results{
     }
 
     get(jobId){
-        this.results.get
+        this.results.get(jobId)
     }
 
 

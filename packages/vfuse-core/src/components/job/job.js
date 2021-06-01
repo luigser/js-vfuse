@@ -1,6 +1,5 @@
 'use strict'
-
-const Constants = require("./constants");
+const Constants = require("../constants");
 
 class Job{
     //decomment in build
@@ -17,7 +16,7 @@ class Job{
         this.code = code
         this.data = data
         this.dependencies = dependencies
-        this.result = null
+        this.results = null
     }
 }
 

@@ -4,7 +4,7 @@ const log = require('debug')('vfuse:workflowManager')
 const Runtime = require('./runtime')
 const Workflow = require('./workflow')
 const Job = require('./job')
-const Constants = require('./constants')
+const Constants = require('../constants')
 /*
 WorkflowManager is responsible for job management and execution
  */
@@ -27,6 +27,25 @@ class WorkflowManager{
     async start(){
         await this.runtime.init()
         await this.runtime.load()
+
+        this.net.registerTopicListener(this.topicListener)
+        this.publishJobs()
+    }
+
+    topicListener(data){
+        console.log(data)
+    }
+
+    publishJobs(){
+        setTimeout(async function(){
+            let jobsToPublish = []
+            for (let w in this.profile.workflows) {
+                for (let j in this.profile.workflows[w].jobs) {
+                    jobsToPublish.push(this.profile.workflows[w].jobs[j])
+                }
+            }
+            await this.net.send(jobsToPublish)
+        }.bind(this), 5000)
     }
 
     getWorkflows(){
@@ -44,6 +63,10 @@ class WorkflowManager{
             this.jobsQueue.splice(index, 1);
         }
     }*/
+
+    async updateResults(workflowId, JobId, results){
+
+    }
 
     async runJob(job){
         try {
@@ -68,7 +91,6 @@ class WorkflowManager{
             workflow.status = Constants.WORKFLOW_STATUS.IDLE//Workflow.STATUS.IDLE
             log("Got error during workflow execution: %o", e)
         }
-
     }
 
     async runAllWokflows(){

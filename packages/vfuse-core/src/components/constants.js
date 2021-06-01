@@ -9,6 +9,9 @@ const Constants = {
         IDLE : 0,
         RUNNING : 1,
         COMPLETED : 2
+    },
+    TOPICS: {
+        VFUSE_PUBLISH_CHANNEL : "vfuse_publish_channel"
     }
 }
 

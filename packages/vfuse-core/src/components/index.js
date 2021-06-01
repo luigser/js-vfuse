@@ -44,6 +44,7 @@ class VFuse {
     static async create (options = {}) {
         const vfuse = new VFuse(options)
         await vfuse.start()
+        await vfuse.net.send("VFuse node is ready")
         return vfuse
     }
 }

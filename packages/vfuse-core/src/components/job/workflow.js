@@ -7,7 +7,7 @@ Here some consideration
   [[j1], [j2, j3]] => j2,j3 depend on j1 and they cannot be execute unitl j1 ends up
 */
 
-const Constants = require("./constants");
+const Constants = require("../constants");
 
 class Workflow{
     //decomment in build

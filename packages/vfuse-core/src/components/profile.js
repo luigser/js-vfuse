@@ -16,7 +16,7 @@ class Profile {
 
     async get() {
         try {
-            let decoded_profile = await this.net.get(this.id)
+            let decoded_profile = await this.net.get(this.id , "/profile.json")
             if(decoded_profile){
                 let p = JSON.parse(decoded_profile)
                 this.workflows = p.workflows
@@ -35,10 +35,11 @@ class Profile {
                 rewards: []
             }
             let profile = {
-                path: 'profile.json',
+                path: '/tmp/profile.json',
                 content : JSON.stringify(new_profile)
             }
-            let published_profile = await this.net.create(profile)
+
+            let published_profile = await this.net.update(profile)
             if(published_profile){
                 this.id = published_profile.name
                 console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', published_profile.name)
@@ -52,15 +53,20 @@ class Profile {
 
     async createWorkflow(workflow){
         try {
-            workflow.id = this.workflows.length
-            this.workflows.push(workflow)
             //todo define strategy for rewarding users
             //this.rewards.push(rewards)
+            workflow.id = this.workflows.length
+            this.workflows.push(workflow)
             let new_profile = {
                 workflows: this.workflows,
                 rewards: this.rewards
             }
-            await this.net.update(new_profile)
+            let profile = {
+                path: '/tmp/profile.json',
+                content : JSON.stringify(new_profile)
+            }
+
+            await this.net.update(profile)
             console.log('Workflow successfully added')
         }catch (e){
             console.log('Got some error during the profile cretion: %O', e)
@@ -70,12 +76,26 @@ class Profile {
     async addJob(workflowId, job){
         try {
             job.id = this.workflows[workflowId].jobs.length
+            let results = {
+                path: "/tmp/" + workflowId + '-' + job.id + '.json',
+                content : JSON.stringify({
+                    metrics : [],
+                    results : []
+                })
+            }
+            job.results = await this.net.update(results)
             this.workflows[workflowId].jobs.push(job)
+
             let new_profile = {
                 workflows: this.workflows,
                 rewards: this.rewards
             }
-           await this.net.update(new_profile)
+
+            let profile = {
+                path: '/tmp/profile.json',
+                content : JSON.stringify(new_profile)
+            }
+           await this.net.update(profile)
            console.log('Job successfully added')
         }catch (e){
             console.log('Got some error during adding a job: %O', e)
