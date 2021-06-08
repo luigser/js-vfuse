@@ -25,6 +25,10 @@ class VFuse {
        return await this.workflowManager.createWorkflow()
     }
 
+    getWorkflows(){
+        return this.profile.workflows
+    }
+
     async runAllWokflows(){
         await this.workflowManager.runAllWokflows()
     }

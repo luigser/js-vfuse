@@ -17,12 +17,13 @@ class Workflow{
         COMPLETED : 2
     }*/
 
-    constructor(results_dir, jobs_dir) {
+    constructor(id, results, jobs) {
         /*this.id = null
         this.status = Constants.WORKFLOW_STATUS.IDLE//Workflow.STATUS.IDLE
         this.jobs = []*/
-        this.results_dir = results_dir
-        this.jobs_dir = jobs_dir
+        this.id = id.cid.string
+        this.results = results.cid.string
+        this.jobs = jobs.cid.string
     }
 
     addJob(job){

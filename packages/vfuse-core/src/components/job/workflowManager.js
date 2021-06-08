@@ -54,9 +54,6 @@ class WorkflowManager{
     }
 
     addWorkflow(workflow){
-        let workflow_dir = this.net.makeDir('/workflows/1')
-        console.log({workflow_dir})
-
 
     }
 
@@ -113,19 +110,29 @@ class WorkflowManager{
            /* let workflow = new Workflow()
             await this.profile.createWorkflow(workflow, [])
             return workflow.id*/
-            let dir = '1'
+
+            //todo find a strategy to get a new workflow id
+            let dir = this.profile.workflows.length
             await this.net.makeDir('/workflows/' + dir, { parents : true, mode: "655" })
             await this.net.makeDir('/workflows/' + dir + '/results', { parents : true, mode: "655" })
             await this.net.makeDir('/workflows/' + dir + '/jobs', { parents : true, mode: "655" })
             let workflow_dir = await this.net.stat('/workflows/' + dir)
-            let results_dir = await this.net.stat('/workflows/' + dir)
-            let jobs_dir = await this.net.stat('/workflows/' + dir)
+            let results_dir = await this.net.stat('/workflows/' + dir + '/results')
+            let jobs_dir = await this.net.stat('/workflows/' + dir + '/jobs')
+            let workflow = new Workflow(workflow_dir, results_dir, jobs_dir)
+            await this.profile.addWorkflow(workflow)
             console.log({workflow_dir})
             console.log({results_dir})
             console.log({jobs_dir})
+            return workflow.id
         }catch (e){
             log('Got some error during the workflow creation: %O', e)
         }
+    }
+
+    async getJobs(workflow){
+        let jobs = await this.net.ls(workflow)
+        console.log(jobs)
     }
 
     async addJob(workflow, code, data, dependencies){
@@ -136,10 +143,18 @@ class WorkflowManager{
                 data,
                 dependencies
             )
-            await this.profile.addJob(workflow, job)
-            return workflow.id
+
+            let jobs = await this.net.list('/ipfs/' + workflow.id + '/jobs')
+            let job_file = await this.net.writeFile('/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
+            /*let job_file = await this.net.add({
+                path: '/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json',
+                content: JSON.stringify(job)
+            })*/
+            console.log({job_file})
+            //await this.profile.addJob(workflow, job)
+            console.log('Job successfully added to workflow')
         }catch (e){
-            log('Got some error during the workflow creation: %O', e)
+            console.log('Got some error during the workflow creation: %O', e)
         }
     }
 }

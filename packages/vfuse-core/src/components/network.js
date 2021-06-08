@@ -110,6 +110,8 @@ class Network {
         })
         this.ipfs = node
         this.libp2p= node.libp2p
+        let pid = await this.ipfs.id()
+        console.log("IPFS Peer ID:", pid)
 
         await this.initTopicsChannel()
     }
@@ -133,6 +135,25 @@ class Network {
         }
     }
 
+    async add(data){
+        try {
+            //todo delete previous version
+            let remote_data = await this.ipfs.add(data)
+            return remote_data
+        }catch (e){
+            console.log('Got some error during the data update: %O', e)
+            return null
+        }
+    }
+
+    async ls(cid){
+        let files = []
+        for await (const file of this.ipfs.ls(cid)) {
+            files.push(file.path)
+        }
+        return files
+    }
+
     async makeDir(dir, options){
         return await this.ipfs.files.mkdir(dir, options)
     }
@@ -141,14 +162,26 @@ class Network {
         return await this.ipfs.files.touch(file)
     }
 
+    async writeFile(path, content, options){
+        return await this.ipfs.files.write(path, content, options)
+    }
+
     async stat(path){
         return await this.ipfs.files.stat(path)
+    }
+
+    async list(path){
+        let jobs = []
+        for await (const file of this.ipfs.files.ls(path)) {
+            jobs.push(file.name)
+        }
+        return jobs
     }
 
     async get(cid, path) {
         try {
             let ipfs_data_addr = "", content = [], decodedData = null
-            for await (const name of this.ipfs.name.resolve('/ipns/' + cid)) {
+            for await (const name of this.ipfs.name.resolve(/*'/ipns/' +*/ cid)) {
                 ipfs_data_addr = name
             }
 

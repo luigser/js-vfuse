@@ -21,7 +21,8 @@ class Profile {
                 let p = JSON.parse(decoded_profile)
                 this.workflows = p.workflows
                 this.rewards = p.rewards
-                log('Profile loaded : %O', p)
+                console.log('Profile loaded : %O', p)
+                console.log(this.workflows[0].id)
             }
         }catch(e){
             console.log('Got some error during profile retrieving: %O', e)
@@ -51,11 +52,10 @@ class Profile {
         }
     }
 
-    async createWorkflow(workflow){
+    async addWorkflow(workflow){
         try {
             //todo define strategy for rewarding users
             //this.rewards.push(rewards)
-            workflow.id = this.workflows.length
             this.workflows.push(workflow)
             let new_profile = {
                 workflows: this.workflows,
@@ -67,7 +67,7 @@ class Profile {
             }
 
             await this.net.update(profile)
-            console.log('Workflow successfully added')
+            console.log('Workflow successfully added in the profile')
         }catch (e){
             console.log('Got some error during the profile cretion: %O', e)
         }
