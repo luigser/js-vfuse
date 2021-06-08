@@ -145,7 +145,8 @@ class WorkflowManager{
             )
 
             let jobs = await this.net.list('/ipfs/' + workflow.id + '/jobs')
-            let job_file = await this.net.writeFile('/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
+            //let job_file = await this.net.writeFile('/ipfs/' + workflow.idid + '/jobs/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
+            let job_file = await this.net.writeFile('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
             /*let job_file = await this.net.add({
                 path: '/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json',
                 content: JSON.stringify(job)
