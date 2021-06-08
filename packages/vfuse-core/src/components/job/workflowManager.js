@@ -54,8 +54,10 @@ class WorkflowManager{
     }
 
     addWorkflow(workflow){
-        //add workflow on IPFS
-        this.workflowsQueue.push(workflow)
+        let workflow_dir = this.net.makeDir('/workflows/1')
+        console.log({workflow_dir})
+
+
     }
 
    /* removeJob(job){
@@ -108,9 +110,19 @@ class WorkflowManager{
 
     async createWorkflow(){
         try{
-            let workflow = new Workflow()
+           /* let workflow = new Workflow()
             await this.profile.createWorkflow(workflow, [])
-            return workflow.id
+            return workflow.id*/
+            let dir = '1'
+            await this.net.makeDir('/workflows/' + dir, { parents : true, mode: "655" })
+            await this.net.makeDir('/workflows/' + dir + '/results', { parents : true, mode: "655" })
+            await this.net.makeDir('/workflows/' + dir + '/jobs', { parents : true, mode: "655" })
+            let workflow_dir = await this.net.stat('/workflows/' + dir)
+            let results_dir = await this.net.stat('/workflows/' + dir)
+            let jobs_dir = await this.net.stat('/workflows/' + dir)
+            console.log({workflow_dir})
+            console.log({results_dir})
+            console.log({jobs_dir})
         }catch (e){
             log('Got some error during the workflow creation: %O', e)
         }

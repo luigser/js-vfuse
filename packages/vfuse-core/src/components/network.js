@@ -133,12 +133,16 @@ class Network {
         }
     }
 
-    async makeDir(dir){
-        await this.ipfs.files.mkdir(dir)
+    async makeDir(dir, options){
+        return await this.ipfs.files.mkdir(dir, options)
     }
 
     async touchFile(file){
-        await this.ipfs.files.touch(file)
+        return await this.ipfs.files.touch(file)
+    }
+
+    async stat(path){
+        return await this.ipfs.files.stat(path)
     }
 
     async get(cid, path) {

@@ -71,7 +71,7 @@ print(c)`
 
     const start = async() => {
           const options = {
-              profileId : profileId,//"QmW6N57S6Nvna4vyLjMT4N6E7JSuzg7xaKXESvB57GniZh",//QmeE1i8ft3ARk9KssYqeXKRTCAckUfB3kF3WijACaWxFLs
+              profileId : profileId,//QmcsaWcFy7mbPSbvdLATi4m44rS46aSt1yQf8n1Gty5Qhi,"QmW6N57S6Nvna4vyLjMT4N6E7JSuzg7xaKXESvB57GniZh",//QmeE1i8ft3ARk9KssYqeXKRTCAckUfB3kF3WijACaWxFLs
               worker : PythonWorker.getWebWorker(),
               discoveryCallback : () => {},
               connectionCallback: () => {},
@@ -85,6 +85,7 @@ print(c)`
 
           console.log('VFuse NODE')
           console.log({node})
+          await node.createWorkflow()
 
        /* const workflow = await node.createWorkflow();
         console.log('WORKFLOW CREATION')
