@@ -15,8 +15,8 @@
     "react-scripts": "4.0.3",
     "react-simple-code-editor": "^0.11.0",
     "web-vitals": "^1.1.1",
-    "vfuse-core": "file:C:\\Users\\Luigi\\WebstormProjects\\js-vfuse\\packages\\vfuse-core",
-    "vfuse-python-worker": "file:C:\\Users\\Luigi\\WebstormProjects\\js-vfuse\\packages\\vfuse-python-worker"
+    "vfuse-core": "file:../../packages/vfuse-core",
+    "vfuse-python-worker": "file:../../packages/vfuse-python-worker"
   },
   "scripts": {
     "start": "react-scripts start",

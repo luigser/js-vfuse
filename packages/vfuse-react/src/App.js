@@ -70,8 +70,12 @@ print(c)`
     }
 
     const start = async() => {
+      /*
+      QmSTnyfp5mpd49hxkvS5RAKgRCwvr3zcZBZri8X8aWtiMF - AllinOne
+      Qmf21v2gUok1wuNn2apGnkcSQaRrQdt1xe79XyNFvttm6q - AllInOne
+      */
           const options = {
-              profileId : profileId,//QmeE1i8ft3ARk9KssYqeXKRTCAckUfB3kF3WijACaWxFLs,QmcsaWcFy7mbPSbvdLATi4m44rS46aSt1yQf8n1Gty5Qhi,"QmW6N57S6Nvna4vyLjMT4N6E7JSuzg7xaKXESvB57GniZh",//QmeE1i8ft3ARk9KssYqeXKRTCAckUfB3kF3WijACaWxFLs
+              profileId : profileId,
               worker : PythonWorker.getWebWorker(),
               discoveryCallback : () => {},
               connectionCallback: () => {},
@@ -87,7 +91,7 @@ print(c)`
           console.log({node})
           //await node.createWorkflow()
           await node.addJob(
-            node.getWorkflows()[3],
+            node.getWorkflows()[0],
             `import numpy as np 
 a = [[2, 0], [0, 2]]
 b = [[4, 1], [2, 2]]
@@ -96,34 +100,6 @@ print(c)`,
             [],
             []
         )
-
-       /* const workflow = await node.createWorkflow();
-        console.log('WORKFLOW CREATION')
-        console.log(node.profile.workflows)
-        await node.addJob(
-            workflow,
-            `import numpy as np 
-a = [[2, 0], [0, 2]]
-b = [[4, 1], [2, 2]]
-c = np.dot(a, b)
-print(c)`,
-            [],
-            []
-        )
-
-        await node.addJob(
-            workflow,
-            `import numpy as np 
-a = [[12, 0], [0, 2]]
-b = [[4, 11], [2, 22]]
-c = np.dot(a, b)
-print(c)`,
-            [],
-            []
-        )
-
-        console.log('JOBS ADDED')
-        console.log(node.profile.workflows)*/
     }
 
     const onProfileIdChange = (e) =>{

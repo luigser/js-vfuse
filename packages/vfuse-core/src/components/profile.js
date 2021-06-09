@@ -22,7 +22,7 @@ class Profile {
                 this.workflows = p.workflows
                 this.rewards = p.rewards
                 console.log('Profile loaded : %O', p)
-                console.log(this.workflows[0].id)
+                //console.log(this.workflows[0].id)
             }
         }catch(e){
             console.log('Got some error during profile retrieving: %O', e)

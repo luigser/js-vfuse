@@ -33,7 +33,7 @@ class WorkflowManager{
     }
 
     topicListener(data){
-        console.log(data)
+        //console.log(data)
     }
 
     publishJobs(){
@@ -112,19 +112,19 @@ class WorkflowManager{
             return workflow.id*/
 
             //todo find a strategy to get a new workflow id
-            let dir = this.profile.workflows.length
-            await this.net.makeDir('/workflows/' + dir, { parents : true, mode: "655" })
-            await this.net.makeDir('/workflows/' + dir + '/results', { parents : true, mode: "655" })
-            await this.net.makeDir('/workflows/' + dir + '/jobs', { parents : true, mode: "655" })
-            let workflow_dir = await this.net.stat('/workflows/' + dir)
-            let results_dir = await this.net.stat('/workflows/' + dir + '/results')
-            let jobs_dir = await this.net.stat('/workflows/' + dir + '/jobs')
+            let workflow_index = this.profile.workflows.length
+            await this.net.makeDir('/workflows/' + workflow_index, { parents : true, mode: "777" })
+            await this.net.makeDir('/workflows/' + workflow_index + '/results', { parents : true, mode: "777" })
+            await this.net.makeDir('/workflows/' + workflow_index + '/jobs', { parents : true, mode: "777" })
+            let workflow_dir = await this.net.stat('/workflows/' + workflow_index)
+            let results_dir = await this.net.stat('/workflows/' + workflow_index + '/results')
+            let jobs_dir = await this.net.stat('/workflows/' + workflow_index + '/jobs')
             let workflow = new Workflow(workflow_dir, results_dir, jobs_dir)
             await this.profile.addWorkflow(workflow)
             console.log({workflow_dir})
             console.log({results_dir})
             console.log({jobs_dir})
-            return workflow.id
+            return workflow_index
         }catch (e){
             log('Got some error during the workflow creation: %O', e)
         }
@@ -144,14 +144,24 @@ class WorkflowManager{
                 dependencies
             )
 
-            let jobs = await this.net.list('/ipfs/' + workflow.id + '/jobs')
-            //let job_file = await this.net.writeFile('/ipfs/' + workflow.idid + '/jobs/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
-            let job_file = await this.net.writeFile('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
-            /*let job_file = await this.net.add({
-                path: '/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json',
+            //let jobs = await this.net.list('/ipfs/' + workflow.id + '/jobs')
+            //let jobs = await this.net.list('/workflows/' + workflow + '/jobs')
+            //let job_file = await this.net.writeFile('/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
+            //let job_file = await this.net.writeFile('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json', new TextEncoder().encode(JSON.stringify(job)), {create : true, mode: '655'})
+            //let job_stat = await this.net.stat('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json')
+
+            let job_file = await this.net.add({
+                //path: '/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json',
                 content: JSON.stringify(job)
-            })*/
+            });
             console.log({job_file})
+
+            await this.net.copy('/ipfs/' + job_file.cid.string, '/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz' )
+            //await this.net.writeFile('/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz/0.json', JSON.stringify(job), {create : true, mode: '655'})
+            let stat = await this.net.stat('/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz')
+
+            console.log(stat)
+
             //await this.profile.addJob(workflow, job)
             console.log('Job successfully added to workflow')
         }catch (e){

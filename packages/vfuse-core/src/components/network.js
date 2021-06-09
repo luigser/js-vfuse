@@ -103,6 +103,7 @@ class Network {
             }
         )*/
         let node = await IPFS.create({
+            repo: 'Qmf21v2gUok1wuNn2apGnkcSQaRrQdt1xe79XyNFvttm6q',//this.profileId ? this.profileId : String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
             Bootstrap: this.bootstrapNodes,
             Pubsub : {
                 Enabled : true
@@ -154,12 +155,20 @@ class Network {
         return files
     }
 
+    async chmod(path, mode, options){
+        await this.ipfs.files.chmod(path, mode, options)
+    }
+
     async makeDir(dir, options){
         return await this.ipfs.files.mkdir(dir, options)
     }
 
     async touchFile(file){
         return await this.ipfs.files.touch(file)
+    }
+
+    async copy(source, destination){
+        await this.ipfs.files.cp(source, destination)
     }
 
     async writeFile(path, content, options){
