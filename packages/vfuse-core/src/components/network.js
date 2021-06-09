@@ -19,7 +19,6 @@ class Network {
      * @param {Options} config.options
      */
     constructor(options) {
-
         this.ipfs = null
         this.libp2p = null
         this.peerId= options.peerId
@@ -37,6 +36,7 @@ class Network {
         ]
         this.identity = options.identity
         this.topicListeners = []
+        this.repo = options.repo ? options.repo : 'vfuse-node-repo' //+ String(Math.random() + Date.now())
     }
 
     registerTopicListener(callback){
@@ -103,7 +103,10 @@ class Network {
             }
         )*/
         let node = await IPFS.create({
-            repo: 'Qmf21v2gUok1wuNn2apGnkcSQaRrQdt1xe79XyNFvttm6q',//this.profileId ? this.profileId : String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
+            repo: this.repo,
+            Identity:{
+                PeerID: this.profileId
+            },
             Bootstrap: this.bootstrapNodes,
             Pubsub : {
                 Enabled : true

@@ -150,15 +150,15 @@ class WorkflowManager{
             //let job_file = await this.net.writeFile('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json', new TextEncoder().encode(JSON.stringify(job)), {create : true, mode: '655'})
             //let job_stat = await this.net.stat('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json')
 
-            let job_file = await this.net.add({
+            /*let job_file = await this.net.add({
                 //path: '/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json',
                 content: JSON.stringify(job)
             });
             console.log({job_file})
+            await this.net.copy('/ipfs/' + job_file.cid.string, '/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz' )*/
 
-            await this.net.copy('/ipfs/' + job_file.cid.string, '/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz' )
-            //await this.net.writeFile('/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz/0.json', JSON.stringify(job), {create : true, mode: '655'})
-            let stat = await this.net.stat('/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz')
+            await this.net.writeFile('/ipfs/' + workflow.id + '/jobs/0.json', JSON.stringify(job), {create : true, mode: '655'})
+            let stat = await this.net.stat('/ipfs/' + workflow.id + '/jobs')
 
             console.log(stat)
 

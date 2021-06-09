@@ -4,9 +4,9 @@ const TCP          = require('libp2p-tcp')
 const { NOISE }    = require('libp2p-noise')
 const MPLEX        = require('libp2p-mplex')
 const process      = require('process')
-const multiaddr    = require('multiaddr')
+//const multiaddr    = require('multiaddr')
 const pipe         = require('it-pipe')
-const concat       = require('it-concat')
+//const concat       = require('it-concat')
 const WebSockets   = require('libp2p-websockets')
 const MulticastDNS = require('libp2p-mdns')
 const PeerId       = require('peer-id')
@@ -14,8 +14,9 @@ const IPFSRepo     = require('ipfs-repo')
 const DatastoreFs  = require("datastore-fs")
 const WebRTCDirect = require('libp2p-webrtc-direct')
 const Bootstrap    = require('libp2p-bootstrap')
+//const PythonWorker = require('vfuse-python-worker')
 
-class VFuseGatewayNode
+class VFuseGateway
 {
     constructor(options) {
         this.name = options.name;
@@ -42,35 +43,35 @@ class VFuseGatewayNode
                 listen: ['/ip4/0.0.0.0/tcp/0', '/ip4/127.0.0.1/tcp/9090/http/p2p-webrtc-direct'/*'/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star', '/ip4/127.0.0.1/tcp/10000/ws'*/]
             },
             modules: {
-                transport: [TCP, WebRTCDirect],
+                transport: [TCP, WebSockets],
                 connEncryption: [NOISE],
                 streamMuxer: [MPLEX],
                 peerDiscovery: [ MulticastDNS ]
-                },
-                config: {
-                    peerDiscovery: {
-                        autoDial: true,
-                        [Bootstrap.tag]: {
-                            enabled: false,
-                        },
-                        mdns: {
-                            interval: 20e3,
-                            enabled: true
-                        }
+            },
+            config: {
+                peerDiscovery: {
+                    autoDial: true,
+                    [Bootstrap.tag]: {
+                        enabled: false,
                     },
-                    relay: {
+                    mdns: {
+                        interval: 20e3,
+                        enabled: true
+                    }
+                },
+                relay: {
+                    enabled: true,
+                    hop: {
                         enabled: true,
-                        hop: {
-                            enabled: true,
-                            active: true
-                        }
+                        active: true
                     }
                 }
-         })
+            }
+        })
     }
 
     async create(){
-        console.log("Node creation ...")
+        console.log("Gateway Node creation ...")
         const customRepositoryOptions = {
             storageBackends: {
                 root: DatastoreFs, // version and config data will be saved here
@@ -104,8 +105,6 @@ class VFuseGatewayNode
             //lock: fsLock
         }
 
-        /*const peerId = await PeerId.create();
-        console.log("PeerId : " + peerId._idB58String)*/
         this.node = await IPFS.create({
             config : {
                 Addresses: {
@@ -155,22 +154,27 @@ class VFuseGatewayNode
             libp2p: this.libp2pBundle
         });
 
-        await this.start()
+        await this.initProtocols()
+
         //GATEWAY
-        console.log("Strating gateway")
+       /* console.log("Strating gateway")
         const Gateway = require('ipfs-http-gateway');
         const gateway = new Gateway(this.node);
-        gateway.start();
+        gateway.start();*/
 
     }
 
-    async start()
+    async initProtocols()
     {
+        //await this.node.libp2p.start()
+        //this.printAddrs()
         //PROTOCOLS
-        this.node.libp2p.handle(['/vfuse/channel/0.0.1/', '/vfuse/channel/0.0.2' ], async ({ protocol, stream }) => {
+        this.node.libp2p.handle(['/message/0.0.1', '/message/0.0.2' ], async ({ protocol, stream }) => {
 
             if (protocol.indexOf('0.0.2')) {
-                console.log('Received messages from 0.0.2 protocol')
+                // handle backwards compatibility
+                //this is an example
+                console.log('Received messages from old protocol')
             }
 
             pipe(
@@ -185,20 +189,12 @@ class VFuseGatewayNode
         })
     }
 
-    discover(){
-        this.node.libp2p.on('peer:discovery', (peer) => {
-            console.log('Discovered:', peer/*peer.id.toB58String()*/)
-            console.log(this.node.peerStore.addressBook.data)
-            this.sendMessage(peer);
-        })
-    }
-
     async stop(){
         await this.node.stop()
         process.exit(0)
     }
 
-    /*async sendMessage(node){
+   /* async sendMessage(node){
         let id;
         try {
             if (node instanceof VFuseNode)
@@ -213,13 +209,13 @@ class VFuseGatewayNode
         }catch(e){
             console.log(e);
         }
-    }
+    }*/
 
     printAddrs()
     {
         console.log(`Node ${this.node.libp2p.peerId.toB58String()} started`)
         this.node.libp2p.multiaddrs.forEach((ma) => console.log(`${ma.toString()}/p2p/${this.node.libp2p.peerId.toB58String()}`))
-    }*/
+    }
 }
 
-module.exports = VFuseGatewayNode;
+module.exports = VFuseGateway;
