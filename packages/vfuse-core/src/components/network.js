@@ -116,6 +116,8 @@ class Network {
         this.libp2p= node.libp2p
         let pid = await this.ipfs.id()
         console.log("IPFS Peer ID:", pid)
+        let key = await this.ipfs.key.list()
+        console.log({key})
 
         await this.initTopicsChannel()
     }
@@ -211,6 +213,26 @@ class Network {
             console.log('Got some error during data retrieving: %O', e)
             return null
         }
+    }
+
+    async getRaw(path){
+        try {
+            let content = [], decodedData = null
+            for await (const file of this.ipfs.get(path)) {
+                if (!file.content) continue;
+                for await (const chunk of file.content) {
+                    content.push(chunk)
+                }
+            }
+            if (content.length > 0) {
+                decodedData = toString(content[0])
+            }
+            return decodedData
+        } catch (e) {
+            console.log('Got some error during data retrieving: %O', e)
+            return null
+        }
+
     }
 
 

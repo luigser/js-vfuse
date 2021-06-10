@@ -71,6 +71,7 @@ print(c)`
 
     const start = async() => {
       /*
+      Qmac1PF35LrgX1TLMoHMFHHFWns57pDHjgkaCG2S9HG1wS - Surface
       QmTPeYtDJf61yRd6so153qSzvkPiD49af7367Wiv8QzQxS - AllinOne
       QmSTnyfp5mpd49hxkvS5RAKgRCwvr3zcZBZri8X8aWtiMF - AllinOne
       Qmf21v2gUok1wuNn2apGnkcSQaRrQdt1xe79XyNFvttm6q - AllInOne
@@ -90,6 +91,9 @@ print(c)`
 
           console.log('VFuse NODE')
           console.log({node})
+
+        //let job = await node.net.getRaw('/ipfs/QmVzehDk8oWb7EYC1NBkiRfHTzzJGGburrtjeKtNDPsZ7A/jobs/0.json')
+        //console.log({job})
           //await node.createWorkflow()
           await node.addJob(
             node.getWorkflows()[0],

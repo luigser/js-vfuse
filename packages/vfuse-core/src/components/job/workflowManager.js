@@ -116,6 +116,7 @@ class WorkflowManager{
             await this.net.makeDir('/workflows/' + workflow_index, { parents : true, mode: "777" })
             await this.net.makeDir('/workflows/' + workflow_index + '/results', { parents : true, mode: "777" })
             await this.net.makeDir('/workflows/' + workflow_index + '/jobs', { parents : true, mode: "777" })
+
             let workflow_dir = await this.net.stat('/workflows/' + workflow_index)
             let results_dir = await this.net.stat('/workflows/' + workflow_index + '/results')
             let jobs_dir = await this.net.stat('/workflows/' + workflow_index + '/jobs')
@@ -144,7 +145,8 @@ class WorkflowManager{
                 dependencies
             )
 
-            //let jobs = await this.net.list('/ipfs/' + workflow.id + '/jobs')
+            let jobs = await this.net.stat('/workflows/0')
+            console.log({jobs})
             //let jobs = await this.net.list('/workflows/' + workflow + '/jobs')
             //let job_file = await this.net.writeFile('/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
             //let job_file = await this.net.writeFile('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json', new TextEncoder().encode(JSON.stringify(job)), {create : true, mode: '655'})
@@ -157,10 +159,10 @@ class WorkflowManager{
             console.log({job_file})
             await this.net.copy('/ipfs/' + job_file.cid.string, '/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz' )*/
 
-            await this.net.writeFile('/ipfs/' + workflow.id + '/jobs/0.json', JSON.stringify(job), {create : true, mode: '655'})
-            let stat = await this.net.stat('/ipfs/' + workflow.id + '/jobs')
+            /*await this.net.writeFile('/ipfs/' + workflow.jobs + '/job0', JSON.stringify(job), {create : true, mode: '655'})
+            let stat = await this.net.stat('/ipfs/' + workflow.jobs)
 
-            console.log(stat)
+            console.log(stat)*/
 
             //await this.profile.addJob(workflow, job)
             console.log('Job successfully added to workflow')
