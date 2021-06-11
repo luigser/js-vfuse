@@ -36,7 +36,8 @@ class Network {
         ]
         this.identity = options.identity
         this.topicListeners = []
-        this.repo = options.repo ? options.repo : 'vfuse-node-repo' //+ String(Math.random() + Date.now())
+        this.ipfsOptions = options.ipfs
+        this.libp2pOptions = options.libp2p
     }
 
     registerTopicListener(callback){
@@ -102,8 +103,9 @@ class Network {
                 }
             }
         )*/
-        let node = await IPFS.create({
-            repo: this.repo,
+
+        let opt = {
+            repo: this.ipfsOptions && this.ipfsOptions.repo ? this.ipfsOptions.repo : 'vfuse-node-repo',
             Identity:{
                 PeerID: this.profileId
             },
@@ -111,7 +113,12 @@ class Network {
             Pubsub : {
                 Enabled : true
             }
-        })
+        }
+
+        if(this.libp2pOptions)
+            opt.libp2p = this.libp2pOptions
+
+        let node = await IPFS.create(opt)
         this.ipfs = node
         this.libp2p= node.libp2p
         let pid = await this.ipfs.id()
@@ -137,6 +144,17 @@ class Network {
             console.log('Got some error during the data update: %O', e)
             return null
         }
+    }
+
+    async publish(cid){
+        try {
+            let published_cid = await this.ipfs.name.publish(cid)
+            return published_cid
+        }catch (e){
+            console.log('Got some error during the data update: %O', e)
+            return null
+        }
+
     }
 
     async add(data){

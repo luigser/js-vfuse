@@ -17,7 +17,7 @@ class WorkflowManager{
         try {
             this.net = network
             this.profile = profile
-            this.runtime = new Runtime(options.worker, options.packages)
+            this.runtime = options.worker ? new Runtime(options.worker, options.packages) : null
             this.workflowsQueue = []
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
@@ -25,8 +25,10 @@ class WorkflowManager{
     }
 
     async start(){
-        await this.runtime.init()
-        await this.runtime.load()
+        if(this.runtime) {
+            await this.runtime.init()
+            await this.runtime.load()
+        }
 
         this.net.registerTopicListener(this.topicListener)
         this.publishJobs()
@@ -116,14 +118,23 @@ class WorkflowManager{
             await this.net.makeDir('/workflows/' + workflow_index, { parents : true, mode: "777" })
             await this.net.makeDir('/workflows/' + workflow_index + '/results', { parents : true, mode: "777" })
             await this.net.makeDir('/workflows/' + workflow_index + '/jobs', { parents : true, mode: "777" })
+
             let workflow_dir = await this.net.stat('/workflows/' + workflow_index)
             let results_dir = await this.net.stat('/workflows/' + workflow_index + '/results')
             let jobs_dir = await this.net.stat('/workflows/' + workflow_index + '/jobs')
-            let workflow = new Workflow(workflow_dir, results_dir, jobs_dir)
-            await this.profile.addWorkflow(workflow)
-            console.log({workflow_dir})
-            console.log({results_dir})
-            console.log({jobs_dir})
+
+            let published_workflow = await this.net.publish(workflow_dir.cid.string)
+            let published_results = await this.net.publish(results_dir.cid.string)
+            let published_jobs = await this.net.publish(jobs_dir.cid.string)
+
+            if(published_workflow && published_results && published_jobs){
+                let workflow = new Workflow(published_workflow.name, published_results.name, published_jobs.name)
+                await this.profile.addWorkflow(workflow)
+                console.log({workflow_dir})
+                console.log({results_dir})
+                console.log({jobs_dir})
+            }
+
             return workflow_index
         }catch (e){
             log('Got some error during the workflow creation: %O', e)
@@ -144,11 +155,10 @@ class WorkflowManager{
                 dependencies
             )
 
-            //let jobs = await this.net.list('/ipfs/' + workflow.id + '/jobs')
-            //let jobs = await this.net.list('/workflows/' + workflow + '/jobs')
-            //let job_file = await this.net.writeFile('/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
-            //let job_file = await this.net.writeFile('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json', new TextEncoder().encode(JSON.stringify(job)), {create : true, mode: '655'})
-            //let job_stat = await this.net.stat('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json')
+            let jobs = await this.net.list('/workflows/' + workflow + '/jobs')
+            console.log({jobs})
+            await this.net.writeFile('/workflows/' + workflow + '/jobs/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
+            let job_stat = await this.net.stat('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json')
 
             /*let job_file = await this.net.add({
                 //path: '/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json',
@@ -156,11 +166,6 @@ class WorkflowManager{
             });
             console.log({job_file})
             await this.net.copy('/ipfs/' + job_file.cid.string, '/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz' )*/
-
-            await this.net.writeFile('/ipfs/' + workflow.id + '/jobs/0.json', JSON.stringify(job), {create : true, mode: '655'})
-            let stat = await this.net.stat('/ipfs/' + workflow.id + '/jobs')
-
-            console.log(stat)
 
             //await this.profile.addJob(workflow, job)
             console.log('Job successfully added to workflow')

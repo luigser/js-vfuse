@@ -21,9 +21,9 @@ class Workflow{
         /*this.id = null
         this.status = Constants.WORKFLOW_STATUS.IDLE//Workflow.STATUS.IDLE
         this.jobs = []*/
-        this.id = id.cid.string
-        this.results = results.cid.string
-        this.jobs = jobs.cid.string
+        this.id = id
+        this.results = results
+        this.jobs = jobs
     }
 
     addJob(job){

@@ -2,7 +2,7 @@
 /packages/vfuse-core/node_modules
 /packages/vfuse-react/package-lock.json
 /packages/vfuse-react/node_modules
-/packages/vfuse-nodejs/package-lock.json
-/packages/vfuse-nodejs/fs-repo
-/packages/vfuse-nodejs/node_modules
+/packages/vfuse-gateway/package-lock.json
+/packages/vfuse-gateway/fs-repo
+/packages/vfuse-gateway/node_modules
 package-lock.json

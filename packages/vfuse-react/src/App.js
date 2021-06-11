@@ -81,7 +81,7 @@ print(c)`
               discoveryCallback : () => {},
               connectionCallback: () => {},
               getMessageFromProtocolCallback : () => {},
-              bootstrapNodes : null,
+              bootstrapNodes : ['/ip4/127.0.0.1/tcp/4003/ws/p2p/QmU13jxZXrTmpgodotGGNMdCre2BKfmqPyHdHWGh7vmJ5e'],
               packages: []
           }
 
@@ -90,8 +90,8 @@ print(c)`
 
           console.log('VFuse NODE')
           console.log({node})
-          //await node.createWorkflow()
-          await node.addJob(
+          await node.createWorkflow()
+          /*await node.addJob(
             node.getWorkflows()[0],
             `import numpy as np 
 a = [[2, 0], [0, 2]]
@@ -100,7 +100,7 @@ c = np.dot(a, b)
 print(c)`,
             [],
             []
-        )
+        )*/
     }
 
     const onProfileIdChange = (e) =>{
