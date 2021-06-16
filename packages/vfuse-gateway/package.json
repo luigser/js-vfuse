@@ -1,0 +1,30 @@
+{
+  "name": "vfuse-gateway",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Luigi Serra",
+  "license": "MIT",
+  "dependencies": {
+    "datastore-fs": "^4.0.1",
+    "ipfs": "^0.55.3",
+    "ipfs-http-gateway": "^0.4.2",
+    "ipfs-repo": "^9.1.6",
+    "it-concat": "^2.0.0",
+    "it-pipe": "^1.1.0",
+    "libp2p": "^0.31.6",
+    "libp2p-bootstrap": "^0.12.3",
+    "libp2p-mdns": "^0.16.0",
+    "libp2p-tcp": "^0.15.4",
+    "libp2p-webrtc-direct": "^0.6.0",
+    "libp2p-websockets": "^0.15.8",
+    "multiaddr": "^9.0.1",
+    "peer-id": "^0.14.8",
+    "vfuse-python-worker": "file:../../packages/vfuse-python-worker",
+    "vfuse-core": "file:../../packages/vfuse-core"
+  },
+  "devDependencies": {}
+}
