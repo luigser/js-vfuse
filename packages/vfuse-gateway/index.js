@@ -16,8 +16,8 @@ print(c)`,
         [],
         []
     )*/
-   /* let stat = await node.node.net.stat('/workflows/1/jobs')
-    console.log({stat})*/
+    let stat = await node.node.net.stat('/workflows/1/jobs')
+    console.log({stat})
 }
 
 main()
