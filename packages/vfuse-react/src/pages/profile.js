@@ -3,6 +3,7 @@ import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, R
 import {Constants} from "../constants/constants";
 
 import {useVFuse} from "../hooks/useVFuse"
+import {gStore} from "../store";
 
 export default function ProfilePage(props){
 
@@ -17,6 +18,11 @@ export default function ProfilePage(props){
     const {getNode} = useVFuse()
 
     useEffect(() => {
+        let node = gStore.get("vFuseNode")
+        if(node){
+            setProfile(node.profile)
+            setStatus(Constants.NODE_STATE.RUNNING)
+        }
 
     },[])
 

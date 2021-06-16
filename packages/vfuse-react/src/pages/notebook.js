@@ -7,11 +7,15 @@ import 'prismjs/components/prism-python';
 import {Constants} from "../constants/constants";
 import {useVFuse} from "../hooks/useVFuse"
 import {gStore} from "../store";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faMagic} from "@fortawesome/free-solid-svg-icons";
 
 export default function NotebookPage(props){
 
     const [profile, setProfile] = useState(null)
     const [status, setStatus] = useState(Constants.NODE_STATE.STOP)
+    const [runLocalLoading, setRunLocalLoading] = useState(false)
+    const [runNetworkLoading, setRunNetworkLoading] = useState(false)
     const [vFuseNode, setVFuseNode] = useState(null)
     const [code, setCode] = useState(
         `import numpy as np 
@@ -21,7 +25,6 @@ c = np.dot(a, b)
 print(c)`
     );
 
-
     const {getNode} = useVFuse()
 
     useEffect(() => {
@@ -29,9 +32,11 @@ print(c)`
         if(node){
             setVFuseNode(node)
             setProfile(node.profile)
+            setStatus(Constants.NODE_STATE.RUNNING)
         }
 
     },[])
+
 
     return(
         <div>
@@ -46,7 +51,11 @@ print(c)`
                             status === Constants.NODE_STATE.INITIALIZING && <Tag color="blue">Initializing</Tag>,
                             status === Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
                         ]}
-                        avatar={{ src: 'https://avatars1.githubusercontent.com/u/8186664?s=460&v=4' }}
+                        extra={[
+                            <Button key="3" type="primary" disabled={!vFuseNode} loading={runLocalLoading}>Run in Local</Button>,
+                            <Button key="2" type="danger" disabled={!vFuseNode} loading={runNetworkLoading}>Run on Network</Button>,
+                        ]}
+                        avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
                         /*breadcrumb={{ routes }}*/
                     >
                         <Layout.Content
@@ -58,31 +67,33 @@ print(c)`
                                 />
                             }
                         >
-                            <Descriptions title="User Info" layout="vertical" bordered>
-                                <Descriptions.Item label="Profile ID">{profile?.id}</Descriptions.Item>
-                                <Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>
-                                <Descriptions.Item label="Rewards">{profile?.rewards} ETH</Descriptions.Item>
-                            </Descriptions>
                         </Layout.Content>
                     </PageHeader>
+                    <Descriptions layout="vertical" bordered>
+                        <Descriptions.Item label="Profile ID">{profile?.id}</Descriptions.Item>
+                        <Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>
+                        <Descriptions.Item label="Rewards">{profile?.rewards} ETH</Descriptions.Item>
+                    </Descriptions>
                 </Col>
             </Row>
             <Row>
-                <Col span={24}>
-                    <Col span={24} style={{overflow: "scroll"}}>
-                        <Editor
-                            value={code}
-                            onValueChange={(code) => setCode(code)}
-                            highlight={code => highlight(code, languages.py)}
-                            padding={10}
-                            style={{
-                                height: "68vh",
-                                fontFamily: '"Fira code", "Fira Mono", monospace',
-                                fontSize: 12,
-                            }}
-                        />
-                    </Col>
-
+                <Col span={24} style={{marginTop: "24px"}}>
+                    <Descriptions  layout="vertical" bordered>
+                        <Descriptions.Item label="Code Editor">
+                            <Editor
+                                value={code}
+                                onValueChange={(code) => setCode(code)}
+                                highlight={code => highlight(code, languages.py)}
+                                padding={10}
+                                style={{
+                                    height: "62vh",
+                                    fontFamily: '"Fira code", "Fira Mono", monospace',
+                                    fontSize: 12,
+                                    overflow: "scroll"
+                                }}
+                            />
+                        </Descriptions.Item>
+                    </Descriptions>
                 </Col>
             </Row>
         </div>

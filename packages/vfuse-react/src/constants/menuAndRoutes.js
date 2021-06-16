@@ -1,4 +1,4 @@
-import { faUserCircle, faMagic, faCode } from '@fortawesome/free-solid-svg-icons'
+import { faUserCircle, faMagic, faCodeBranch } from '@fortawesome/free-solid-svg-icons'
 import ProfilePage from "../pages/profile";
 import NotebookPage from "../pages/notebook";
 
@@ -19,7 +19,7 @@ export const globalMenu = [{
             name : "Notebook",
             path : "/notebook",
             page : NotebookPage,
-            icon: faCode
+            icon: faCodeBranch
         },
     ]
 }];

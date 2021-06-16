@@ -24949,10 +24949,10 @@ body {
   color: rgba(255, 255, 255, 0.85);
 }
 a {
-  color: #AB182D !important;
+  /*color: #AB182D !important;*/
   text-decoration: none;
 }
-a:hover {
+/*a:hover {
   color: #b83746 !important;
   text-decoration: none;
 }
@@ -25030,7 +25030,7 @@ td.ant-table-cell > * {
 }
 .ant-notification-notice {
   width: 25vw;
-}
+}*/
 @media only screen and (max-width: 992px) {
   .btn-resizable {
     width: auto !important;
