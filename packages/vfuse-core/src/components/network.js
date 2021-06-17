@@ -127,6 +127,7 @@ class Network {
         console.log({key})
 
         await this.initTopicsChannel()
+        this.swarm()
     }
 
     /**
@@ -134,6 +135,18 @@ class Network {
      */
     async stop(){
         await this.ipfs.stop()
+    }
+
+    swarm(){
+        setInterval(async () => {
+            try {
+                const peers = await this.ipfs.swarm.peers()
+                console.log(`The node now has ${peers.length} peers.`)
+                console.log({peers})
+            } catch (err) {
+                console.log('An error occurred trying to check our peers:', err)
+            }
+        }, 20000)
     }
 
     async update(data){

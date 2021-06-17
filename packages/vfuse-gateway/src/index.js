@@ -1,7 +1,6 @@
 const PeerId       = require('peer-id')
 const IPFSRepo     = require('ipfs-repo')
 const DatastoreFs  = require("datastore-fs")
-const PythonWorker = require('vfuse-python-worker')
 const VFuse        = require('vfuse-core')
 
 class VFuseGateway{
