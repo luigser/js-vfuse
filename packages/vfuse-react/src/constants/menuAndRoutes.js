@@ -16,6 +16,7 @@ export const globalMenu = [{
         },
         {
             key  : 'notebook-page',
+            
             name : "Notebook",
             path : "/notebook",
             page : NotebookPage,

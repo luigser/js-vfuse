@@ -1,3 +1,6 @@
 Nodejs version (it works for browser but nodejs)
 v12.16.3
 PASS TO v14
+
+/* RUN IPFS CLUSTER */
+ipfs-cluster-service --loglevel info,cluster:debug,pintracker:debug daemon

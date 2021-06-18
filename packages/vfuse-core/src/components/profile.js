@@ -37,7 +37,7 @@ class Profile {
             }
             let profile = {
                 path: '/tmp/profile.json',
-                content : JSON.stringify(new_profile)
+                content : Buffer.from(JSON.stringify(new_profile))
             }
 
             let published_profile = await this.net.update(profile)

@@ -20,8 +20,10 @@ export const useVFuse = () => {
                         },
                         getMessageFromProtocolCallback: () => {
                         },
-                        bootstrapNodes: ['/ip4/127.0.0.1/tcp/4003/ws/p2p/QmU13jxZXrTmpgodotGGNMdCre2BKfmqPyHdHWGh7vmJ5e'],
-                        packages: []
+                        bootstrapNodes: ['/ip4/192.168.1.57/tcp/9096/p2p/12D3KooWPgiEiS6p73rSi5peTvo16SKaiU4y4pYBri8wjQmjpGbE'],
+                        packages: [],
+                        //ipfsClusterApi : '/ip4/127.0.0.1/tcp/9094'
+                        ipfsClusterApi : { host: 'localhost', port: '9094', protocol: 'http' }
                     }
                 )
                 console.log("Profile ID: %s", node.profile.id)
@@ -36,6 +38,7 @@ export const useVFuse = () => {
         }
         return node;
     }
+
 
     return {
         getNode

@@ -40,6 +40,7 @@ class VFuseGateway{
 
         this.options = {
             profileId: options.profileId,
+            ipfsClusterApi : options.ipfsClusterApi,
             //worker: PythonWorker.getWebWorker(),
             discoveryCallback: () => {},
             connectionCallback: () => {},

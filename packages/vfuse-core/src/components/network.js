@@ -11,6 +11,7 @@ const Gossipsub = require('libp2p-gossipsub')
 const PeerId = require('peer-id')
 const toString = require('uint8arrays/to-string')
 const fromString = require('uint8arrays/from-string')
+const ipfsCluster = require('ipfs-cluster-api')
 const Constants = require("./constants");
 
 class Network {
@@ -25,7 +26,7 @@ class Network {
         this.profileId= options.profileId
         if(options.bootstrapNodes)
             this.bootstrapNodes = options.bootstrapNodes
-        else
+       /* else
             this.bootstrapNodes = [
                 '/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ',
                 '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN',
@@ -33,11 +34,13 @@ class Network {
                 '/dnsaddr/bootstrap.libp2p.io/p2p/QmZa1sAxajnQjVM8WjWXoMbmPd7NsWhfKsPkErzpm9wGkp',
                 '/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa',
                 '/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt'
-        ]
+        ]*/
         this.identity = options.identity
         this.topicListeners = []
         this.ipfsOptions = options.ipfs
         this.libp2pOptions = options.libp2p
+        this.ipfsClusterApi = options.ipfsClusterApi
+        this.ipfsCluster = null
     }
 
     registerTopicListener(callback){
@@ -109,6 +112,9 @@ class Network {
             Identity:{
                 PeerID: this.profileId
             },
+            Addresses: {
+                API: "/ip4/127.0.0.1/tcp/5001",
+            },
             Bootstrap: this.bootstrapNodes,
             Pubsub : {
                 Enabled : true
@@ -127,7 +133,9 @@ class Network {
         console.log({key})
 
         await this.initTopicsChannel()
-        this.swarm()
+        //this.swarm()
+
+        if(this.ipfsClusterApi) this.cluster = ipfsCluster(this.ipfsClusterApi)
     }
 
     /**
@@ -149,11 +157,16 @@ class Network {
         }, 20000)
     }
 
+    /*STANDARD IPFS API*/
     async update(data){
         try {
             //todo delete previous version
-            let remote_data = await this.ipfs.add(data)
-            let published_data = await this.ipfs.name.publish(remote_data.cid.string)
+            //let remote_data = await this.ipfs.add(data)
+            console.log(this.cluster)
+            let remote_data = await this.cluster.add(data)
+            let published_data = await this.ipfs.name.publish(/*remote_data.cid.string*/remote_data.hash)
+            let pin_result = await this.cluster.pin.add(published_data.name)
+            console.log({pin_result})
             return published_data
         }catch (e){
             console.log('Got some error during the data update: %O', e)
@@ -163,8 +176,9 @@ class Network {
 
     async publish(cid){
         try {
-            let published_cid = await this.ipfs.name.publish(cid)
-            return published_cid
+            let published_data = await this.ipfs.name.publish(cid)
+            await this.cluster.pin.add(published_data.name)
+            return published_data
         }catch (e){
             console.log('Got some error during the data update: %O', e)
             return null
@@ -189,38 +203,6 @@ class Network {
             files.push(file.path)
         }
         return files
-    }
-
-    async chmod(path, mode, options){
-        await this.ipfs.files.chmod(path, mode, options)
-    }
-
-    async makeDir(dir, options){
-        return await this.ipfs.files.mkdir(dir, options)
-    }
-
-    async touchFile(file){
-        return await this.ipfs.files.touch(file)
-    }
-
-    async copy(source, destination){
-        await this.ipfs.files.cp(source, destination)
-    }
-
-    async writeFile(path, content, options){
-        return await this.ipfs.files.write(path, content, options)
-    }
-
-    async stat(path){
-        return await this.ipfs.files.stat(path)
-    }
-
-    async list(path){
-        let jobs = []
-        for await (const file of this.ipfs.files.ls(path)) {
-            jobs.push(file.name)
-        }
-        return jobs
     }
 
     async get(cid, path) {
@@ -263,8 +245,67 @@ class Network {
             console.log('Got some error during data retrieving: %O', e)
             return null
         }
-
     }
+
+    /* MFS API */
+
+    async chmod(path, mode, options){
+        await this.ipfs.files.chmod(path, mode, options)
+    }
+
+    async makeDir(dir, options){
+        return await this.ipfs.files.mkdir(dir, options)
+    }
+
+    async touchFile(file){
+        return await this.ipfs.files.touch(file)
+    }
+
+    async copy(source, destination){
+        await this.ipfs.files.cp(source, destination)
+    }
+
+    async writeFile(path, content, options){
+        return await this.ipfs.files.write(path, content, options)
+    }
+
+    async stat(path){
+        return await this.ipfs.files.stat(path)
+    }
+
+    async list(path){
+        let jobs = []
+        for await (const file of this.ipfs.files.ls(path)) {
+            jobs.push(file.name)
+        }
+        return jobs
+    }
+
+    /*CLUSTER API FOR PINNING*/
+
+    async pin(cid){
+        try {
+            //todo delete previous version
+            await this.cluster.pin.add(cid)
+        }catch (e){
+            console.log('Got some error during the data update: %O', e)
+            return null
+        }
+    }
+
+    async getPins(cid){
+        try {
+            //todo delete previous version
+            let pins = await this.cluster.pin.ls({filter: 'all'})
+            return pins
+        }catch (e){
+            console.log('Got some error during the data update: %O', e)
+            return null
+        }
+    }
+
+
+
 
 
 }

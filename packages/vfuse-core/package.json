@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "ipfs": "^0.55.1",
+    "ipfs-cluster-api": "0.0.9",
     "libp2p-bootstrap": "^0.12.3",
     "libp2p-gossipsub": "^0.10.0",
     "libp2p-mplex": "^0.10.3",
