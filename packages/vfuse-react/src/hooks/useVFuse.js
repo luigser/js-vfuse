@@ -12,15 +12,13 @@ export const useVFuse = () => {
             if (!node) {
                 node = await VFuse.create(
                     {
+                        mode:VFuse.Constants.VFUSE_MODE.NORMAL,
                         profileId: profileId,
                         worker: PythonWorker.getWebWorker(),
-                        discoveryCallback: () => {
-                        },
-                        connectionCallback: () => {
-                        },
-                        getMessageFromProtocolCallback: () => {
-                        },
-                        bootstrapNodes: ['/ip4/192.168.1.57/tcp/9096/p2p/12D3KooWPgiEiS6p73rSi5peTvo16SKaiU4y4pYBri8wjQmjpGbE'],
+                        discoveryCallback: () => {},
+                        connectionCallback: () => {},
+                        getMessageFromProtocolCallback: () => {},
+                        bootstrapNodes: ['/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE'],
                         packages: [],
                         //ipfsClusterApi : '/ip4/127.0.0.1/tcp/9094'
                         ipfsClusterApi : { host: 'localhost', port: '9094', protocol: 'http' }

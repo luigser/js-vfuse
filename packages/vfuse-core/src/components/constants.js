@@ -1,4 +1,8 @@
 const Constants = {
+    VFUSE_MODE:{
+        NORMAL : "normal",
+        GATEWAY: "gateway"
+    },
     JOB_SATUS : {
         WAITING : 0,//due to dependencies
         READY: 1,//no dependences and ready to be executed

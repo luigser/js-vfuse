@@ -108,16 +108,12 @@ class Network {
         )*/
 
         let opt = {
+            ...this.ipfsOptions,
             repo: this.ipfsOptions && this.ipfsOptions.repo ? this.ipfsOptions.repo : 'vfuse-node-repo',
-            Identity:{
-                PeerID: this.profileId
-            },
-            Addresses: {
-                API: "/ip4/127.0.0.1/tcp/5001",
-            },
             Bootstrap: this.bootstrapNodes,
             Pubsub : {
-                Enabled : true
+                Router: "gossipsub",
+                Enabled: true
             }
         }
 
