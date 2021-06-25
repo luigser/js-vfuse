@@ -18,7 +18,10 @@ export const useVFuse = () => {
                         discoveryCallback: () => {},
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},
-                        bootstrapNodes: ['/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE'],
+                        ipfs:{
+                            config:{}
+                        },
+                        bootstrapNodes: ['/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWG7a4kwgQHbvCUjbpDfHgdsEHkAJjZyqMzDW346j9DrEa'],
                         packages: [],
                         //ipfsClusterApi : '/ip4/127.0.0.1/tcp/9094'
                         ipfsClusterApi : { host: 'localhost', port: '9094', protocol: 'http' }

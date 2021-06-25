@@ -110,10 +110,13 @@ class Network {
         let opt = {
             ...this.ipfsOptions,
             repo: this.ipfsOptions && this.ipfsOptions.repo ? this.ipfsOptions.repo : 'vfuse-node-repo',
-            Bootstrap: this.bootstrapNodes,
-            Pubsub : {
-                Router: "gossipsub",
-                Enabled: true
+            config : {
+                ...this.ipfsOptions.config,
+                Bootstrap: this.bootstrapNodes,
+                Pubsub : {
+                    Router: "gossipsub",
+                    Enabled: true
+                }
             }
         }
 
@@ -129,7 +132,7 @@ class Network {
         console.log({key})
 
         await this.initTopicsChannel()
-        //this.swarm()
+        this.swarm()
 
         if(this.ipfsClusterApi) this.cluster = ipfsCluster(this.ipfsClusterApi)
     }
