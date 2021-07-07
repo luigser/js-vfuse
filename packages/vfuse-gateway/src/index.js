@@ -53,9 +53,9 @@ class VFuseGateway{
                         API: "/ip4/127.0.0.1/tcp/5001",
                         Swarm: [
                             "/ip4/127.0.0.1/tcp/4001",
-                           /* "/ip6/127.0.0.1/tcp/4001",*/
+                            "/ip6/127.0.0.1/tcp/4001",
                             "/ip4/127.0.0.1/udp/4001/quic",
-                            /*"/ip6/127.0.0.1/udp/4001/quic",*/
+                            "/ip6/127.0.0.1/udp/4001/quic",
                             "/ip4/127.0.0.1/tcp/4003/ws"
                         ],
                         Announce: [],
@@ -76,7 +76,7 @@ class VFuseGateway{
                                 "GET"
                             ], "Access-Control-Allow-Origin": [
                                 //"<your_domain or all (*)>"
-                                "<*>"
+                                "*"
                             ], "X-Special-Header": [
                                 "Access-Control-Expose-Headers: Ipfs-Hash"
                             ]
@@ -127,7 +127,7 @@ class VFuseGateway{
                         DisableBandwidthMetrics: false,
                         DisableNatPortMap: false,
                         EnableAutoRelay: true,
-                        EnableRelayHop: false,
+                        EnableRelayHop: true,
                         Transports: {
                             Multiplexers: {},
                             Network: {},
@@ -152,9 +152,9 @@ class VFuseGateway{
         const httpApi = new HttpApi(this.node.net.ipfs)
         this.httpApi = await httpApi.start()
 
-        if (this.httpApi._apiServers.length) {
+        /*if (this.httpApi._apiServers.length) {
             await this.node.net.ipfs.repo.apiAddr.set(this.httpApi._apiServers[0].info.ma)
-        }
+        }*/
     }
 
     async createWorkflow(){

@@ -4,3 +4,5 @@ PASS TO v14
 
 /* RUN IPFS CLUSTER */
 ipfs-cluster-service --loglevel info,cluster:debug,pintracker:debug daemon
+
+USE ipfs-cluster_service for config cluster

@@ -24,9 +24,9 @@ class Network {
         this.libp2p = null
         this.peerId= options.peerId
         this.profileId= options.profileId
-        if(options.bootstrapNodes)
+        /*if(options.bootstrapNodes)
             this.bootstrapNodes = options.bootstrapNodes
-       /* else
+        else
             this.bootstrapNodes = [
                 '/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ',
                 '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN',
@@ -112,7 +112,7 @@ class Network {
             repo: this.ipfsOptions && this.ipfsOptions.repo ? this.ipfsOptions.repo : 'vfuse-node-repo',
             config : {
                 ...this.ipfsOptions.config,
-                Bootstrap: this.bootstrapNodes,
+                //Bootstrap: this.bootstrapNodes,
                 Pubsub : {
                     Router: "gossipsub",
                     Enabled: true

@@ -20,22 +20,30 @@ export const useVFuse = () => {
                         getMessageFromProtocolCallback: () => {},
                         ipfs:{
                             config:{
+                                Addresses: {
+                                    Swarm: [
+                                        //"/ip4/127.0.0.1/tcp/4001",
+                                        //"/ip4/127.0.0.1/tcp/4003/ws/p2p-websocket-star"
+                                    ]
+                                },
                                 Discovery: {
                                     MDNS: {
                                         Enabled: false,
                                         Interva: 10
                                     }
                                 },
+                                Bootstrap:  [
+                                    '/ip4/127.0.0.1/tcp/4003/ws/p2p/QmVVx6s2QvEnRZwYhxH1j7bzYgwpQZWVpguhPbCsTdR8Bq'
+                                ]
                             }
                         },
-                        bootstrapNodes: ['/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE'],
                         packages: [],
                         //ipfsClusterApi : '/ip4/127.0.0.1/tcp/9094'
                         ipfsClusterApi : { host: 'localhost', port: '9094', protocol: 'http' }
                     }
                 )
-                console.log("Profile ID: %s", node.profile.id)
-                console.log('VFuse NODE')
+                //console.log("Profile ID: %s", node.profile.id)
+                //console.log('VFuse NODE')
                 console.log({node})
 
                 gStore.set({ vFuseNode : node })
