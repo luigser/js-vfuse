@@ -2,6 +2,8 @@ const PeerId       = require('peer-id')
 const IPFSRepo     = require('ipfs-repo')
 const DatastoreFs  = require("datastore-fs")
 const VFuse        = require('vfuse-core')
+const HttpApi      = require('ipfs-http-server')
+
 
 class VFuseGateway{
     constructor(options) {
@@ -50,12 +52,14 @@ class VFuseGateway{
                     Addresses: {
                         API: "/ip4/127.0.0.1/tcp/5001",
                         Swarm: [
-                            "/ip4/127.0.0.1/tcp/4002",
+                            "/ip4/127.0.0.1/tcp/4001",
+                           /* "/ip6/127.0.0.1/tcp/4001",*/
+                            "/ip4/127.0.0.1/udp/4001/quic",
+                            /*"/ip6/127.0.0.1/udp/4001/quic",*/
                             "/ip4/127.0.0.1/tcp/4003/ws"
                         ],
                         Announce: [],
-                        Gateway: "/ip4/127.0.0.1/tcp/9090",
-                        RPC: "/ip4/127.0.0.1/tcp/5003",
+                        Gateway: "/ip4/127.0.0.1/tcp/8080",
                         Delegates: []
                     },
                     API: {
@@ -81,6 +85,54 @@ class VFuseGateway{
                         Writable: true,
                         PathPrefixes: [],
                         APICommands: []
+                    },
+                    Gateway: {
+                        APICommands: [],
+                        HTTPHeaders: {
+                            "Access-Control-Allow-Headers": [
+                                "X-Requested-With",
+                                "Range",
+                                "User-Agent"
+                            ],
+                            "Access-Control-Allow-Methods": [
+                                "GET"
+                            ],
+                            "Access-Control-Allow-Origin": [
+                                "*"
+                            ]
+                        },
+                        NoDNSLink: false,
+                        NoFetch: false,
+                        PathPrefixes: [],
+                        PublicGateways: null,
+                        RootRedirect: "",
+                        Writable: false
+                    },
+                    Ipns: {
+                        RecordLifetime: "",
+                        RepublishPeriod: "",
+                        ResolveCacheSize: 128
+                    },
+                    Routing: {
+                        Type: "dht"
+                    },
+                    Swarm: {
+                        AddrFilters: null,
+                        ConnMgr: {
+                            GracePeriod: "20s",
+                            HighWater: 900,
+                            LowWater: 600,
+                            Type: "basic"
+                        },
+                        DisableBandwidthMetrics: false,
+                        DisableNatPortMap: false,
+                        EnableAutoRelay: true,
+                        EnableRelayHop: false,
+                        Transports: {
+                            Multiplexers: {},
+                            Network: {},
+                            Security: {}
+                        }
                     }
                 }
             }
@@ -90,10 +142,19 @@ class VFuseGateway{
 
     async init(){
         this.node = await VFuse.create(this.options)
+
         const Gateway = require('ipfs-http-gateway');
-        const gateway = new Gateway(this.node.ipfs);
-        await gateway.start();
-        //console.log(this.node)
+        this.gateway = new Gateway(this.node.net.ipfs);
+        await this.gateway.start();
+        console.log('Gateway started')
+
+        console.log('Http API Server started')
+        const httpApi = new HttpApi(this.node.net.ipfs)
+        this.httpApi = await httpApi.start()
+
+        if (this.httpApi._apiServers.length) {
+            await this.node.net.ipfs.repo.apiAddr.set(this.httpApi._apiServers[0].info.ma)
+        }
     }
 
     async createWorkflow(){
