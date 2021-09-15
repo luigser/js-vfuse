@@ -1,14 +1,14 @@
 'use strict'
 
 const IPFS = require('ipfs')
-const Noise = require('libp2p-noise')
+/*const Noise = require('libp2p-noise')
 const Bootstrap = require('libp2p-bootstrap')
 const WebSockets = require('libp2p-websockets')
 const WebRTCDirect = require('libp2p-webrtc-direct')
 const WebRTCStar = require('libp2p-webrtc-star')
 const Mplex = require('libp2p-mplex')
 const Gossipsub = require('libp2p-gossipsub')
-const PeerId = require('peer-id')
+const PeerId = require('peer-id')*/
 const toString = require('uint8arrays/to-string')
 const fromString = require('uint8arrays/from-string')
 const ipfsCluster = require('ipfs-cluster-api')
@@ -119,11 +119,11 @@ class Network {
                 }
             },
             libp2p: {
-                addresses: {
+                /*addresses: {
                     listen: [
                         '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star'
                     ]
-                }
+                }*/
             }
         }
 
@@ -169,7 +169,8 @@ class Network {
             //todo delete previous version
             //let remote_data = await this.ipfs.add(data)
             console.log(this.cluster)
-            let remote_data = await this.cluster.add(data)
+            //let remote_data = await this.cluster.add(data)
+            let remote_data = await this.cluster.addAndPin(data)
             let published_data = await this.ipfs.name.publish(/*remote_data.cid.string*/remote_data.hash)
             let pin_result = await this.cluster.pin.add(published_data.name)
             console.log({pin_result})
@@ -187,6 +188,18 @@ class Network {
             return published_data
         }catch (e){
             console.log('Got some error during the data update: %O', e)
+            return null
+        }
+
+    }
+
+    async addAndPin(data){
+        try {
+            //todo delete previous version
+            let remote_data = await this.cluster.add(data)
+            return remote_data
+        }catch (e){
+            console.log('Got some error during the data adding and pinning: %O', e)
             return null
         }
 

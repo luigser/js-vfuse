@@ -23,7 +23,7 @@ export const useVFuse = () => {
                                 Addresses: {
                                     Swarm: [
                                         //"/ip4/127.0.0.1/tcp/4001",
-                                        //"/ip4/127.0.0.1/tcp/4003/ws/p2p-websocket-star"
+                                        "/ip4/127.0.0.1/tcp/4003/ws/p2p-websocket-star"
                                     ]
                                 },
                                 Discovery: {

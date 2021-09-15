@@ -4,6 +4,8 @@ const DatastoreFs  = require("datastore-fs")
 const VFuse        = require('vfuse-core')
 const HttpApi      = require('ipfs-http-server')
 
+//todo
+//When a new gateway wont to be added in VFuse it have to update an pinned ipfs file when all gateway nodes are registered
 
 class VFuseGateway{
     constructor(options) {

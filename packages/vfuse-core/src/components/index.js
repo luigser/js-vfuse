@@ -28,6 +28,7 @@ class VFuse {
                 await this.profile.check()
                 break
             case Constants.VFUSE_MODE.GATEWAY:
+
                 this.webRtcStartServer = await WStarSignalingServer.start(
                     {
                         port: 2000,
@@ -55,7 +56,7 @@ class VFuse {
     async runAllWokflows(){
         await this.workflowManager.runAllWokflows()
     }
-    
+
     async addJob(workflow, code, data, dependencies){
         await this.workflowManager.addJob(workflow, code, data, dependencies)
     }

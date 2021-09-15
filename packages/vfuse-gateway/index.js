@@ -4,7 +4,7 @@ const main = async () => {
     let node = await VFuseGateway.create({
        // profileId : 'QmU13jxZXrTmpgodotGGNMdCre2BKfmqPyHdHWGh7vmJ5e',
         bootstrapNodes : [],
-        //ipfsClusterApi : '/ip4/192.168.1.57/tcp/9096',
+        ipfsClusterApi : '/ip4/192.168.1.57/tcp/9096',
         ipfs: {
             config: {
                 /*Identity: {
