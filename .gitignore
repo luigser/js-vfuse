@@ -6,3 +6,7 @@
 /packages/vfuse-gateway/fs-repo
 /packages/vfuse-gateway/node_modules
 package-lock.json
+/.idea/
+/node_modules/
+/packages/vfuse-core/dist/
+/packages/vfuse-react/src/libs/synapse/
