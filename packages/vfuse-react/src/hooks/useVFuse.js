@@ -23,7 +23,7 @@ export const useVFuse = () => {
                                 Addresses: {
                                     Swarm: [
                                         //"/ip4/127.0.0.1/tcp/4001",
-                                        "/ip4/127.0.0.1/tcp/4003/ws/p2p-websocket-star"
+                                        //"/ip4/127.0.0.1/tcp/4003/ws/p2p-websocket-star"
                                     ]
                                 },
                                 Discovery: {
@@ -38,6 +38,7 @@ export const useVFuse = () => {
                             }
                         },
                         packages: [],
+                        libp2pOptions : { addresses : { listen : '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star' }},
                         //ipfsClusterApi : '/ip4/127.0.0.1/tcp/9094'
                         ipfsClusterApi : { host: 'localhost', port: '9094', protocol: 'http' }
                     }

@@ -6,8 +6,6 @@ const Profile = require('./profile')
 const WorkflowManager = require('./job/workflowManager')
 const Constants = require('./constants')
 
-const WStarSignalingServer = require('libp2p-webrtc-star/src/sig-server/index')
-
 class VFuse {
     /**
      * @param {Object} options
@@ -28,7 +26,7 @@ class VFuse {
                 await this.profile.check()
                 break
             case Constants.VFUSE_MODE.GATEWAY:
-
+                const WStarSignalingServer = require('libp2p-webrtc-star/src/sig-server/index')
                 this.webRtcStartServer = await WStarSignalingServer.start(
                     {
                         port: 2000,
