@@ -1,7 +1,8 @@
 const Constants = {
     VFUSE_MODE:{
         NORMAL : "normal",
-        GATEWAY: "gateway"
+        GATEWAY: "gateway",
+        BROWSER : "browser"
     },
     JOB_SATUS : {
         WAITING : 0,//due to dependencies
@@ -16,6 +17,11 @@ const Constants = {
     },
     TOPICS: {
         VFUSE_PUBLISH_CHANNEL : "vfuse_publish_channel"
+    },
+    NODE_STATE: {
+        STOP: 0,
+        INITIALIZING: 1,
+        RUNNING: 2
     }
 }
 

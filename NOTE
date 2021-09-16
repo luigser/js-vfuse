@@ -6,3 +6,10 @@ PASS TO v14
 ipfs-cluster-service --loglevel info,cluster:debug,pintracker:debug daemon
 
 USE ipfs-cluster_service for config cluster
+
+
+TO START WEBRTC SIGNAL SERVER
+node node_modules\libp2p-webrtc-star\src\sig-server\bin.js --port=2000
+
+
+npm install ipfs-swarm-key-gen -g

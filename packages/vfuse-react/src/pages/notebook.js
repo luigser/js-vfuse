@@ -3,8 +3,7 @@ import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, R
 import Editor from "react-simple-code-editor";
 import {highlight, languages} from "prismjs/components/prism-core";
 import 'prismjs/components/prism-python';
-
-import {Constants} from "../constants/constants";
+import VFuse from "vfuse-core";
 import {useVFuse} from "../hooks/useVFuse"
 import {gStore} from "../store";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -12,8 +11,8 @@ import {faMagic} from "@fortawesome/free-solid-svg-icons";
 
 export default function NotebookPage(props){
 
-    const [profile, setProfile] = useState(null)
-    const [status, setStatus] = useState(Constants.NODE_STATE.STOP)
+
+    const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
     const [runLocalLoading, setRunLocalLoading] = useState(false)
     const [runNetworkLoading, setRunNetworkLoading] = useState(false)
     const [vFuseNode, setVFuseNode] = useState(null)
@@ -31,8 +30,7 @@ print(c)`
         let node = gStore.get("vFuseNode")
         if(node){
             setVFuseNode(node)
-            setProfile(node.profile)
-            setStatus(Constants.NODE_STATE.RUNNING)
+            setStatus(VFuse.Constants.NODE_STATE.RUNNING)
         }
 
     },[])
@@ -47,9 +45,9 @@ print(c)`
                         className="site-page-header"
                         subTitle="Node status"
                         tags={[
-                            status === Constants.NODE_STATE.STOP && <Tag color="red">Stopped</Tag>,
-                            status === Constants.NODE_STATE.INITIALIZING && <Tag color="blue">Initializing</Tag>,
-                            status === Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
+                            status === VFuse.Constants.NODE_STATE.STOP && <Tag color="red">Stopped</Tag>,
+                            status === VFuse.Constants.NODE_STATE.INITIALIZING && <Tag color="blue">Initializing</Tag>,
+                            status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
                         ]}
                         extra={[
                             <Button key="3" type="primary" disabled={!vFuseNode} loading={runLocalLoading}>Run in Local</Button>,
@@ -70,9 +68,9 @@ print(c)`
                         </Layout.Content>
                     </PageHeader>
                     <Descriptions layout="vertical" bordered>
-                        <Descriptions.Item label="Profile ID">{profile?.id}</Descriptions.Item>
-                        <Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>
-                        <Descriptions.Item label="Rewards">{profile?.rewards} ETH</Descriptions.Item>
+                        <Descriptions.Item label="Profile ID">{vFuseNode?.profile?.id}</Descriptions.Item>
+                        <Descriptions.Item label="Workflows numbers">{vFuseNode?.profile?.workflows.length}</Descriptions.Item>
+                        <Descriptions.Item label="Rewards">{vFuseNode?.profile?.rewards} ETH</Descriptions.Item>
                     </Descriptions>
                 </Col>
             </Row>

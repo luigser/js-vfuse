@@ -44,21 +44,30 @@ class VFuseGateway{
 
         this.options = {
             mode: VFuse.Constants.VFUSE_MODE.GATEWAY,
+            signalServerEnabled : true,
             ipfsClusterApi : options.ipfsClusterApi,
             bootstrapNodes: options.bootstrapNodes,
             packages: [],
+            swarmKey: "/key/swarm/psk/1.0.0/\n" +
+                "/base16/\n" +
+                "644a17d6bd356f40431872d3471e11918b5f8a9e50f1155eb291982a7548defc",
             ipfs: {
                 repo: new IPFSRepo('./fs-repo/.ipfs/vfuse-gateway', this.customRepositoryOptions),
                 config: {
-                    Bootstrap: [],
+                    Bootstrap:  [
+                        '/ip4/127.0.0.1/tcp/4001/ws/p2p/QmVVx6s2QvEnRZwYhxH1j7bzYgwpQZWVpguhPbCsTdR8Bq'
+                    ],
                     Addresses: {
                         API: "/ip4/127.0.0.1/tcp/5001",
                         Swarm: [
-                            "/ip4/127.0.0.1/tcp/4001",
+                            //"/ip4/127.0.0.1/tcp/4001",
                             //"/ip6/127.0.0.1/tcp/4001",
-                            "/ip4/127.0.0.1/udp/4001/quic",
+                            //"/ip4/127.0.0.1/udp/4001/quic",
                             //"/ip6/127.0.0.1/udp/4001/quic",
-                            "/ip4/127.0.0.1/tcp/4003/ws"
+                            "/ip4/0.0.0.0/tcp/4001",
+                            "/ip4/0.0.0.0/tcp/4001/ws",
+                            '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
+                            //"/ip6/::/tcp/4001/ws"
                         ],
                         Announce: [],
                         Gateway: "/ip4/127.0.0.1/tcp/8080",
@@ -108,7 +117,7 @@ class VFuseGateway{
                         PathPrefixes: [],
                         PublicGateways: null,
                         RootRedirect: "",
-                        Writable: false
+                        Writable: true
                     },
                     Ipns: {
                         RecordLifetime: "",

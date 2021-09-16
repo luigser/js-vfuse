@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row} from "antd";
-import {Constants} from "../constants/constants";
+import VFuse from "vfuse-core";
 
 import {useVFuse} from "../hooks/useVFuse"
 import {gStore} from "../store";
@@ -8,7 +8,7 @@ import {gStore} from "../store";
 export default function ProfilePage(props){
 
     const [profile, setProfile] = useState(null)
-    const [status, setStatus] = useState(Constants.NODE_STATE.STOP)
+    const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
     const [profileId, setProfileId] = useState(null)
     const [startLoading, setStartLoading] = useState(false)
     const [stopLoading, setStopLoading] = useState(false)
@@ -21,7 +21,7 @@ export default function ProfilePage(props){
         let node = gStore.get("vFuseNode")
         if(node){
             setProfile(node.profile)
-            setStatus(Constants.NODE_STATE.RUNNING)
+            setStatus(VFuse.Constants.NODE_STATE.RUNNING)
         }
 
     },[])
@@ -34,18 +34,17 @@ export default function ProfilePage(props){
         if(mode === "create") setCreateLoading(true)
         else setStartLoading(true)
 
-        setStatus(Constants.NODE_STATE.INITIALIZING)
+        setStatus(VFuse.Constants.NODE_STATE.INITIALIZING)
 
         let node = await getNode(profileId)
 
-        setStatus(node ? Constants.NODE_STATE.RUNNING : Constants.NODE_STATE.STOP)
+        setStatus(node ? VFuse.Constants.NODE_STATE.RUNNING : VFuse.Constants.NODE_STATE.STOP)
 
         setProfileId(node?.profile?.id)
         setProfile(node?.profile)
 
         if(mode === "create") setCreateLoading(false)
         else setStartLoading(false)
-
 
     }
 
@@ -58,9 +57,9 @@ export default function ProfilePage(props){
                         className="site-page-header"
                         subTitle="Node status"
                         tags={[
-                            status === Constants.NODE_STATE.STOP && <Tag color="red">Stopped</Tag>,
-                            status === Constants.NODE_STATE.INITIALIZING && <Tag color="blue">Initializing</Tag>,
-                            status === Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
+                            status === VFuse.Constants.NODE_STATE.STOP && <Tag color="red">Stopped</Tag>,
+                            status === VFuse.Constants.NODE_STATE.INITIALIZING && <Tag color="blue">Initializing</Tag>,
+                            status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
                         ]}
                         extra={[
                             <Button key="3" type="primary" disabled={!profileId || profile} loading={startLoading} onClick={() => onStartNode("start")}>Start</Button>,

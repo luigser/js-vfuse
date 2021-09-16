@@ -13,34 +13,42 @@ class VFuse {
     constructor(options) {
         this.net = new Network(options)
         this.options = options
+        this.status = Constants.NODE_STATE.STOP
     }
 
     async start(){
         console.log('Strating VFuse node...')
+        this.status = Constants.NODE_STATE.INITIALIZING;
         await this.net.start()
         switch(this.options.mode){
-            case Constants.VFUSE_MODE.NORMAL:
+            case Constants.VFUSE_MODE.BROWSER:
                 this.profile = new Profile(this.net, this.options)
                 this.workflowManager = new WorkflowManager(this.net, this.profile, this.options)
-                await this.workflowManager.start()
-                await this.profile.check()
+                //await this.workflowManager.start()
+                //await this.profile.check()
                 break
             case Constants.VFUSE_MODE.GATEWAY:
-                const WStarSignalingServer = require('libp2p-webrtc-star/src/sig-server/index')
-                this.webRtcStartServer = await WStarSignalingServer.start(
-                    {
-                        port: 2000,
-                        host: '127.0.0.1'
-                    }
-                )
-                console.log('RTC Signaling server Listening on:',  this.webRtcStartServer.info.uri)
+                if(this.options.signalServerEnabled){
+                    const WStarSignalingServer = require('libp2p-webrtc-star/src/sig-server/index')
+                    this.webRtcStartServer = await WStarSignalingServer.start(
+                        {
+                            port: 2000,
+                            host: '0.0.0.0'
+                        }
+                    )
+                    console.log('RTC Signaling server Listening on:',  this.webRtcStartServer.info.uri)
 
-                process.on('SIGINT', async function(){
-                    await this.webRtcStartServer.stop()
-                    console.log('Signalling server stopped')
-                }.bind(this))
+                    process.on('SIGINT', async function(){
+                        await this.webRtcStartServer.stop()
+                        console.log('Signalling server stopped')
+                        await this.stop()
+                        process.exit(0);
+                    }.bind(this))
+
+                }
                 break
         }
+        this.status = Constants.NODE_STATE.RUNNING
     }
 
     async createWorkflow(){
@@ -59,9 +67,14 @@ class VFuse {
         await this.workflowManager.addJob(workflow, code, data, dependencies)
     }
 
+    registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){
+        this.net.registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback)
+    }
+
     async stop(){
         console.log('Stopping VFuse node...')
         await this.net.stop()
+        this.status = Constants.NODE_STATE.STOP
     }
 
     /**
