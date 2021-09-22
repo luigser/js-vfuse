@@ -1,22 +1,26 @@
 'use strict'
 
 const IPFS = require('ipfs')
-const Bootstrap = require('libp2p-bootstrap')
+/*const Bootstrap = require('libp2p-bootstrap')
 const Noise = require('libp2p-noise')
 const WebSockets = require('libp2p-websockets')
 const Mplex = require('libp2p-mplex')
-const TCP = require('libp2p-tcp')
-const filters = require('libp2p-websockets/src/filters')
-/*const WebRTCDirect = require('libp2p-webrtc-direct')
-const WebRTCStar = require('libp2p-webrtc-star')
-const Gossipsub = require('libp2p-gossipsub')
+const filters = require('libp2p-websockets/src/filters')*/
+/*const Gossipsub = require('libp2p-gossipsub')
 const PeerId = require('peer-id')
-const wrtc = require('wrtc')*/
+const WebRTCDirect = require('libp2p-webrtc-direct')*/
+const WebSockets = require('libp2p-websockets')
+const { CID } = require('multiformats/cid')
+const TCP = require('libp2p-tcp')
+const WebRTCStar = require('libp2p-webrtc-star')
+const wrtc = require('wrtc')
 const Protector = require('libp2p/src/pnet')
 const toString = require('uint8arrays/to-string')
 const fromString = require('uint8arrays/from-string')
 const ipfsCluster = require('ipfs-cluster-api')
-const Constants = require("./constants");
+const IpfsHttpClient = require("ipfs-http-client")
+
+const Constants = require("./constants")
 
 class Network {
     /**
@@ -24,6 +28,7 @@ class Network {
      * @param {Options} config.options
      */
     constructor(options) {
+        this.key = null
         this.ipfs = null
         this.libp2p = null
         this.mode = options.mode
@@ -46,6 +51,7 @@ class Network {
         this.libp2pOptions = options.libp2p
         this.ipfsClusterApi = options.ipfsClusterApi
         this.ipfsCluster = null
+        this.httpClient = null
 
         //PRIVATE NETWORK CONFS
         this.swarmKey = options.swarmKey;
@@ -75,7 +81,7 @@ class Network {
         await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, fromString(JSON.stringify(data)))
     }
 
-    async start(){
+    async start() {
 
         //const peerId = await PeerId.create({ bits: 256, keyType: 'ed25519' })
         /*const node = await IPFS.create(
@@ -122,102 +128,101 @@ class Network {
         let opt = {
             ...this.ipfsOptions,
             repo: this.ipfsOptions && this.ipfsOptions.repo ? this.ipfsOptions.repo : 'vfuse-node-repo',
-            config : {
+            config: {
                 ...this.ipfsOptions.config,
                 //Bootstrap: this.bootstrapNodes,
-                Pubsub : {
+                Pubsub: {
                     Router: "gossipsub",
                     Enabled: true
                 }
             }
         }
 
-        const transportKey = WebSockets.prototype[Symbol.toStringTag]
-        opt.libp2p = {
-            modules: {
-                transport:  this.mode === Constants.VFUSE_MODE.BROWSER ? [WebSockets] : [TCP, WebSockets],
-                connEncryption: [Noise],
-                streamMuxer: [Mplex],
-                peerDiscovery: [Bootstrap]
-            },
-            connProtector : new Protector((new TextEncoder()).encode(this.swarmKey)),
-            config: {
-                autoDial: true,
-                peerDiscovery: {
-                    [Bootstrap.tag]: {
-                        enabled: true,
-                        list: this.ipfsOptions.config.Bootstrap
-                    }
-                },
-                [transportKey]: {
-                    filter: filters.dnsWsOrWss
-                }
-            }
-        }
-
-        /*opt.libp2p = {};
-        if(this.mode === Constants.VFUSE_MODE.BROWSER)
+        if (this.swarmKey)
             opt.libp2p = {
-                addresses: {
-                    listen: [
-                        '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star'
-                    ]
-                },
+                connProtector: new Protector((new TextEncoder()).encode(this.swarmKey)),
+            }
+
+        if(this.mode === Constants.VFUSE_MODE.BROWSER) {
+            /*const transportKey = WebRTCStar.prototype[Symbol.toStringTag]
+            opt.libp2p = {
                 modules: {
-                    transport: [WebSockets, WebRTCStar, WebRTCDirect],
-                        connEncryption: [Noise],
-                        streamMuxer: [Mplex],
-                        peerDiscovery: [ WebRTCStar, Bootstrap ]
+                    transport: [WebRTCStar],
+                    peerDiscovery: [WebRTCStar]
                 },
                 config: {
                     peerDiscovery: {
                         autoDial: true,
-                            [Bootstrap.tag]: {
-                            enabled: true,
-                                list: this.ipfsOptions.Bootstrap
-                        },
-                        mdns: {
-                            interval: 20e3,
-                                enabled: true
+                        webRTCStar: {
+                            enabled: true
                         }
                     },
-
+                    transport: {
+                        [transportKey]: {
+                            wrtc
+                        }
+                    }
                 },
                 ...this.libp2pOptions
-            }
-
-       if(this.mode === Constants.VFUSE_MODE.GATEWAY) {
-            opt.libp2p.modules = {
-                transport: [WebRTCStar]
-            }
-            opt.config = {
-                peerDiscovery: {
-                    webRTCStar: {
-                        enabled: true
+            }*/
+            const filters = require('libp2p-websockets/src/filters')
+            const transportKey = WebSockets.prototype[Symbol.toStringTag]
+            opt.libp2p = {
+                config: {
+                    transport: {
+                        // This is added for local demo!
+                        // In a production environment the default filter should be used
+                        // where only DNS + WSS addresses will be dialed by websockets in the browser.
+                        [transportKey]: {
+                            filter: filters.all
+                        }
                     }
                 },
-                transport: {
-                    WebRTCStar: {
-                        wrtc
-                    }
-                }
+                ...opt.libp2p
             }
-        }*/
 
+            this.httpClient = IpfsHttpClient.create({ host: '127.0.0.1', port: '5001', protocol: 'http' })
+        }
+
+        if(this.mode === Constants.VFUSE_MODE.GATEWAY) {
+            opt.libp2p = {
+                modules: {
+                    transport: [WebRTCStar, TCP]
+                },
+                config: {
+                    peerDiscovery: {
+                        webRTCStar: {
+                            enabled: true
+                        }
+                    },
+                    transport: {
+                        WebRTCStar: {
+                            wrtc
+                        }
+                    }
+                },
+                ...opt.libp2p
+            }
+        }
 
         let node = await IPFS.create(opt)
         this.ipfs = node
-        this.libp2p= node.libp2p
+        this.libp2p = node.libp2p
         let pid = await this.ipfs.id()
         console.log("IPFS Peer ID:", pid)
-        let key = await this.ipfs.key.list()
-        console.log({key})
+        this.key = await this.ipfs.key.list()
+        console.log(this.key)
 
         await this.initTopicsChannel()
         this.hookEvents()
         this.swarm()
 
         if(this.ipfsClusterApi) this.cluster = ipfsCluster(this.ipfsClusterApi)
+        /*if (this.ipfsClusterApi && this.mode === Constants.VFUSE_MODE.BROWSER) {
+            const {Cluster} = require('@nftstorage/ipfs-cluster')
+            this.cluster = new Cluster(this.ipfsClusterApi)
+        }*/
+
     }
 
     /**
@@ -270,8 +275,8 @@ class Network {
             try {
                 const peers = await this.ipfs.swarm.peers()
                 if(peers.length > 0){
-                    console.log(`The node now has ${peers.length} peers.`)
-                    console.log({peers})
+                    //console.log(`The node now has ${peers.length} peers.`)
+                    //console.log({peers})
                 }
                 if(this.discoveryCallback) this.discoveryCallback(peers)
             } catch (err) {
@@ -286,11 +291,17 @@ class Network {
             //todo delete previous version
             //let remote_data = await this.ipfs.add(data)
             console.log(this.cluster)
-            //let remote_data = await this.cluster.add(data)
             let remote_data = await this.addAndPin(data)
-            let published_data = await this.ipfs.name.publish(/*remote_data.cid.string*/remote_data.hash)
-            let pin_result = await this.cluster.pin.add(published_data.name)
-            console.log({pin_result})
+            let options = {
+                resolve: true,
+                lifetime: "1024h",
+                allowOffline: true,
+                ...(this.profileId) ? {key : this.profileId} : {}
+            }
+            //let published_data = await this.ipfs.name.publish("/ipfs/" + remote_data.cid.toString()/*remote_data.cid['/']*/, options)
+            let published_data = await this.httpClient.name.publish("/ipfs/" + remote_data.cid.toString()/*remote_data.cid['/']*/, options)
+            //let pin_result = await this.cluster.pin.add(published_data.name)
+            //console.log({pin_result})
             return published_data
         }catch (e){
             console.log('Got some error during the data update: %O', e)
@@ -301,7 +312,7 @@ class Network {
     async publish(cid){
         try {
             let published_data = await this.ipfs.name.publish(cid)
-            await this.cluster.pin.add(published_data.name)
+            await this.cluster.pin.add(published_data.value)
             return published_data
         }catch (e){
             console.log('Got some error during the data update: %O', e)
@@ -313,8 +324,12 @@ class Network {
     async addAndPin(data){
         try {
             //todo delete previous version
-            let remote_data = await this.cluster.add(data)
-            return remote_data
+            let added_data = await this.add(data);
+            let added_to_cluster_data = await this.cluster.add(data);
+            let pinning_result = await this.cluster.pin.add(added_data.cid.toString());
+            //il cid(hash) del pin diventa accessibile attraverso /ipfs(gateway)?
+            //se si utilizzare l'api file per pubblicare su ipns il cid pinnato
+            return added_data
         }catch (e){
             console.log('Got some error during the data adding and pinning: %O', e)
             return null
@@ -344,16 +359,36 @@ class Network {
     async get(cid, path) {
         try {
             let ipfs_data_addr = "", content = [], decodedData = null
-            for await (const name of this.ipfs.name.resolve(/*'/ipns/' +*/ cid)) {
+            for await (const name of this.ipfs.name.resolve('/ipns/' + cid)) {
                 ipfs_data_addr = name
             }
 
-            for await (const file of this.ipfs.get(ipfs_data_addr + path)) {
+            for await (const file of this.ipfs.get(CID.parse(ipfs_data_addr.replace('/ipfs/', '')))) {
                 if (!file.content) continue;
                 for await (const chunk of file.content) {
                     content.push(chunk)
                 }
             }
+            if (content.length > 0) {
+                decodedData = toString(content[0])
+            }
+            return decodedData
+        } catch (e) {
+            console.log('Got some error during data retrieving: %O', e)
+            return null
+        }
+    }
+
+    async cat(cid){
+        try {
+            let ipfs_data_addr = "", content = [], decodedData = null
+            //for await (const name of this.ipfs.name.resolve('/ipns/' + cid)) {
+            for await (const name of this.httpClient.name.resolve('/ipns/' + cid)) {
+                ipfs_data_addr = name
+            }
+            for await (const chunk of await this.ipfs.cat(CID.parse(ipfs_data_addr.replace('/ipfs/', ''))))
+                content.push(chunk)
+
             if (content.length > 0) {
                 decodedData = toString(content[0])
             }
@@ -386,15 +421,27 @@ class Network {
     /* MFS API */
 
     async chmod(path, mode, options){
-        await this.ipfs.files.chmod(path, mode, options)
+        try {
+            await this.ipfs.files.chmod(path, mode, options)
+        }catch (e) {
+            console.log('Got some error during chmod: %O', e)
+        }
     }
 
     async makeDir(dir, options){
-        return await this.ipfs.files.mkdir(dir, options)
+        try {
+           return await this.ipfs.files.mkdir(dir, options)
+        }catch (e) {
+            console.log('Got some error during makedDir: %O', e)
+        }
     }
 
     async touchFile(file){
-        return await this.ipfs.files.touch(file)
+        try {
+           return await this.ipfs.files.touch(file)
+        }catch (e) {
+            console.log('Got some error during touch: %O', e)
+        }
     }
 
     async copy(source, destination){
@@ -402,7 +449,27 @@ class Network {
     }
 
     async writeFile(path, content, options){
-        return await this.ipfs.files.write(path, content, options)
+        try {
+           return await this.ipfs.files.write(path, content, options)
+        }catch (e) {
+            console.log('Got some error during write: %O', e)
+        }
+    }
+
+    async readFile(path, options){
+        try {
+            let chunks = [], decodedData = null
+            for await (const chunk of this.ipfs.files.read(path, options)) {
+                chunks.push(chunk)
+            }
+
+            if (chunks.length > 0) {
+                decodedData = toString(chunks[0])
+            }
+            return decodedData
+        }catch (e) {
+            console.log('Got some error during write: %O', e)
+        }
     }
 
     async stat(path){

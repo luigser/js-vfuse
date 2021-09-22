@@ -16,7 +16,9 @@ class Profile {
 
     async get() {
         try {
-            let decoded_profile = await this.net.get(this.id , "/profile.json")
+            let decoded_profile = await this.net.cat(this.id)
+            //let decoded_profile = await this.net.get(this.id , '/' + this.id + '.json')
+            //let decoded_profile = await this.net.readFile('/profiles/' + this.id + '.json')
             if(decoded_profile){
                 let p = JSON.parse(decoded_profile)
                 this.workflows = p.workflows
@@ -35,10 +37,15 @@ class Profile {
                 workflows: [],
                 rewards: []
             }
+
             let profile = {
-                path: '/tmp/profile.json',
+                path: this.net.key[0].id + '.json',
                 content : Buffer.from(JSON.stringify(new_profile))
             }
+
+            //let profile_dir   = await this.net.makeDir("/profiles")
+            //let touch_profile = await this.net.touchFile("/profiles/" + this.net.key[0].id + '.json')
+            //let write_profile = await this.net.writeFile("/profiles/" + this.net.key[0].id + '.json', new TextEncoder().encode(JSON.stringify(new_profile)))
 
             let published_profile = await this.net.update(profile)
             if(published_profile){

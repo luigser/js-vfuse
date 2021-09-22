@@ -3,16 +3,19 @@ const VFuseGateway = require('./src')
 const main = async () => {
     let node = await VFuseGateway.create({
        // profileId : 'QmU13jxZXrTmpgodotGGNMdCre2BKfmqPyHdHWGh7vmJ5e',
-        bootstrapNodes : [],
-        ipfsClusterApi : '/ip4/192.168.1.57/tcp/9096',
-        ipfs: {
+        signalServerEnabled: true,
+        //ipfsClusterApi : '/ip4/127.0.0.1/tcp/9096',
+        swarmKey: "/key/swarm/psk/1.0.0/\n" +
+            "/base16/\n" +
+            "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3",
+        /*ipfs: {
             config: {
-                /*Identity: {
+                Identity: {
                     PeerID: "12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE",
                     PrivKey: "CAESQL+jpzKMsryufLsv5J6UuFWvCm9Sb4Ce1wyES7yMTiSVMWsM6hL8cneash1ObQoe/VmucfQ39EFQVwMiZ61e+R8="
-                }*/
+                }
             }
-        }
+        }*/
     })
     //console.log(node.node.profile)
     //await node.createWorkflow()

@@ -19,13 +19,14 @@ class VFuse {
     async start(){
         console.log('Strating VFuse node...')
         this.status = Constants.NODE_STATE.INITIALIZING;
-        await this.net.start()
         switch(this.options.mode){
             case Constants.VFUSE_MODE.BROWSER:
+                await this.net.start()
                 this.profile = new Profile(this.net, this.options)
                 this.workflowManager = new WorkflowManager(this.net, this.profile, this.options)
-                //await this.workflowManager.start()
+                await this.workflowManager.start()
                 //await this.profile.check()
+                setTimeout(async () => await this.profile.check(), 30000)
                 break
             case Constants.VFUSE_MODE.GATEWAY:
                 if(this.options.signalServerEnabled){
@@ -46,9 +47,14 @@ class VFuse {
                     }.bind(this))
 
                 }
+                await this.net.start()
                 break
         }
         this.status = Constants.NODE_STATE.RUNNING
+    }
+
+    registerTopicListener(callback){
+        this.net.registerTopicListener(callback)
     }
 
     async createWorkflow(){

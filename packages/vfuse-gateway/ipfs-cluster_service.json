@@ -61,7 +61,8 @@
         "*"
       ],
       "cors_allowed_methods": [
-        "GET"
+        "GET",
+        "POST"
       ],
       "cors_allowed_headers": [],
       "cors_exposed_headers": [

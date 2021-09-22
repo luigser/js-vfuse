@@ -1,6 +1,7 @@
-const PeerId       = require('peer-id')
-const IPFSRepo     = require('ipfs-repo')
-const DatastoreFs  = require("datastore-fs")
+//const PeerId       = require('peer-id')
+const {createRepo}     = require('ipfs-repo')
+const DatastoreFS  = require("datastore-fs")
+const BlockstoreDatastoreAdapter = require('blockstore-datastore-adapter')
 const VFuse        = require('vfuse-core')
 const HttpApi      = require('ipfs-http-server')
 
@@ -9,65 +10,88 @@ const HttpApi      = require('ipfs-http-server')
 
 class VFuseGateway{
     constructor(options) {
+
+        this.codecs = [
+            require('@ipld/dag-pb'),
+            require('@ipld/dag-cbor'),
+            require('multiformats/codecs/raw')
+        ].reduce((acc, curr) => {
+            acc[curr.name] = curr
+            acc[curr.code] = curr
+
+            return acc
+        }, {})
+
+        this.loadCodec = (nameOrCode) => {
+            if (this.codecs[nameOrCode]) {
+                return this.codecs[nameOrCode]
+            }
+
+            throw new Error(`Could not load codec for ${nameOrCode}`)
+        }
+
+        this.repoPath = 'fs-repo'
+
         this.customRepositoryOptions = {
-            storageBackends: {
-                root: DatastoreFs, // version and config data will be saved here
-                blocks: DatastoreFs,
-                keys: DatastoreFs,
-                datastore: DatastoreFs
-            },
-            storageBackendOptions: {
-                root: {
-                    extension: '.ipfsroot', // Defaults to ''. Used by datastore-fs; Appended to all files
-                    errorIfExists: false, // Used by datastore-fs; If the datastore exists, don't throw an error
-                    createIfMissing: true // Used by datastore-fs; If the datastore doesn't exist yet, create it
-                },
-                blocks: {
-                    sharding: false, // Used by IPFSRepo Blockstore to determine sharding; Ignored by datastore-fs
-                    extension: '.ipfsblock', // Defaults to '.data'.
+            root: new DatastoreFS(this.repoPath, {
+                extension: '.ipfsroot', // Defaults to '', appended to all files
+                errorIfExists: false, // If the datastore exists, don't throw an error
+                createIfMissing: true // If the datastore doesn't exist yet, create it
+            }),
+            // blocks is a blockstore, all other backends are datastores - but we can wrap a datastore
+            // in an adapter to turn it into a blockstore
+            blocks: new BlockstoreDatastoreAdapter(
+                new DatastoreFS(`${this.repoPath}/blocks`, {
+                    extension: '.ipfsblock',
                     errorIfExists: false,
                     createIfMissing: true
-                },
-                keys: {
-                    extension: '.ipfskey', // No extension by default
-                    errorIfExists: false,
-                    createIfMissing: true
-                },
-                datastore: {
-                    extension: '.ipfsds', // No extension by default
-                    errorIfExists: false,
-                    createIfMissing: true
-                }
-            },
-            //lock: fsLock
+                })
+            ),
+            keys: new DatastoreFS(`${this.repoPath}/keys`, {
+                extension: '.ipfskey',
+                errorIfExists: false,
+                createIfMissing: true
+            }),
+            datastore: new DatastoreFS(`${this.repoPath}/datastore`, {
+                extension: '.ipfsds',
+                errorIfExists: false,
+                createIfMissing: true
+            }),
+            pins: new DatastoreFS(`${this.repoPath}/pins`, {
+                extension: '.ipfspin',
+                errorIfExists: false,
+                createIfMissing: true
+            }),
+            ipns: new DatastoreFS(`${this.repoPath}/ipns`, {
+                extension: '.ipfsipns',
+                errorIfExists: false,
+                createIfMissing: true
+            }),
+            ipfs: new DatastoreFS(`${this.repoPath}/ipfs`, {
+                extension: '.ipfsipfs',
+                errorIfExists: false,
+                createIfMissing: true
+            })
         }
 
         this.options = {
             mode: VFuse.Constants.VFUSE_MODE.GATEWAY,
-            signalServerEnabled : true,
-            ipfsClusterApi : options.ipfsClusterApi,
-            bootstrapNodes: options.bootstrapNodes,
+            signalServerEnabled : options.signalServerEnabled || false,
+            ipfsClusterApi : options.ipfsClusterApi || {},
+            bootstrapNodes: options.bootstrapNodes || [],
             packages: [],
-            swarmKey: "/key/swarm/psk/1.0.0/\n" +
-                "/base16/\n" +
-                "644a17d6bd356f40431872d3471e11918b5f8a9e50f1155eb291982a7548defc",
+            swarmKey: options.swarmKey,
             ipfs: {
-                repo: new IPFSRepo('./fs-repo/.ipfs/vfuse-gateway', this.customRepositoryOptions),
+                repo: createRepo('./fs-repo/.ipfs/vfuse-gateway', this.loadCodec, this.customRepositoryOptions),
                 config: {
-                    Bootstrap:  [
-                        '/ip4/127.0.0.1/tcp/4001/ws/p2p/QmVVx6s2QvEnRZwYhxH1j7bzYgwpQZWVpguhPbCsTdR8Bq'
-                    ],
+                    Bootstrap:  [/*'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE'*/],
                     Addresses: {
                         API: "/ip4/127.0.0.1/tcp/5001",
                         Swarm: [
-                            //"/ip4/127.0.0.1/tcp/4001",
-                            //"/ip6/127.0.0.1/tcp/4001",
-                            //"/ip4/127.0.0.1/udp/4001/quic",
-                            //"/ip6/127.0.0.1/udp/4001/quic",
-                            "/ip4/0.0.0.0/tcp/4001",
-                            "/ip4/0.0.0.0/tcp/4001/ws",
-                            '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
-                            //"/ip6/::/tcp/4001/ws"
+                            /*"/ip4/127.0.0.1/tcp/4001",
+                            "/ip4/127.0.0.1/tcp/4001/ws",*/
+                            '/ip4/127.0.0.1/tcp/4003/ws',
+                            '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
                         ],
                         Announce: [],
                         Gateway: "/ip4/127.0.0.1/tcp/8080",
@@ -95,7 +119,7 @@ class VFuseGateway{
                         RootRedirect: "",
                         Writable: true,
                         PathPrefixes: [],
-                        APICommands: []
+                        //APICommands: ["dht/findprovs", "dht/findpeer", "refs", "swarm/connect"]
                     },
                     Gateway: {
                         APICommands: [],
@@ -120,8 +144,8 @@ class VFuseGateway{
                         Writable: true
                     },
                     Ipns: {
-                        RecordLifetime: "",
-                        RepublishPeriod: "",
+                        /*RecordLifetime: "",
+                        RepublishPeriod: "",*/
                         ResolveCacheSize: 128
                     },
                     Routing: {
@@ -139,11 +163,11 @@ class VFuseGateway{
                         DisableNatPortMap: false,
                         EnableAutoRelay: true,
                         EnableRelayHop: true,
-                        Transports: {
+                       /* Transports: {
                             Multiplexers: {},
                             Network: {},
                             Security: {}
-                        }
+                        }*/
                     }
                 }
             }
@@ -159,13 +183,12 @@ class VFuseGateway{
         await this.gateway.start();
         console.log('Gateway started')
 
+        this.httpApi = new HttpApi(this.node.net.ipfs)
+        await this.httpApi.start()
         console.log('Http API Server started')
-        const httpApi = new HttpApi(this.node.net.ipfs)
-        this.httpApi = await httpApi.start()
-
-        /*if (this.httpApi._apiServers.length) {
-            await this.node.net.ipfs.repo.apiAddr.set(this.httpApi._apiServers[0].info.ma)
-        }*/
+        if (this.httpApi._apiServers.length) {
+            await this.node.net.ipfs.repo.setApiAddr(this.httpApi._apiServers[0].info.ma)
+        }
     }
 
     async createWorkflow(){

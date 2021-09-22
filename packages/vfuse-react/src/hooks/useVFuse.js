@@ -13,41 +13,42 @@ export const useVFuse = () => {
                 node = await VFuse.create(
                     {
                         mode:VFuse.Constants.VFUSE_MODE.BROWSER,
-                        profileId: profileId,
+                        profileId: profileId,//QmZXH9QvPSr4JbPgoD9TuxUZhW1yqgp68FUS6qDa41rFp3
                         worker: PythonWorker.getWebWorker(),
                         discoveryCallback: () => {},
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},
                         swarmKey: "/key/swarm/psk/1.0.0/\n" +
                             "/base16/\n" +
-                            "644a17d6bd356f40431872d3471e11918b5f8a9e50f1155eb291982a7548defc",
+                            "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3",
                         ipfs:{
+                            pass: "01234567890123456789",
                             config:{
                                 Addresses: {
                                     Swarm: [
-                                        //'/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
-                                        //"/ip4/0.0.0.0/tcp/4001/ws"
+                                        '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',//UNCOMMENT FOR CUSTOM GATEWAY VERSION
+                                        //'/ip4/127.0.0.1/tcp/4001/ws'
                                     ],
-                                    //SignalServer: '127.0.0.1:2000'
+                                   // Delegates: ["/ip4/127.0.0.1/tcp/8080"]
                                 },
                                 Swarm: {
                                     EnableRelayHop: true
                                 },
-                                /*Discovery: {
+                                Bootstrap:  [
+                                    '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star/p2p/12D3KooWMqNSWNH95gZMAEhymuirCBNnfWeFDTAM8davwRGQncrv'
+                                ],
+                               /* Discovery: {
                                     MDNS: {
-                                        Enabled: false,
-                                        Interva: 10
+                                        Enabled: false
+                                    },
+                                    webRTCStar: {
+                                        Enabled: false
                                     }
                                 },*/
-                                Bootstrap:  [
-                                    //'/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
-                                    '/ip4/127.0.0.1/tcp/4001/ws/p2p/QmVVx6s2QvEnRZwYhxH1j7bzYgwpQZWVpguhPbCsTdR8Bq'
-                                ]
                             }
                         },
                         packages: [],
-                        //libp2p : { addresses : { listen : ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star'] }},
-                        libp2p : { addresses : { listen: ['/ip4/127.0.0.1/tcp/4001/ws'] }},
+                        libp2p : { addresses : { listen : ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star'] }},
                         ipfsClusterApi : { host: 'localhost', port: '9094', protocol: 'http' }
                     }
                 )
