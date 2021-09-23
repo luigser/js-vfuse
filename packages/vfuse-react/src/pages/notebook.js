@@ -1,21 +1,26 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row} from "antd";
-import Editor from "react-simple-code-editor";
-import {highlight, languages} from "prismjs/components/prism-core";
-import 'prismjs/components/prism-python';
 import VFuse from "vfuse-core";
-import {useVFuse} from "../hooks/useVFuse"
 import {gStore} from "../store";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMagic} from "@fortawesome/free-solid-svg-icons";
+import CodeEditor from "../components/CodeEditor/codeEditor";
+
+/*
+//import Editor from "react-simple-code-editor";
+import {highlight, languages} from "prismjs/components/prism-core";
+import 'prismjs/components/prism-python';
+import 'prismjs/themes/prism-funky.css'*/
 
 export default function NotebookPage(props){
-
-
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
-    const [runLocalLoading, setRunLocalLoading] = useState(false)
-    const [runNetworkLoading, setRunNetworkLoading] = useState(false)
+    const [runLocalLoading, setRunLocalLoading] = useState(true)
+    const [publishNetworkLoading, setPublishNetworkLoading] = useState(true)
+    const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(true)
     const [vFuseNode, setVFuseNode] = useState(null)
+
+    const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : "QmZtVKYKXXqL6QmqRjvVmvR17AVEVMTZsMR3auvYWQgmsR")
+
     const [code, setCode] = useState(
         `import numpy as np 
 a = [[2, 0], [0, 2]]
@@ -24,17 +29,35 @@ c = np.dot(a, b)
 print(c)`
     );
 
-    const {getNode} = useVFuse()
 
     useEffect(() => {
         let node = gStore.get("vFuseNode")
         if(node){
             setVFuseNode(node)
             setStatus(VFuse.Constants.NODE_STATE.RUNNING)
+            setRunLocalLoading(false)
+            setPublishNetworkLoading(false)
+            setSaveWorkflowLoading(false)
         }
-
     },[])
 
+    const loadWorkflow = async () => {
+
+    }
+
+    const saveWorkflow = async () => {
+        setSaveWorkflowLoading(true)
+        let wid = await vFuseNode.createWorkflow('Test')
+        await vFuseNode.addJob(wid, code, null, [])
+        setWorkflowId(wid)
+        setSaveWorkflowLoading(false)
+    }
+
+    const publishWorkflow = async () => {
+        setPublishNetworkLoading(true)
+        await vFuseNode.publishWorkflow(workflowId)
+        setPublishNetworkLoading(false)
+    }
 
     return(
         <div>
@@ -51,7 +74,8 @@ print(c)`
                         ]}
                         extra={[
                             <Button key="3" type="primary" disabled={!vFuseNode} loading={runLocalLoading}>Run in Local</Button>,
-                            <Button key="2" type="danger" disabled={!vFuseNode} loading={runNetworkLoading}>Run on Network</Button>,
+                            <Button key="2" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save workflow</Button>,
+                            <Button key="1" type="danger" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Publish on Network</Button>,
                         ]}
                         avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
                         /*breadcrumb={{ routes }}*/
@@ -78,7 +102,7 @@ print(c)`
                 <Col span={24} style={{marginTop: "24px"}}>
                     <Descriptions  layout="vertical" bordered>
                         <Descriptions.Item label="Code Editor">
-                            <Editor
+                           {/* <Editor
                                 value={code}
                                 onValueChange={(code) => setCode(code)}
                                 highlight={code => highlight(code, languages.py)}
@@ -86,10 +110,11 @@ print(c)`
                                 style={{
                                     height: "62vh",
                                     fontFamily: '"Fira code", "Fira Mono", monospace',
-                                    fontSize: 12,
+                                    fontSize: 14,
                                     overflow: "scroll"
                                 }}
-                            />
+                            />*/}
+                            <CodeEditor code={code} setCode={setCode} />
                         </Descriptions.Item>
                     </Descriptions>
                 </Col>

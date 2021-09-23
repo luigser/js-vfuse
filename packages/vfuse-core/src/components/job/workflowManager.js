@@ -1,5 +1,6 @@
 'use strict'
 
+const PeerId = require('peer-id')
 const log = require('debug')('vfuse:workflowManager')
 const Runtime = require('./runtime')
 const Workflow = require('./workflow')
@@ -51,20 +52,10 @@ class WorkflowManager{
         }.bind(this), 5000)
     }
 
-    getWorkflows(){
+    async getPublishedWorkflows(){
         //get workflow from global IPFS queue
+        return await this.net.list("/workflows")
     }
-
-    addWorkflow(workflow){
-
-    }
-
-   /* removeJob(job){
-        let index = this.jobsQueue.indexOf(job);
-        if (index > -1) {
-            this.jobsQueue.splice(index, 1);
-        }
-    }*/
 
     async updateResults(workflowId, JobId, results){
 
@@ -107,71 +98,76 @@ class WorkflowManager{
         }
     }
 
-    async createWorkflow(){
+    async createWorkflow(name){
         try{
-           /* let workflow = new Workflow()
-            await this.profile.createWorkflow(workflow, [])
-            return workflow.id*/
-
             //todo find a strategy to get a new workflow id
-            let workflow_index = this.profile.workflows.length
-            await this.net.makeDir('/workflows/' + workflow_index, { parents : true, mode: "777" })
-            await this.net.makeDir('/workflows/' + workflow_index + '/results', { parents : true, mode: "777" })
-            await this.net.makeDir('/workflows/' + workflow_index + '/jobs', { parents : true, mode: "777" })
-
-            let workflow_dir = await this.net.stat('/workflows/' + workflow_index)
-            let results_dir = await this.net.stat('/workflows/' + workflow_index + '/results')
-            let jobs_dir = await this.net.stat('/workflows/' + workflow_index + '/jobs')
-
-            let published_workflow = await this.net.publish(workflow_dir.cid.string)
-            let published_results = await this.net.publish(results_dir.cid.string)
-            let published_jobs = await this.net.publish(jobs_dir.cid.string)
-
-            if(published_workflow && published_results && published_jobs){
-                let workflow = new Workflow(published_workflow.name, published_results.name, published_jobs.name)
-                await this.profile.addWorkflow(workflow)
-                console.log({workflow_dir})
-                console.log({results_dir})
-                console.log({jobs_dir})
-            }
-
-            return workflow_index
+            let workflow_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
+            let workflow = new Workflow(workflow_id._idB58String, name)
+            await this.profile.addWorkflow(workflow)
+            console.log('Workflow sucessfully created: %O', workflow)
+            return workflow_id._idB58String
         }catch (e){
             log('Got some error during the workflow creation: %O', e)
+        }
+    }
+
+    async updateWorkflow(workflow){
+        try{
+
+        }catch (e){
+            log('Got some error during the workflow updating: %O', e)
+        }
+    }
+
+    async publishWorkflow(workflow_id){
+        //todo check if workflow exist in the profile
+        try{
+
+            let workflow = this.profile.getWorkflow(workflow_id)
+            if(workflow){
+                let workflow_dir = '/workflows/' + workflow.id
+                await this.net.makeDir(workflow_dir, { create:true, parents : true, mode: "777" })
+                await this.net.makeDir(workflow_dir + '/results', { create:true, parents : true, mode: "777" })
+                await this.net.makeDir(workflow_dir + '/jobs', { create:true, parents : true, mode: "775" })
+                await this.net.writeFile(workflow_dir + '/' + workflow.id + '.json', new TextEncoder().encode(JSON.stringify(workflow)),
+                    {create : true, parents: true, mode: parseInt('0775', 8)})
+                await this.net.pinFileInMFS(workflow_dir + '/' + workflow.id + '.json')
+
+                workflow.jobs.map(async job => {
+                    await this.net.writeFile(workflow_dir + '/jobs/' + job.id + '.json', new TextEncoder().encode(JSON.stringify(job)),
+                        {create : true, parents: true, mode: parseInt('0775', 8)})
+                    await this.net.pinFileInMFS(workflow_dir + '/jobs/' + job.id + '.json')
+                })
+                console.log('Workflow successfully published')
+            }else{
+                throw 'Workflow ID do no exist. You need to save in your profile before publish it!'
+            }
+            return workflow
+        }catch (e){
+            log('Got some error during the workflow publishing: %O', e)
+            return null
+        }
+    }
+
+    async addJob(workflow_id, code, data, dependencies){
+        try{
+            let job_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
+            let job = new Job(
+                job_id._idB58String,
+                code,
+                data,
+                dependencies
+            )
+            await this.profile.addJob(workflow_id, job)
+            console.log('Job successfully added to workflow')
+        }catch (e){
+            console.log('Got some error during the workflow creation: %O', e)
         }
     }
 
     async getJobs(workflow){
         let jobs = await this.net.ls(workflow)
         console.log(jobs)
-    }
-
-    async addJob(workflow, code, data, dependencies){
-        try{
-            let job = new Job(
-                null,
-                code,
-                data,
-                dependencies
-            )
-
-            let jobs = await this.net.list('/workflows/' + workflow + '/jobs')
-            console.log({jobs})
-            await this.net.writeFile('/workflows/' + workflow + '/jobs/' + jobs.length + '.json', JSON.stringify(job), {create : true, mode: '655'})
-            let job_stat = await this.net.stat('/ipfs/' + workflow.jobs + '/' + jobs.length + '.json')
-
-            /*let job_file = await this.net.add({
-                //path: '/ipfs/' + workflow.id + '/jobs/' + jobs.length + '.json',
-                content: JSON.stringify(job)
-            });
-            console.log({job_file})
-            await this.net.copy('/ipfs/' + job_file.cid.string, '/ipfs/QmNkocPBvKPH1Z17N7DdRnhck85aVPwQRH7jMwAi4acgWz' )*/
-
-            //await this.profile.addJob(workflow, job)
-            console.log('Job successfully added to workflow')
-        }catch (e){
-            console.log('Got some error during the workflow creation: %O', e)
-        }
     }
 }
 

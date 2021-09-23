@@ -6,7 +6,6 @@ Here some consideration
   Each level represent the jobs dependencies form previous level
   [[j1], [j2, j3]] => j2,j3 depend on j1 and they cannot be execute unitl j1 ends up
 */
-
 const Constants = require("../constants");
 
 class Workflow{
@@ -17,10 +16,11 @@ class Workflow{
         COMPLETED : 2
     }*/
 
-    constructor(id, results, jobs) {
+    constructor(id, name = '', results = null, jobs = []) {
         /*this.id = null
         this.status = Constants.WORKFLOW_STATUS.IDLE//Workflow.STATUS.IDLE
         this.jobs = []*/
+        this.name = name
         this.id = id
         this.results = results
         this.jobs = jobs

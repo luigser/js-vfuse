@@ -1,4 +1,3 @@
-//const PeerId       = require('peer-id')
 const {createRepo}     = require('ipfs-repo')
 const DatastoreFS  = require("datastore-fs")
 const BlockstoreDatastoreAdapter = require('blockstore-datastore-adapter')
@@ -88,9 +87,8 @@ class VFuseGateway{
                     Addresses: {
                         API: "/ip4/127.0.0.1/tcp/5001",
                         Swarm: [
-                            /*"/ip4/127.0.0.1/tcp/4001",
-                            "/ip4/127.0.0.1/tcp/4001/ws",*/
-                            '/ip4/127.0.0.1/tcp/4003/ws',
+                            //"/ip4/127.0.0.1/tcp/4001",
+                            "/ip4/127.0.0.1/tcp/4001/ws",
                             '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
                         ],
                         Announce: [],
@@ -189,10 +187,6 @@ class VFuseGateway{
         if (this.httpApi._apiServers.length) {
             await this.node.net.ipfs.repo.setApiAddr(this.httpApi._apiServers[0].info.ma)
         }
-    }
-
-    async createWorkflow(){
-        await this.node.createWorkflow()
     }
 
     async addJob(job){

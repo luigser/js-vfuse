@@ -50,6 +50,7 @@ class Network {
         this.ipfsOptions = options.ipfs
         this.libp2pOptions = options.libp2p
         this.ipfsClusterApi = options.ipfsClusterApi
+        this.ipfsClientOptions = options.ipfsClientOptions
         this.ipfsCluster = null
         this.httpClient = null
 
@@ -181,7 +182,7 @@ class Network {
                 ...opt.libp2p
             }
 
-            this.httpClient = IpfsHttpClient.create({ host: '127.0.0.1', port: '5001', protocol: 'http' })
+            this.httpClient = IpfsHttpClient.create(this.ipfsClientOptions)
         }
 
         if(this.mode === Constants.VFUSE_MODE.GATEWAY) {
@@ -422,7 +423,7 @@ class Network {
 
     async chmod(path, mode, options){
         try {
-            await this.ipfs.files.chmod(path, mode, options)
+            await this.httpClient.files.chmod(path, mode, options)
         }catch (e) {
             console.log('Got some error during chmod: %O', e)
         }
@@ -430,7 +431,7 @@ class Network {
 
     async makeDir(dir, options){
         try {
-           return await this.ipfs.files.mkdir(dir, options)
+           return await this.httpClient.files.mkdir(dir, options)
         }catch (e) {
             console.log('Got some error during makedDir: %O', e)
         }
@@ -438,7 +439,7 @@ class Network {
 
     async touchFile(file){
         try {
-           return await this.ipfs.files.touch(file)
+           return await this.httpClient.files.touch(file)
         }catch (e) {
             console.log('Got some error during touch: %O', e)
         }
@@ -450,7 +451,7 @@ class Network {
 
     async writeFile(path, content, options){
         try {
-           return await this.ipfs.files.write(path, content, options)
+           return await this.httpClient.files.write(path, content, options)
         }catch (e) {
             console.log('Got some error during write: %O', e)
         }
@@ -459,7 +460,7 @@ class Network {
     async readFile(path, options){
         try {
             let chunks = [], decodedData = null
-            for await (const chunk of this.ipfs.files.read(path, options)) {
+            for await (const chunk of this.httpClient.files.read(path, options)) {
                 chunks.push(chunk)
             }
 
@@ -473,15 +474,34 @@ class Network {
     }
 
     async stat(path){
-        return await this.ipfs.files.stat(path)
+        try {
+           return await this.httpClient.files.stat(path)
+        }catch (e) {
+            console.log('Got some error during stat: %O', e)
+        }
     }
 
     async list(path){
-        let jobs = []
-        for await (const file of this.ipfs.files.ls(path)) {
-            jobs.push(file.name)
+        let files = []
+        try{
+            for await (const file of this.httpClient.files.ls(path)) {
+                files.push(file.name)
+            }
+        }catch (e) {
+            console.log('Got some error during list: %O', e)
         }
-        return jobs
+        return files
+    }
+
+    async pinFileInMFS(path){
+        try{
+            let stat = await this.stat(path)
+            console.log({stat})
+            let pinning_result = await this.pin(stat.cid.toString())
+        }catch (e) {
+            console.log('Got some error during stat: %O', e)
+        }
+
     }
 
     /*CLUSTER API FOR PINNING*/

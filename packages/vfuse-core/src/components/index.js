@@ -25,8 +25,8 @@ class VFuse {
                 this.profile = new Profile(this.net, this.options)
                 this.workflowManager = new WorkflowManager(this.net, this.profile, this.options)
                 await this.workflowManager.start()
-                //await this.profile.check()
-                setTimeout(async () => await this.profile.check(), 30000)
+                await this.profile.check()
+                //setTimeout(async () => await this.profile.check(), 30000)
                 break
             case Constants.VFUSE_MODE.GATEWAY:
                 if(this.options.signalServerEnabled){
@@ -57,12 +57,16 @@ class VFuse {
         this.net.registerTopicListener(callback)
     }
 
-    async createWorkflow(){
-       return await this.workflowManager.createWorkflow()
+    async createWorkflow(name){
+       return await this.workflowManager.createWorkflow(name)
     }
 
-    getWorkflows(){
-        return this.profile.workflows
+    async publishWorkflow(workflow_id){
+        return await this.workflowManager.publishWorkflow(workflow_id)
+    }
+
+    async getPublishedWorkflows(){
+        return await this.workflowManager.getPublishedWorkflows()
     }
 
     async runAllWokflows(){
@@ -70,6 +74,7 @@ class VFuse {
     }
 
     async addJob(workflow, code, data, dependencies){
+        //Todo the dependencies and data should be extracted directly from the entire code in the notebook
         await this.workflowManager.addJob(workflow, code, data, dependencies)
     }
 

@@ -4,6 +4,7 @@ import VFuse from "vfuse-core";
 
 import {useVFuse} from "../hooks/useVFuse"
 import {gStore} from "../store";
+import CTable from "../components/DataVisualization/CTable/CTable";
 
 export default function ProfilePage(props){
 
@@ -13,6 +14,8 @@ export default function ProfilePage(props){
     const [startLoading, setStartLoading] = useState(false)
     const [stopLoading, setStopLoading] = useState(false)
     const [createLoading, setCreateLoading] = useState(false)
+    const [workflows, setWorkflows] = useState([])
+    const [publishedWorkflows, setPublishedWorkflows] = useState([])
     const consoleRef = useRef(null);
 
     const {getNode} = useVFuse()
@@ -23,8 +26,8 @@ export default function ProfilePage(props){
             setProfile(node.profile)
             setStatus(VFuse.Constants.NODE_STATE.RUNNING)
         }
-
     },[])
+
 
     const onProfileIdChange = (e) =>{
         setProfileId(e.nativeEvent.target.value)
@@ -37,16 +40,45 @@ export default function ProfilePage(props){
         setStatus(VFuse.Constants.NODE_STATE.INITIALIZING)
 
         let node = await getNode(profileId)
+        let publishedWorkflows = await node.getPublishedWorkflows();
+        setPublishedWorkflows(publishedWorkflows)
+        console.log({publishedWorkflows})
 
         setStatus(node ? VFuse.Constants.NODE_STATE.RUNNING : VFuse.Constants.NODE_STATE.STOP)
 
         setProfileId(node?.profile?.id)
         setProfile(node?.profile)
+        setWorkflows(node?.profile?.workflows)
 
         if(mode === "create") setCreateLoading(false)
         else setStartLoading(false)
 
     }
+
+    const columns = [
+        {
+            title : "Name",
+            dataIndex: "name",
+            key: "name"
+        },
+        {
+            title : "Id",
+            dataIndex: "id",
+            key: "id"
+        },
+        {
+            title : "Jobs",
+            dataIndex: "jobs",
+            key: "jobs",
+            render: (text, record, index) => <>{record.jobs.length}</>
+        },
+        {
+            title : "Published",
+            dataIndex: "published",
+            key: "published",
+            render: (text, record, index) => publishedWorkflows.indexOf(record.id) >= 0 ? <b>yes</b> : <b>no</b>
+        }
+    ]
 
     return(
         <div>
@@ -92,6 +124,20 @@ export default function ProfilePage(props){
                             </>
                         </Layout.Content>
                     </PageHeader>
+                </Col>
+            </Row>
+            <Row style={{margin: '24px'}}>
+                <Col span={24}>
+                    <Descriptions title="Workflows" layout="vertical" />
+                </Col>
+            </Row>
+            <Row style={{margin: '24px'}}>
+                <Col span={24}>
+                    <CTable
+                        dataSource={workflows}
+                        api={{}}
+                        columns={columns}
+                    />
                 </Col>
             </Row>
         </div>

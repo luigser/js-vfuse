@@ -24,7 +24,7 @@ export const globalMenu = [{
         },
         {
             key  : 'network-page',
-            name : "network",
+            name : "Network",
             path : "/network",
             page : NetworkPage,
             icon: faNetworkWired

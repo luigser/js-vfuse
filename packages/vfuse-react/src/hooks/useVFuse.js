@@ -49,7 +49,8 @@ export const useVFuse = () => {
                         },
                         packages: [],
                         libp2p : { addresses : { listen : ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star'] }},
-                        ipfsClusterApi : { host: 'localhost', port: '9094', protocol: 'http' }
+                        ipfsClusterApi : { host: 'localhost', port: '9094', protocol: 'http' },
+                        ipfsClientOptions :{ host: 'localhost', port: '5001', protocol : 'http' }
                     }
                 )
                 //console.log("Profile ID: %s", node.profile.id)
