@@ -17,3 +17,27 @@ npm install ipfs-swarm-key-gen -g
 12D3KooWAaerNGh5QT5VG2wszDGCKVPMpddXUzKSTSkwTHwXL3xW
 QmTPeYtDJf61yRd6so153qSzvkPiD49af7367Wiv8QzQxS
 12D3KooWJ1iCEaDuU1DLJcag2An37DBQbcukWEVRFJsvRSLcGSFd
+
+
+//Domande e note
+
+Il workflow manager deve usare una factory per il runtime
+Ogni runtime deve implementare il meccanismo di parsing per i jobs e dati
+
+1) utilizzare un oggetto "VFuse.NOME_FUNZIONE"
+    L'idea è passare da python a javascript per recuperare dati da IPFS/HTTP utilizzando funzioni scritte in Python ma inplementate in javascript
+        ESEMPIO:
+        def task1(input)
+           ...
+           print(output)
+        def task2(input)
+           ....
+           print(output)
+
+        input = 'ipfs/HASH' //l'input potrebbe essere definito dall'esterno con un input box e qualcosa del genere
+        for chank in range(input_size)
+           data_chunk = VFuse.getBytes(input,chank, 1024)
+           VFuse.createJob(task1, data_chunk, [task2])
+
+
+    - esiste un modo per mappare funzioni da un liguaggio ad un altro( design pattern, DSL o qualcosa del genere?)

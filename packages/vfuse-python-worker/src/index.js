@@ -1,20 +1,22 @@
 'use strict'
 
-const WebWorkerScript = require('./components/web/worker')
+//const WebWorkerScript = require('./components/web/worker')
 
 class PythonWorker{
 
-    constructor() {
-        //todo This should be improved by importing the js not the string
-        this.webWorker = new Worker(URL.createObjectURL(
-            new Blob([WebWorkerScript], {
-                type: 'text/javascript',
-            })
-        ));
-    }
+   /* static getWebWorker(){
+        const PythonWebWorkerScript = require('./components/web/worker')
+        let blob =  new Blob([PythonWebWorkerScript], {
+            type: 'text/javascript',
+        })
+        let worker = new Worker(URL.createObjectURL(blob))
+        return worker
+    }*/
 
     static getWebWorker(){
-        return new PythonWorker().webWorker
+        //return new Worker("./components/web/pythonWebWorker.js")
+        const PythonWebWorkerScript = require('./components/web/pythonWebWorker')
+        return new Worker(PythonWebWorkerScript);
     }
 }
 

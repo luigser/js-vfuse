@@ -1,9 +1,9 @@
 'use strict'
 
 const log = require('debug')('vfuse:node')
-const Network = require('./network')
-const Profile = require('./profile')
-const WorkflowManager = require('./job/workflowManager')
+const NetworkManager = require('./networkManager')
+const IdentityManager = require('./identityManager')
+const WorkflowManager = require('./workflowManager')
 const Constants = require('./constants')
 
 class VFuse {
@@ -11,7 +11,7 @@ class VFuse {
      * @param {Object} options
      */
     constructor(options) {
-        this.net = new Network(options)
+        this.networkManager = new NetworkManager(options)
         this.options = options
         this.status = Constants.NODE_STATE.STOP
     }
@@ -21,11 +21,11 @@ class VFuse {
         this.status = Constants.NODE_STATE.INITIALIZING;
         switch(this.options.mode){
             case Constants.VFUSE_MODE.BROWSER:
-                await this.net.start()
-                this.profile = new Profile(this.net, this.options)
-                this.workflowManager = new WorkflowManager(this.net, this.profile, this.options)
+                await this.networkManager.start()
+                this.identityManager = new IdentityManager(this.networkManager, this.options)
+                this.workflowManager = new WorkflowManager(this.networkManager, this.identityManager, this.options)
                 await this.workflowManager.start()
-                await this.profile.check()
+                await this.identityManager.checkProfile()
                 //setTimeout(async () => await this.profile.check(), 30000)
                 break
             case Constants.VFUSE_MODE.GATEWAY:
@@ -47,14 +47,14 @@ class VFuse {
                     }.bind(this))
 
                 }
-                await this.net.start()
+                await this.networkManager.start()
                 break
         }
         this.status = Constants.NODE_STATE.RUNNING
     }
 
     registerTopicListener(callback){
-        this.net.registerTopicListener(callback)
+        this.networkManager.registerTopicListener(callback)
     }
 
     async createWorkflow(name){
@@ -79,12 +79,12 @@ class VFuse {
     }
 
     registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){
-        this.net.registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback)
+        this.networkManager.registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback)
     }
 
     async stop(){
         console.log('Stopping VFuse node...')
-        await this.net.stop()
+        await this.networkManager.stop()
         this.status = Constants.NODE_STATE.STOP
     }
 
@@ -94,7 +94,7 @@ class VFuse {
     static async create (options = {}) {
         const vfuse = new VFuse(options)
         await vfuse.start()
-        await vfuse.net.send("VFuse node is ready")
+        await vfuse.networkManager.send("VFuse node is ready")
         return vfuse
     }
 }

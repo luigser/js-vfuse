@@ -31,7 +31,7 @@ const options = {
         console.log('PROFILE ID: %s', node.profile.id)
 
         let job = new Job(
-            `import numpy as np 
+            `import numpy as np
 a = [[2, 0], [0, 2]]
 b = [[4, 1], [2, 2]]
 c = np.dot(a, b)
@@ -72,7 +72,7 @@ describe('Get profile',  () => {
         options.worker = PythonWorker.getWebWorker()
         const node = await VFuse.create(options)
         expect(node).to.exist()
-        console.log('PROFILE ID: %s', node.profile.id)
+        console.log('PROFILE ID: %s', node.identityManager.id)
 
     }).timeout(30000)
 })
@@ -105,7 +105,7 @@ describe('Check profile update',  () => {
 
         await node.addJob(
             workflow,
-            `import numpy as np 
+            `import numpy as np
 a = [[2, 0], [0, 2]]
 b = [[4, 1], [2, 2]]
 c = np.dot(a, b)

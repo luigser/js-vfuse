@@ -22,7 +22,7 @@ const IpfsHttpClient = require("ipfs-http-client")
 
 const Constants = require("./constants")
 
-class Network {
+class NetworkManager {
     /**
      * @param {Object} config
      * @param {Options} config.options
@@ -227,7 +227,7 @@ class Network {
     }
 
     /**
-     * @param {Network} network
+     * @param {NetworkManager} network
      */
     async stop(){
         await this.ipfs.stop()
@@ -533,4 +533,4 @@ class Network {
 
 }
 
-module.exports = Network
+module.exports = NetworkManager

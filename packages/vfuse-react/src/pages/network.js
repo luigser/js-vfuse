@@ -36,7 +36,7 @@ export default function NetworkPage(props){
             <Row>
                 <Col span={24}>
                     <PageHeader
-                        title="VFuse Network Information"
+                        title="VFuse NetworkManager Information"
                         className="site-page-header"
                         subTitle="Node status"
                         tags={[

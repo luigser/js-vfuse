@@ -85,7 +85,7 @@ export default function ProfilePage(props){
             <Row>
                 <Col span={24}>
                     <PageHeader
-                        title="VFuse Profile"
+                        title="VFuse IdentityManager"
                         className="site-page-header"
                         subTitle="Node status"
                         tags={[
@@ -113,11 +113,11 @@ export default function ProfilePage(props){
                             <>
                                 <Typography.Paragraph>
                                     <Col span={12} >
-                                        <Input placeholder="Your Profile ID here" onChange={onProfileIdChange} />
+                                        <Input placeholder="Your IdentityManager ID here" onChange={onProfileIdChange} />
                                     </Col>
                                 </Typography.Paragraph>
                                 <Descriptions title="User Info" layout="vertical" bordered>
-                                    <Descriptions.Item label="Profile ID">{profile?.id}</Descriptions.Item>
+                                    <Descriptions.Item label="IdentityManager ID">{profile?.id}</Descriptions.Item>
                                     <Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>
                                     <Descriptions.Item label="Rewards">{profile?.rewards} ETH</Descriptions.Item>
                                 </Descriptions>

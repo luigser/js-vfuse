@@ -14,7 +14,11 @@ export const useVFuse = () => {
                     {
                         mode:VFuse.Constants.VFUSE_MODE.BROWSER,
                         profileId: profileId,//QmZXH9QvPSr4JbPgoD9TuxUZhW1yqgp68FUS6qDa41rFp3
-                        worker: PythonWorker.getWebWorker(),
+                        runtime: {
+                            type : VFuse.Constants.RUNTIME_TYPES.WEB,
+                            worker : PythonWorker.getWebWorker(),
+                            packages : []
+                        },
                         discoveryCallback: () => {},
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},

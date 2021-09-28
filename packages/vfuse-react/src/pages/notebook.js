@@ -92,7 +92,7 @@ print(c)`
                         </Layout.Content>
                     </PageHeader>
                     <Descriptions layout="vertical" bordered>
-                        <Descriptions.Item label="Profile ID">{vFuseNode?.profile?.id}</Descriptions.Item>
+                        <Descriptions.Item label="IdentityManager ID">{vFuseNode?.profile?.id}</Descriptions.Item>
                         <Descriptions.Item label="Workflows numbers">{vFuseNode?.profile?.workflows.length}</Descriptions.Item>
                         <Descriptions.Item label="Rewards">{vFuseNode?.profile?.rewards} ETH</Descriptions.Item>
                     </Descriptions>

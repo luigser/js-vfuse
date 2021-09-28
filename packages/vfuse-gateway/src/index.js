@@ -177,15 +177,15 @@ class VFuseGateway{
         this.node = await VFuse.create(this.options)
 
         const Gateway = require('ipfs-http-gateway');
-        this.gateway = new Gateway(this.node.net.ipfs);
+        this.gateway = new Gateway(this.node.networkManager.ipfs);
         await this.gateway.start();
         console.log('Gateway started')
 
-        this.httpApi = new HttpApi(this.node.net.ipfs)
+        this.httpApi = new HttpApi(this.node.networkManager.ipfs)
         await this.httpApi.start()
         console.log('Http API Server started')
         if (this.httpApi._apiServers.length) {
-            await this.node.net.ipfs.repo.setApiAddr(this.httpApi._apiServers[0].info.ma)
+            await this.node.networkManager.ipfs.repo.setApiAddr(this.httpApi._apiServers[0].info.ma)
         }
     }
 

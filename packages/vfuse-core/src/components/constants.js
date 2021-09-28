@@ -22,6 +22,9 @@ const Constants = {
         STOP: 0,
         INITIALIZING: 1,
         RUNNING: 2
+    },
+    RUNTIME_TYPES:{
+        WEB : 'web'
     }
 }
 

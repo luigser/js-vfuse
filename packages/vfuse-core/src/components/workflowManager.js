@@ -2,23 +2,24 @@
 
 const PeerId = require('peer-id')
 const log = require('debug')('vfuse:workflowManager')
-const Runtime = require('./runtime')
-const Workflow = require('./workflow')
-const Job = require('./job')
-const Constants = require('../constants')
+//const Runtime = require('./job/runtime')
+const RuntimeManager = require('./runtimeManager')
+const Workflow = require('./job/workflow')
+const Job = require('./job/job')
+const Constants = require('./constants')
 /*
 WorkflowManager is responsible for job management and execution
  */
 class WorkflowManager{
     /**
-     * @param {Object} network
+     * @param {Object} networkmanager
      * @param {Object} options
      */
-    constructor(network, profile, options){
+    constructor(networkManager, identityManager, options){
         try {
-            this.net = network
-            this.profile = profile
-            this.runtime = options.worker ? new Runtime(options.worker, options.packages) : null
+            this.networkManager = networkManager
+            this.identityManager = identityManager
+            this.runtimeManager = options.runtime ? new RuntimeManager(options.runtime) : null
             this.workflowsQueue = []
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
@@ -26,13 +27,16 @@ class WorkflowManager{
     }
 
     async start(){
-        if(this.runtime) {
-            await this.runtime.init()
-            await this.runtime.load()
-        }
+        try {
+            if (this.runtimeManager) {
+                await this.runtimeManager.start()
+            }
 
-        this.net.registerTopicListener(this.topicListener)
-        this.publishJobs()
+            this.networkManager.registerTopicListener(this.topicListener)
+            this.publishJobs()
+        }catch (e) {
+            console.log('Error during workflow manager starting: %O', e)
+        }
     }
 
     topicListener(data){
@@ -42,19 +46,19 @@ class WorkflowManager{
     publishJobs(){
         setInterval(async function(){
             let jobsToPublish = []
-            for (let w in this.profile.workflows) {
-                for (let j in this.profile.workflows[w].jobs) {
-                    jobsToPublish.push(this.profile.workflows[w].jobs[j])
+            for (let w in this.identityManager.workflows) {
+                for (let j in this.identityManager.workflows[w].jobs) {
+                    jobsToPublish.push(this.identityManager.workflows[w].jobs[j])
                 }
             }
             if(jobsToPublish.length > 0)
-               await this.net.send(jobsToPublish)
+               await this.networkManager.send(jobsToPublish)
         }.bind(this), 5000)
     }
 
     async getPublishedWorkflows(){
         //get workflow from global IPFS queue
-        return await this.net.list("/workflows")
+        return await this.networkManager.list("/workflows")
     }
 
     async updateResults(workflowId, JobId, results){
@@ -63,7 +67,7 @@ class WorkflowManager{
 
     async runJob(job){
         try {
-            await this.runtime.run(job)
+            await this.runtimeManager.run(job)
             job.status = Constants.JOB_SATUS.COMPLETED//Job.SATUS.COMPLETED
             //Communicate the job end to the network
         }catch(e){
@@ -72,7 +76,7 @@ class WorkflowManager{
     }
 
     async runWorkflow(workflowId){
-        let workflow = this.profile.getWorkflow(workflowId)
+        let workflow = this.identityManager.getWorkflow(workflowId)
         try {
             workflow.status = Constants.WORKFLOW_STATUS.RUNNING//Workflow.STATUS.RUNNING
             for (let j in workflow.jobs) {
@@ -103,7 +107,7 @@ class WorkflowManager{
             //todo find a strategy to get a new workflow id
             let workflow_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
             let workflow = new Workflow(workflow_id._idB58String, name)
-            await this.profile.addWorkflow(workflow)
+            await this.identityManager.addWorkflow(workflow)
             console.log('Workflow sucessfully created: %O', workflow)
             return workflow_id._idB58String
         }catch (e){
@@ -123,20 +127,20 @@ class WorkflowManager{
         //todo check if workflow exist in the profile
         try{
 
-            let workflow = this.profile.getWorkflow(workflow_id)
+            let workflow = this.identityManager.getWorkflow(workflow_id)
             if(workflow){
                 let workflow_dir = '/workflows/' + workflow.id
-                await this.net.makeDir(workflow_dir, { create:true, parents : true, mode: "777" })
-                await this.net.makeDir(workflow_dir + '/results', { create:true, parents : true, mode: "777" })
-                await this.net.makeDir(workflow_dir + '/jobs', { create:true, parents : true, mode: "775" })
-                await this.net.writeFile(workflow_dir + '/' + workflow.id + '.json', new TextEncoder().encode(JSON.stringify(workflow)),
+                await this.networkManager.makeDir(workflow_dir, { create:true, parents : true, mode: "777" })
+                await this.networkManager.makeDir(workflow_dir + '/results', { create:true, parents : true, mode: "777" })
+                await this.networkManager.makeDir(workflow_dir + '/jobs', { create:true, parents : true, mode: "775" })
+                await this.networkManager.writeFile(workflow_dir + '/' + workflow.id + '.json', new TextEncoder().encode(JSON.stringify(workflow)),
                     {create : true, parents: true, mode: parseInt('0775', 8)})
-                await this.net.pinFileInMFS(workflow_dir + '/' + workflow.id + '.json')
+                await this.networkManager.pinFileInMFS(workflow_dir + '/' + workflow.id + '.json')
 
                 workflow.jobs.map(async job => {
-                    await this.net.writeFile(workflow_dir + '/jobs/' + job.id + '.json', new TextEncoder().encode(JSON.stringify(job)),
+                    await this.networkManager.writeFile(workflow_dir + '/jobs/' + job.id + '.json', new TextEncoder().encode(JSON.stringify(job)),
                         {create : true, parents: true, mode: parseInt('0775', 8)})
-                    await this.net.pinFileInMFS(workflow_dir + '/jobs/' + job.id + '.json')
+                    await this.networkManager.pinFileInMFS(workflow_dir + '/jobs/' + job.id + '.json')
                 })
                 console.log('Workflow successfully published')
             }else{
@@ -158,7 +162,7 @@ class WorkflowManager{
                 data,
                 dependencies
             )
-            await this.profile.addJob(workflow_id, job)
+            await this.identityManager.addJob(workflow_id, job)
             console.log('Job successfully added to workflow')
         }catch (e){
             console.log('Got some error during the workflow creation: %O', e)
@@ -166,7 +170,7 @@ class WorkflowManager{
     }
 
     async getJobs(workflow){
-        let jobs = await this.net.ls(workflow)
+        let jobs = await this.networkManager.ls(workflow)
         console.log(jobs)
     }
 }
