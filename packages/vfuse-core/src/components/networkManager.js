@@ -20,6 +20,8 @@ const fromString = require('uint8arrays/from-string')
 const ipfsCluster = require('ipfs-cluster-api')
 const IpfsHttpClient = require("ipfs-http-client")
 
+const  { isNode, isBrowser } = require("browser-or-node");
+
 const Constants = require("./constants")
 
 class NetworkManager {
@@ -31,7 +33,6 @@ class NetworkManager {
         this.key = null
         this.ipfs = null
         this.libp2p = null
-        this.mode = options.mode
         this.peerId= options.peerId
         this.profileId= options.profileId
         /*if(options.bootstrapNodes)
@@ -144,7 +145,7 @@ class NetworkManager {
                 connProtector: new Protector((new TextEncoder()).encode(this.swarmKey)),
             }
 
-        if(this.mode === Constants.VFUSE_MODE.BROWSER) {
+        if(isBrowser) {
             /*const transportKey = WebRTCStar.prototype[Symbol.toStringTag]
             opt.libp2p = {
                 modules: {
@@ -185,7 +186,7 @@ class NetworkManager {
             this.httpClient = IpfsHttpClient.create(this.ipfsClientOptions)
         }
 
-        if(this.mode === Constants.VFUSE_MODE.GATEWAY) {
+        if(isNode) {
             opt.libp2p = {
                 modules: {
                     transport: [WebRTCStar, TCP]
@@ -224,6 +225,7 @@ class NetworkManager {
             this.cluster = new Cluster(this.ipfsClusterApi)
         }*/
 
+        this.api = isBrowser ?  this.httpClient : this.ipfs
     }
 
     /**
@@ -423,7 +425,7 @@ class NetworkManager {
 
     async chmod(path, mode, options){
         try {
-            await this.httpClient.files.chmod(path, mode, options)
+            await this.api.files.chmod(path, mode, options)
         }catch (e) {
             console.log('Got some error during chmod: %O', e)
         }
@@ -431,7 +433,7 @@ class NetworkManager {
 
     async makeDir(dir, options){
         try {
-           return await this.httpClient.files.mkdir(dir, options)
+           return await this.api.files.mkdir(dir, options)
         }catch (e) {
             console.log('Got some error during makedDir: %O', e)
         }
@@ -439,19 +441,19 @@ class NetworkManager {
 
     async touchFile(file){
         try {
-           return await this.httpClient.files.touch(file)
+           return await this.api.files.touch(file)
         }catch (e) {
             console.log('Got some error during touch: %O', e)
         }
     }
 
     async copy(source, destination){
-        await this.ipfs.files.cp(source, destination)
+        await this.api.files.cp(source, destination)
     }
 
     async writeFile(path, content, options){
         try {
-           return await this.httpClient.files.write(path, content, options)
+           return await this.api.files.write(path, content, options)
         }catch (e) {
             console.log('Got some error during write: %O', e)
         }
@@ -460,7 +462,7 @@ class NetworkManager {
     async readFile(path, options){
         try {
             let chunks = [], decodedData = null
-            for await (const chunk of this.httpClient.files.read(path, options)) {
+            for await (const chunk of this.api.files.read(path, options)) {
                 chunks.push(chunk)
             }
 
@@ -475,7 +477,7 @@ class NetworkManager {
 
     async stat(path){
         try {
-           return await this.httpClient.files.stat(path)
+           return await this.api.files.stat(path)
         }catch (e) {
             console.log('Got some error during stat: %O', e)
         }
@@ -484,7 +486,7 @@ class NetworkManager {
     async list(path){
         let files = []
         try{
-            for await (const file of this.httpClient.files.ls(path)) {
+            for await (const file of this.api.files.ls(path)) {
                 files.push(file.name)
             }
         }catch (e) {

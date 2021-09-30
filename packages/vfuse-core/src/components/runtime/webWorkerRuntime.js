@@ -1,13 +1,13 @@
 'use strict'
 
 class WebWorkerRuntime {
-    constructor(options) {
+    constructor(worker , options) {
         this.count = 0
         this.id =  this.getRandomBetween(0,1000)
         this.history = []
         this.value = null
         this.packages = options.packages
-        this.worker = options.worker
+        this.worker   = worker.getWebWorker()
 
         // attach web worker callbacks
         this.worker.onerror = (e) => {

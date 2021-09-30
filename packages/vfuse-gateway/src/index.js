@@ -136,6 +136,7 @@ class VFuseGateway{
                         },
                         NoDNSLink: false,
                         NoFetch: false,
+
                         PathPrefixes: [],
                         PublicGateways: null,
                         RootRedirect: "",
@@ -170,7 +171,6 @@ class VFuseGateway{
                 }
             }
         }
-
     }
 
     async init(){

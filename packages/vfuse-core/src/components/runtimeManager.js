@@ -1,16 +1,10 @@
-const Constants = require( "./constants")
 const WebWorkerRuntime = require("./runtime/webWorkerRuntime")
+const  { isNode, isWebWorker, isBrowser } = require("browser-or-node");
+const JavascriptWorker = require('./runtime/workers/javascript/javascriptWorker')
 
 class RuntimeManager{
     constructor(options) {
-        try {
-            switch (options.type) {
-                case Constants.RUNTIME_TYPES.WEB:
-                    this.runtime = new WebWorkerRuntime(options)
-            }
-        }catch(e){
-            console.log("Got some error during runtime manager creation %O", e)
-        }
+        this.load(options)
     }
 
     async start(){
@@ -22,6 +16,26 @@ class RuntimeManager{
         }catch(e){
             console.log("Got some error during runtime initialization %O", e)
         }
+    }
+
+    load(options){
+        this.worker = !options ? JavascriptWorker : options.worker
+
+        try {
+            if(isBrowser){
+                this.runtime = new WebWorkerRuntime(this.worker, options)
+            }
+            if(isNode){
+
+            }
+        }catch(e){
+            console.log("Got some error during runtime manager creation %O", e)
+        }
+    }
+
+    async reload(options){
+        this.load(options)
+        await this.start()
     }
 
     async runJob(job){

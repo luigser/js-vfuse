@@ -1,8 +1,9 @@
 const Constants = {
     VFUSE_MODE:{
-        NORMAL : "normal",
-        GATEWAY: "gateway",
-        BROWSER : "browser"
+        PROACTIVE : "PROACTIVE",//give computation, give space if can be managed, work with workflow
+        PASSIVE   : "PASSIVE",// just give computation
+        GATEWAY   : "GATEWAY",//use as node gateway and http api,,
+        PROACTIVE_GATEWAY: "PROACTIVE_GATEWAY", //be proactive and set gateway and api if configured
     },
     JOB_SATUS : {
         WAITING : 0,//due to dependencies
@@ -25,6 +26,9 @@ const Constants = {
     },
     RUNTIME_TYPES:{
         WEB : 'web'
+    },
+    NETWORK_MANAGERS_TYPE: {
+        IPFS_LIBP2P : "IPFS_LIBP2P"
     }
 }
 

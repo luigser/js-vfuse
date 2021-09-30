@@ -12,6 +12,40 @@ import {highlight, languages} from "prismjs/components/prism-core";
 import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-funky.css'*/
 
+const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
+    "let input = VFuse.getData('http://GATEWAY/ipfs/CID', start, end, VFuse.DATA.Type.String)\n" +
+    "\n" +
+    "function map(data){\n" +
+    "   let tokens = []\n" +
+    "   data.split(/\\W+/).map(word => token.push({ word : word , count : 1 })\n" +
+    "   return token\n" +
+    "}\n" +
+    "\n" +
+    "function reduce(data){\n" +
+    "   let reduced = new Map()\n" +
+    "   data.map( entry => reduced.set(entry.word, reduced.has(entry.word) ? entry.get(entry.word) + 1 : 1))\n" +
+    "   return reduced\n" +
+    "}\n" +
+    "\n" +
+    "function combine(data){\n" +
+    "   let result = new Map()\n" +
+    "   data.map( entry => reduced.set(entry.word, result.has(entry.word) ? entry.get(entry.word) + 1 : 1))\n" +
+    "   return result\n" +
+    "}\n" +
+    "\n" +
+    "input.split(\"/n\").map(row => {\n" +
+    "   let mapped = VFuse.addJob(map, row)\n" +
+    "   VFuse.addJob(reduce, mapped, [map])//generate a reduce for each map\n" +
+    "})\n" +
+    "\n" +
+    "VFuse.addJob(combine, null, [reduce])//wait for all reduce results and cal combine"
+
+const pythonCodeExample = `import numpy as np 
+a = [[2, 0], [0, 2]]
+b = [[4, 1], [2, 2]]
+c = np.dot(a, b)
+print(c)`
+
 export default function NotebookPage(props){
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
     const [runLocalLoading, setRunLocalLoading] = useState(true)
@@ -21,13 +55,7 @@ export default function NotebookPage(props){
 
     const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : "QmZtVKYKXXqL6QmqRjvVmvR17AVEVMTZsMR3auvYWQgmsR")
 
-    const [code, setCode] = useState(
-        `import numpy as np 
-a = [[2, 0], [0, 2]]
-b = [[4, 1], [2, 2]]
-c = np.dot(a, b)
-print(c)`
-    );
+    const [code, setCode] = useState(javascriptCodeExample);
 
 
     useEffect(() => {
@@ -114,9 +142,13 @@ print(c)`
                                     overflow: "scroll"
                                 }}
                             />*/}
-                            <CodeEditor code={code} setCode={setCode} />
                         </Descriptions.Item>
                     </Descriptions>
+                </Col>
+            </Row>
+            <Row>
+                <Col span={24} style={{height: "50vh", overflow: "scroll"}}>
+                    <CodeEditor code={code} setCode={setCode} />
                 </Col>
             </Row>
         </div>

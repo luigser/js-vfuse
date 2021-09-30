@@ -10,9 +10,10 @@ class Job{
         ERROR: 3//something wrong during the execution
     }*/
 
-    constructor(id, code, data, dependencies) {
+    constructor(id, name, code, data, dependencies) {
         this.id = id
-        this.status = Constants.JOB_SATUS.WAITING//Job.SATUS.WAITING
+        this.status = Constants.JOB_SATUS.WAITING
+        this.name = name
         this.code = code
         this.data = data
         this.dependencies = dependencies

@@ -7,9 +7,10 @@ class IdentityManager {
      * @param {Object} networkManager
      * @param {Object} options
      */
-    constructor ( networkManager, options) {
+    constructor ( contentManager, options) {
         this.id = options.profileId ? options.profileId : null
-        this.networkManager = networkManager
+        this.peerId = options.peerId
+        this.contentManager = contentManager
         this.workflows = []
         this.rewards   = []
         this.publishedWorkflows = []
@@ -18,10 +19,7 @@ class IdentityManager {
     async getProfile() {
         try {
             //For IPFS FILE MFS usage
-            let decoded_profile = await this.networkManager.readFile('/profiles/' + this.id + '.json')
-            //For common IPFS FILE api
-            //let decoded_profile = await this.net.get(this.id , '/' + this.id + '.json')
-            //let decoded_profile = await this.net.cat(this.id) //USE THIS
+            let decoded_profile = await this.contentManager.get('/profiles/' + this.id + '.json')
             if(decoded_profile){
                 let p = JSON.parse(decoded_profile)
                 if(p.content) p.content = JSON.parse(p.content)
@@ -46,25 +44,10 @@ class IdentityManager {
                 publishedWorkflows: []
             }
 
-            /*let profile = {
-                path: this.net.key[0].id + '.json',
-                content : Buffer.from(JSON.stringify(new_profile))
-            }*/
+            await this.contentManager.save("/profiles/" + this.peerId + '.json', new TextEncoder().encode(JSON.stringify(new_profile)),
+                {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
+            console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.peerId)
 
-            await this.networkManager.writeFile("/profiles/" + this.networkManager.key[0].id + '.json', new TextEncoder().encode(JSON.stringify(new_profile)),
-                {create : true, parents: true, mode: parseInt('0775', 8)})
-            await this.networkManager.pinFileInMFS("/profiles/" + this.networkManager.key[0].id + '.json')
-
-            this.id = this.networkManager.key[0].id
-            console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.id)
-
-           /* let published_profile = await this.net.update(profile)
-            if(published_profile){
-                this.id = published_profile.name
-                console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', published_profile.name)
-                console.log('https://gateway.ipfs.io/ipns/%s',published_profile.name)
-                console.log('https://ipfs.io%s',published_profile.value)
-            }*/
         }catch (e){
             console.log('Got some error during the profile creation: %O', e)
         }
@@ -81,11 +64,6 @@ class IdentityManager {
                 publishedWorkflows : this.publishedWorkflows
             }
             await this.updateProfile(new_profile)
-            /* let profile = {
-              path: this.id + '.json',
-              content : JSON.stringify(new_profile)
-            }*/
-            //await this.net.update(profile)
             console.log('Workflow successfully added in the profile')
         }catch (e){
             console.log('Got some error during the profile creation: %O', e)
@@ -109,7 +87,7 @@ class IdentityManager {
 
     async updateProfile(profile){
         try{
-            await this.networkManager.writeFile("/profiles/" + this.id + '.json', new TextEncoder().encode(JSON.stringify(profile)))
+            await this.contentManager.save("/profiles/" + this.id + '.json', new TextEncoder().encode(JSON.stringify(profile)))
             console.log('Workflow successfully published in the profile')
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)
@@ -129,15 +107,8 @@ class IdentityManager {
                 workflows: this.workflows,
                 rewards: this.rewards
             }
-
-           /* let profile = {
-                path: '/tmp/profile.json',
-                content : JSON.stringify(new_profile)
-            }*/
-
-            await this.networkManager.writeFile("/profiles/" + this.id + '.json', new TextEncoder().encode(JSON.stringify(new_profile)))
-           //await this.net.update(profile)
-           console.log('Job successfully added to profile')
+            await this.contentManager.save("/profiles/" + this.id + '.json', new TextEncoder().encode(JSON.stringify(new_profile)))
+            console.log('Job successfully added to profile')
         }catch (e){
             console.log('Got some error during adding a job in the profile: %O', e)
         }

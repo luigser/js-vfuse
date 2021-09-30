@@ -2,34 +2,44 @@
 
 const log = require('debug')('vfuse:node')
 const NetworkManager = require('./networkManager')
+const ContentManager = require('./contentManager')
 const IdentityManager = require('./identityManager')
 const WorkflowManager = require('./workflowManager')
 const Constants = require('./constants')
+const DefaultOptions = require('../utils/defaultOptions')
+
+const  { isNode, isBrowser } = require("browser-or-node");
 
 class VFuse {
     /**
      * @param {Object} options
      */
     constructor(options) {
-        this.networkManager = new NetworkManager(options)
         this.options = options
         this.status = Constants.NODE_STATE.STOP
     }
 
+    async startManagers(){
+        this.networkManager = new NetworkManager(this.options)
+        this.contentManager = new ContentManager(this.networkManager)
+        await this.networkManager.start()
+        this.options.peerId  = this.networkManager.key[0].id
+        this.identityManager = new IdentityManager(this.contentManager, this.options)
+        this.workflowManager = new WorkflowManager(this.contentManager, this.identityManager, this.options)
+        await this.workflowManager.start()
+        await this.identityManager.checkProfile()
+    }
+
     async start(){
-        console.log('Strating VFuse node...')
-        this.status = Constants.NODE_STATE.INITIALIZING;
-        switch(this.options.mode){
-            case Constants.VFUSE_MODE.BROWSER:
-                await this.networkManager.start()
-                this.identityManager = new IdentityManager(this.networkManager, this.options)
-                this.workflowManager = new WorkflowManager(this.networkManager, this.identityManager, this.options)
-                await this.workflowManager.start()
-                await this.identityManager.checkProfile()
-                //setTimeout(async () => await this.profile.check(), 30000)
-                break
-            case Constants.VFUSE_MODE.GATEWAY:
-                if(this.options.signalServerEnabled){
+        try {
+            console.log('Strating VFuse node...')
+            this.status = Constants.NODE_STATE.INITIALIZING;
+
+            if (isBrowser) {
+                await this.startManagers()
+            } else if (isNode) {
+                //Start signal server
+                if (this.options.SignalServer) {
                     const WStarSignalingServer = require('libp2p-webrtc-star/src/sig-server/index')
                     this.webRtcStartServer = await WStarSignalingServer.start(
                         {
@@ -37,20 +47,41 @@ class VFuse {
                             host: '0.0.0.0'
                         }
                     )
-                    console.log('RTC Signaling server Listening on:',  this.webRtcStartServer.info.uri)
+                    console.log('RTC Signaling server Listening on:', this.webRtcStartServer.info.uri)
 
-                    process.on('SIGINT', async function(){
+                    process.on('SIGINT', async function () {
                         await this.webRtcStartServer.stop()
                         console.log('Signalling server stopped')
                         await this.stop()
                         process.exit(0);
                     }.bind(this))
-
                 }
-                await this.networkManager.start()
-                break
+
+                await this.startManagers()
+
+                if (this.options.IPFSGateway) {
+                    const Gateway = require('ipfs-http-gateway');
+                    this.gateway = new Gateway(this.networkManager.ipfs);
+                    await this.gateway.start();
+                    console.log('Gateway started')
+                }
+
+                if (this.options.HttpAPI) {
+                    const HttpApi = require('ipfs-http-server')
+                    this.httpApi = new HttpApi(this.networkManager.ipfs)
+                    await this.httpApi.start()
+                    console.log('Http API Server started')
+                    if (this.httpApi._apiServers.length) {
+                        await this.networkManager.ipfs.repo.setApiAddr(this.httpApi._apiServers[0].info.ma)
+                    }
+                }
+
+            }
+
+            this.status = Constants.NODE_STATE.RUNNING
+        }catch (e) {
+            console.log('Error during VFuse node initialization: %O', e)
         }
-        this.status = Constants.NODE_STATE.RUNNING
     }
 
     registerTopicListener(callback){
@@ -92,9 +123,11 @@ class VFuse {
      * @param {Options} options
      */
     static async create (options = {}) {
-        const vfuse = new VFuse(options)
+        let currentOptions = isBrowser ? DefaultOptions.getBrowserOptions(options) : DefaultOptions.getGatewayOptions(options)
+        const vfuse = new VFuse(currentOptions)
         await vfuse.start()
         await vfuse.networkManager.send("VFuse node is ready")
+
         return vfuse
     }
 }

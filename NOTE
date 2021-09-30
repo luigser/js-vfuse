@@ -27,17 +27,86 @@ Ogni runtime deve implementare il meccanismo di parsing per i jobs e dati
 1) utilizzare un oggetto "VFuse.NOME_FUNZIONE"
     L'idea è passare da python a javascript per recuperare dati da IPFS/HTTP utilizzando funzioni scritte in Python ma inplementate in javascript
         ESEMPIO:
-        def task1(input)
+        def map(input)
            ...
            print(output)
-        def task2(input)
+        def reduce(input)
            ....
            print(output)
 
         input = 'ipfs/HASH' //l'input potrebbe essere definito dall'esterno con un input box e qualcosa del genere
         for chank in range(input_size)
-           data_chunk = VFuse.getBytes(input,chank, 1024)
-           VFuse.createJob(task1, data_chunk, [task2])
+           data_chunk = VFuse.getBytes(input, chank, 1024)
+           VFuse.createJob(map, data_chunk, [])
+           VFuse.createJob(reduce, data_chunk, [map])
 
 
     - esiste un modo per mappare funzioni da un liguaggio ad un altro( design pattern, DSL o qualcosa del genere?)
+        - VFUSE.getData(url, return_type) //quando non si vogliono definire i dati direttamente nel codice; return_type devev essere gestito dal manager
+
+
+input = [[2, 0], [0, 2], [4, 1], [2, 2]]
+OR
+input = VFuse.getData("http://IP/ipfs/CID", start, end, VFuse.ArrayString) // Worker -> factory -> getData per Python
+
+def partion2()
+   return VFuse.getData("http://IP/ipfs/CID", start, end, VFuse.ArrayString)
+
+def partition(input)
+   return 4 elementi [2, 0], [0, 2], [4, 1], [2, 2]
+
+def task(data)
+   data[0] + data[1]
+
+
+def somma(data)
+   somma = 0
+   for data 1...data.length
+      somma += data[i]
+
+VFuse.addJobsInput(partition, input) //workflow -> /data/input 1,2,3,4 ->  [2, 0], [0, 2], [4, 1], [2, 2]  // corrisponde a un file di result
+VFuse.addJobs(task,  [partition])
+VFuse.addJobs(somma, [task])
+
+Datalet che filtrano big data in parallelo
+
+
+//JAVASCRIPT
+let chunck = 1000
+for(let i=0; i < input.length; i+=chunk){
+   let chunck_lenght = 1000
+   if(i + chunck > input.length)
+      chunk_length = chunk - ((i + chunk) - input.lenght)
+   VFuse.addJob()
+}
+
+MAP-REDUCE
+
+let input = "VERY_BIG_TEXT"
+let input = VFuse.getData('http://GATEWAY/ipfs/CID', start, end, VFuse.DATA.Type.String)
+
+function map(data){
+   let tokens = []
+   data.split(/\W+/).map(word => token.push({ word : word , count : 1 })
+   return token
+}
+
+function reduce(data){
+   let reduced = new Map()
+   data.map( entry => reduced.set(entry.word, reduced.has(entry.word) ? entry.get(entry.word) + 1 : 1))
+   return reduced
+}
+
+function combine(data){
+   let result = new Map()
+   data.map( entry => reduced.set(entry.word, result.has(entry.word) ? entry.get(entry.word) + 1 : 1))
+   return result
+}
+
+
+input.split("/n").map(row => {
+   let mapped = VFuse.addJob(map, row)
+   VFuse.addJob(reduce, mapped, [map])//generate a reduce for each map
+})
+
+VFuse.addJob(combine, null, [reduce])//wait for all reduce results and cal combine

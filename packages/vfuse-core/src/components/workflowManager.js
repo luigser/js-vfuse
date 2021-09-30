@@ -2,11 +2,11 @@
 
 const PeerId = require('peer-id')
 const log = require('debug')('vfuse:workflowManager')
-//const Runtime = require('./job/runtime')
 const RuntimeManager = require('./runtimeManager')
 const Workflow = require('./job/workflow')
 const Job = require('./job/job')
 const Constants = require('./constants')
+
 /*
 WorkflowManager is responsible for job management and execution
  */
@@ -15,11 +15,11 @@ class WorkflowManager{
      * @param {Object} networkmanager
      * @param {Object} options
      */
-    constructor(networkManager, identityManager, options){
+    constructor(contentManager, identityManager, options){
         try {
-            this.networkManager = networkManager
+            this.contentManager = contentManager
             this.identityManager = identityManager
-            this.runtimeManager = options.runtime ? new RuntimeManager(options.runtime) : null
+            this.runtimeManager = new RuntimeManager(options.runtime)
             this.workflowsQueue = []
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
@@ -32,7 +32,7 @@ class WorkflowManager{
                 await this.runtimeManager.start()
             }
 
-            this.networkManager.registerTopicListener(this.topicListener)
+            //this.networkManager.registerTopicListener(this.topicListener)
             this.publishJobs()
         }catch (e) {
             console.log('Error during workflow manager starting: %O', e)
@@ -51,14 +51,14 @@ class WorkflowManager{
                     jobsToPublish.push(this.identityManager.workflows[w].jobs[j])
                 }
             }
-            if(jobsToPublish.length > 0)
-               await this.networkManager.send(jobsToPublish)
+            /*if(jobsToPublish.length > 0)
+               await this.networkManager.send(jobsToPublish)*/
         }.bind(this), 5000)
     }
 
     async getPublishedWorkflows(){
         //get workflow from global IPFS queue
-        return await this.networkManager.list("/workflows")
+        return await this.contentManager.list("/workflows")
     }
 
     async updateResults(workflowId, JobId, results){
@@ -130,17 +130,16 @@ class WorkflowManager{
             let workflow = this.identityManager.getWorkflow(workflow_id)
             if(workflow){
                 let workflow_dir = '/workflows/' + workflow.id
-                await this.networkManager.makeDir(workflow_dir, { create:true, parents : true, mode: "777" })
-                await this.networkManager.makeDir(workflow_dir + '/results', { create:true, parents : true, mode: "777" })
-                await this.networkManager.makeDir(workflow_dir + '/jobs', { create:true, parents : true, mode: "775" })
-                await this.networkManager.writeFile(workflow_dir + '/' + workflow.id + '.json', new TextEncoder().encode(JSON.stringify(workflow)),
-                    {create : true, parents: true, mode: parseInt('0775', 8)})
-                await this.networkManager.pinFileInMFS(workflow_dir + '/' + workflow.id + '.json')
+                //await this.contentManager.makeDir(workflow_dir, { create:true, parents : true, mode: "777" })
+                //await this.contentManager.makeDir(workflow_dir + '/results', { create:true, parents : true, mode: "777" })
+                //await this.contentManager.makeDir(workflow_dir + '/jobs', { create:true, parents : true, mode: "775" })
+                //await this.contentManager.writeFile(workflow_dir + '/' + workflow.id + '.json', new TextEncoder().encode(JSON.stringify(workflow)),
+                //    {create : true, parents: true, mode: parseInt('0775', 8)})
+                //await this.contentManager.pinFileInMFS(workflow_dir + '/' + workflow.id + '.json')
 
                 workflow.jobs.map(async job => {
-                    await this.networkManager.writeFile(workflow_dir + '/jobs/' + job.id + '.json', new TextEncoder().encode(JSON.stringify(job)),
-                        {create : true, parents: true, mode: parseInt('0775', 8)})
-                    await this.networkManager.pinFileInMFS(workflow_dir + '/jobs/' + job.id + '.json')
+                    await this.contentManager.save(workflow_dir + '/jobs/' + job.id + '.json', new TextEncoder().encode(JSON.stringify(job)),
+                        {create : true, parents: true, mode: parseInt('0775', 8), pin:true})
                 })
                 console.log('Workflow successfully published')
             }else{
@@ -169,10 +168,10 @@ class WorkflowManager{
         }
     }
 
-    async getJobs(workflow){
-        let jobs = await this.networkManager.ls(workflow)
+    /*async getJobs(workflow){
+        let jobs = await this.contentManager.ls(workflow)
         console.log(jobs)
-    }
+    }*/
 }
 
 module.exports = WorkflowManager
