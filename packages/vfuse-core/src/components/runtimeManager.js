@@ -19,18 +19,18 @@ class RuntimeManager{
     }
 
     load(options){
-        this.worker = !options ? new JavascriptWorker() : options.worker
-        this.worker.onmessage = function(e){
-            const {action, params} = e.data
-            if(action === 'addJob'){
-                let params = JSON.parse(params)
-                this.addJob(params.func, params.data, params.deps)
-            }
-        }.bind(this)
-
         try {
+            this.worker = !options ? new JavascriptWorker() : options.worker
+
             if(isBrowser){
                 this.runtime = new WebWorkerRuntime(this.worker, options)
+                this.worker.webWorker.onmessage = function(e){
+                    const {action, params} = e.data
+                    if(action === 'addJob'){
+                        let params = JSON.parse(params)
+                        this.addJob(params.func, params.data, params.deps)
+                    }
+                }.bind(this)
             }
             if(isNode){
 

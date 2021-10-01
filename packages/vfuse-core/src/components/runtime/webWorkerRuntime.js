@@ -7,7 +7,7 @@ class WebWorkerRuntime {
         this.history = []
         this.value = null
         this.packages = [worker.getDefaultPackages(), ... options && options.packages ? options.packages : []]
-        this.worker   = worker.getWebWorker()
+        this.worker   = worker.webWorker
 
         // attach web worker callbacks
         this.worker.onerror = (e) => {

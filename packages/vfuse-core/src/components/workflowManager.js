@@ -120,7 +120,7 @@ class WorkflowManager{
             }
             return workflow
         }catch (e){
-            log('Got some error during the workflow publishing: %O', e)
+            console.log('Got some error during the workflow publishing: %O', e)
             return null
         }
     }

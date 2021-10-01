@@ -4,8 +4,8 @@ const worker_code = () => {
         addJob : (func, data, deps) => {
             self.postMessage({
                 action : 'addJob',
-                params   : JSON.stringify({
-                    func : func,
+                params: JSON.stringify({
+                    func : func.toString(),
                     data : data,
                     deps : deps
                 })
@@ -48,6 +48,7 @@ const worker_code = () => {
                 break;
             case 'exec':
                 try {
+                    debugger
                     let F = new Function(job.code);
                     let results = (F());
                     self.postMessage({
