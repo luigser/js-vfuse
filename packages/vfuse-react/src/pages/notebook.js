@@ -114,6 +114,12 @@ export default function NotebookPage(props){
 
     const onChaneName = (e) => setName(e.target.value)
 
+    const onNew = () => {
+        setCode('')
+        setWorkflowId(null)
+        setName('')
+    }
+
     return(
         <div>
             <Row>
@@ -128,7 +134,7 @@ export default function NotebookPage(props){
                             status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
                         ]}
                         extra={[
-                            <Button key="3" type="primary" disabled={!vFuseNode} loading={runLocalLoading}>Run in Local</Button>,
+                            <Button key="3" type="secondary" disabled={!vFuseNode} loading={runLocalLoading}>Run in Local</Button>,
                             <Button key="2" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save workflow</Button>,
                             <Button key="1" type="danger" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Publish on Network</Button>,
                         ]}
@@ -155,8 +161,8 @@ export default function NotebookPage(props){
             </Row>
             <Row>
                 <Col span={24} style={{marginTop: "24px"}}>
-                    <Descriptions  layout="vertical" bordered>
-                        <Descriptions.Item label="Code Editor">
+                    <Descriptions  title="Code Editor" layout="vertical" bordered extra={[<Button key="4" type="secondary" onClick={onNew}>New workflow</Button>]}>
+                        <Descriptions.Item label="Workflow Info">
                            {/* <Editor
                                 value={code}
                                 onValueChange={(code) => setCode(code)}

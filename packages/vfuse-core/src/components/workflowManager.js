@@ -113,7 +113,7 @@ class WorkflowManager{
                 let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
                 workflow = new Workflow(workflow_id._idB58String, name, code, language)
                 await this.identityManager.addWorkflow(workflow)
-                console.log('Workflow sucessfully created: %O', workflow)
+                console.log('Workflow successfully created: %O', workflow)
             }
             return workflow.id
         }catch (e){

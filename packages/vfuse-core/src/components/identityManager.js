@@ -119,9 +119,9 @@ class IdentityManager {
                 rewards: this.rewards
             }
             await this.contentManager.save("/profiles/" + this.id + '.json', new TextEncoder().encode(JSON.stringify(new_profile)))
-            console.log('Job successfully added to profile')
+            console.log('Workflow successfully updated')
         }catch (e){
-            console.log('Got some error during adding a job in the profile: %O', e)
+            console.log('Got some error during updating the workflow: %O', e)
         }
     }
 
