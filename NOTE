@@ -83,11 +83,11 @@ for(let i=0; i < input.length; i+=chunk){
 MAP-REDUCE
 
 let input = "VERY_BIG_TEXT"
-let input = VFuse.getData('http://GATEWAY/ipfs/CID', start, end, VFuse.DATA.Type.String)
+//let input = VFuse.getData('http://GATEWAY/ipfs/CID', start, end, VFuse.DATA.Type.String)
 
 function map(data){
    let tokens = []
-   data.split(/\W+/).map(word => token.push({ word : word , count : 1 })
+   data.split(/\W+/).map(word => token.push({ word : word , count : 1 }))
    return token
 }
 
@@ -103,10 +103,15 @@ function combine(data){
    return result
 }
 
-
 input.split("/n").map(row => {
    let mapped = VFuse.addJob(map, row)
    VFuse.addJob(reduce, mapped, [map])//generate a reduce for each map
 })
 
 VFuse.addJob(combine, null, [reduce])//wait for all reduce results and cal combine
+
+
+//Todo
+SI VA IN ERRORE QUANDO IL PROFILO GIà ESISTE E SI CERCA DI CREARNE UN ALTRO.
+QUANDO SI SALVA IL RPOFILO QUESTO VIENE APPESO A QUELLO PRECEDENTE
+L'ERRORE è DOCUTO ALLA SOVREAPPOSOZIONE NEL DAG DEI BLOCCHI

@@ -18,6 +18,7 @@ const worker_code = () => {
                 break;
             case 'exec':
                 try {
+                    debugger
                     let F = new Function(job.code);
                     let results = (F());
                     self.postMessage({
@@ -25,6 +26,7 @@ const worker_code = () => {
                         results
                     });
                 } catch (err) {
+                    console.log(err)
                     self.postMessage({
                         action: 'error',
                         results: err.message

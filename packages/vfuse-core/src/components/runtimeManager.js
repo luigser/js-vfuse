@@ -39,7 +39,11 @@ class RuntimeManager{
     }
 
     async runJob(job){
-        await this.runtime.run(job)
+        return await this.runtime.run(job)
+    }
+
+    async runLocalCode(code){
+        return await this.runtime.run({ code : code})
     }
 
 }

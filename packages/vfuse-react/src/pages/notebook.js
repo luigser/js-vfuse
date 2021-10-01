@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification} from "antd";
+import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification, Select} from "antd";
 import VFuse from "vfuse-core";
 import {gStore} from "../store";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -47,11 +47,11 @@ c = np.dot(a, b)
 print(c)`
 
 export default function NotebookPage(props){
+    const [vFuseNode, setVFuseNode] = useState(null)
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
     const [runLocalLoading, setRunLocalLoading] = useState(true)
     const [publishNetworkLoading, setPublishNetworkLoading] = useState(true)
     const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(true)
-    const [vFuseNode, setVFuseNode] = useState(null)
     const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : null)
     const [code, setCode] = useState(javascriptCodeExample);
     const [language, setLanguage] = useState(VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
@@ -76,10 +76,6 @@ export default function NotebookPage(props){
             }
         }
     },[])
-
-    const loadWorkflow = async () => {
-
-    }
 
     const saveWorkflow = async () => {
         if(!name){
@@ -120,6 +116,14 @@ export default function NotebookPage(props){
         setName('')
     }
 
+    const handleChangeLanguage = (value) => setLanguage(value)
+
+    const onRunLocal = async () => {
+        setRunLocalLoading(true)
+        let result = await vFuseNode.runLocalWorkflowCode(workflowId)
+        setRunLocalLoading(false)
+    }
+
     return(
         <div>
             <Row>
@@ -134,7 +138,7 @@ export default function NotebookPage(props){
                             status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
                         ]}
                         extra={[
-                            <Button key="3" type="secondary" disabled={!vFuseNode} loading={runLocalLoading}>Run in Local</Button>,
+                            <Button key="3" type="secondary" disabled={!vFuseNode} loading={runLocalLoading} onClick={onRunLocal}>Run in Local</Button>,
                             <Button key="2" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save workflow</Button>,
                             <Button key="1" type="danger" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Publish on Network</Button>,
                         ]}
@@ -161,7 +165,13 @@ export default function NotebookPage(props){
             </Row>
             <Row>
                 <Col span={24} style={{marginTop: "24px"}}>
-                    <Descriptions  title="Code Editor" layout="vertical" bordered extra={[<Button key="4" type="secondary" onClick={onNew}>New workflow</Button>]}>
+                    <Descriptions  title="Code Editor" layout="vertical" bordered extra={[
+                        <Select defaultValue="javascript" style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
+                            <Select.Option value="javascript">Javascript</Select.Option>
+                            <Select.Option value="python">Python</Select.Option>
+                        </Select>,
+                        <Button key="4" type="secondary" onClick={onNew}>New workflow</Button>
+                    ]}>
                         <Descriptions.Item label="Workflow Info">
                            {/* <Editor
                                 value={code}

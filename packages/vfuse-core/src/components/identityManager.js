@@ -16,10 +16,10 @@ class IdentityManager {
         this.publishedWorkflows = []
     }
 
-    async getProfile() {
+    async getProfile(id) {
         try {
             //For IPFS FILE MFS usage
-            let decoded_profile = await this.contentManager.get('/profiles/' + this.id + '.json')
+            let decoded_profile = await this.contentManager.get('/profiles/' + (!id ? this.id : id) + '.json')
             if(decoded_profile){
                 let p = JSON.parse(decoded_profile)
                 if(p.content) p.content = JSON.parse(p.content)
@@ -29,8 +29,10 @@ class IdentityManager {
                 console.log('Profile loaded : %O', p)
                 //console.log(this.workflows[0].id)
             }
+            return true
         }catch(e){
             console.log('Got some error during profile retrieving: %O', e)
+            return false
         }
     }
 
@@ -45,18 +47,24 @@ class IdentityManager {
 
     async createProfile(){
         try{
+            //try to check if profile for you peerId already exist
+            //if yes do not create no one but get it
+            let profile = await this.getProfile(this.peerId)
+            if(!profile){
+                //Todo check if profile already exist, of yes remove and create from scratch
+                let new_profile = {
+                    workflows: [],
+                    rewards: [],
+                    publishedWorkflows: []
+                }
 
-            //Todo check if profile already exist, of yes remove and create from scratch
-            let new_profile = {
-                workflows: [],
-                rewards: [],
-                publishedWorkflows: []
+                await this.contentManager.save("/profiles/" + this.peerId + '.json', new TextEncoder().encode(JSON.stringify(new_profile)),
+                    {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
+                this.id = this.peerId
+                console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.peerId)
+            }else{
+                this.id = this.peerId
             }
-
-            await this.contentManager.save("/profiles/" + this.peerId + '.json', new TextEncoder().encode(JSON.stringify(new_profile)),
-                {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
-            console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.peerId)
-
         }catch (e){
             console.log('Got some error during the profile creation: %O', e)
         }
@@ -116,7 +124,8 @@ class IdentityManager {
 
             let new_profile = {
                 workflows: this.workflows,
-                rewards: this.rewards
+                rewards: this.rewards,
+                publishedWorkflows : this.publishedWorkflows
             }
             await this.contentManager.save("/profiles/" + this.id + '.json', new TextEncoder().encode(JSON.stringify(new_profile)))
             console.log('Workflow successfully updated')

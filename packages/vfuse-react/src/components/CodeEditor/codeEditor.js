@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Editor from 'react-simple-code-editor'
 import Highlight, { defaultProps } from 'prism-react-renderer'
 import pyTheme from 'prism-react-renderer/themes/vsLight'
@@ -10,14 +10,9 @@ export default function CodeEditor(props) {
     const [language, setLanguage] = useState(props.language)
     const [theme, setTheme] = useState(jsTheme)
 
-    const onValueChange = code => {
-        props.setCode(code)
-    }
-
-    function handleChange(value) {
-        setLanguage(value)
-        props.setLanguage(value)
-        switch(value){
+    useEffect(() => {
+        setLanguage(props.language)
+        switch(props.language){
             case 'javascript':
                 setTheme(jsTheme)
                 break
@@ -25,18 +20,14 @@ export default function CodeEditor(props) {
                 setTheme(pyTheme)
                 break
         }
+    },[props.language])
+
+    const onValueChange = code => {
+        props.setCode(code)
     }
 
     return (
         <>
-            <Row>
-                <Col span={24}>
-                    <Select defaultValue="javascript" style={{ width: 120, float: "right" }} onChange={handleChange}>
-                        <Select.Option value="javascript">Javascript</Select.Option>
-                        <Select.Option value="python">Python</Select.Option>
-                    </Select>
-                </Col>
-            </Row>
             <Row>
                 <Col span={24}>
                     <Editor

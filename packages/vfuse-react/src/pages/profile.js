@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row} from "antd";
+import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification} from "antd";
 import VFuse from "vfuse-core";
 
 import {useVFuse} from "../hooks/useVFuse"
@@ -68,6 +68,26 @@ export default function ProfilePage(props){
 
     }
 
+    const onStop = async () => {
+        try {
+            setStopLoading(true)
+            if (vFuseNode) {
+                await vFuseNode.stop()
+                setStopDisabled(true)
+                setCreateDisabled(false)
+                setStartDisabled(false)
+                setProfile(null)
+            }
+            setStopLoading(false)
+        }catch(e){
+            notification.error({
+                message : "Something went wrong",
+                description : e.message
+            });
+            setStopLoading(true)
+        }
+    }
+
     const columns = [
         {
             title : "Name",
@@ -78,13 +98,13 @@ export default function ProfilePage(props){
             title : "Published",
             dataIndex: "published",
             key: "published",
-            render: (text, record, index) => publishedWorkflows.indexOf(record.id) >= 0 ? <b>yes</b> : <b>no</b>
+            render: (text, record, index) => publishedWorkflows.indexOf(record.id) >= 0 ? <Tag color="#0F9D58">Yes</Tag> : <Tag color="#DB4437">Not</Tag>
         },
         {
             title : "Action",
             dataIndex: "action",
             key: "action",
-            render: (text, record, index) => <Button onClick={() =>  props.history.replace({pathname: '/notebook', params: {workflowId : record.id} })}>Open</Button>
+            render: (text, record, index) => <Button type="primary" onClick={() =>  props.history.replace({pathname: '/notebook', params: {workflowId : record.id} })}>Open</Button>
         }
     ]
 
@@ -103,8 +123,8 @@ export default function ProfilePage(props){
                         ]}
                         extra={[
                             <Button key="3" type="primary" disabled={startDisabled} loading={startLoading} onClick={() => onStartNode("start")}>Start</Button>,
-                            <Button key="2" type="danger" disabled={stopDisabled} loading={stopLoading}>Stop</Button>,
-                            <Button key="2" type="default" disabled={createDisabled} loading={createLoading} onClick={() => onStartNode("create")}>Create</Button>,
+                            <Button key="2" type="danger" disabled={stopDisabled} loading={stopLoading} onClick={onStop}>Stop</Button>,
+                            /*<Button key="2" type="default" disabled={createDisabled} loading={createLoading} onClick={() => onStartNode("create")}>Create</Button>,*/
                         ]}
                         avatar={{ src: 'https://avatars1.githubusercontent.com/u/8186664?s=460&v=4' }}
                         /*breadcrumb={{ routes }}*/

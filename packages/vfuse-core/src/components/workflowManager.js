@@ -61,45 +61,19 @@ class WorkflowManager{
         return await this.contentManager.list("/workflows")
     }
 
-    async updateResults(workflowId, JobId, results){
-
-    }
-
-    async runJob(job){
-        try {
-            await this.runtimeManager.run(job)
-            job.status = Constants.JOB_SATUS.COMPLETED//Job.SATUS.COMPLETED
-            //Communicate the job end to the network
-        }catch(e){
-            log("Got error during job execution: %o", e)
-        }
-    }
-
-    async runWorkflow(workflowId){
-        let workflow = this.identityManager.getWorkflow(workflowId)
-        try {
-            workflow.status = Constants.WORKFLOW.STATUS.RUNNING//Workflow.STATUS.RUNNING
-            for (let j in workflow.jobs) {
-               await this.runJob(workflow.jobs[j])
+    async runLocalWorkflowCode(id){
+        try{
+            let result = null
+            let workflow = this.identityManager.getWorkflow(id)
+            if(workflow){
+                result = await this.runtimeManager.runLocalCode(workflow.code)
             }
-            workflow.status = Constants.WORKFLOW.STATUS.COMPLETED//Workflow.STATUS.COMPLETED
-            //Communicate the workflow end to the network
-        }catch(e){
-            workflow.status = Constants.WORKFLOW.STATUS.IDLE//Workflow.STATUS.IDLE
-            log("Got error during workflow execution: %o", e)
+            return result
+        }catch (e){
+            log('Got some error during the workflow creation: %O', e)
+            return null
         }
-    }
 
-    async runAllWokflows(){
-        let workflow
-        try {
-            for (let w in this.workflowsQueue) {
-                workflow = this.workflowsQueue[w]
-                await this.runWorkflow(workflow)
-            }
-        }catch(e){
-            log("Got error during workflows execution: %o", e)
-        }
     }
 
     async saveWorkflow(id, name, code, language){
@@ -119,14 +93,6 @@ class WorkflowManager{
         }catch (e){
             log('Got some error during the workflow creation: %O', e)
             return null
-        }
-    }
-
-    async updateWorkflow(workflow){
-        try{
-
-        }catch (e){
-            log('Got some error during the workflow updating: %O', e)
         }
     }
 
