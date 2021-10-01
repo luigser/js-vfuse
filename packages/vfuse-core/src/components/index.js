@@ -88,8 +88,16 @@ class VFuse {
         this.networkManager.registerTopicListener(callback)
     }
 
-    async createWorkflow(name){
-       return await this.workflowManager.createWorkflow(name)
+    getProfile(){
+        return this.identityManager.getCurrentProfile()
+    }
+
+    getWorkflow(id){
+        return this.identityManager.getWorkflow(id)
+    }
+
+    async saveWorkflow(name, id, code, language){
+       return await this.workflowManager.saveWorkflow(name, id, code, language)
     }
 
     async publishWorkflow(workflow_id){

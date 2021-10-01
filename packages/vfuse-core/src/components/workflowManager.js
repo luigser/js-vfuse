@@ -78,14 +78,14 @@ class WorkflowManager{
     async runWorkflow(workflowId){
         let workflow = this.identityManager.getWorkflow(workflowId)
         try {
-            workflow.status = Constants.WORKFLOW_STATUS.RUNNING//Workflow.STATUS.RUNNING
+            workflow.status = Constants.WORKFLOW.STATUS.RUNNING//Workflow.STATUS.RUNNING
             for (let j in workflow.jobs) {
                await this.runJob(workflow.jobs[j])
             }
-            workflow.status = Constants.WORKFLOW_STATUS.COMPLETED//Workflow.STATUS.COMPLETED
+            workflow.status = Constants.WORKFLOW.STATUS.COMPLETED//Workflow.STATUS.COMPLETED
             //Communicate the workflow end to the network
         }catch(e){
-            workflow.status = Constants.WORKFLOW_STATUS.IDLE//Workflow.STATUS.IDLE
+            workflow.status = Constants.WORKFLOW.STATUS.IDLE//Workflow.STATUS.IDLE
             log("Got error during workflow execution: %o", e)
         }
     }
@@ -102,16 +102,23 @@ class WorkflowManager{
         }
     }
 
-    async createWorkflow(name){
+    async saveWorkflow(id, name, code, language){
         try{
-            //todo find a strategy to get a new workflow id
-            let workflow_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
-            let workflow = new Workflow(workflow_id._idB58String, name)
-            await this.identityManager.addWorkflow(workflow)
-            console.log('Workflow sucessfully created: %O', workflow)
-            return workflow_id._idB58String
+            let workflow = this.identityManager.getWorkflow(id)
+            if(workflow){
+                await this.identityManager.updateWorkflow(id, name, code, language)
+
+            }else {
+                //todo find a strategy to get a new workflow id
+                let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
+                workflow = new Workflow(workflow_id._idB58String, name, code, language)
+                await this.identityManager.addWorkflow(workflow)
+                console.log('Workflow sucessfully created: %O', workflow)
+            }
+            return workflow.id
         }catch (e){
             log('Got some error during the workflow creation: %O', e)
+            return null
         }
     }
 

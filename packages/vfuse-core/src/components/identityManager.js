@@ -34,6 +34,15 @@ class IdentityManager {
         }
     }
 
+    getCurrentProfile(){
+        return {
+            id: this.id,
+            workflows : this.workflows,
+            rewards : this.rewards,
+            publishedWorkflows : this.publishedWorkflows
+        }
+    }
+
     async createProfile(){
         try{
 
@@ -95,12 +104,14 @@ class IdentityManager {
 
     }
 
-    async addJob(workflowId, job){
+    async updateWorkflow(workflowId, name, code, language){
         try {
             let workflow = this.workflows.filter(w => w.id === workflowId)
-            if(workflow && workflow.length === 1)
-                workflow[0].jobs.push(job)
-            else
+            if(workflow && workflow.length === 1) {
+                workflow[0].name = name
+                workflow[0].code = code
+                workflow[0].language = language
+            }else
                 throw 'Selected workflow do not exists'
 
             let new_profile = {

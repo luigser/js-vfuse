@@ -16,19 +16,12 @@ class Workflow{
         COMPLETED : 2
     }*/
 
-    constructor(id, name = '', code, jobsDAG) {
-        /*this.id = null
-        this.status = Constants.WORKFLOW_STATUS.IDLE//Workflow.STATUS.IDLE
-        this.jobs = []*/
-        this.name = name
+    constructor(id, name = '', code, language, jobsDAG) {
         this.id = id
+        this.name = name
         this.code = code
+        this.language = language
         this.jobsDAG = jobsDAG
-    }
-
-    addJob(job){
-        //todo build execution array according to depedencies
-        this.jobs.push(job)
     }
 }
 module.exports = Workflow

@@ -11,10 +11,12 @@ const Constants = {
         COMPLETED: 2,//results are available
         ERROR: 3//something wrong during the execution
     },
-    WORKFLOW_STATUS : {
-        IDLE : 0,
-        RUNNING : 1,
-        COMPLETED : 2
+    WORKFLOW : {
+        STATUS: {
+            IDLE: 0,
+            RUNNING: 1,
+            COMPLETED: 2
+        }
     },
     TOPICS: {
         VFUSE_PUBLISH_CHANNEL : "vfuse_publish_channel"
@@ -29,6 +31,10 @@ const Constants = {
     },
     NETWORK_MANAGERS_TYPE: {
         IPFS_LIBP2P : "IPFS_LIBP2P"
+    },
+    PROGRAMMING_LANGUAGE:{
+        JAVASCRIPT : 'javascript',
+        PYTHON : 'python'
     }
 }
 

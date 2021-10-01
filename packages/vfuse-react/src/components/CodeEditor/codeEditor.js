@@ -7,7 +7,7 @@ import {Row, Col, Select} from "antd";
 
 export default function CodeEditor(props) {
 
-    const [language, setLanguage] = useState('js')
+    const [language, setLanguage] = useState(props.language)
     const [theme, setTheme] = useState(jsTheme)
 
     const onValueChange = code => {
@@ -16,6 +16,7 @@ export default function CodeEditor(props) {
 
     function handleChange(value) {
         setLanguage(value)
+        props.setLanguage(value)
         switch(value){
             case 'javascript':
                 setTheme(jsTheme)

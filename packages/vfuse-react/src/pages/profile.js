@@ -7,23 +7,30 @@ import {gStore} from "../store";
 import CTable from "../components/DataVisualization/CTable/CTable";
 
 export default function ProfilePage(props){
-
+    const [vFuseNode, setVFuseNode] = useState(gStore.get("vFuseNode"))
     const [profile, setProfile] = useState(null)
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
     const [profileId, setProfileId] = useState(null)
     const [startLoading, setStartLoading] = useState(false)
     const [stopLoading, setStopLoading] = useState(false)
     const [createLoading, setCreateLoading] = useState(false)
+
+    const [startDisabled, setStartDisabled] = useState(!!vFuseNode)
+    const [stopDisabled, setStopDisabled] = useState(!vFuseNode)
+    const [createDisabled, setCreateDisabled] = useState(!!vFuseNode)
+
     const [workflows, setWorkflows] = useState([])
     const [publishedWorkflows, setPublishedWorkflows] = useState([])
-    const consoleRef = useRef(null);
 
     const {getNode} = useVFuse()
 
     useEffect(() => {
-        let node = gStore.get("vFuseNode")
-        if(node){
-            setProfile(node.profile)
+
+        if(vFuseNode){
+            let profile = vFuseNode.getProfile()
+            setProfile(profile)
+            setProfileId(profile?.id)
+            setWorkflows(profile?.workflows)
             setStatus(VFuse.Constants.NODE_STATE.RUNNING)
         }
     },[])
@@ -46,9 +53,15 @@ export default function ProfilePage(props){
 
         setStatus(node ? VFuse.Constants.NODE_STATE.RUNNING : VFuse.Constants.NODE_STATE.STOP)
 
-        setProfileId(node?.profile?.id)
-        setProfile(node?.profile)
-        setWorkflows(node?.profile?.workflows)
+        setVFuseNode(node)
+        let profile = node.getProfile()
+        setProfileId(profile.id)
+        setProfile(profile)
+        setWorkflows(profile.workflows)
+        setCreateDisabled(true)
+        setStartDisabled(true)
+        setCreateDisabled(true)
+        setStopDisabled(false)
 
         if(mode === "create") setCreateLoading(false)
         else setStartLoading(false)
@@ -62,21 +75,16 @@ export default function ProfilePage(props){
             key: "name"
         },
         {
-            title : "Id",
-            dataIndex: "id",
-            key: "id"
-        },
-        {
-            title : "Jobs",
-            dataIndex: "jobs",
-            key: "jobs",
-            render: (text, record, index) => <>{record.jobs.length}</>
-        },
-        {
             title : "Published",
             dataIndex: "published",
             key: "published",
             render: (text, record, index) => publishedWorkflows.indexOf(record.id) >= 0 ? <b>yes</b> : <b>no</b>
+        },
+        {
+            title : "Action",
+            dataIndex: "action",
+            key: "action",
+            render: (text, record, index) => <Button onClick={() =>  props.history.replace({pathname: '/notebook', params: {workflowId : record.id} })}>Open</Button>
         }
     ]
 
@@ -94,9 +102,9 @@ export default function ProfilePage(props){
                             status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
                         ]}
                         extra={[
-                            <Button key="3" type="primary" disabled={!profileId || profile} loading={startLoading} onClick={() => onStartNode("start")}>Start</Button>,
-                            <Button key="2" type="danger" disabled={!profileId} loading={stopLoading}>Stop</Button>,
-                            <Button key="2" type="default" disabled={profileId} loading={createLoading} onClick={() => onStartNode("create")}>Create</Button>,
+                            <Button key="3" type="primary" disabled={startDisabled} loading={startLoading} onClick={() => onStartNode("start")}>Start</Button>,
+                            <Button key="2" type="danger" disabled={stopDisabled} loading={stopLoading}>Stop</Button>,
+                            <Button key="2" type="default" disabled={createDisabled} loading={createLoading} onClick={() => onStartNode("create")}>Create</Button>,
                         ]}
                         avatar={{ src: 'https://avatars1.githubusercontent.com/u/8186664?s=460&v=4' }}
                         /*breadcrumb={{ routes }}*/
@@ -117,9 +125,9 @@ export default function ProfilePage(props){
                                     </Col>
                                 </Typography.Paragraph>
                                 <Descriptions title="User Info" layout="vertical" bordered>
-                                    <Descriptions.Item label="IdentityManager ID">{profile?.id}</Descriptions.Item>
+                                    <Descriptions.Item label="Profile ID">{profile?.id}</Descriptions.Item>
                                     <Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>
-                                    <Descriptions.Item label="Rewards">{profile?.rewards} ETH</Descriptions.Item>
+                                    <Descriptions.Item label="Rewards">3.14 ETH</Descriptions.Item>
                                 </Descriptions>
                             </>
                         </Layout.Content>

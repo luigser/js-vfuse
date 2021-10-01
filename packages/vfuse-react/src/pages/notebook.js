@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row} from "antd";
+import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification} from "antd";
 import VFuse from "vfuse-core";
 import {gStore} from "../store";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -52,10 +52,11 @@ export default function NotebookPage(props){
     const [publishNetworkLoading, setPublishNetworkLoading] = useState(true)
     const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(true)
     const [vFuseNode, setVFuseNode] = useState(null)
-
-    const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : "QmZtVKYKXXqL6QmqRjvVmvR17AVEVMTZsMR3auvYWQgmsR")
-
+    const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : null)
     const [code, setCode] = useState(javascriptCodeExample);
+    const [language, setLanguage] = useState(VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
+    const [name, setName] = useState(null)
+    const [profile, setProfile] = useState(null)
 
 
     useEffect(() => {
@@ -66,6 +67,13 @@ export default function NotebookPage(props){
             setRunLocalLoading(false)
             setPublishNetworkLoading(false)
             setSaveWorkflowLoading(false)
+            setProfile(node.getProfile())
+
+            if(workflowId){
+                let workflow = node.getWorkflow(workflowId)
+                setName(workflow.name)
+                setCode(workflow.code)
+            }
         }
     },[])
 
@@ -74,11 +82,28 @@ export default function NotebookPage(props){
     }
 
     const saveWorkflow = async () => {
-        setSaveWorkflowLoading(true)
-        let wid = await vFuseNode.createWorkflow('Test')
-        await vFuseNode.addJob(wid, code, null, [])
-        setWorkflowId(wid)
-        setSaveWorkflowLoading(false)
+        if(!name){
+            notification.error({
+                message : "Something went wrong",
+                description : 'Give a title to you workflow please !!!'
+            });
+        }else{
+            setSaveWorkflowLoading(true)
+            let wid = await vFuseNode.saveWorkflow(workflowId, name, code, language)
+            if(!wid){
+                notification.error({
+                    message : "Something went wrong",
+                    description : 'Some problems occurred during saving workflow'
+                });
+            }else{
+                notification.info({
+                    message : "Info",
+                    description : 'Your workflow was successfully saved'
+                });
+            }
+            setWorkflowId(wid)
+            setSaveWorkflowLoading(false)
+        }
     }
 
     const publishWorkflow = async () => {
@@ -86,6 +111,8 @@ export default function NotebookPage(props){
         await vFuseNode.publishWorkflow(workflowId)
         setPublishNetworkLoading(false)
     }
+
+    const onChaneName = (e) => setName(e.target.value)
 
     return(
         <div>
@@ -120,9 +147,9 @@ export default function NotebookPage(props){
                         </Layout.Content>
                     </PageHeader>
                     <Descriptions layout="vertical" bordered>
-                        <Descriptions.Item label="IdentityManager ID">{vFuseNode?.profile?.id}</Descriptions.Item>
-                        <Descriptions.Item label="Workflows numbers">{vFuseNode?.profile?.workflows.length}</Descriptions.Item>
-                        <Descriptions.Item label="Rewards">{vFuseNode?.profile?.rewards} ETH</Descriptions.Item>
+                        <Descriptions.Item label="IdentityManager ID">{profile?.id}</Descriptions.Item>
+                        <Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>
+                        <Descriptions.Item label="Rewards">{profile?.rewards} ETH</Descriptions.Item>
                     </Descriptions>
                 </Col>
             </Row>
@@ -142,13 +169,29 @@ export default function NotebookPage(props){
                                     overflow: "scroll"
                                 }}
                             />*/}
+                            <Row style={{margin: 16}}>
+                                <Col span={4}>
+                                    <Typography.Text strong>Workflow Id : </Typography.Text>
+                                </Col>
+                                <Col span={20}>
+                                    {workflowId}
+                                </Col>
+                            </Row>
+                            <Row style={{margin: 16}}>
+                                <Col span={4}>
+                                    <Typography.Text strong>Workflow Title : </Typography.Text>
+                                </Col>
+                                <Col span={20}>
+                                    <Input placeholder="Workflow title" onChange={onChaneName} value={name} />
+                                </Col>
+                            </Row>
                         </Descriptions.Item>
                     </Descriptions>
                 </Col>
             </Row>
             <Row>
                 <Col span={24} style={{height: "50vh", overflow: "scroll"}}>
-                    <CodeEditor code={code} setCode={setCode} />
+                    <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage}/>
                 </Col>
             </Row>
         </div>
