@@ -1,5 +1,13 @@
 class JavascriptWorker{
-    static getWebWorker(){
+
+    constructor() {}
+
+    getDefaultPackages(){
+        return []
+
+    }
+
+    getWebWorker(){
         const JavascriptWebWorkerScript = require('./web/javascriptWebWorker')
         return new Worker(JavascriptWebWorkerScript);
     }

@@ -19,7 +19,14 @@ class RuntimeManager{
     }
 
     load(options){
-        this.worker = !options ? JavascriptWorker : options.worker
+        this.worker = !options ? new JavascriptWorker() : options.worker
+        this.worker.onmessage = function(e){
+            const {action, params} = e.data
+            if(action === 'addJob'){
+                let params = JSON.parse(params)
+                this.addJob(params.func, params.data, params.deps)
+            }
+        }.bind(this)
 
         try {
             if(isBrowser){
@@ -44,6 +51,10 @@ class RuntimeManager{
 
     async runLocalCode(code){
         return await this.runtime.run({ code : code})
+    }
+
+    addJob(func, input, deps){
+        console.log({func, input, deps})
     }
 
 }

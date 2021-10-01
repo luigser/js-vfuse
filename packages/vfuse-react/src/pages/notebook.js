@@ -122,6 +122,13 @@ export default function NotebookPage(props){
         setRunLocalLoading(true)
         let result = await vFuseNode.runLocalWorkflowCode(workflowId)
         setRunLocalLoading(false)
+
+        if(result.error){
+            notification.error({
+                message : "Something went wrong",
+                description : result.error.message
+            });
+        }
     }
 
     return(

@@ -6,7 +6,7 @@ class WebWorkerRuntime {
         this.id =  this.getRandomBetween(0,1000)
         this.history = []
         this.value = null
-        this.packages = options && options.packages ? options.packages : []
+        this.packages = [worker.getDefaultPackages(), ... options && options.packages ? options.packages : []]
         this.worker   = worker.getWebWorker()
 
         // attach web worker callbacks

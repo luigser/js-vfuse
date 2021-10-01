@@ -1,3 +1,11 @@
+class JobsDAGVertex{
+    constructor(props) {
+        this.id = props.id
+        this.label = props.label
+        this.job   = props.job
+    }
+}
+
 class JobsDag {
     constructor(noOfVertices) {
         this.noOfVertices = noOfVertices;
@@ -16,3 +24,5 @@ class JobsDag {
         this.AdjList.get(w).push(v);
     }
 }
+
+module.exports = {JobsDAGVertex, JobsDag}

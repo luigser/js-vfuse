@@ -19,7 +19,7 @@ class WorkflowManager{
         try {
             this.contentManager = contentManager
             this.identityManager = identityManager
-            this.runtimeManager = new RuntimeManager(options.runtime)
+            this.runtimeManager = new RuntimeManager(options.runtime, this)
             this.workflowsQueue = []
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
