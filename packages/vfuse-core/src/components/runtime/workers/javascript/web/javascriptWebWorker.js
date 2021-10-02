@@ -3,15 +3,17 @@ const worker_code = () => {
     const VFuse = {
         addJob : (func, data, deps) => {
             self.postMessage({
-                action : 'addJob',
-                params: JSON.stringify({
-                    func : func.toString(),
-                    data : data,
-                    deps : deps
-                })
-            });
+                action : 'VFuse',
+                todo: {
+                    func : 'addJob',
+                    params: JSON.stringify({
+                        func: func.toString(),
+                        data: data,
+                        deps: deps
+                    })
+                }
+            })
         }
-
     }
 
     self.onmessage = async function (e) {
@@ -19,11 +21,9 @@ const worker_code = () => {
 
         switch (action) {
             case 'init':
-
                 self.postMessage({
                     action: 'initialized'
                 });
-
                 break;
             case 'load':
                 try {

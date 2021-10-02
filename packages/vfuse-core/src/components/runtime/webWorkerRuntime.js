@@ -1,13 +1,14 @@
 'use strict'
 
 class WebWorkerRuntime {
-    constructor(worker , options) {
+    constructor(worker , options, callback) {
         this.count = 0
         this.id =  this.getRandomBetween(0,1000)
         this.history = []
         this.value = null
         this.packages = [worker.getDefaultPackages(), ... options && options.packages ? options.packages : []]
         this.worker   = worker.webWorker
+        this.callback = callback
 
         // attach web worker callbacks
         this.worker.onerror = (e) => {
@@ -15,6 +16,29 @@ class WebWorkerRuntime {
                 `Error in worker ${this.id} at ${e.filename}, Line: ${e.lineno}, ${e.message}`
             );
         };
+    }
+
+    onMessage(e, resolve, reject){
+        this.worker.onmessage = e => {
+            const {action} = e.data
+            switch (action) {
+                case 'initialized':
+                    resolve(true)
+                    break
+                case 'loaded':
+                    resolve(e.data.results)
+                    break
+                case 'return':
+                    resolve(e.data.results)
+                    break
+                case 'error':
+                    reject(e.data.error)
+                    break
+                default:
+                    this.callback(e)
+                    resolve()
+            }
+        }
     }
 
     getRandomBetween(min, max) {
@@ -77,10 +101,13 @@ class WebWorkerRuntime {
                 const { action, results } = e.data
                 if (action === 'return') {
                     resolve(results)
-                } else if (action === 'error') {
+                } else if (action === 'VFuse'){
+                    this.callback(e)
+                }else if (action === 'error') {
                     reject(results)
                 } else {
                     reject(new Error('Unknown worker response'))
+
                 }
             }
         })

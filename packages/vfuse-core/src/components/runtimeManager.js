@@ -20,23 +20,23 @@ class RuntimeManager{
 
     load(options){
         try {
-            this.worker = !options ? new JavascriptWorker() : options.worker
-
             if(isBrowser){
-                this.runtime = new WebWorkerRuntime(this.worker, options)
-                this.worker.webWorker.onmessage = function(e){
-                    const {action, params} = e.data
-                    if(action === 'addJob'){
-                        let params = JSON.parse(params)
-                        this.addJob(params.func, params.data, params.deps)
-                    }
-                }.bind(this)
+                this.worker = !options ? new JavascriptWorker() : options.worker
+                this.runtime = new WebWorkerRuntime(this.worker, options, this.workerCallback.bind(this))
             }
             if(isNode){
 
             }
         }catch(e){
             console.log("Got some error during runtime manager creation %O", e)
+        }
+    }
+
+    workerCallback(e){
+        const {func, params} = e.data.todo
+        if(func === 'addJob'){
+            let p = JSON.parse(params)
+            this.addJob(p.func, p.data, p.deps)
         }
     }
 
