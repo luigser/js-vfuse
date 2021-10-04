@@ -18,29 +18,6 @@ class WebWorkerRuntime {
         };
     }
 
-    onMessage(e, resolve, reject){
-        this.worker.onmessage = e => {
-            const {action} = e.data
-            switch (action) {
-                case 'initialized':
-                    resolve(true)
-                    break
-                case 'loaded':
-                    resolve(e.data.results)
-                    break
-                case 'return':
-                    resolve(e.data.results)
-                    break
-                case 'error':
-                    reject(e.data.error)
-                    break
-                default:
-                    this.callback(e)
-                    resolve()
-            }
-        }
-    }
-
     getRandomBetween(min, max) {
         return Math.random() * (max - min) + min;
     }
