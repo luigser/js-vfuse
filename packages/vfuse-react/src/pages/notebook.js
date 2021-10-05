@@ -13,11 +13,11 @@ import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-funky.css'*/
 
 const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
-    "let input = VFuse.getData('http://GATEWAY/ipfs/CID', start, end, VFuse.DATA.Type.String)\n" +
+    "//let input = VFuse.getData('http://GATEWAY/ipfs/CID', start, end, VFuse.DATA.Type.String)\n" +
     "\n" +
     "function map(data){\n" +
     "   let tokens = []\n" +
-    "   data.split(/\\W+/).map(word => token.push({ word : word , count : 1 })\n" +
+    "   data.split(/\\W+/).map(word => token.push({ word : word , count : 1 }))\n" +
     "   return token\n" +
     "}\n" +
     "\n" +
@@ -33,12 +33,14 @@ const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
     "   return result\n" +
     "}\n" +
     "\n" +
-    "input.split(\"/n\").map(row => {\n" +
-    "   let mapped = VFuse.addJob(map, row)\n" +
-    "   VFuse.addJob(reduce, mapped, [map])//generate a reduce for each map\n" +
+    "let reduced_results = []\n" +
+    "input.split(\"/n\").map(async row => {\n" +
+    "   let mapped = await VFuse.addJob(map, row)\n" +
+    "   let reduced = await VFuse.addJob(reduce, mapped, [map])//generate a reduce for each map\n" +
+    "   reduced_results.push(reduced)\n" +
     "})\n" +
     "\n" +
-    "VFuse.addJob(combine, null, [reduce])//wait for all reduce results and cal combine"
+    "let result = await VFuse.addJob(combine, reduced_results , [reduce])//wait for all reduce results and cal combine"
 
 const pythonCodeExample = `import numpy as np 
 a = [[2, 0], [0, 2]]

@@ -1,9 +1,11 @@
 const worker_code = () => {
 
+    const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
+
     const VFuse = {
         addJob : (func, data, deps) => {
             self.postMessage({
-                action : 'VFuse',
+                action : 'VFuse:worker',
                 todo: {
                     func : 'addJob',
                     params: JSON.stringify({
@@ -13,57 +15,70 @@ const worker_code = () => {
                     })
                 }
             })
+
+            return self.onmessage
         }
     }
 
     self.onmessage = async function (e) {
-        const {action, job, packages} = e.data;
+        return new Promise(async (resolve, reject) => {
+            const {action, job, packages} = e.data;
 
-        switch (action) {
-            case 'init':
-                self.postMessage({
-                    action: 'initialized'
-                });
-                break;
-            case 'load':
-                try {
-                    let results = null
-                    if(packages && packages.length > 0){
-                        packages.map(package => {
-                            //do something
-                        })
+            switch (action) {
+                case 'init':
+                    self.postMessage({
+                        action: 'initialized'
+                    });
+                    resolve(e.data)
+                    break;
+                case 'load':
+                    try {
+                        let results = null
+                        if (packages && packages.length > 0) {
+                            packages.map(package => {
+                                //do something
+                            })
+                        }
+
+                        self.postMessage({
+                            action: 'loaded',
+                            results
+                        });
+                        resolve(e.data)
+                    } catch (err) {
+                        console.log(err)
+                        self.postMessage({
+                            action: 'loaded',
+                            results: {error: err}
+                        });
+                        resolve(e.data)
                     }
-
-                    self.postMessage({
-                        action: 'loaded',
-                        results
-                    });
-                } catch (err) {
-                    console.log(err)
-                    self.postMessage({
-                        action: 'loaded',
-                        results: { error : err}
-                    });
-                }
-                break;
-            case 'exec':
-                try {
-                    debugger
-                    let F = new Function(job.code);
-                    let results = (F());
-                    self.postMessage({
-                        action: 'return',
-                        results
-                    });
-                } catch (err) {
-                    console.log(err)
-                    self.postMessage({
-                        action: 'return',
-                        results: { error : err}
-                    });
-                }
-                break;
-        }
+                    break;
+                case 'exec':
+                    try {
+                        debugger
+                        let F = new AsyncFunction('', job.code);
+                        let results = await(F());
+                        self.postMessage({
+                            action: 'return',
+                            results
+                        });
+                        resolve(e.data)
+                    } catch (err) {
+                        console.log(err)
+                        self.postMessage({
+                            action: 'return',
+                            results: {error: err}
+                        });
+                        resolve(e.data)
+                    }
+                    break;
+                case 'VFuse:runtime':
+                    const {action} = e.data
+                    resolve(e.data)
+                    break
+            }
+        })
     }
 }
 

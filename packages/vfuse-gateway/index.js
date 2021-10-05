@@ -2,7 +2,7 @@ const VFuse  = require('vfuse-core')
 
 const main = async () => {
     let node = await VFuse.create({
-        profileId : '12D3KooWHsK8UgvRfUANT8o7KyRJfX3sXKQQnqZ67uVnQn6nudQR',
+        profileId : '12D3KooW9uNUdQs91KxraJZozQfioYd3KPvs8Qmw6f13aaF5QLWL',
         SignalServer: true,
         HttpAPI: true,
         IPFSGateway: true,

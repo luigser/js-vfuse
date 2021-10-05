@@ -3,7 +3,8 @@ const  { isNode, isWebWorker, isBrowser } = require("browser-or-node");
 const JavascriptWorker = require('./runtime/workers/javascript/javascriptWorker')
 
 class RuntimeManager{
-    constructor(options) {
+    constructor(options, workflowManager) {
+        this.workflowManager = workflowManager
         this.load(options)
     }
 
@@ -32,11 +33,11 @@ class RuntimeManager{
         }
     }
 
-    workerCallback(e){
+    async workerCallback(e){
         const {func, params} = e.data.todo
         if(func === 'addJob'){
             let p = JSON.parse(params)
-            this.addJob(p.func, p.data, p.deps)
+            await this.addJob(p.func, p.data, p.deps)
         }
     }
 
@@ -53,8 +54,19 @@ class RuntimeManager{
         return await this.runtime.run({ code : code})
     }
 
-    addJob(func, input, deps){
-        console.log({func, input, deps})
+    async addJob(func, input, deps){
+        const promise = new Promise((resolve, reject) => {
+            try {
+                this.worker.webWorker.postMessage({
+                    action: 'VFuse:runtime',
+                    data: "JOB_ID"
+                })
+                resolve()
+                console.log({func, input, deps})
+            }catch (e) {
+                reject(e)
+            }
+        })
     }
 
 }
