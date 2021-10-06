@@ -74,12 +74,10 @@ class WebWorkerRuntime {
 
     exec(job) {
         const promise = new Promise((resolve, reject) => {
-            this.worker.onmessage = async (e) => {
+            this.worker.onmessage = (e) => {
                 const { action, results } = e.data
                 if (action === 'return') {
                     resolve(results)
-                } else if (action === 'VFuse:worker'){
-                    await this.callback(e)
                 }else if (action === 'error') {
                     reject(results)
                 } else {

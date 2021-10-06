@@ -51,9 +51,9 @@ print(c)`
 export default function NotebookPage(props){
     const [vFuseNode, setVFuseNode] = useState(null)
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
-    const [runLocalLoading, setRunLocalLoading] = useState(true)
-    const [publishNetworkLoading, setPublishNetworkLoading] = useState(true)
-    const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(true)
+    const [runLocalLoading, setRunLocalLoading] = useState(false)
+    const [publishNetworkLoading, setPublishNetworkLoading] = useState(false)
+    const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(false)
     const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : null)
     const [code, setCode] = useState(javascriptCodeExample);
     const [language, setLanguage] = useState(VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)

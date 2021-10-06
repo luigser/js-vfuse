@@ -21,23 +21,32 @@ class RuntimeManager{
 
     load(options){
         try {
-            if(isBrowser){
+            if (isBrowser) {
                 this.worker = !options ? new JavascriptWorker() : options.worker
-                this.runtime = new WebWorkerRuntime(this.worker, options, this.workerCallback.bind(this))
+                this.runtime = new WebWorkerRuntime(this.worker, options)
             }
-            if(isNode){
+            if (isNode) {
 
             }
+
+            this.worker.webWorker.addEventListener("message", this.workerCallback.bind(this))
         }catch(e){
             console.log("Got some error during runtime manager creation %O", e)
         }
     }
 
     async workerCallback(e){
-        const {func, params} = e.data.todo
-        if(func === 'addJob'){
-            let p = JSON.parse(params)
-            await this.addJob(p.func, p.data, p.deps)
+        const {action} = e.data
+        if(action === 'VFuse:worker'){
+            const {func, params} = e.data.todo
+            switch(func){
+                case 'addJob':
+                    let p = JSON.parse(params)
+                    await this.addJob(p.func, p.data, p.deps)
+                    break
+            }
+        }else if(action === 'VFuse:runtime'){
+            return Promise.resolve(e.data)
         }
     }
 
@@ -55,18 +64,15 @@ class RuntimeManager{
     }
 
     async addJob(func, input, deps){
-        const promise = new Promise((resolve, reject) => {
-            try {
-                this.worker.webWorker.postMessage({
-                    action: 'VFuse:runtime',
-                    data: "JOB_ID"
-                })
-                resolve()
-                console.log({func, input, deps})
-            }catch (e) {
-                reject(e)
-            }
-        })
+        try {
+            this.worker.webWorker.postMessage({
+                action: 'VFuse:runtime',
+                data: "JOB_ID"
+            })
+            console.log({func, input, deps})
+        }catch (e) {
+            console.log(e)
+        }
     }
 
 }
