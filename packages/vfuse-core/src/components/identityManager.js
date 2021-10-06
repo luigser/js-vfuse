@@ -60,7 +60,7 @@ class IdentityManager {
                     publishedWorkflows: []
                 }
 
-                await this.contentManager.save("/profiles/" + this.peerId + '.json', new TextEncoder().encode(JSON.stringify(new_profile)),
+                await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile)/*new TextEncoder().encode(JSON.stringify(new_profile))*/,
                     {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
                 this.id = this.peerId
                 console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.peerId)
@@ -106,7 +106,7 @@ class IdentityManager {
 
     async updateProfile(profile){
         try{
-            await this.contentManager.save("/profiles/" + this.id + '.json', new TextEncoder().encode(JSON.stringify(profile)))
+            await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile)/*new TextEncoder().encode(JSON.stringify(profile))*/, {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
             console.log('Workflow successfully published in the profile')
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)
@@ -129,7 +129,7 @@ class IdentityManager {
                 rewards: this.rewards,
                 publishedWorkflows : this.publishedWorkflows
             }
-            await this.contentManager.save("/profiles/" + this.id + '.json', new TextEncoder().encode(JSON.stringify(new_profile)))
+            await this.updateProfile(new_profile)
             console.log('Workflow successfully updated')
         }catch (e){
             console.log('Got some error during updating the workflow: %O', e)

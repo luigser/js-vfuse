@@ -7,7 +7,6 @@ const WebSockets = require('libp2p-websockets')
 const Mplex = require('libp2p-mplex')
 const filters = require('libp2p-websockets/src/filters')*/
 /*const Gossipsub = require('libp2p-gossipsub')
-const PeerId = require('peer-id')
 const WebRTCDirect = require('libp2p-webrtc-direct')*/
 const WebSockets = require('libp2p-websockets')
 const { CID } = require('multiformats/cid')
@@ -19,6 +18,7 @@ const toString = require('uint8arrays/to-string')
 const fromString = require('uint8arrays/from-string')
 const ipfsCluster = require('ipfs-cluster-api')
 const IpfsHttpClient = require("ipfs-http-client")
+const PeerId = require('peer-id')
 
 const  { isNode, isBrowser } = require("browser-or-node");
 
@@ -127,9 +127,11 @@ class NetworkManager {
             }
         )*/
 
+        let repo_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
+
         let opt = {
             ...this.ipfsOptions,
-            repo: this.ipfsOptions && this.ipfsOptions.repo ? this.ipfsOptions.repo : 'vfuse-node-repo',
+            repo: this.ipfsOptions && this.ipfsOptions.repo ? this.ipfsOptions.repo : repo_id._idB58String,
             config: {
                 ...this.ipfsOptions.config,
                 //Bootstrap: this.bootstrapNodes,

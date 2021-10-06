@@ -6,24 +6,31 @@ class JobsDAGVertex{
     }
 }
 
-class JobsDag {
-    constructor(noOfVertices) {
-        this.noOfVertices = noOfVertices;
+class JobsDAG {
+    constructor() {
+        this.edges = new Map();
+        this.addVertex(new JobsDAGVertex({id : 'root', label: 'root', job : null}))
+    }
 
-        this.AdjList      = new Map();
+    getVertexById(id){
+        return this.edges.get(id)
+    }
+
+    getVertexByLabel(label){
+
     }
 
     addVertex(v)
     {
-        this.AdjList.set(v, []);
+        this.edges.set(v, []);
     }
 
     addEdge(v, w)
     {
         //check if edge generate a cycle
-        this.AdjList.get(v).push(w);
-        this.AdjList.get(w).push(v);
+        this.edges.get(v).push(w);
+        this.edges.get(w).push(v);
     }
 }
 
-module.exports = {JobsDAGVertex, JobsDag}
+module.exports = {JobsDAGVertex, JobsDAG}

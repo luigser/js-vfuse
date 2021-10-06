@@ -93,7 +93,7 @@ class VFuse {
     }
 
     getWorkflow(id){
-        return this.identityManager.getWorkflow(id)
+        return this.workflowManager.getWorkflow(id)
     }
 
     async saveWorkflow(name, id, code, language){
@@ -108,8 +108,8 @@ class VFuse {
         return await this.workflowManager.getPublishedWorkflows()
     }
 
-    async runLocalWorkflowCode(id){
-        return await this.workflowManager.runLocalWorkflowCode(id)
+    async runLocalWorkflowCode(code){
+        return await this.workflowManager.runLocalWorkflowCode(code)
     }
 
     async addJob(workflow, code, data, dependencies){

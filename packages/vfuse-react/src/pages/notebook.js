@@ -4,7 +4,8 @@ import VFuse from "vfuse-core";
 import {gStore} from "../store";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMagic} from "@fortawesome/free-solid-svg-icons";
-import CodeEditor from "../components/CodeEditor/codeEditor";
+//import CodeEditor from "../components/CodeEditor/codeEditor";
+import VFuseCodeEditor from "../components/CodeEditor/vFuseCodeEditor";
 
 /*
 //import Editor from "react-simple-code-editor";
@@ -13,8 +14,6 @@ import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-funky.css'*/
 
 const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
-    "//let input = VFuse.getData('http://GATEWAY/ipfs/CID', start, end, VFuse.DATA.Type.String)\n" +
-    "\n" +
     "function map(data){\n" +
     "   let tokens = []\n" +
     "   data.split(/\\W+/).map(word => token.push({ word : word , count : 1 }))\n" +
@@ -34,13 +33,12 @@ const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
     "}\n" +
     "\n" +
     "let reduced_results = []\n" +
-    "input.split(\"/n\").map(async row => {\n" +
+    "let data = await Promise.all(input.split(\"\\n\").map(async row => {\n" +
     "   let mapped = await VFuse.addJob(map, row)\n" +
-    "   let reduced = await VFuse.addJob(reduce, mapped, [map])//generate a reduce for each map\n" +
+    "   let reduced = await VFuse.addJob(reduce, mapped, ['map'])//generate a reduce for each map\n" +
     "   reduced_results.push(reduced)\n" +
-    "})\n" +
-    "\n" +
-    "let result = await VFuse.addJob(combine, reduced_results , [reduce])//wait for all reduce results and cal combine"
+    "}))\n" +
+    "let result = await VFuse.addJob(combine, reduced_results , ['reduce'])//wait for all reduce results and cal combine"
 
 const pythonCodeExample = `import numpy as np 
 a = [[2, 0], [0, 2]]
@@ -122,7 +120,7 @@ export default function NotebookPage(props){
 
     const onRunLocal = async () => {
         setRunLocalLoading(true)
-        let result = await vFuseNode.runLocalWorkflowCode(workflowId)
+        let result = await vFuseNode.runLocalWorkflowCode(code)
         setRunLocalLoading(false)
 
         if(result && result.error){
@@ -147,7 +145,7 @@ export default function NotebookPage(props){
                             status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
                         ]}
                         extra={[
-                            <Button key="3" type="secondary" disabled={!vFuseNode} loading={runLocalLoading} onClick={onRunLocal}>Run in Local</Button>,
+                            <Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Run in Local</Button>,
                             <Button key="2" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save workflow</Button>,
                             <Button key="1" type="danger" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Publish on Network</Button>,
                         ]}
@@ -215,8 +213,9 @@ export default function NotebookPage(props){
                 </Col>
             </Row>
             <Row>
-                <Col span={24} style={{height: "50vh", overflow: "scroll"}}>
-                    <CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage}/>
+                <Col span={24} style={{height: "50vh"}}>
+                    {/*<CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage}/>*/}
+                    <VFuseCodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage}/>
                 </Col>
             </Row>
         </div>

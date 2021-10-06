@@ -45,9 +45,9 @@ class RuntimeManager{
                     await this.addJob(p.func, p.data, p.deps)
                     break
             }
-        }else if(action === 'VFuse:runtime'){
-            return Promise.resolve(e.data)
-        }
+        }/*else if(action === 'VFuse:runtime'){
+            return Promise.resolve(action.data)
+        }*/
     }
 
     async reload(options){
@@ -65,6 +65,8 @@ class RuntimeManager{
 
     async addJob(func, input, deps){
         try {
+            //UPDATE JobsDAG
+
             this.worker.webWorker.postMessage({
                 action: 'VFuse:runtime',
                 data: "JOB_ID"

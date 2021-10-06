@@ -85,6 +85,14 @@ MAP-REDUCE
 let input = "VERY_BIG_TEXT"
 //let input = VFuse.getData('http://GATEWAY/ipfs/CID', start, end, VFuse.DATA.Type.String)
 
+let input = "Contrary to popular belief, Lorem Ipsum is not simply random text.\n" +
+        "It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.\n" +
+        "Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur,\n" +
+        "from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.\n" +
+        " Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero,\n" +
+        " written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum," +
+        "\"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32."
+
 function map(data){
    let tokens = []
    data.split(/\W+/).map(word => token.push({ word : word , count : 1 }))
@@ -103,12 +111,11 @@ function combine(data){
    return result
 }
 
-input.split("/n").map(row => {
-   let mapped = VFuse.addJob(map, row)
-   VFuse.addJob(reduce, mapped, [map])//generate a reduce for each map
-})
-
-VFuse.addJob(combine, null, [reduce])//wait for all reduce results and cal combine
+let mapped = await Promise.all(input.split("\n").map(async row => await VFuse.addJob(map, row)))
+debugger
+let reduced = await Promise.all(mapped.map(async m => await VFuse.addJob(reduce, m, ['map'])))
+debugger
+let result = await VFuse.addJob(combine, reduced, ['reduce'])
 
 
 //Todo

@@ -5,6 +5,7 @@ const log = require('debug')('vfuse:workflowManager')
 const RuntimeManager = require('./runtimeManager')
 const Workflow = require('./job/workflow')
 const Job = require('./job/job')
+const {JobsDAG, JobsDAGVertex} = require('./job/JobsDAG')
 const Constants = require('./constants')
 
 /*
@@ -21,6 +22,7 @@ class WorkflowManager{
             this.identityManager = identityManager
             this.runtimeManager = new RuntimeManager(options.runtime, this)
             this.workflowsQueue = []
+            this.currentWorkflow = null
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
         }
@@ -61,16 +63,26 @@ class WorkflowManager{
         return await this.contentManager.list("/workflows")
     }
 
-    async runLocalWorkflowCode(id){
+    async getWorkflow(id){
+        try {
+            this.currentWorkflow = this.identityManager.getWorkflow(id)
+            return this.currentWorkflow
+        }catch(e){
+            console.log('Got some error retrieving the workflow : %O', e)
+            return null
+        }
+    }
+
+    async runLocalWorkflowCode(code){
         try{
             let result = null
-            let workflow = this.identityManager.getWorkflow(id)
-            if(workflow){
-                result = await this.runtimeManager.runLocalCode(workflow.code)
-            }
+            /*let workflow = this.identityManager.getWorkflow(id)
+            if(workflow){*/
+                result = await this.runtimeManager.runLocalCode(code)
+            //}
             return result
         }catch (e){
-            log('Got some error during the workflow creation: %O', e)
+            console.log('Got some error during the workflow creation: %O', e)
             return null
         }
 
@@ -85,7 +97,7 @@ class WorkflowManager{
             }else {
                 //todo find a strategy to get a new workflow id
                 let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
-                workflow = new Workflow(workflow_id._idB58String, name, code, language)
+                workflow = new Workflow(workflow_id._idB58String, name, code, language, new JobsDAG())
                 await this.identityManager.addWorkflow(workflow)
                 console.log('Workflow successfully created: %O', workflow)
             }
@@ -134,6 +146,7 @@ class WorkflowManager{
                 data,
                 dependencies
             )
+
             await this.identityManager.addJob(workflow_id, job)
             console.log('Job successfully added to workflow')
         }catch (e){

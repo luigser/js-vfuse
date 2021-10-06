@@ -3,34 +3,34 @@ const worker_code = () => {
     const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
     const VFuse = {
-        resolve : null,
         addJob : (func, data, deps) => {
-            return new Promise( (resolve, reject) => {
-                self.postMessage({
-                    action: 'VFuse:worker',
-                    todo: {
-                        func: 'addJob',
-                        params: JSON.stringify({
-                            func: func.toString(),
-                            data: data,
-                            deps: deps
-                        })
-                    }
-                })
+           const promise = new  Promise( (resolve, reject) => {
+               self.onmessage = (e) => {
+                   const {action} = e.data;
+                   if (action === 'VFuse:runtime') {
+                       self.onmessage = onmessage
+                       resolve(e.data)
+                   }
+               }
+           })
 
-                VFuse.resolve = resolve
-
-                /*self.onmessage = (e) => {
-                    const {action} = e.data;
-                    if(action === 'VFuse:runtime') {
-                        resolve(e.data)
-                    }
-                }*/
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'addJob',
+                    params: JSON.stringify({
+                        func: func.toString(),
+                        data: data,
+                        deps: deps
+                    })
+                }
             })
+
+            return promise
         }
     }
 
-    self.onmessage = async function (e) {
+    const onmessage = async function (e) {
         const {action, job, packages} = e.data;
 
         switch (action) {
@@ -77,8 +77,6 @@ const worker_code = () => {
                     });
                 }
                 break;
-            case 'VFuse:runtime':
-                return VFuse.resolve(e.data)
         }
     }
 
