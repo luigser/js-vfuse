@@ -46,11 +46,10 @@ class RuntimeManager{
         return await this.runtime.run({ code : code})
     }
 
-    async addJob(func, input, deps){
+    async addJob(name, func, deps, input){
         try {
             //UPDATE JobsDAG
-            console.log({func, input, deps})
-            return { id : 'job_id'}
+            return this.workflowManager.addJob(name, func, deps, input)
         }catch (e) {
             console.log(e)
         }

@@ -3,7 +3,7 @@ const worker_code = () => {
     const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
     const VFuse = {
-        addJob : (func, data, deps) => {
+        addJob : (func, deps, input) => {
            const promise = new  Promise( (resolve, reject) => {
                self.onmessage = (e) => {
                    const {action} = e.data;
@@ -21,8 +21,9 @@ const worker_code = () => {
                todo: {
                    func: 'addJob',
                    params: JSON.stringify({
+                       name: func.name,
                        func: func.toString(),
-                       data: data,
+                       input: input,
                        deps: deps
                    })
                }
@@ -116,7 +117,6 @@ const worker_code = () => {
                 try {
                     debugger
                     let F = new AsyncFunction('', '(async() => {' + job.code + '})()');
-                    //let F = new Function('async() => {' + job.code + '}');
                     let results = await(F());
                     self.postMessage({
                         action: 'return',

@@ -1,11 +1,12 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification, Select} from "antd";
+import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification, Select, Tabs} from "antd";
 import VFuse from "vfuse-core";
 import {gStore} from "../store";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMagic} from "@fortawesome/free-solid-svg-icons";
 //import CodeEditor from "../components/CodeEditor/codeEditor";
 import VFuseCodeEditor from "../components/CodeEditor/vFuseCodeEditor";
+import DAGVis from "../components/DAGVis/DAGVis";
 
 /*
 //import Editor from "react-simple-code-editor";
@@ -32,13 +33,14 @@ const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
     "   return result\n" +
     "}\n" +
     "\n" +
+    "input = input.split(\"\\n\")\n" +
     "let reduced_results = []\n" +
-    "let data = await Promise.all(input.split(\"\\n\").map(async row => {\n" +
-    "   let mapped = await VFuse.addJob(map, row)\n" +
-    "   let reduced = await VFuse.addJob(reduce, mapped, ['map'])//generate a reduce for each map\n" +
-    "   reduced_results.push(reduced)\n" +
-    "}))\n" +
-    "let result = await VFuse.addJob(combine, reduced_results , ['reduce'])//wait for all reduce results and cal combine"
+    "for (let row in input){\n" +
+    "   let mapped = await VFuse.addJob(map, input[row])\n" +
+    "   let reduced = await VFuse.addJob(reduce, mapped, [mapped])\n" +
+    "   reduced_results.push(mapped)\n" +
+    "}\n" +
+    "let result = await VFuse.addJob(combine, reduced_results , ['reduce'])//wait for all reduce results and cal combine\n"
 
 const pythonCodeExample = `import numpy as np 
 a = [[2, 0], [0, 2]]
@@ -57,6 +59,7 @@ export default function NotebookPage(props){
     const [language, setLanguage] = useState(VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
     const [name, setName] = useState(null)
     const [profile, setProfile] = useState(null)
+    const [dag, setDag] = useState(null)
 
 
     useEffect(() => {
@@ -121,6 +124,8 @@ export default function NotebookPage(props){
     const onRunLocal = async () => {
         setRunLocalLoading(true)
         let result = await vFuseNode.runLocalWorkflowCode(code)
+        let dag = result.workflow.jobsDAG.getJSON()
+        setDag(dag)
         setRunLocalLoading(false)
 
         if(result && result.error){
@@ -172,7 +177,7 @@ export default function NotebookPage(props){
             </Row>
             <Row>
                 <Col span={24} style={{marginTop: "24px"}}>
-                    <Descriptions  title="Code Editor" layout="vertical" bordered extra={[
+                    <Descriptions layout="vertical" bordered extra={[
                         <Select defaultValue="javascript" style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
                             <Select.Option value="javascript">Javascript</Select.Option>
                             <Select.Option value="python">Python</Select.Option>
@@ -180,18 +185,6 @@ export default function NotebookPage(props){
                         <Button key="4" type="secondary" onClick={onNew}>New workflow</Button>
                     ]}>
                         <Descriptions.Item label="Workflow Info">
-                           {/* <Editor
-                                value={code}
-                                onValueChange={(code) => setCode(code)}
-                                highlight={code => highlight(code, languages.py)}
-                                padding={10}
-                                style={{
-                                    height: "62vh",
-                                    fontFamily: '"Fira code", "Fira Mono", monospace',
-                                    fontSize: 14,
-                                    overflow: "scroll"
-                                }}
-                            />*/}
                             <Row style={{margin: 16}}>
                                 <Col span={4}>
                                     <Typography.Text strong>Workflow Id : </Typography.Text>
@@ -213,10 +206,18 @@ export default function NotebookPage(props){
                 </Col>
             </Row>
             <Row>
-                <Col span={24} style={{height: "50vh"}}>
-                    {/*<CodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage}/>*/}
-                    <VFuseCodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage}/>
-                </Col>
+                <Tabs defaultActiveKey="1" style={{width: "100%"}}>
+                    <Tabs.TabPane tab="Code Editor" key="1">
+                        <Col span={24} style={{height: "50vh"}}>
+                            <VFuseCodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage}/>
+                        </Col>
+                    </Tabs.TabPane>
+                    <Tabs.TabPane tab="Jobs DAG" key="2">
+                        <Col span={24} style={{height: "50vh"}}>
+                           <DAGVis jobsDAG={dag} />
+                        </Col>
+                    </Tabs.TabPane>
+                </Tabs>
             </Row>
         </div>
     )

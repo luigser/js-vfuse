@@ -24,7 +24,7 @@ Il workflow manager deve usare una factory per il runtime
 Ogni runtime deve implementare il meccanismo di parsing per i jobs e dati
 
 1) utilizzare un oggetto "VFuse.NOME_FUNZIONE"
-    L'idea è passare da python a javascript per recuperare dati da IPFS/HTTP utilizzando funzioni scritte in Python ma inplementate in javascript
+    L'idea è passare da python a javascript per recuperare dati da IPFS/HTTP utilizzando funzioni scritte in Python ma implementate in javascript
         ESEMPIO:
         def map(input)
            ...

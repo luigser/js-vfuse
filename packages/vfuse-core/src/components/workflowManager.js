@@ -75,17 +75,13 @@ class WorkflowManager{
 
     async runLocalWorkflowCode(code){
         try{
-            let result = null
-            /*let workflow = this.identityManager.getWorkflow(id)
-            if(workflow){*/
-                result = await this.runtimeManager.runLocalCode(code)
-            //}
-            return result
+            this.currentWorkflow.jobsDAG = new JobsDAG()
+            await this.runtimeManager.runLocalCode(code)
+            return {workflow : this.currentWorkflow}
         }catch (e){
             console.log('Got some error during the workflow execution: %O', e)
-            return null
+            return {error : e}
         }
-
     }
 
     async saveWorkflow(id, name, code, language){
@@ -136,7 +132,7 @@ class WorkflowManager{
         }
     }
 
-    async addJob(workflow_id, name, code, data, dependencies){
+    async addJob(name, code, dependencies, data){
         try{
             let job_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
             let job = new Job(
@@ -147,10 +143,11 @@ class WorkflowManager{
                 dependencies
             )
 
-            //await this.identityManager.addJob(workflow_id, job)
-            console.log('Job successfully added to workflow')
+            let new_vertex = this.currentWorkflow.jobsDAG.addJob(job)
+            return new_vertex ? job : null
         }catch (e){
             console.log('Got some error during the workflow creation: %O', e)
+            return null
         }
     }
 

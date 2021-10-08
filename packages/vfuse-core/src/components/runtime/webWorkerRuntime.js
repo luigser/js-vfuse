@@ -88,14 +88,24 @@ class WebWorkerRuntime {
                         switch(func){
                             case 'addJob':
                                 let p = JSON.parse(params)
-                                let job = await this.runtimeManager.addJob(p.func, p.data, p.deps)
-                                this.webworker.postMessage({
-                                    action: 'VFuse:runtime',
-                                    data: {
-                                        func : "addJob",
-                                        job_id : job.id
-                                    }
-                                })
+                                let job = await this.runtimeManager.addJob(p.name, p.func, p.deps, p.input)
+                                if(job) {
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "addJob",
+                                            job_id: job.id
+                                        }
+                                    })
+                                }else{
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "addJob",
+                                            error : 'Error adding job'
+                                        }
+                                    })
+                                }
                                 break
                         }
                         break
@@ -118,7 +128,6 @@ class WebWorkerRuntime {
         try {
             const startTs = Date.now()
             result = await this.exec(job)
-            job.result = result
 
             const log = {start: startTs, end: Date.now(), cmd: job.code}
             this.history.push(log)

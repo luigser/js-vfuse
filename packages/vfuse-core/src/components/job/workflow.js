@@ -6,7 +6,6 @@ Here some consideration
   Each level represent the jobs dependencies form previous level
   [[j1], [j2, j3]] => j2,j3 depend on j1 and they cannot be execute unitl j1 ends up
 */
-const Constants = require("../constants");
 
 class Workflow{
     //decomment in build
@@ -22,9 +21,6 @@ class Workflow{
         this.code = code
         this.language = language
         this.jobsDAG = jobsDAG
-    }
-
-    addJob(job){
     }
 }
 module.exports = Workflow

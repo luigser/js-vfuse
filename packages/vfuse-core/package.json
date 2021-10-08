@@ -53,6 +53,7 @@
     "npm": "^6.14.4",
     "peer-id": "^0.14.8",
     "uint8arrays": "^2.1.5",
+    "underscore": "^1.13.1",
     "wrtc": "^0.4.7"
   },
   "eslintConfig": {
