@@ -4,16 +4,6 @@ const worker_code = () => {
 
     const VFuse = {
         addJob : (func, data, deps) => {
-           const promise = new  Promise( (resolve, reject) => {
-               self.onmessage = (e) => {
-                   const {action} = e.data;
-                   if (action === 'VFuse:runtime') {
-                       self.onmessage = onmessage
-                       resolve(e.data)
-                   }
-               }
-           })
-
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
@@ -25,8 +15,6 @@ const worker_code = () => {
                     })
                 }
             })
-
-            return promise
         }
     }
 
@@ -77,6 +65,15 @@ const worker_code = () => {
                     });
                 }
                 break;
+            case 'VFuse:runtime':
+                const {func} = e.data.data
+                switch (func) {
+                    case 'addJob':
+                        return e.data.data.job_id
+                        break
+                }
+
+                break
         }
     }
 

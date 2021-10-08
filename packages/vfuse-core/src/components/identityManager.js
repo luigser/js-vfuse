@@ -106,7 +106,8 @@ class IdentityManager {
 
     async updateProfile(profile){
         try{
-            await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile)/*new TextEncoder().encode(JSON.stringify(profile))*/, {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
+            await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile)/*new TextEncoder().encode(JSON.stringify(profile))*/,
+                {create : true, parents: true, mode: parseInt('0775', 8), truncate: true, pin : true})
             console.log('Workflow successfully published in the profile')
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)

@@ -23,31 +23,14 @@ class RuntimeManager{
         try {
             if (isBrowser) {
                 this.worker = !options ? new JavascriptWorker() : options.worker
-                this.runtime = new WebWorkerRuntime(this.worker, options)
+                this.runtime = new WebWorkerRuntime(this, this.worker, options)
             }
             if (isNode) {
 
             }
-
-            this.worker.webWorker.addEventListener("message", this.workerCallback.bind(this))
         }catch(e){
             console.log("Got some error during runtime manager creation %O", e)
         }
-    }
-
-    async workerCallback(e){
-        const {action} = e.data
-        if(action === 'VFuse:worker'){
-            const {func, params} = e.data.todo
-            switch(func){
-                case 'addJob':
-                    let p = JSON.parse(params)
-                    await this.addJob(p.func, p.data, p.deps)
-                    break
-            }
-        }/*else if(action === 'VFuse:runtime'){
-            return Promise.resolve(action.data)
-        }*/
     }
 
     async reload(options){
@@ -66,12 +49,8 @@ class RuntimeManager{
     async addJob(func, input, deps){
         try {
             //UPDATE JobsDAG
-
-            this.worker.webWorker.postMessage({
-                action: 'VFuse:runtime',
-                data: "JOB_ID"
-            })
             console.log({func, input, deps})
+            return { id : 'job_id'}
         }catch (e) {
             console.log(e)
         }

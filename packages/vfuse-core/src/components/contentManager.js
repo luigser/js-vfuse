@@ -33,7 +33,11 @@ class ContentManager{
     async update(path, options){}
 
     async delete(path, options){
-
+        try{
+            return await this.networkManager.delete(path, option)
+        }catch(e){
+            console.log('Got some error during getting : %O', e)
+        }
     }
 
     async publish(path, options){

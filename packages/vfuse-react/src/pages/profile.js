@@ -25,13 +25,20 @@ export default function ProfilePage(props){
     const {getNode} = useVFuse()
 
     useEffect(() => {
-
-        if(vFuseNode){
-            let profile = vFuseNode.getProfile()
-            setProfile(profile)
-            setProfileId(profile?.id)
-            setWorkflows(profile?.workflows)
-            setStatus(VFuse.Constants.NODE_STATE.RUNNING)
+        try {
+            if (vFuseNode) {
+                let profile = vFuseNode.getProfile()
+                setProfile(profile)
+                setProfileId(profile?.id)
+                setWorkflows(profile?.workflows)
+                setStatus(VFuse.Constants.NODE_STATE.RUNNING)
+            }
+        }catch(e){
+            console.log('Got some error during initialization: %O', e)
+            notification.error({
+                message : "Something went wrong",
+                description : "Cannot establish connection to network"
+            });
         }
     },[])
 
@@ -41,31 +48,39 @@ export default function ProfilePage(props){
     }
 
     const onStartNode = async(mode) => {
-        if(mode === "create") setCreateLoading(true)
-        else setStartLoading(true)
+        try {
+            if (mode === "create") setCreateLoading(true)
+            else setStartLoading(true)
 
-        setStatus(VFuse.Constants.NODE_STATE.INITIALIZING)
+            setStatus(VFuse.Constants.NODE_STATE.INITIALIZING)
 
-        let node = await getNode(profileId)
-        let publishedWorkflows = await node.getPublishedWorkflows();
-        setPublishedWorkflows(publishedWorkflows)
-        console.log({publishedWorkflows})
+            let node = await getNode(profileId)
+            let publishedWorkflows = await node.getPublishedWorkflows();
+            setPublishedWorkflows(publishedWorkflows)
+            console.log({publishedWorkflows})
 
-        setStatus(node ? VFuse.Constants.NODE_STATE.RUNNING : VFuse.Constants.NODE_STATE.STOP)
+            setStatus(node ? VFuse.Constants.NODE_STATE.RUNNING : VFuse.Constants.NODE_STATE.STOP)
 
-        setVFuseNode(node)
-        let profile = node.getProfile()
-        setProfileId(profile.id)
-        setProfile(profile)
-        setWorkflows(profile.workflows)
-        setCreateDisabled(true)
-        setStartDisabled(true)
-        setCreateDisabled(true)
-        setStopDisabled(false)
+            setVFuseNode(node)
+            let profile = node.getProfile()
+            setProfileId(profile.id)
+            setProfile(profile)
+            setWorkflows(profile.workflows)
+            setCreateDisabled(true)
+            setStartDisabled(true)
+            setCreateDisabled(true)
+            setStopDisabled(false)
 
-        if(mode === "create") setCreateLoading(false)
-        else setStartLoading(false)
-
+            if (mode === "create") setCreateLoading(false)
+            else setStartLoading(false)
+        }catch (e) {
+            setStartLoading(false)
+            console.log('Got some error during initialization: %O', e)
+            notification.error({
+                message : "Something went wrong",
+                description : "Cannot establish connection to network"
+            });
+        }
     }
 
     const onStop = async () => {

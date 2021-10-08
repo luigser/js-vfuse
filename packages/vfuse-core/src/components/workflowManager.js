@@ -63,7 +63,7 @@ class WorkflowManager{
         return await this.contentManager.list("/workflows")
     }
 
-    async getWorkflow(id){
+    getWorkflow(id){
         try {
             this.currentWorkflow = this.identityManager.getWorkflow(id)
             return this.currentWorkflow
@@ -82,7 +82,7 @@ class WorkflowManager{
             //}
             return result
         }catch (e){
-            console.log('Got some error during the workflow creation: %O', e)
+            console.log('Got some error during the workflow execution: %O', e)
             return null
         }
 
@@ -93,7 +93,6 @@ class WorkflowManager{
             let workflow = this.identityManager.getWorkflow(id)
             if(workflow){
                 await this.identityManager.updateWorkflow(id, name, code, language)
-
             }else {
                 //todo find a strategy to get a new workflow id
                 let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
@@ -137,17 +136,18 @@ class WorkflowManager{
         }
     }
 
-    async addJob(workflow_id, code, data, dependencies){
+    async addJob(workflow_id, name, code, data, dependencies){
         try{
             let job_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
             let job = new Job(
                 job_id._idB58String,
+                name,
                 code,
                 data,
                 dependencies
             )
 
-            await this.identityManager.addJob(workflow_id, job)
+            //await this.identityManager.addJob(workflow_id, job)
             console.log('Job successfully added to workflow')
         }catch (e){
             console.log('Got some error during the workflow creation: %O', e)

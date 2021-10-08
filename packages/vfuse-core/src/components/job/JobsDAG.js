@@ -17,7 +17,7 @@ class JobsDAG {
     }
 
     getVertexByLabel(label){
-
+        let verticies = this.edges.entries().filter
     }
 
     addVertex(v)
@@ -30,6 +30,7 @@ class JobsDAG {
         //check if edge generate a cycle
         this.edges.get(v).push(w);
         this.edges.get(w).push(v);
+
     }
 }
 

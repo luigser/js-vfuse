@@ -461,6 +461,14 @@ class NetworkManager {
         }
     }
 
+    async deleteFile(path, options){
+        try {
+            return await this.api.files.rm(path, options)
+        }catch (e) {
+            console.log('Got some error during write: %O', e)
+        }
+    }
+
     async readFile(path, options){
         try {
             let chunks = [], decodedData = null
