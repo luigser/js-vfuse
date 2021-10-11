@@ -28,14 +28,21 @@ class JobsDAG {
             return result
         }
         return null
+    }
 
+    checkIfNodeExist(nodes, id){
+        for(let n in nodes){
+            if(nodes[n].id === id) return true
+        }
+        return false
     }
 
     treeVisit(node, nodes = [], edges = []){
-        nodes.push({id : node.id, label: node.name, title: 'Node'})
+        if(!this.checkIfNodeExist(nodes, node.id))
+           nodes.push({id : node.id, label: node.label})
         for (let n of this.edges.get(node)) {
             edges.push({from: node.id, to : n.id})
-            this.getJSON(n, nodes, edges)
+            this.treeVisit(n, nodes, edges)
         }
     }
 
@@ -45,10 +52,14 @@ class JobsDAG {
        return { nodes : nodes, edges : edges }
     }
 
-    addVertexByLabel(label, node){
-        for (let [key, value] of this.edges.entries()) {
-            if (key.label === label)
-                this.addEdge(key, node)
+    addVertexByLabel(node, dependency, vertex){
+        let adjList = this.edges.get(node)
+        if(node.label === dependency){
+            this.addEdge(node, vertex)
+        }else if(adjList.length > 0){
+            for (let n = 0; n < adjList.length; n++) {
+                this.addVertexByLabel(adjList[n], dependency, vertex)
+            }
         }
     }
 
@@ -87,7 +98,7 @@ class JobsDAG {
                             new_job_vertex
                         )
                     }else{
-                        //this.addVertexByLabel(dependency, new_job_vertex)
+                        this.addVertexByLabel(this.root, dependency, new_job_vertex)
                     }
                 })
             }

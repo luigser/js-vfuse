@@ -116,7 +116,8 @@ const worker_code = () => {
             case 'exec':
                 try {
                     debugger
-                    let F = new AsyncFunction('', '(async() => {' + job.code + '})()');
+                    //let F = new AsyncFunction('', '(async() => {' + job.code + '})()');
+                    let F = new AsyncFunction('', job.code );
                     let results = await(F());
                     self.postMessage({
                         action: 'return',

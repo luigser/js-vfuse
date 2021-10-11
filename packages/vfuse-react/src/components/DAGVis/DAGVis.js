@@ -16,12 +16,12 @@ export default function DAGVis(props) {
 
     const options = {
         layout: {
-            hierarchical: true
+            hierarchical: false
         },
         edges: {
             color: "#000000"
         },
-        height: "500px"
+        /*height: "500px"*/
     };
 
     const events = {
