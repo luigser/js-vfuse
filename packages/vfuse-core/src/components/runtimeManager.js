@@ -55,6 +55,10 @@ class RuntimeManager{
         }
     }
 
+    async saveCurrentWorkflow(){
+
+    }
+
 }
 
 module.exports = RuntimeManager
