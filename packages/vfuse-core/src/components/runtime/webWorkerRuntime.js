@@ -107,6 +107,10 @@ class WebWorkerRuntime {
                                     })
                                 }
                                 break
+                            case 'saveWorkflow':
+                                break
+                            case 'submitWorkflow':
+                                break
                         }
                         break
                     case 'error':

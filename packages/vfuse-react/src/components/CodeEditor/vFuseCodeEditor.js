@@ -13,9 +13,11 @@ import {Row, Col, Select} from "antd";
 export default function VFuseCodeEditor(props) {
 
     const [language, setLanguage] = useState(props.language)
+    const [fontSize, setFontSize] = useState(14)
     const [theme, setTheme] = useState("github")
 
     useEffect(() => {
+        setFontSize(props.fontSize)
         setLanguage(props.language)
         switch(props.language){
             case 'javascript':
@@ -25,7 +27,7 @@ export default function VFuseCodeEditor(props) {
                 setTheme("github")
                 break
         }
-    },[props.language])
+    },[props.language, props.fontSize])
 
     const onValueChange = code => {
         props.setCode(code)
@@ -43,7 +45,7 @@ export default function VFuseCodeEditor(props) {
                         name="VFuse_code_editor"
                         editorProps={{ $blockScrolling: true }}
                         highlightActiveLine={true}
-                        fontSize={14}
+                        fontSize={fontSize}
                         setOptions={{
                             enableBasicAutocompletion: true,
                             enableLiveAutocompletion: true,

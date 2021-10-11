@@ -103,6 +103,15 @@ class WorkflowManager{
         }
     }
 
+    async saveCurrentWorkflow(){
+        try{
+
+        }catch (e){
+            log('Got some error during the current workflow saving: %O', e)
+            return null
+        }
+    }
+
     async publishWorkflow(workflow_id){
         //todo check if workflow exist in the profile
         try{
@@ -110,17 +119,11 @@ class WorkflowManager{
             let workflow = this.identityManager.getWorkflow(workflow_id)
             if(workflow){
                 let workflow_dir = '/workflows/' + workflow.id
-                //await this.contentManager.makeDir(workflow_dir, { create:true, parents : true, mode: "777" })
-                //await this.contentManager.makeDir(workflow_dir + '/results', { create:true, parents : true, mode: "777" })
-                //await this.contentManager.makeDir(workflow_dir + '/jobs', { create:true, parents : true, mode: "775" })
-                //await this.contentManager.writeFile(workflow_dir + '/' + workflow.id + '.json', new TextEncoder().encode(JSON.stringify(workflow)),
-                //    {create : true, parents: true, mode: parseInt('0775', 8)})
-                //await this.contentManager.pinFileInMFS(workflow_dir + '/' + workflow.id + '.json')
-
-                workflow.jobs.map(async job => {
+                await this.contentManager.save(workflow_dir + '/' + workflow.id + '.json', JSON.stringify(workflow))
+                /*workflow.jobs.map(async job => {
                     await this.contentManager.save(workflow_dir + '/jobs/' + job.id + '.json', new TextEncoder().encode(JSON.stringify(job)),
                         {create : true, parents: true, mode: parseInt('0775', 8), pin:true})
-                })
+                })*/
                 console.log('Workflow successfully published')
             }else{
                 throw 'Workflow ID do no exist. You need to save in your profile before publish it!'

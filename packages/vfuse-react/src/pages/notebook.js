@@ -36,11 +36,11 @@ const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
     "input = input.split(\"\\n\")\n" +
     "let reduced_results = []\n" +
     "for (let row in input){\n" +
-    "   let mapped = await VFuse.addJob(map, input[row])\n" +
-    "   let reduced = await VFuse.addJob(reduce, mapped, [mapped])\n" +
+    "   let mapped = await VFuse.addJob(map, [], input[row])\n" +
+    "   let reduced = await VFuse.addJob(reduce, [mapped])\n" +
     "   reduced_results.push(mapped)\n" +
     "}\n" +
-    "let result = await VFuse.addJob(combine, reduced_results , ['reduce'])//wait for all reduce results and cal combine\n"
+    "let result = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and cal combine\n"
 
 const pythonCodeExample = `import numpy as np 
 a = [[2, 0], [0, 2]]
@@ -60,6 +60,7 @@ export default function NotebookPage(props){
     const [name, setName] = useState(null)
     const [profile, setProfile] = useState(null)
     const [dag, setDag] = useState(null)
+    const [fontSize, setFontSize] = useState(14)
 
 
     useEffect(() => {
@@ -121,6 +122,8 @@ export default function NotebookPage(props){
 
     const handleChangeLanguage = (value) => setLanguage(value)
 
+    const handleChangeFontSize = (value) => setFontSize(parseInt(value))
+
     const onRunLocal = async () => {
         setRunLocalLoading(true)
         let result = await vFuseNode.runLocalWorkflowCode(code)
@@ -178,13 +181,13 @@ export default function NotebookPage(props){
             <Row>
                 <Col span={24} style={{marginTop: "24px"}}>
                     <Descriptions layout="vertical" bordered extra={[
-                        <Select defaultValue="javascript" style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
+                        /*<Select defaultValue="javascript" style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
                             <Select.Option value="javascript">Javascript</Select.Option>
                             <Select.Option value="python">Python</Select.Option>
                         </Select>,
-                        <Button key="4" type="secondary" onClick={onNew}>New workflow</Button>
+                        <Button key="4" type="secondary" onClick={onNew}>New workflow</Button>*/
                     ]}>
-                        <Descriptions.Item label="Workflow Info">
+                        <Descriptions.Item label="Workflow Info" span={4}>
                             <Row style={{margin: 16}}>
                                 <Col span={4}>
                                     <Typography.Text strong>Workflow Id : </Typography.Text>
@@ -201,6 +204,21 @@ export default function NotebookPage(props){
                                     <Input placeholder="Workflow title" onChange={onChaneName} value={name} />
                                 </Col>
                             </Row>
+                        </Descriptions.Item >
+                        <Descriptions.Item span={1} label="Actions" >
+                            <Select defaultValue="javascript" style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
+                                <Select.Option value="javascript">Javascript</Select.Option>
+                                <Select.Option value="python">Python</Select.Option>
+                            </Select>
+                            <Select defaultValue="14" style={{ width: 120, float: "right" }} onChange={handleChangeFontSize}>
+                                <Select.Option value="10">10pt</Select.Option>
+                                <Select.Option value="12">12pt</Select.Option>
+                                <Select.Option value="14">14pt</Select.Option>
+                                <Select.Option value="16">16pt</Select.Option>
+                                <Select.Option value="20">20pt</Select.Option>
+                                <Select.Option value="24">24pt</Select.Option>
+                            </Select>
+                            <Button key="4" type="secondary" onClick={onNew}>New workflow</Button>
                         </Descriptions.Item>
                     </Descriptions>
                 </Col>
@@ -209,7 +227,7 @@ export default function NotebookPage(props){
                 <Tabs defaultActiveKey="1" style={{width: "100%"}}>
                     <Tabs.TabPane tab="Code Editor" key="1">
                         <Col span={24} style={{height: "50vh"}}>
-                            <VFuseCodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage}/>
+                            <VFuseCodeEditor code={code} setCode={setCode} language={language} setLanguage={setLanguage} fontSize={fontSize}/>
                         </Col>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Jobs DAG" key="2">
