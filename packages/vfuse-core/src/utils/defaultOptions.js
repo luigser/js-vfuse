@@ -1,21 +1,22 @@
 const Repo = require('./ipfsRepo')
+const lodash = require('lodash')
 
 module.exports = {
 
     getGatewayOptions : (options) => {
-        return {
-            signalServerEnabled : false,
-            ipfsClusterApi : {},
+        return lodash.merge({
+            signalServerEnabled: false,
+            ipfsClusterApi: {},
             bootstrapNodes: [],
             packages: [],
             ipfs: {
                 repo: Repo,
                 config: {
-                    Bootstrap:  [/*'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE'*/],
+                    Bootstrap: [/*'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE'*/],
                     Addresses: {
                         API: "/ip4/0.0.0.0/tcp/5001",
                         Swarm: [
-                            "/ip4/0.0.0.0/tcp/4001",
+                            "/ip4/127.0.0.1/tcp/4001",
                             "/ip4/0.0.0.0/tcp/4001/ws",
                             '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
                         ],
@@ -97,18 +98,18 @@ module.exports = {
                          }*/
                     }
                 }
-            },
-            ...options
-        }
+            }
+        },
+        options)
     },
     getBrowserOptions : (options) => {
-        return {
+        return lodash.merge({
             swarmKey: "/key/swarm/psk/1.0.0/\n" +
                 "/base16/\n" +
                 "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3",
-            ipfs:{
+            ipfs: {
                 pass: "01234567890123456789",
-                config:{
+                config: {
                     Addresses: {
                         Swarm: [
                             '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',//UNCOMMENT FOR CUSTOM GATEWAY VERSION
@@ -119,7 +120,7 @@ module.exports = {
                     Swarm: {
                         EnableRelayHop: true
                     },
-                    Bootstrap:  [
+                    Bootstrap: [
                         //'/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star/p2p/12D3KooWMqNSWNH95gZMAEhymuirCBNnfWeFDTAM8davwRGQncrv'
                     ],
                     /* Discovery: {
@@ -132,11 +133,11 @@ module.exports = {
                      },*/
                 }
             },
-            libp2p : { addresses : { listen : ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star'] }},
-            ipfsClusterApi : { host: 'localhost', port: '9094', protocol: 'http' },
-            ipfsClientOptions :{ host: 'localhost', port: '5001', protocol : 'http' },
-            ...options
-        }
+            libp2p: {addresses: {listen: ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star']}},
+            ipfsClusterApi: {host: 'localhost', port: '9094', protocol: 'http'},
+            ipfsClientOptions: {host: 'localhost', port: '5001', protocol: 'http'}
+        },
+        options)
     }
 
 }
