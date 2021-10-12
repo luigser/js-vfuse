@@ -13,14 +13,14 @@ module.exports = {
                 config: {
                     Bootstrap:  [/*'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE'*/],
                     Addresses: {
-                        API: "/ip4/127.0.0.1/tcp/5001",
+                        API: "/ip4/0.0.0.0/tcp/5001",
                         Swarm: [
                             //"/ip4/127.0.0.1/tcp/4001",
-                            "/ip4/127.0.0.1/tcp/4001/ws",
-                            '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',
+                            "/ip4/0.0.0.0/tcp/4001/ws",
+                            '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
                         ],
                         Announce: [],
-                        Gateway: "/ip4/127.0.0.1/tcp/8080",
+                        Gateway: "/ip4/0.0.0.0/tcp/8080",
                         Delegates: []
                     },
                     API: {
@@ -120,7 +120,7 @@ module.exports = {
                         EnableRelayHop: true
                     },
                     Bootstrap:  [
-                        '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star/p2p/12D3KooWMqNSWNH95gZMAEhymuirCBNnfWeFDTAM8davwRGQncrv'
+                        //'/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star/p2p/12D3KooWMqNSWNH95gZMAEhymuirCBNnfWeFDTAM8davwRGQncrv'
                     ],
                     /* Discovery: {
                          MDNS: {
