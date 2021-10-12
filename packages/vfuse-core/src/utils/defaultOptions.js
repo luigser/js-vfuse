@@ -15,7 +15,7 @@ module.exports = {
                     Addresses: {
                         API: "/ip4/0.0.0.0/tcp/5001",
                         Swarm: [
-                            //"/ip4/127.0.0.1/tcp/4001",
+                            "/ip4/0.0.0.0/tcp/4001",
                             "/ip4/0.0.0.0/tcp/4001/ws",
                             '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
                         ],
