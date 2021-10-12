@@ -15,7 +15,8 @@ node node_modules\libp2p-webrtc-star\src\sig-server\bin.js --port=2000
 npm install ipfs-swarm-key-gen -g
 
 //Profile ids
-12D3KooWHAe9ih2WHHsttbzyjfvWqCU9xXroiS8rb2BfqA495EdL
+12D3KooWHAe9ih2WHHsttbzyjfvWqCU9xXroiS8rb2BfqA495EdL //ALLINONE
+12D3KooWLGqTJsVQGMNrnLbRCGqPhHJrG9BLqA4xYLdWr3kCQfFq //SURFACE
 
 
 //Domande e note
@@ -120,6 +121,15 @@ let result = await VFuse.addJob(combine, reduced, ['reduce'])
 //TODO note
 
 Quando si crea un nuovo repository, con un nuovo id, si ottiene un nuovo peer id
+
+Lettura di file
+Su browser è possibile utilizzare solo HTTP E WEB SOCKET
+per leggere un parte di un file si può usare l'header range che deve essere supportato dal server
+var xmlhttp=new XMLHttpRequest();
+xmlhttp.open("GET","data.dat",false);
+xmlhttp.setRequestHeader("Range", "bytes=100-200");
+xmlhttp.send();
+console.info(xmlhttp); //--> returns only the partial content
 
 //TODO
 SI VA IN ERRORE QUANDO IL PROFILO GIà ESISTE E SI CERCA DI CREARNE UN ALTRO.

@@ -40,7 +40,7 @@ function App() {
                                 </Col>*/}
                             </Row>
                         </Layout.Header>
-                        <Layout.Content className="site-layout-background" style={{margin: '24px 16px', padding: 24}}>
+                        <Layout.Content className="site-layout-background" style={{margin: '24px 16px', padding: 24, overflow:'scroll'}}>
                             <Routes routes={globalRoutes} />
                         </Layout.Content>
                     </Layout>

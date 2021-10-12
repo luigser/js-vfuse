@@ -5,7 +5,7 @@ const log = require('debug')('vfuse:workflowManager')
 const RuntimeManager = require('./runtimeManager')
 const Workflow = require('./job/workflow')
 const Job = require('./job/job')
-const {JobsDAG, JobsDAGVertex} = require('./job/JobsDAG')
+const {JobsDAG} = require('./job/JobsDAG')
 const Constants = require('./constants')
 
 /*
