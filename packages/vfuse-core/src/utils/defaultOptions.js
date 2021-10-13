@@ -18,7 +18,7 @@ module.exports = {
                         Swarm: [
                             "/ip4/127.0.0.1/tcp/4001",
                             "/ip4/0.0.0.0/tcp/4001/ws",
-                            '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
+                            options.signalServerEnabled ? '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star' : '',
                         ],
                         Announce: [],
                         Gateway: "/ip4/0.0.0.0/tcp/8080",
