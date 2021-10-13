@@ -16,13 +16,15 @@ class WorkflowManager{
      * @param {Object} networkmanager
      * @param {Object} options
      */
-    constructor(contentManager, identityManager, options){
+    constructor(contentManager, identityManager, eventManager, options){
         try {
             this.contentManager = contentManager
             this.identityManager = identityManager
+            this.eventManager = eventManager
             this.runtimeManager = new RuntimeManager(options.runtime, this)
             this.workflowsQueue = []
             this.currentWorkflow = null
+            this.eventManager.addListener('circuit_enabled', async function(){await this.start()}.bind(this))
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
         }

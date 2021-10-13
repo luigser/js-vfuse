@@ -16,13 +16,27 @@ module.exports = {
                         API: "/ip4/0.0.0.0/tcp/5001",
                         Swarm: [
                             "/ip4/0.0.0.0/tcp/4001",
-                            "/ip4/127.0.0.1/tcp/4003/ws",
+                            "/ip4/0.0.0.0/tcp/4003/ws",
                             //options.SignalServer ? '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star' : '',
                         ],
                         Announce: [],
                         Gateway: "/ip4/0.0.0.0/tcp/8080",
                         Delegates: []
                     },
+                    /*Protocols: [
+                        "/ipfs/bitswap",
+                        "/ipfs/bitswap/1.0.0",
+                        "/ipfs/bitswap/1.1.0",
+                        "/ipfs/bitswap/1.2.0",
+                        "/ipfs/id/1.0.0",
+                        "/ipfs/id/push/1.0.0",
+                        "/ipfs/lan/kad/1.0.0",
+                        "/ipfs/ping/1.0.0",
+                        "/libp2p/autonat/1.0.0",
+                        "/libp2p/circuit/relay/0.1.0",
+                        "/p2p/id/delta/1.0.0",
+                        "/x/"
+                    ],*/
                     API: {
                         HTTPHeaders: {
                             "Access-Control-Allow-Headers": [
@@ -88,8 +102,9 @@ module.exports = {
                         },
                         DisableBandwidthMetrics: false,
                         DisableNatPortMap: false,
+                        DisableRelay: false,
                         EnableAutoRelay: true,
-                        EnableRelayHop: true,
+                        EnableRelayHop: false,
                         /* Transports: {
                              Multiplexers: {},
                              Network: {},
@@ -114,7 +129,8 @@ module.exports = {
                             /*// This is a public webrtc-star server
                             '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
                             '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star',*/
-                            '/ip4/127.0.0.1/tcp/2000/wss/p2p-webrtc-star',
+
+                            //'/ip4/127.0.0.1/tcp/2000/wss/p2p-webrtc-star',
                             //'/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
                         ],
                         // Delegates: ["/ip4/127.0.0.1/tcp/8080"]
@@ -123,7 +139,7 @@ module.exports = {
                         EnableRelayHop: true
                     },
                     Bootstrap: [
-                        //'/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star/p2p/12D3KooWMqNSWNH95gZMAEhymuirCBNnfWeFDTAM8davwRGQncrv'
+                        '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWC5LReZk9uVHpCcXYpEm4UfLBzSvSsNpLosC7p3XbBwGC'
                     ],
                      Discovery: {
                          MDNS: {
@@ -136,8 +152,6 @@ module.exports = {
                 }
             },
             //libp2p: {addresses: {listen: ['/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star']}},
-            ipfsClusterApi: {host: 'localhost', port: '9094', protocol: 'http'},
-            ipfsClientOptions: {host: 'localhost', port: '5001', protocol: 'http'}
         },
         options)
     }

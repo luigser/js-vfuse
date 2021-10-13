@@ -1,6 +1,7 @@
 'use strict'
 
 const log = require('debug')('vfuse:node')
+const EventManager = require('./eventManager')
 const NetworkManager = require('./networkManager')
 const ContentManager = require('./contentManager')
 const IdentityManager = require('./identityManager')
@@ -20,14 +21,15 @@ class VFuse {
     }
 
     async startManagers(){
-        this.networkManager = new NetworkManager(this.options)
-        this.contentManager = new ContentManager(this.networkManager)
+        this.eventManager = new EventManager()
+        this.networkManager = new NetworkManager(this.options, this.eventManager)
+        this.contentManager = new ContentManager(this.networkManager, this.eventManager)
         await this.networkManager.start()
         this.options.peerId  = this.networkManager.key[0].id
-        this.identityManager = new IdentityManager(this.contentManager, this.options)
-        this.workflowManager = new WorkflowManager(this.contentManager, this.identityManager, this.options)
-        await this.workflowManager.start()
-        await this.identityManager.checkProfile()
+        this.identityManager = new IdentityManager(this.contentManager, this.eventManager, this.options)
+        this.workflowManager = new WorkflowManager(this.contentManager, this.identityManager, this.eventManager, this.options)
+        /*await this.workflowManager.start()
+        await this.identityManager.checkProfile()*/
     }
 
     async start(){
@@ -58,6 +60,8 @@ class VFuse {
                 }
 
                 await this.startManagers()
+                await this.workflowManager.start()
+                await this.identityManager.checkProfile()
 
                 if (this.options.IPFSGateway) {
                     const Gateway = require('ipfs-http-gateway');

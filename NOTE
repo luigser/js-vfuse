@@ -15,9 +15,12 @@ node node_modules\libp2p-webrtc-star\src\sig-server\bin.js --port=2000
 npm install ipfs-swarm-key-gen -g
 
 //Profile ids
+//MFS
 12D3KooWHAe9ih2WHHsttbzyjfvWqCU9xXroiS8rb2BfqA495EdL //ALLINONE
 12D3KooWCDmRPNZvne44L2ARDbrQB7X89c8g7XHjJqmPPUvA5vCr //ALLINONE
 12D3KooWLGqTJsVQGMNrnLbRCGqPhHJrG9BLqA4xYLdWr3kCQfFq //SURFACE
+//REGULAR
+12D3KooWAhrGboS4ctw3xeDNd5r1f7v449X4rLMqFoAP3ihwpsn8
 
 
 //Domande e note

@@ -20,6 +20,8 @@ export const useVFuse = () => {
                         discoveryCallback: () => {},
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},
+                        ipfsClusterApi: {host: '192.168.1.57', port: '9094', protocol: 'http'},
+                        ipfsClientOptions: {host: '192.168.1.57', port: '5001', protocol: 'http'}
                     }
                 )
                 console.log({node})

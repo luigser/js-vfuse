@@ -24,12 +24,13 @@ const  { isNode, isBrowser } = require("browser-or-node");
 
 const Constants = require("./constants")
 
-class NetworkManager {
+class NetworkManager{
     /**
      * @param {Object} config
      * @param {Options} config.options
      */
-    constructor(options) {
+    constructor(options, eventManager) {
+        this.eventManager = eventManager
         this.key = null
         this.ipfs = null
         this.libp2p = null
@@ -64,68 +65,7 @@ class NetworkManager {
         this.getMessageFromProtocolCallback = options.getMessageFromProtocolCallback
     }
 
-    registerTopicListener(callback){
-        this.topicListeners.push(callback)
-    }
-
-    topicHandler(message){
-        for(let l in this.topicListeners) {
-            if(message.from !== this.profileId)
-               this.topicListeners[l](JSON.parse(toString(message.data)))
-        }
-    }
-
-    async initTopicsChannel(){
-        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, this.topicHandler.bind(this) )
-    }
-
-    async send(data){
-        await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, fromString(JSON.stringify(data)))
-    }
-
     async start() {
-
-        //const peerId = await PeerId.create({ bits: 256, keyType: 'ed25519' })
-        /*const node = await IPFS.create(
-            {
-                repo: this.profileId ? this.profileId : String(Math.random() + Date.now()),//todo manage platform (nodejs, browser)
-                libp2p: {
-                    //peerId: this.profileId ? PeerId.createFromCID(this.identity.PeerID) : null,
-                    modules: {
-                        connEncryption: [Noise],
-                        streamMuxer: [Mplex],
-                        pubsub: Gossipsub
-                    },
-                    peerDiscovery: [
-                        Bootstrap
-                    ],
-                    config: {
-                        peerDiscovery: {
-                            autoDial: true, // auto dial to peers we find when we have less peers than `connectionManager.minPeers`
-                            mdns: {
-                                interval: 10000,
-                                enabled: true
-                            },
-                            bootstrap: {
-                                interval: 30e3,
-                                enabled: true,
-                                list: this.bootstrapNodes
-                            }
-                        },
-                        relay: {
-                            enabled: true,
-                            hop: {
-                                enabled: true,
-                                active: true
-                            }
-                        },
-                        pubsub: {
-                            enabled: true
-                        }
-                    }
-                }
-            }
-        )*/
 
         let repo_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
 
@@ -185,7 +125,7 @@ class NetworkManager {
                 ...opt.libp2p
             }
 
-            this.httpClient = IpfsHttpClient.create(this.ipfsClientOptions)
+            this.httpClient = this.ipfsClientOptions ? IpfsHttpClient.create(this.ipfsClientOptions) : null
         }
 
         if(isNode) {
@@ -219,15 +159,10 @@ class NetworkManager {
 
         await this.initTopicsChannel()
         this.hookEvents()
-        this.swarm()
+        setInterval(function(){this.ipfs.pubsub.publish("announce-circuit", "peer-alive")}.bind(this), 15000);
 
-        if(this.ipfsClusterApi) this.cluster = ipfsCluster(this.ipfsClusterApi)
-        /*if (this.ipfsClusterApi && this.mode === Constants.VFUSE_MODE.BROWSER) {
-            const {Cluster} = require('@nftstorage/ipfs-cluster')
-            this.cluster = new Cluster(this.ipfsClusterApi)
-        }*/
-
-        this.api = isBrowser ?  this.httpClient : this.ipfs
+        this.cluster = this.ipfsClusterApi ? ipfsCluster(this.ipfsClusterApi) : this.ipfs
+        this.api = isBrowser && this.httpClient ?  this.httpClient : this.ipfs
     }
 
     /**
@@ -236,6 +171,69 @@ class NetworkManager {
     async stop(){
         await this.ipfs.stop()
     }
+
+    // processes a circuit-relay announce over pubsub
+    async processAnnounce(addr) {
+        // get our peerid
+        let me = await this.ipfs.id();
+        me = me.id;
+
+        // not really an announcement if it's from us
+        if (addr.from === me) {
+            return;
+        }
+
+        // if we got a keep-alive, nothing to do
+        if (addr === "keep-alive") {
+            console.log(addr);
+            return;
+        }
+
+        let peer = addr.from;
+        if (peer === me) {
+            return;
+        }
+
+        // get a list of peers
+        let peers = await this.ipfs.swarm.peers();
+        for (let i in peers) {
+            // if we're already connected to the peer, don't bother doing a
+            // circuit connection
+            if(this.discoveryCallback) this.discoveryCallback(peers)
+            if (peers[i].peer === peer) {
+                return;
+            }
+        }
+        // connection almost always fails the first time, but almost always
+        // succeeds the second time, so we do this:
+        try {
+            await this.ipfs.swarm.connect(addr);
+        } catch(err) {
+            console.log(err);
+            await this.ipfs.swarm.connect(addr);
+        }
+    }
+
+    registerTopicListener(callback){
+        this.topicListeners.push(callback)
+    }
+
+    topicHandler(message){
+        for(let l in this.topicListeners) {
+            if(message.from !== this.profileId)
+                this.topicListeners[l](JSON.parse(toString(message.data)))
+        }
+    }
+
+    async initTopicsChannel(){
+        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, this.topicHandler.bind(this) )
+        await this.ipfs.pubsub.subscribe("announce-circuit", this.processAnnounce.bind(this));
+    }
+
+    async send(data){
+        await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, fromString(JSON.stringify(data)))
+    }
+
 
     registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){
         this.discoveryCallback = discoveryCallback
@@ -252,7 +250,10 @@ class NetworkManager {
         // Listen for new connections to peers
         this.libp2p.connectionManager.on('peer:connect', function(connection){
             //console.log(`Connected to ${connection.remotePeer.toB58String()}`)
-            if(this.connectionCallback) this.connectionCallback(connection.remotePeer.toB58String())
+            if(this.ipfsOptions.config.Bootstrap.indexOf(connection.remoteAddr.toString()) >= 0)
+               this.eventManager.emit('circuit_enabled', {peer : connection.remotePeer.toB58String()})
+            if(this.connectionCallback)
+                this.connectionCallback(connection.remotePeer.toB58String())
             //console.log(connection.remotePeer)
         }.bind(this))
 
@@ -275,22 +276,50 @@ class NetworkManager {
 
     }
 
-    swarm(){
-        setInterval(async () => {
-            try {
-                const peers = await this.ipfs.swarm.peers()
-                if(peers.length > 0){
-                    //console.log(`The node now has ${peers.length} peers.`)
-                    //console.log({peers})
-                }
-                if(this.discoveryCallback) this.discoveryCallback(peers)
-            } catch (err) {
-                console.log('An error occurred trying to check our peers:', err)
-            }
-        }, 20000)
+    /*REGULAR IPFS API*/
+
+    async add(data){
+        try {
+            //todo delete previous version
+            let remote_data = await this.ipfs.add(data, {pin : true})
+            return remote_data
+        }catch (e){
+            console.log('Got some error during the data update: %O', e)
+            return null
+        }
     }
 
-    /*STANDARD IPFS API*/
+    async get(cid){
+        try {
+            let content = [], decodedData = null
+            for await (const file of this.ipfs.get(cid)) {
+                if (!file.content) continue;
+                for await (const chunk of file.content) {
+                    content.push(chunk)
+                }
+            }
+            if (content.length > 0) {
+                decodedData = toString(content[0])
+            }
+            return decodedData
+        } catch (e) {
+            console.log('Got some error during data retrieving: %O', e)
+            return null
+        }
+    }
+
+    async publish(cid){
+        try {
+            let published_data = await this.ipfs.name.publish(cid)
+            //await this.cluster.pin.add(published_data.value)
+            return published_data.value
+        }catch (e){
+            console.log('Got some error during the data update: %O', e)
+            return null
+        }
+
+    }
+
     async update(data){
         try {
             //todo delete previous version
@@ -314,45 +343,6 @@ class NetworkManager {
         }
     }
 
-    async publish(cid){
-        try {
-            let published_data = await this.ipfs.name.publish(cid)
-            await this.cluster.pin.add(published_data.value)
-            return published_data
-        }catch (e){
-            console.log('Got some error during the data update: %O', e)
-            return null
-        }
-
-    }
-
-    async addAndPin(data){
-        try {
-            //todo delete previous version
-            let added_data = await this.add(data);
-            let added_to_cluster_data = await this.cluster.add(data);
-            let pinning_result = await this.cluster.pin.add(added_data.cid.toString());
-            //il cid(hash) del pin diventa accessibile attraverso /ipfs(gateway)?
-            //se si utilizzare l'api file per pubblicare su ipns il cid pinnato
-            return added_data
-        }catch (e){
-            console.log('Got some error during the data adding and pinning: %O', e)
-            return null
-        }
-
-    }
-
-    async add(data){
-        try {
-            //todo delete previous version
-            let remote_data = await this.ipfs.add(data)
-            return remote_data
-        }catch (e){
-            console.log('Got some error during the data update: %O', e)
-            return null
-        }
-    }
-
     async ls(cid){
         let files = []
         for await (const file of this.ipfs.ls(cid)) {
@@ -361,7 +351,7 @@ class NetworkManager {
         return files
     }
 
-    async get(cid, path) {
+    async getWithNS(cid, path) {
         try {
             let ipfs_data_addr = "", content = [], decodedData = null
             for await (const name of this.ipfs.name.resolve('/ipns/' + cid)) {
@@ -404,24 +394,22 @@ class NetworkManager {
         }
     }
 
-    async getRaw(path){
+    async addAndPin(data){
         try {
-            let content = [], decodedData = null
-            for await (const file of this.ipfs.get(path)) {
-                if (!file.content) continue;
-                for await (const chunk of file.content) {
-                    content.push(chunk)
-                }
-            }
-            if (content.length > 0) {
-                decodedData = toString(content[0])
-            }
-            return decodedData
-        } catch (e) {
-            console.log('Got some error during data retrieving: %O', e)
+            //todo delete previous version
+            let added_data = await this.add(data);
+            let added_to_cluster_data = await this.cluster.add(data);
+            let pinning_result = await this.cluster.pin.add(added_data.cid.toString());
+            //il cid(hash) del pin diventa accessibile attraverso /ipfs(gateway)?
+            //se si utilizzare l'api file per pubblicare su ipns il cid pinnato
+            return added_data
+        }catch (e){
+            console.log('Got some error during the data adding and pinning: %O', e)
             return null
         }
+
     }
+
 
     /* MFS API */
 

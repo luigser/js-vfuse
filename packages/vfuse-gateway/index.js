@@ -3,7 +3,7 @@ const VFuse  = require('vfuse-core')
 const main = async () => {
     let node = await VFuse.create({
         profileId : '12D3KooWC5LReZk9uVHpCcXYpEm4UfLBzSvSsNpLosC7p3XbBwGC',
-        SignalServer: true,
+        SignalServer: false,
         HttpAPI: true,
         IPFSGateway: true,
         swarmKey: "/key/swarm/psk/1.0.0/\n" +

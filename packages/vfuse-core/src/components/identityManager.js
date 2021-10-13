@@ -7,13 +7,16 @@ class IdentityManager {
      * @param {Object} networkManager
      * @param {Object} options
      */
-    constructor ( contentManager, options) {
+    constructor ( contentManager, eventManager, options) {
         this.id = options.profileId ? options.profileId : null
         this.peerId = options.peerId
         this.contentManager = contentManager
+        this.eventManager = eventManager
         this.workflows = []
         this.rewards   = []
         this.publishedWorkflows = []
+
+        this.eventManager.addListener('circuit_enabled', async function(){await this.checkProfile()}.bind(this))
     }
 
     async getProfile(id) {

@@ -3,6 +3,7 @@ class ContentManager{
         this.networkManager = networkManager
     }
 
+    //MFS API
     async save(path, content, options){
         try{
             await this.networkManager.writeFile(path, content, options)
@@ -46,6 +47,16 @@ class ContentManager{
 
     async unpublish(path, options){
 
+    }
+
+    //REGULAR API
+
+    async regularGet(path, options){
+        try{
+            return await this.networkManager.get(path, options)
+        }catch(e){
+            console.log('Got some error during getting : %O', e)
+        }
     }
 }
 
