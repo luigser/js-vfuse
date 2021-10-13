@@ -5,7 +5,6 @@ module.exports = {
 
     getGatewayOptions : (options) => {
         return lodash.merge({
-            signalServerEnabled: false,
             ipfsClusterApi: {},
             bootstrapNodes: [],
             packages: [],
@@ -16,9 +15,9 @@ module.exports = {
                     Addresses: {
                         API: "/ip4/0.0.0.0/tcp/5001",
                         Swarm: [
-                            "/ip4/127.0.0.1/tcp/4001",
-                            "/ip4/0.0.0.0/tcp/4001/ws",
-                            options.signalServerEnabled ? '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star' : '',
+                            "/ip4/0.0.0.0/tcp/4001",
+                            "/ip4/127.0.0.1/tcp/4003/ws",
+                            //options.SignalServer ? '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star' : '',
                         ],
                         Announce: [],
                         Gateway: "/ip4/0.0.0.0/tcp/8080",
@@ -112,8 +111,11 @@ module.exports = {
                 config: {
                     Addresses: {
                         Swarm: [
-                            '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star',//UNCOMMENT FOR CUSTOM GATEWAY VERSION
-                            //'/ip4/127.0.0.1/tcp/4001/ws'
+                            /*// This is a public webrtc-star server
+                            '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
+                            '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star',*/
+                            '/ip4/127.0.0.1/tcp/2000/wss/p2p-webrtc-star',
+                            //'/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
                         ],
                         // Delegates: ["/ip4/127.0.0.1/tcp/8080"]
                     },
@@ -123,17 +125,17 @@ module.exports = {
                     Bootstrap: [
                         //'/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star/p2p/12D3KooWMqNSWNH95gZMAEhymuirCBNnfWeFDTAM8davwRGQncrv'
                     ],
-                    /* Discovery: {
+                     Discovery: {
                          MDNS: {
-                             Enabled: false
+                             Enabled: true
                          },
                          webRTCStar: {
-                             Enabled: false
+                             Enabled: true
                          }
-                     },*/
+                     },
                 }
             },
-            libp2p: {addresses: {listen: ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star']}},
+            //libp2p: {addresses: {listen: ['/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star']}},
             ipfsClusterApi: {host: 'localhost', port: '9094', protocol: 'http'},
             ipfsClientOptions: {host: 'localhost', port: '5001', protocol: 'http'}
         },

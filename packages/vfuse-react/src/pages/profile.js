@@ -55,9 +55,9 @@ export default function ProfilePage(props){
             setStatus(VFuse.Constants.NODE_STATE.INITIALIZING)
 
             let node = await getNode(profileId)
-            let publishedWorkflows = await node.getPublishedWorkflows();
+            /*let publishedWorkflows = await node.getPublishedWorkflows();
             setPublishedWorkflows(publishedWorkflows)
-            console.log({publishedWorkflows})
+            console.log({publishedWorkflows})*/
 
             setStatus(node ? VFuse.Constants.NODE_STATE.RUNNING : VFuse.Constants.NODE_STATE.STOP)
 

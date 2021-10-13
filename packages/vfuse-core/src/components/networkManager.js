@@ -189,7 +189,7 @@ class NetworkManager {
         }
 
         if(isNode) {
-            opt.libp2p = {
+            /*opt.libp2p = {
                 modules: {
                     transport: [WebRTCStar, TCP]
                 },
@@ -206,7 +206,7 @@ class NetworkManager {
                     }
                 },
                 ...opt.libp2p
-            }
+            }*/
         }
 
         let node = await IPFS.create(opt)
