@@ -5,14 +5,14 @@ export default function DAGVis(props) {
 
     const [graph, setGraph] = useState(props.jobsDAG)
 
-    /*useEffect(() => {
+    useEffect(() => {
         try {
             let dag = graph.getJSON()
             setGraph(dag)
         }catch (e) {
             console.log(e)
         }
-    }, [props.jobsDAG])*/
+    }, [props.jobsDAG])
 
     const options = {
         layout: {

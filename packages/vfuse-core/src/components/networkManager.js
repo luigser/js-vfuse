@@ -236,7 +236,7 @@ class NetworkManager{
         this.topicListeners.push(callback)
     }
 
-    topicHandler(message){
+    async topicHandler(message){
         try{
             if(message.from === this.peerId) return
             let data = JSON.parse(new TextDecoder().decode(message.data));
@@ -247,6 +247,12 @@ class NetworkManager{
                         let peers = [...this.connectedPeers.keys()].map(function(p){ return {peer : p} })
                         this.discoveryCallback(peers)
                     }
+                   /*try {
+                        await this.ipfs.swarm.connect(message);
+                    } catch(err) {
+                        console.log(err);
+                        await this.ipfs.swarm.connect(message);
+                    }*/
                     break
             }
 

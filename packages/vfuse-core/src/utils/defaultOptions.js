@@ -89,9 +89,6 @@ module.exports = {
                         RepublishPeriod: "",*/
                         ResolveCacheSize: 128
                     },
-                    Routing: {
-                        Type: "dht"
-                    },
                     Swarm: {
                         AddrFilters: null,
                         ConnMgr: {
@@ -110,7 +107,15 @@ module.exports = {
                              Network: {},
                              Security: {}
                          }*/
-                    }
+                    },
+                    Discovery: {
+                        MDNS: {
+                            Enabled: true
+                        },
+                        webRTCStar: {
+                            Enabled: true
+                        }
+                    },
                 }
             }
         },
