@@ -7,8 +7,7 @@ export default function DAGVis(props) {
 
     useEffect(() => {
         try {
-            let dag = graph.getJSON()
-            setGraph(dag)
+            setGraph(props.jobsDAG)
         }catch (e) {
             console.log(e)
         }
