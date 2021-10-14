@@ -122,6 +122,7 @@ module.exports = {
                 "/base16/\n" +
                 "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3",
             ipfs: {
+                repo: 'vfuse-browser-repo',
                 pass: "01234567890123456789",
                 config: {
                     Addresses: {
@@ -138,9 +139,7 @@ module.exports = {
                     Swarm: {
                         EnableRelayHop: true
                     },
-                    Bootstrap: [
-                        '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWC5LReZk9uVHpCcXYpEm4UfLBzSvSsNpLosC7p3XbBwGC'
-                    ],
+                    Bootstrap: [],
                      Discovery: {
                          MDNS: {
                              Enabled: true

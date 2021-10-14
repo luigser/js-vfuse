@@ -136,6 +136,11 @@ export default function NotebookPage(props){
                 message : "Something went wrong",
                 description : result.error.message
             });
+        }else{
+            notification.info({
+                message : "Info",
+                description : 'Run completed'
+            });
         }
     }
 

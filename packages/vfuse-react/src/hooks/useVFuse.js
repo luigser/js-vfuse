@@ -13,6 +13,13 @@ export const useVFuse = () => {
                 node = await VFuse.create(
                     {
                         profileId: profileId,//QmZXH9QvPSr4JbPgoD9TuxUZhW1yqgp68FUS6qDa41rFp3
+                        ipfs:{
+                            config: {
+                                Bootstrap :[
+                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWC5LReZk9uVHpCcXYpEm4UfLBzSvSsNpLosC7p3XbBwGC',
+                                ]
+                            }
+                        },
                        /* runtime: {
                             worker : PythonWorker,
                             packages : []
@@ -21,7 +28,7 @@ export const useVFuse = () => {
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},
                         ipfsClusterApi: {host: '192.168.1.57', port: '9094', protocol: 'http'},
-                        ipfsClientOptions: {host: '192.168.1.57', port: '5001', protocol: 'http'}
+                        //ipfsClientOptions: {host: '192.168.1.57', port: '5001', protocol: 'http'}
                     }
                 )
                 console.log({node})
@@ -34,7 +41,6 @@ export const useVFuse = () => {
         }
         return node;
     }
-
 
     return {
         getNode

@@ -48,7 +48,7 @@
       "max_header_bytes": 4096
     },
     "restapi": {
-      "http_listen_multiaddress": "/ip4/127.0.0.1/tcp/9094",
+      "http_listen_multiaddress": "/ip4/0.0.0.0/tcp/9094",
       "read_timeout": "0s",
       "read_header_timeout": "5s",
       "write_timeout": "0s",

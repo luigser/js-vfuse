@@ -31,12 +31,15 @@ class IdentityManager {
                 this.publishedWorkflows = p.publishedWorkflows
                 console.log('Profile loaded : %O', p)
                 //console.log(this.workflows[0].id)
+                this.eventManager.emit('profile', { status : true, profile : p })
                 return true
             }else{
+                this.eventManager.emit('profile', { status : false })
                 return false
             }
         }catch(e){
             console.log('Got some error during profile retrieving: %O', e)
+            this.eventManager.emit('profile', { status : false, error : e})
             return false
         }
     }

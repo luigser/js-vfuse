@@ -58,6 +58,8 @@ class NetworkManager{
 
         //PRIVATE NETWORK CONFS
         this.swarmKey = options.swarmKey;
+        this.isBootstrapNode = options.bootstrapNode
+        this.profileChecked = false
 
         //CALLBACKS
         this.discoveryCallback = options.discoveryCallback
@@ -159,7 +161,8 @@ class NetworkManager{
 
         await this.initTopicsChannel()
         this.hookEvents()
-        setInterval(function(){this.ipfs.pubsub.publish("announce-circuit", "peer-alive")}.bind(this), 15000);
+        if(isNode && this.isBootstrapNode)
+           this.announce()
 
         this.cluster = this.ipfsClusterApi ? ipfsCluster(this.ipfsClusterApi) : this.ipfs
         this.api = isBrowser && this.httpClient ?  this.httpClient : this.ipfs
@@ -170,6 +173,12 @@ class NetworkManager{
      */
     async stop(){
         await this.ipfs.stop()
+    }
+
+    announce(){
+        setInterval(async function(){
+            await this.ipfs.pubsub.publish("announce-circuit", "peer-alive")
+        }.bind(this), 15000);
     }
 
     // processes a circuit-relay announce over pubsub
@@ -192,6 +201,11 @@ class NetworkManager{
         let peer = addr.from;
         if (peer === me) {
             return;
+        }
+
+        if(!this.profileChecked && this.isBootstrap(peer)) {
+            this.eventManager.emit('circuit_enabled', {peer: peer})
+            this.profileChecked = true
         }
 
         // get a list of peers
@@ -234,11 +248,19 @@ class NetworkManager{
         await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, fromString(JSON.stringify(data)))
     }
 
-
     registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){
         this.discoveryCallback = discoveryCallback
         this.connectionCallback = connectionCallback
         this.getMessageFromProtocolCallback = getMessageFromProtocolCallback
+    }
+
+    isBootstrap(peerId){
+       for(let i = 0; i < this.ipfsOptions.config.Bootstrap.length; i++){
+           let saddr = this.ipfsOptions.config.Bootstrap[i].split('/')
+           if(saddr[saddr.length - 1] === peerId)
+               return true
+       }
+       return false
     }
 
     hookEvents(){
@@ -248,13 +270,9 @@ class NetworkManager{
         }.bind(this))
 
         // Listen for new connections to peers
-        this.libp2p.connectionManager.on('peer:connect', function(connection){
-            //console.log(`Connected to ${connection.remotePeer.toB58String()}`)
-            if(this.ipfsOptions.config.Bootstrap.indexOf(connection.remoteAddr.toString()) >= 0)
-               this.eventManager.emit('circuit_enabled', {peer : connection.remotePeer.toB58String()})
-            if(this.connectionCallback)
-                this.connectionCallback(connection.remotePeer.toB58String())
-            //console.log(connection.remotePeer)
+        // Listen for new connections to peers
+        this.libp2p.connectionManager.on('peer:connect', async function(connection){
+           console.log(`Connected to ${connection.remoteAddr.toString()}`)
         }.bind(this))
 
         // Listen for peers disconnecting
@@ -274,6 +292,20 @@ class NetworkManager{
         //this.node.libp2p.peerStore.on('change:protocols', ({ peerId, protocols}) => console.log('change:protocols', {peerId, protocols}))
         this.libp2p.on('error', (err) => console.log('error', err))
 
+    }
+
+    manageProtocols(){
+        this.libp2p.handle(['/vfuse/0.0.1' ], async ({ protocol, stream }) => {
+            pipe(
+                stream,
+                source => (async function () {
+                    console.log(`Node ${this.libp2p.peerId.toB58String()} receive a message`)
+                    for await (const msg of source) {
+                        console.log(msg.toString())
+                    }
+                }.bind(this))()
+            )
+        })
     }
 
     /*REGULAR IPFS API*/

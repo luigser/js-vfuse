@@ -58,21 +58,24 @@ export default function ProfilePage(props){
             /*let publishedWorkflows = await node.getPublishedWorkflows();
             setPublishedWorkflows(publishedWorkflows)
             console.log({publishedWorkflows})*/
-
             setStatus(node ? VFuse.Constants.NODE_STATE.RUNNING : VFuse.Constants.NODE_STATE.STOP)
 
             setVFuseNode(node)
-            let profile = node.getProfile()
-            setProfileId(profile.id)
-            setProfile(profile)
-            setWorkflows(profile.workflows)
-            setCreateDisabled(true)
-            setStartDisabled(true)
-            setCreateDisabled(true)
-            setStopDisabled(false)
 
-            if (mode === "create") setCreateLoading(false)
-            else setStartLoading(false)
+            node.eventManager.addListener('profile', function(data){
+                if(data.status){
+                    setProfileId(data.profile.id)
+                    setProfile(data.profile)
+                    setWorkflows(data.profile.workflows)
+                    setCreateDisabled(true)
+                    setStartDisabled(true)
+                    setCreateDisabled(true)
+                    setStopDisabled(false)
+                    if (mode === "create") setCreateLoading(false)
+                    else setStartLoading(false)
+                }
+            }.bind(this))
+
         }catch (e) {
             setStartLoading(false)
             console.log('Got some error during initialization: %O', e)
