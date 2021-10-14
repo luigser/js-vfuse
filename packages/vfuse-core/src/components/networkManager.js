@@ -65,6 +65,8 @@ class NetworkManager{
         this.discoveryCallback = options.discoveryCallback
         this.connectionCallback = options.connectionCallback
         this.getMessageFromProtocolCallback = options.getMessageFromProtocolCallback
+
+        this.connectedPeers = new Map()
     }
 
     async start() {
@@ -155,14 +157,14 @@ class NetworkManager{
         this.ipfs = node
         this.libp2p = node.libp2p
         let pid = await this.ipfs.id()
+        this.peerId= pid.id
         console.log("IPFS Peer ID:", pid)
         this.key = await this.ipfs.key.list()
         console.log(this.key)
 
         await this.initTopicsChannel()
         this.hookEvents()
-        if(isNode && this.isBootstrapNode)
-           this.announce()
+        this.announce()
 
         this.cluster = this.ipfsClusterApi ? ipfsCluster(this.ipfsClusterApi) : this.ipfs
         this.api = isBrowser && this.httpClient ?  this.httpClient : this.ipfs
@@ -177,7 +179,9 @@ class NetworkManager{
 
     announce(){
         setInterval(async function(){
-            await this.ipfs.pubsub.publish("announce-circuit", "peer-alive")
+            if(isNode && this.isBootstrapNode)
+               await this.ipfs.pubsub.publish("announce-circuit", "peer-alive")
+            await this.send({ action : 'discovery', peer : this.peerId })
         }.bind(this), 15000);
     }
 
@@ -213,7 +217,7 @@ class NetworkManager{
         for (let i in peers) {
             // if we're already connected to the peer, don't bother doing a
             // circuit connection
-            if(this.discoveryCallback) this.discoveryCallback(peers)
+            //if(this.discoveryCallback) this.discoveryCallback(peers)
             if (peers[i].peer === peer) {
                 return;
             }
@@ -233,9 +237,25 @@ class NetworkManager{
     }
 
     topicHandler(message){
-        for(let l in this.topicListeners) {
-            if(message.from !== this.profileId)
-                this.topicListeners[l](JSON.parse(toString(message.data)))
+        try{
+            if(message.from === this.peerId) return
+            let data = JSON.parse(new TextDecoder().decode(message.data));
+            switch(data.action){
+                case 'discovery':
+                    this.connectedPeers.set(data.peer, data.peer)
+                    if(this.discoveryCallback) {
+                        let peers = [...this.connectedPeers.keys()].map(function(p){ return {peer : p} })
+                        this.discoveryCallback(peers)
+                    }
+                    break
+            }
+
+            for(let l in this.topicListeners) {
+                if(message.from !== this.profileId)
+                    this.topicListeners[l](JSON.parse(toString(message.data)))
+            }
+        }catch (e) {
+            console.log('Error during VFuse topic message handling : %O', e)
         }
     }
 
@@ -245,7 +265,7 @@ class NetworkManager{
     }
 
     async send(data){
-        await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, fromString(JSON.stringify(data)))
+        await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL,  new TextEncoder().encode(JSON.stringify(data)))
     }
 
     registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){
@@ -292,20 +312,6 @@ class NetworkManager{
         //this.node.libp2p.peerStore.on('change:protocols', ({ peerId, protocols}) => console.log('change:protocols', {peerId, protocols}))
         this.libp2p.on('error', (err) => console.log('error', err))
 
-    }
-
-    manageProtocols(){
-        this.libp2p.handle(['/vfuse/0.0.1' ], async ({ protocol, stream }) => {
-            pipe(
-                stream,
-                source => (async function () {
-                    console.log(`Node ${this.libp2p.peerId.toB58String()} receive a message`)
-                    for await (const msg of source) {
-                        console.log(msg.toString())
-                    }
-                }.bind(this))()
-            )
-        })
     }
 
     /*REGULAR IPFS API*/

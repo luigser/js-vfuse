@@ -140,7 +140,7 @@ module.exports = {
                         EnableRelayHop: true
                     },
                     Bootstrap: [],
-                     Discovery: {
+                    Discovery: {
                          MDNS: {
                              Enabled: true
                          },
