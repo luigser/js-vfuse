@@ -39,7 +39,7 @@ class JobsDAG {
 
     treeVisit(node, nodes = [], edges = []){
         if(!this.checkIfNodeExist(nodes, node.id))
-           nodes.push({id : node.id, label: node.label})
+           nodes.push({id : node.id, label: node.label, color : node.job && node.job.dependencies.length > 0 ? '#DB4437' : '#4285F4'})
         for (let n of this.edges.get(node)) {
             edges.push({from: node.id, to : n.id})
             this.treeVisit(n, nodes, edges)

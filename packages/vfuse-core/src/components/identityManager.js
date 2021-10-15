@@ -21,7 +21,7 @@ class IdentityManager {
 
     async getProfile(id) {
         try {
-            //For IPFS FILE MFS usage
+            //For IPFS FILE MFS usagel
             let decoded_profile = await this.contentManager.get('/profiles/' + (!id ? this.id : id) + '.json')
             if(decoded_profile){
                 let p = JSON.parse(decoded_profile)
@@ -32,7 +32,7 @@ class IdentityManager {
                 console.log('Profile loaded : %O', p)
                 //console.log(this.workflows[0].id)
                 this.eventManager.emit('profile', { status : true, profile : p })
-                return true
+                return p
             }else{
                 this.eventManager.emit('profile', { status : false })
                 return false
@@ -69,11 +69,14 @@ class IdentityManager {
                 await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile)/*new TextEncoder().encode(JSON.stringify(new_profile))*/,
                     {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
                 this.id = this.peerId
+                this.eventManager.emit('profile', { status : true, profile : new_profile })
                 console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.peerId)
             }else{
                 this.id = this.peerId
+                this.eventManager.emit('profile', { status : true, profile : profile })
             }
         }catch (e){
+            this.eventManager.emit('profile', { status : false, error : e})
             console.log('Got some error during the profile creation: %O', e)
         }
     }

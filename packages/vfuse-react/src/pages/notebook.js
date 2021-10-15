@@ -241,6 +241,11 @@ export default function NotebookPage(props){
                            <DAGVis jobsDAG={dag} />
                         </Col>
                     </Tabs.TabPane>
+                    <Tabs.TabPane tab="Running status" key="3">
+                        <Col span={24} style={{height: "50vh"}}>
+
+                        </Col>
+                    </Tabs.TabPane>
                 </Tabs>
             </Row>
         </div>

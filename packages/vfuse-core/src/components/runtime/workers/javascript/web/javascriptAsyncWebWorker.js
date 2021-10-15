@@ -115,7 +115,7 @@ const worker_code = () => {
                 break;
             case 'exec':
                 try {
-                    debugger
+                    //debugger
                     //let F = new AsyncFunction('', '(async() => {' + job.code + '})()');
                     let F = new AsyncFunction('', job.code );
                     let results = await(F());

@@ -58,7 +58,10 @@ export default function ProfilePage(props){
             /*let publishedWorkflows = await node.getPublishedWorkflows();
             setPublishedWorkflows(publishedWorkflows)
             console.log({publishedWorkflows})*/
-            setStatus(node ? VFuse.Constants.NODE_STATE.RUNNING : VFuse.Constants.NODE_STATE.STOP)
+            if(!node) {
+                setStatus(VFuse.Constants.NODE_STATE.STOP)
+                return
+            }
 
             setVFuseNode(node)
 
@@ -71,6 +74,7 @@ export default function ProfilePage(props){
                     setStartDisabled(true)
                     setCreateDisabled(true)
                     setStopDisabled(false)
+                    setStatus(VFuse.Constants.NODE_STATE.RUNNING)
                     if (mode === "create") setCreateLoading(false)
                     else setStartLoading(false)
                 }

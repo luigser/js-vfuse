@@ -139,7 +139,7 @@ module.exports = {
                             //'/ip4/127.0.0.1/tcp/2000/wss/p2p-webrtc-star',
                             //'/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
                         ],
-                        // Delegates: ["/ip4/127.0.0.1/tcp/8080"]
+                        Delegates: options.ipfs.config.Bootstrap
                     },
                     Swarm: {
                         EnableRelayHop: true
