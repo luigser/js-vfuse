@@ -105,6 +105,7 @@ export default function ProfilePage(props){
                 setCreateDisabled(false)
                 setStartDisabled(false)
                 setProfile(null)
+                setVFuseNode(null)
             }
             setStopLoading(false)
         }catch(e){

@@ -7,6 +7,9 @@ export default function DAGVis(props) {
 
     useEffect(() => {
         try {
+            //GENERATE A NEW GRAPH KEY EVERY TIME THE GRAPH CHANGE
+            //TO AVOID ERROR
+            //SOLVED REMOVING STRICT MODE IN INDEX APP
             setGraph(props.jobsDAG)
         }catch (e) {
             console.log(e)
