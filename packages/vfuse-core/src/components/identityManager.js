@@ -12,9 +12,7 @@ class IdentityManager {
         this.peerId = options.peerId
         this.contentManager = contentManager
         this.eventManager = eventManager
-        this.workflows = []
-        this.rewards   = []
-        this.publishedWorkflows = []
+        this.rewards   = 0.00
 
         this.eventManager.addListener('circuit_enabled', async function(){await this.checkProfile()}.bind(this))
     }
@@ -26,20 +24,18 @@ class IdentityManager {
             if(decoded_profile){
                 let p = JSON.parse(decoded_profile)
                 if(p.content) p.content = JSON.parse(p.content)
-                this.workflows = p.workflows
                 this.rewards = p.rewards
-                this.publishedWorkflows = p.publishedWorkflows
                 console.log('Profile loaded : %O', p)
                 //console.log(this.workflows[0].id)
-                this.eventManager.emit('profile', { status : true, profile : p })
+                this.eventManager.emit('profile.ready', { status : true, profile : {...p, ...{id : this.id}}  })
                 return p
             }else{
-                this.eventManager.emit('profile', { status : false })
+                this.eventManager.emit('profile.ready', { status : false })
                 return false
             }
         }catch(e){
             console.log('Got some error during profile retrieving: %O', e)
-            this.eventManager.emit('profile', { status : false, error : e})
+            this.eventManager.emit('profile.ready', { status : false, error : e})
             return false
         }
     }
@@ -47,9 +43,7 @@ class IdentityManager {
     getCurrentProfile(){
         return {
             id: this.id,
-            workflows : this.workflows,
-            rewards : this.rewards,
-            publishedWorkflows : this.publishedWorkflows
+            rewards : this.rewards
         }
     }
 
@@ -61,55 +55,21 @@ class IdentityManager {
             if(!profile){
                 //Todo check if profile already exist, of yes remove and create from scratch
                 let new_profile = {
-                    workflows: [],
-                    rewards: [],
-                    publishedWorkflows: []
+                    rewards: 0.00
                 }
 
                 await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile)/*new TextEncoder().encode(JSON.stringify(new_profile))*/,
                     {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
                 this.id = this.peerId
-                this.eventManager.emit('profile', { status : true, profile : new_profile })
+                this.eventManager.emit('profile.ready', { status : true, profile : {...new_profile, ...{id : this.id}}  })
                 console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.peerId)
             }else{
                 this.id = this.peerId
-                this.eventManager.emit('profile', { status : true, profile : profile })
+                this.eventManager.emit('profile.ready', { status : true, profile : {...profile, ...{id : this.id}} })
             }
         }catch (e){
-            this.eventManager.emit('profile', { status : false, error : e})
+            this.eventManager.emit('profile.ready', { status : false, error : e})
             console.log('Got some error during the profile creation: %O', e)
-        }
-    }
-
-    async addWorkflow(workflow){
-        try {
-            //todo define strategy for rewarding users
-            //this.rewards.push(rewards)
-            this.workflows.push(workflow)
-            let new_profile = {
-                workflows: this.workflows,
-                rewards: this.rewards,
-                publishedWorkflows : this.publishedWorkflows
-            }
-            await this.updateProfile(new_profile)
-            console.log('Workflow successfully added in the profile')
-        }catch (e){
-            console.log('Got some error during the profile creation: %O', e)
-        }
-    }
-
-    async publishWorkflow(workflow_id){
-        try{
-            this.publishedWorkflows.push(workflow_id)
-            let new_profile = {
-                workflows: this.workflows,
-                rewards: this.rewards,
-                publishedWorkflows : this.publishedWorkflows
-            }
-            await this.updateProfile(new_profile)
-            console.log('Workflow successfully published in the profile')
-        }catch (e){
-            console.log('Got some error during the profile publishing: %O', e)
         }
     }
 
@@ -122,41 +82,6 @@ class IdentityManager {
             console.log('Got some error during the profile publishing: %O', e)
         }
 
-    }
-
-    async updateWorkflow(workflowId, name, code, language){
-        try {
-            let workflow = this.workflows.filter(w => w.id === workflowId)
-            if(workflow && workflow.length === 1) {
-                workflow[0].name = name
-                workflow[0].code = code
-                workflow[0].language = language
-            }else
-                throw 'Selected workflow do not exists'
-
-            let new_profile = {
-                workflows: this.workflows,
-                rewards: this.rewards,
-                publishedWorkflows : this.publishedWorkflows
-            }
-            await this.updateProfile(new_profile)
-            console.log('Workflow successfully updated')
-        }catch (e){
-            console.log('Got some error during updating the workflow: %O', e)
-        }
-    }
-
-    getWorkflow(workflowId){
-        try {
-            let workflow = this.workflows.filter(w => w.id === workflowId)
-            if (workflow && workflow.length === 1)
-                return workflow[0]
-            else
-                throw 'Selected workflow do not exists'
-        }catch (e){
-            console.log('Got some error during workflow retrieving : %O', e)
-            return null
-        }
     }
 
     async checkProfile(){

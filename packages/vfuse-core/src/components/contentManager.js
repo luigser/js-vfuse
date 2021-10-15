@@ -6,10 +6,11 @@ class ContentManager{
     //MFS API
     async save(path, content, options){
         try{
-            await this.networkManager.writeFile(path, content, options)
+            let cid = await this.networkManager.writeFile(path, content, options)
             if(options && options.pin){
-                await this.networkManager.pinFileInMFS(path)
+                cid = await this.networkManager.pinFileInMFS(path)
             }
+            return cid
         }catch(e){
             console.log('Got some error during saving : %O', e)
         }
@@ -28,6 +29,15 @@ class ContentManager{
             return await this.networkManager.list(path)
         }catch(e){
             console.log('Got some error during getting : %O', e)
+            return null
+        }
+    }
+
+    async stat(path) {
+        try {
+            return await this.networkManager.stat(path)
+        } catch (e) {
+            console.log('Got some error during stat : %O', e)
         }
     }
 

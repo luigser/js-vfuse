@@ -531,10 +531,11 @@ class NetworkManager{
             for await (const file of this.api.files.ls(path)) {
                 files.push(file.name)
             }
+            return files
         }catch (e) {
             console.log('Got some error during list: %O', e)
+            return files
         }
-        return files
     }
 
     async pinFileInMFS(path){
@@ -542,6 +543,7 @@ class NetworkManager{
             let stat = await this.stat(path)
             console.log({stat})
             let pinning_result = await this.pin(stat.cid.toString())
+            return pinning_result
         }catch (e) {
             console.log('Got some error during stat: %O', e)
         }
@@ -553,7 +555,8 @@ class NetworkManager{
     async pin(cid){
         try {
             //todo delete previous version
-            await this.cluster.pin.add(cid)
+            let data_cid = await this.cluster.pin.add(cid)
+            return data_cid
         }catch (e){
             console.log('Got some error during the data update: %O', e)
             return null

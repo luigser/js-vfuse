@@ -28,9 +28,10 @@ export default function ProfilePage(props){
         try {
             if (vFuseNode) {
                 let profile = vFuseNode.getProfile()
+                let workflows = vFuseNode.getWorkflows()
                 setProfile(profile)
                 setProfileId(profile?.id)
-                setWorkflows(profile?.workflows)
+                setWorkflows(workflows)
                 setStatus(VFuse.Constants.NODE_STATE.RUNNING)
             }
         }catch(e){
@@ -55,9 +56,6 @@ export default function ProfilePage(props){
             setStatus(VFuse.Constants.NODE_STATE.INITIALIZING)
 
             let node = await getNode(profileId)
-            /*let publishedWorkflows = await node.getPublishedWorkflows();
-            setPublishedWorkflows(publishedWorkflows)
-            console.log({publishedWorkflows})*/
             if(!node) {
                 setStatus(VFuse.Constants.NODE_STATE.STOP)
                 return
@@ -65,18 +63,26 @@ export default function ProfilePage(props){
 
             setVFuseNode(node)
 
-            node.eventManager.addListener('profile', function(data){
+            node.eventManager.addListener('VFuse.ready', async function(data){
                 if(data.status){
+                    let publishedWorkflows = await node.getPublishedWorkflows();
+                    console.log({publishedWorkflows})
                     setProfileId(data.profile.id)
                     setProfile(data.profile)
-                    setWorkflows(data.profile.workflows)
+                    setWorkflows(data.workflows)
                     setCreateDisabled(true)
                     setStartDisabled(true)
                     setCreateDisabled(true)
                     setStopDisabled(false)
                     setStatus(VFuse.Constants.NODE_STATE.RUNNING)
+
                     if (mode === "create") setCreateLoading(false)
                     else setStartLoading(false)
+                }else{
+                    notification.error({
+                        message : "Something went wrong",
+                        description : data.error
+                    });
                 }
             }.bind(this))
 
@@ -168,8 +174,8 @@ export default function ProfilePage(props){
                                 </Typography.Paragraph>
                                 <Descriptions title="User Info" layout="vertical" bordered>
                                     <Descriptions.Item label="Profile ID">{profile?.id}</Descriptions.Item>
-                                    <Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>
-                                    <Descriptions.Item label="Rewards">3.14 ETH</Descriptions.Item>
+                                    <Descriptions.Item label="Workflows numbers">{workflows.length}</Descriptions.Item>
+                                    <Descriptions.Item label="Rewards"><b>{profile && profile.reward ? profile.reward : '0.00'}</b> VFuseCoin</Descriptions.Item>
                                 </Descriptions>
                             </>
                         </Layout.Content>

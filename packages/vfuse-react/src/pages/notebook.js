@@ -179,7 +179,7 @@ export default function NotebookPage(props){
                     </PageHeader>
                     <Descriptions layout="vertical" bordered>
                         <Descriptions.Item label="IdentityManager ID">{profile?.id}</Descriptions.Item>
-                        <Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>
+                        {/*<Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>*/}
                         <Descriptions.Item label="Rewards">{profile?.rewards} ETH</Descriptions.Item>
                     </Descriptions>
                 </Col>

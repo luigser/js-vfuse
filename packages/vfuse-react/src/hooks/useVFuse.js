@@ -12,11 +12,11 @@ export const useVFuse = () => {
             if (!node) {
                 node = await VFuse.create(
                     {
-                        profileId: profileId,//QmZXH9QvPSr4JbPgoD9TuxUZhW1yqgp68FUS6qDa41rFp3
+                        profileId: profileId,
                         ipfs:{
                             config: {
                                 Bootstrap :[
-                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWC5LReZk9uVHpCcXYpEm4UfLBzSvSsNpLosC7p3XbBwGC',
+                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWK1GrwHL5SU2Hm5L7eTsz2jAa859fX3hpo9MiujPZHgqH',
                                 ]
                             }
                         },

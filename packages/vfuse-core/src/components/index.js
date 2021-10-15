@@ -96,6 +96,10 @@ class VFuse {
         return this.identityManager.getCurrentProfile()
     }
 
+    getWorkflows(){
+        return this.workflowManager.getCurrentWorkflows()
+    }
+
     getWorkflow(id){
         return this.workflowManager.getWorkflow(id)
     }
