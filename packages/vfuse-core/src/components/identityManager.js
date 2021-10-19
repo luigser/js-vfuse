@@ -12,6 +12,7 @@ class IdentityManager {
         this.peerId = options.peerId
         this.contentManager = contentManager
         this.eventManager = eventManager
+        this.publishedWorkflows = []
         this.rewards   = 0.00
 
         this.eventManager.addListener('circuit_enabled', async function(){await this.checkProfile()}.bind(this))
@@ -25,6 +26,7 @@ class IdentityManager {
                 let p = JSON.parse(decoded_profile)
                 if(p.content) p.content = JSON.parse(p.content)
                 this.rewards = p.rewards
+                this.publishedWorkflows = p.publishedWorkflows
                 console.log('Profile loaded : %O', p)
                 //console.log(this.workflows[0].id)
                 this.eventManager.emit('profile.ready', { status : true, profile : {...p, ...{id : this.id}}  })
@@ -55,9 +57,11 @@ class IdentityManager {
             if(!profile){
                 //Todo check if profile already exist, of yes remove and create from scratch
                 let new_profile = {
-                    rewards: 0.00
+                    publishedWorkflows : [],
+                    rewards: 10.00
                 }
 
+                await this.contentManager.makeDir('/workflows')
                 await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile)/*new TextEncoder().encode(JSON.stringify(new_profile))*/,
                     {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
                 this.id = this.peerId
@@ -73,6 +77,22 @@ class IdentityManager {
         }
     }
 
+    async addPublishedWorkflow(wid, name, cid){
+        try{
+            let filtered = this.publishedWorkflows.filter(pw => pw.id === wid)
+            if(filtered.length > 0) return
+
+            this.publishedWorkflows.push({id : wid, name : name, cid : cid})
+            let new_profile = {
+                publishedWorkflows : this.publishedWorkflows,
+                rewards : this.rewards
+            }
+            await this.updateProfile(new_profile)
+        }catch (e) {
+            console.log('Got error during add published workflow operation : %O', e)
+        }
+    }
+
     async updateProfile(profile){
         try{
             await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile)/*new TextEncoder().encode(JSON.stringify(profile))*/,
@@ -81,7 +101,6 @@ class IdentityManager {
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)
         }
-
     }
 
     async checkProfile(){

@@ -3,6 +3,14 @@ class ContentManager{
         this.networkManager = networkManager
     }
 
+    async getKey(name){
+        try{
+            return await this.networkManager.getKey(name)
+        }catch(e){
+            console.log('Error during new key generation : %O', e)
+        }
+    }
+
     //MFS API
     async save(path, content, options){
         try{
@@ -19,6 +27,14 @@ class ContentManager{
     async get(path, options){
         try{
             return await this.networkManager.readFile(path, options)
+        }catch(e){
+            console.log('Got some error during getting : %O', e)
+        }
+    }
+
+    async getFromNetwork(cid){
+        try{
+            return await this.networkManager.get(cid)
         }catch(e){
             console.log('Got some error during getting : %O', e)
         }
@@ -45,18 +61,42 @@ class ContentManager{
 
     async delete(path, options){
         try{
-            return await this.networkManager.delete(path, option)
+            return await this.networkManager.delete(path, options)
         }catch(e){
             console.log('Got some error during getting : %O', e)
         }
     }
 
-    async publish(path, options){
-
+    async publish(cid, key, options){
+        try{
+            return await this.networkManager.publish(cid, options ? options : { ttl : '72h', lifetime: '72h', allowOffline : true, key: key})
+        }catch (e) {
+            console.log('Got error during publishing : %O', e)
+        }
     }
 
-    async unpublish(path, options){
+    async unpublish(cid, options){
+        try{
+            return await this.networkManager.unpublish(cid, options)
+        }catch (e) {
+            console.log('Got error during unpublishing : %O', e)
+        }
+    }
 
+    async makeDir(path, options){
+        try{
+            await this.networkManager.makeDir(path, options ? options : { parents : true, mode: parseInt('0775', 8) })
+        }catch (e) {
+            console.log('Error during directory creation : % O', e)
+        }
+    }
+
+    async sendOnTopic(data){
+        try{
+            await this.networkManager.send(data)
+        }catch (e) {
+            console.log('Error during sending daa on topic : %O', e)
+        }
     }
 
     //REGULAR API

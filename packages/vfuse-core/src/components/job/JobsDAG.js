@@ -13,6 +13,7 @@ class JobsDAGVertex{
 class JobsDAG {
     constructor() {
         this.edges = new Map();
+        this.vertices = new Map()
         this.root = new JobsDAGVertex({id : 'root', label: 'root', job : null})
         this.addVertex(this.root)
     }
@@ -38,8 +39,30 @@ class JobsDAG {
     }
 
     treeVisit(node, nodes = [], edges = []){
-        if(!this.checkIfNodeExist(nodes, node.id))
-           nodes.push({id : node.id, label: node.label, color : node.job && node.job.dependencies.length > 0 ? '#DB4437' : '#4285F4'})
+        if(!this.checkIfNodeExist(nodes, node.id)) {
+            let color = '#838383'
+            if(node.job) {
+                switch (node.job.status) {
+                    case Constants.JOB_SATUS.WAITING:
+                        color = '#DB4437'
+                        break
+                    case Constants.JOB_SATUS.COMPLETED:
+                        color = '#0F9D58'
+                        break
+                    case Constants.JOB_SATUS.ERROR:
+                        color = '#F4B400'
+                        break
+                    default:
+                        color = '#4285F4'
+                        break
+                }
+            }
+            nodes.push({
+                id: node.id,
+                label: node.label,
+                color: color
+            })
+        }
         for (let n of this.edges.get(node)) {
             edges.push({from: node.id, to : n.id})
             this.treeVisit(n, nodes, edges)
@@ -65,6 +88,7 @@ class JobsDAG {
 
     addVertex(v)
     {
+        this.vertices.set(v.id, v)
         this.edges.set(v, []);
     }
 
@@ -79,6 +103,7 @@ class JobsDAG {
             let new_job_vertex = new JobsDAGVertex({id: job.id, label: job.name, job: job})
             this.addVertex(new_job_vertex)
             if (!job.dependencies || (_.isArray(job.dependencies) && job.dependencies.length === 0)) {
+                new_job_vertex.job.status = Constants.JOB_SATUS.READY
                 this.addEdge(
                     this.root,
                     new_job_vertex

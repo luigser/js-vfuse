@@ -29,9 +29,8 @@ class WorkflowManager{
             this.workflows = []
             this.publishedWorkflows = []
 
-            this.eventManager.addListener('profile.ready', async function(){await this.getWorkflows()}.bind(this))
-
-
+            this.eventManager.addListener('profile.ready', async function(){await this.startWorkspace()}.bind(this))
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function(data){await this.executeWorkflow(data.workflow)}.bind(this))
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
         }
@@ -42,29 +41,39 @@ class WorkflowManager{
             if (this.runtimeManager) {
                 await this.runtimeManager.start()
             }
-            //this.networkManager.registerTopicListener(this.topicListener)
-            //this.publishJobs()
         }catch (e) {
             console.log('Error during workflow manager starting: %O', e)
         }
     }
 
-    publishJobs(){
-        setInterval(async function(){
-            let jobsToPublish = []
-            for (let w in this.identityManager.workflows) {
-                for (let j in this.identityManager.workflows[w].jobs) {
-                    jobsToPublish.push(this.identityManager.workflows[w].jobs[j])
+    publishWorkflows(){
+        try{
+            setInterval(async function(){
+                for(let w in this.publishedWorkflows)
+                   await this.contentManager.sendOnTopic({action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, workflow : this.publishedWorkflows[w]})
+            }.bind(this), Constants.TIMEOUTS.WORKFLOWS_PUBLISHING)
+        }catch(e){
+            console.log('Error during workflows publishing : %O', e)
+        }
+    }
+
+    async executeWorkflow(workflow){
+        try{
+            if(workflow && workflow.cid) {
+                let encw = await this.contentManager.getFromNetwork(workflow.cid)
+                if (encw) {
+                    let decw = JSON.parse(encw)
+                    console.log('Received a new workflow execution request : %O', decw)
                 }
             }
-            /*if(jobsToPublish.length > 0)
-               await this.networkManager.send(jobsToPublish)*/
-        }.bind(this), 5000)
+        }catch (e) {
+            console.log('Error during workflow execution : %O', e)
+        }
     }
 
     async getPublishedWorkflows(){
         //get workflow from global IPFS queue
-        return this.publishedWorkflows
+        return this.identityManager.publishedWorkflows
     }
 
     getWorkflow(workflowId){
@@ -86,8 +95,9 @@ class WorkflowManager{
         return this.workflows
     }
 
-    async getWorkflows(){
+    async startWorkspace(){
         try{
+            //Get workflows
             let workflows = await this.contentManager.list('/workflows')
             for (let w in workflows){
                 let workflow = await this.contentManager.get('/workflows/' + workflows[w])
@@ -96,6 +106,9 @@ class WorkflowManager{
                     this.workflows.push(workflow)
                 }
             }
+            //Start publish on topic
+            this.publishedWorkflows = this.identityManager.publishedWorkflows
+            this.publishWorkflows()
             this.eventManager.emit('VFuse.ready', { status : true, workflows : this.workflows, profile : this.identityManager.getCurrentProfile() })
         }catch(e){
             this.eventManager.emit('VFuse.ready', { status : false, error : e})
@@ -125,9 +138,11 @@ class WorkflowManager{
                 //todo find a strategy to get a new workflow id
                 let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
                 workflow = new Workflow(workflow_id._idB58String, name, code, language, new JobsDAG())
+                this.workflows.push(workflow)
             }
             let workflow_cid = await this.contentManager.save('/workflows/' + workflow.id + '.json', JSON.stringify(workflow),
                 {create : true, parents: true, mode: parseInt('0775', 8), truncate: true, pin : true})
+            this.currentWorkflow = workflow
             console.log('Workflow successfully saved: %O', workflow)
             return workflow.id
         }catch (e){
@@ -139,16 +154,15 @@ class WorkflowManager{
     async publishWorkflow(workflow_id){
         try{
             this.publishedWorkflows.push(workflow_id)
-
-            let workflow = this.identityManager.getWorkflow(workflow_id)
+            let workflow = this.getWorkflow(workflow_id)
             if(workflow){
-                let workflow_dir = '/workflows/' + workflow.id
-                await this.contentManager.save(workflow_dir + '/' + workflow.id + '.json', JSON.stringify(workflow))
-                /*workflow.jobs.map(async job => {
-                    await this.contentManager.save(workflow_dir + '/jobs/' + job.id + '.json', new TextEncoder().encode(JSON.stringify(job)),
-                        {create : true, parents: true, mode: parseInt('0775', 8), pin:true})
-                })*/
-                console.log('Workflow successfully published')
+                let workflow_file = '/workflows/' + workflow.id + '.json'
+                let stat = await this.contentManager.stat(workflow_file)
+                let new_key = await this.contentManager.getKey(workflow_id)
+                let name = await this.contentManager.publish(stat.cid, new_key.name)
+                await this.identityManager.addPublishedWorkflow(workflow_id, name, stat.cid.toString())
+                this.publishedWorkflows = this.identityManager.publishedWorkflows
+                console.log('Workflow successfully published: %s', name)
             }else{
                 throw 'Workflow ID do no exist. You need to save in your profile before publish it!'
             }

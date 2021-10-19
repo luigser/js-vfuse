@@ -17,7 +17,7 @@ class Job{
         this.code = code
         this.data = data
         this.dependencies = dependencies
-        this.results = null
+        this.results = []
     }
 }
 

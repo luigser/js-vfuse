@@ -181,8 +181,8 @@ class NetworkManager{
         setInterval(async function(){
             if(isNode && this.isBootstrapNode)
                await this.ipfs.pubsub.publish("announce-circuit", "peer-alive")
-            await this.send({ action : 'discovery', peer : this.peerId })
-        }.bind(this), 15000);
+            await this.send({ action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, peer : this.peerId })
+        }.bind(this), Constants.TIMEOUTS.DISCOVERY);
     }
 
     // processes a circuit-relay announce over pubsub
@@ -241,7 +241,7 @@ class NetworkManager{
             if(message.from === this.peerId) return
             let data = JSON.parse(new TextDecoder().decode(message.data));
             switch(data.action){
-                case 'discovery':
+                case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY:
                     this.connectedPeers.set(data.peer, data.peer)
                     if(this.discoveryCallback) {
                         let peers = [...this.connectedPeers.keys()].map(function(p){ return {peer : p} })
@@ -253,6 +253,9 @@ class NetworkManager{
                         console.log(err);
                         await this.ipfs.swarm.connect(message);
                     }*/
+                    break
+                case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST:
+                    this.eventManager.emit(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, {workflow: data.workflow})
                     break
             }
 
@@ -266,12 +269,12 @@ class NetworkManager{
     }
 
     async initTopicsChannel(){
-        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL, this.topicHandler.bind(this) )
+        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, this.topicHandler.bind(this) )
         await this.ipfs.pubsub.subscribe("announce-circuit", this.processAnnounce.bind(this));
     }
 
     async send(data){
-        await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL,  new TextEncoder().encode(JSON.stringify(data)))
+        await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME,  new TextEncoder().encode(JSON.stringify(data)))
     }
 
     registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){
@@ -322,6 +325,16 @@ class NetworkManager{
 
     /*REGULAR IPFS API*/
 
+    async getKey(name){
+        try{
+            let keys = await this.ipfs.key.list()
+            let founded = keys.filter(key => key.name === name)
+            return founded.length > 0 ? founded[0] : await this.ipfs.key.gen(name)
+        }catch (e) {
+            console.log('Error during new key generation : %O', e)
+        }
+    }
+
     async add(data){
         try {
             //todo delete previous version
@@ -352,16 +365,47 @@ class NetworkManager{
         }
     }
 
-    async publish(cid){
+    async getWithNS(cid) {
         try {
-            let published_data = await this.ipfs.name.publish(cid)
-            //await this.cluster.pin.add(published_data.value)
-            return published_data.value
-        }catch (e){
-            console.log('Got some error during the data update: %O', e)
+            let ipfs_data_addr = "", content = [], decodedData = null
+            for await (const name of this.ipfs.name.resolve('/ipns/' + cid,  { stream: false }) ) {
+                ipfs_data_addr = name
+            }
+
+            for await (const file of this.ipfs.get(CID.parse(ipfs_data_addr.replace('/ipfs/', '')))) {
+                if (!file.content) continue;
+                for await (const chunk of file.content) {
+                    content.push(chunk)
+                }
+            }
+            if (content.length > 0) {
+                decodedData = toString(content[0])
+            }
+            return decodedData
+        } catch (e) {
+            console.log('Got some error during data retrieving with IPNS: %O', e)
             return null
         }
+    }
 
+    async publish(cid, options){
+        try {
+            let published_data = await this.ipfs.name.publish(cid, options ? options : { resolve: false })
+            return published_data.name
+        }catch (e){
+            console.log('Got some error during the cid publishing: %O', e)
+            return null
+        }
+    }
+
+    async unpublish(cid, options){
+        try {
+            let result = await this.ipfs.name.pubsub.cancel(cid, options)
+            return result.canceled
+        }catch (e){
+            console.log('Got some error during the cid unpublishing: %O', e)
+            return null
+        }
     }
 
     async update(data){
@@ -393,29 +437,6 @@ class NetworkManager{
             files.push(file.path)
         }
         return files
-    }
-
-    async getWithNS(cid, path) {
-        try {
-            let ipfs_data_addr = "", content = [], decodedData = null
-            for await (const name of this.ipfs.name.resolve('/ipns/' + cid)) {
-                ipfs_data_addr = name
-            }
-
-            for await (const file of this.ipfs.get(CID.parse(ipfs_data_addr.replace('/ipfs/', '')))) {
-                if (!file.content) continue;
-                for await (const chunk of file.content) {
-                    content.push(chunk)
-                }
-            }
-            if (content.length > 0) {
-                decodedData = toString(content[0])
-            }
-            return decodedData
-        } catch (e) {
-            console.log('Got some error during data retrieving: %O', e)
-            return null
-        }
     }
 
     async cat(cid){

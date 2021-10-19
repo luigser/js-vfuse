@@ -19,7 +19,15 @@ const Constants = {
         }
     },
     TOPICS: {
-        VFUSE_PUBLISH_CHANNEL : "vfuse_publish_channel"
+        VFUSE_PUBLISH_CHANNEL :{
+            NAME : "vfuse_publish_channel",
+            ACTIONS: {
+                DISCOVERY : 'discovery',
+                WORKFLOW : {
+                    EXECUTION_REQUEST : 'execution_request'
+                }
+            }
+        }
     },
     NODE_STATE: {
         STOP: 0,
@@ -35,6 +43,10 @@ const Constants = {
     PROGRAMMING_LANGUAGE:{
         JAVASCRIPT : 'javascript',
         PYTHON : 'python'
+    },
+    TIMEOUTS:{
+        DISCOVERY : 15000,
+        WORKFLOWS_PUBLISHING : 15000
     }
 }
 

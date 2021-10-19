@@ -127,7 +127,7 @@ export default function ProfilePage(props){
             title : "Published",
             dataIndex: "published",
             key: "published",
-            render: (text, record, index) => publishedWorkflows.indexOf(record.id) >= 0 ? <Tag color="#0F9D58">Yes</Tag> : <Tag color="#DB4437">Not</Tag>
+            render: (text, record, index) => publishedWorkflows.filter( w => w.id === record.id).length > 0 ? <Tag color="#0F9D58">Yes</Tag> : <Tag color="#DB4437">Not</Tag>
         },
         {
             title : "Action",
@@ -176,7 +176,7 @@ export default function ProfilePage(props){
                                 <Descriptions title="User Info" layout="vertical" bordered>
                                     <Descriptions.Item label="Profile ID">{profile?.id}</Descriptions.Item>
                                     <Descriptions.Item label="Workflows numbers">{workflows.length}</Descriptions.Item>
-                                    <Descriptions.Item label="Rewards"><b>{profile && profile.reward ? profile.reward : '0.00'}</b> VFuseCoin</Descriptions.Item>
+                                    <Descriptions.Item label="Rewards"><b>{profile && profile.rewards ? profile.rewards : '0.00'}</b> VFuseCoin</Descriptions.Item>
                                 </Descriptions>
                             </>
                         </Layout.Content>
