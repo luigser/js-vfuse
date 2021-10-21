@@ -22,14 +22,43 @@ class JobsDAG {
                 node.job.status = Constants.JOB_SATUS.COMPLETED
                 node.color = Constants.JOB_SATUS.COLORS.COMPLETED
                 node.job.results.push(data.cid)
-
+                //TODO per i vertici label verificare che tutti i nodi dipendenti abbiamo un risultato
+                let results = [], isReady = true
                 for(let n of JSONJobDAG.nodes){
+                    if(n.job){
+                        for(let dependency of node.job.dependencies){
+                            let isJobId = false
+                            try {
+                                PeerId.createFromB58String(dependency)
+                                isJobId = true
+                            }catch (e){}
+                            if(isJobId) {
+                                n.job.status = Constants.JOB_SATUS.READY
+                                n.color = Constants.JOB_SATUS.COLORS.READY
+                                results = [...results, ...data.results]
+                            }else{
+                                let dep_nodes = JSONJobDAG.nodes.filter(n => n.label === dependency)
+                                for(let d of dep_nodes){
+                                    if(d.job.result.length === 0) isReady = false
+                                    else results = [...results, ...d.job.result]
+                                }
+                                if(isReady){
+                                    n.job.status = Constants.JOB_SATUS.READY
+                                    n.color = Constants.JOB_SATUS.COLORS.READY
+                                    n.job.data = results
+                                }
+                            }
+                        }
+                    }
+                }
+
+                /*for(let n of JSONJobDAG.nodes){
                     if(n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.indexOf(node.label) >= 0)){
                         n.job.status = Constants.JOB_SATUS.READY
                         n.color = Constants.JOB_SATUS.COLORS.READY
                         n.job.data = data.results
                     }
-                }
+                }*/
                 break
         }
     }
@@ -116,10 +145,10 @@ class JobsDAG {
         this.edges.set(v, []);
     }
 
-    addEdge(v, w)
+    addEdge(source, destination)
     {
         //check if edge generate a cycle
-        this.edges.get(v).push(w);
+        this.edges.get(source).push(destination);
     }
 
     addJob(job){
