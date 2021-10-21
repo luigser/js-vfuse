@@ -266,6 +266,9 @@ class NetworkManager{
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE:
                     this.eventManager.emit(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, data.payload)
                     break
+                case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED:
+                    this.eventManager.emit(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, data.payload)
+                    break
             }
 
             for(let l in this.topicListeners) {
@@ -574,7 +577,7 @@ class NetworkManager{
             }
             return files
         }catch (e) {
-            console.log('Got some error during list: %O', e)
+            //console.log('Got some error during list: %O', e)
             return files
         }
     }

@@ -65,7 +65,7 @@ class ContentManager{
 
     async delete(path, options){
         try{
-            return await this.networkManager.delete(path, options)
+            return await this.networkManager.deleteFile(path, options)
         }catch(e){
             console.log('Got some error during getting : %O', e)
         }

@@ -20,12 +20,15 @@ class JobsDAG {
         switch(state){
             case Constants.JOB_SATUS.COMPLETED:
                 node.job.status = Constants.JOB_SATUS.COMPLETED
+                node.color = Constants.JOB_SATUS.COLORS.COMPLETED
                 node.job.results.push(data.cid)
 
-                for(let dep of node.job.dependencies){
-                   let deps_nodes = JSONJobDAG.nodes.filter(n => n.id === dep || n.label === dep)
-                   for(let dn of deps_nodes)
-                       dn.job.status = Constants.JOB_SATUS.READY
+                for(let n of JSONJobDAG.nodes){
+                    if(n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.indexOf(node.label) >= 0)){
+                        n.job.status = Constants.JOB_SATUS.READY
+                        n.color = Constants.JOB_SATUS.COLORS.READY
+                        n.job.data = data.results
+                    }
                 }
                 break
         }
@@ -64,16 +67,16 @@ class JobsDAG {
             if(node.job) {
                 switch (node.job.status) {
                     case Constants.JOB_SATUS.WAITING:
-                        color = '#DB4437'
+                        color = Constants.JOB_SATUS.COLORS.WAITING
                         break
                     case Constants.JOB_SATUS.COMPLETED:
-                        color = '#0F9D58'
+                        color = Constants.JOB_SATUS.COLORS.COMPLETED
                         break
                     case Constants.JOB_SATUS.ERROR:
-                        color = '#F4B400'
+                        color = Constants.JOB_SATUS.COLORS.ERROR
                         break
-                    default:
-                        color = '#4285F4'
+                    case Constants.JOB_SATUS.READY:
+                        color = Constants.JOB_SATUS.COLORS.READY
                         break
                 }
             }

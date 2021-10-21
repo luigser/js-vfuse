@@ -9,7 +9,13 @@ const Constants = {
         WAITING : 0,//due to dependencies
         READY: 1,//no dependences and ready to be executed
         COMPLETED: 2,//results are available
-        ERROR: 3//something wrong during the execution
+        ERROR: 3,//something wrong during the execution
+        COLORS:{
+            WAITING : '#DB4437',
+            READY: '#0F9D58',
+            COMPLETED: '#4285F4',
+            ERROR: '#F4B400'
+        }
     },
     WORKFLOW : {
         STATUS: {
@@ -30,6 +36,9 @@ const Constants = {
                 JOB:{
                     EXECUTION_REQUEST: 'job_execution_request',
                     EXECUTION_RESPONSE: 'job_execution_response'
+                },
+                RESULTS:{
+                    RECEIVED: 'result_received'
                 }
             }
         }

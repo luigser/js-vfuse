@@ -116,8 +116,12 @@ const worker_code = () => {
             case 'exec':
                 try {
                     //let F = new AsyncFunction('', '(async() => {' + job.code + '})()');
+                    debugger
                     if(!job.inline){
-                        job.code += 'return ' + job.name + "('" + job.data + "')"
+                        //job.code += 'return ' + job.name + "(" + job.data + ")"
+                        let input = JSON.stringify(job.data)
+                        job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
+                            'return ' + job.name + "(input)"
                     }
                     let F = new AsyncFunction('', job.code );
                     let results = await(F());

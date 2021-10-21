@@ -21,9 +21,9 @@ npm install ipfs-swarm-key-gen -g
 12D3KooWLGqTJsVQGMNrnLbRCGqPhHJrG9BLqA4xYLdWr3kCQfFq //SURFACE
 //REGULAR
 //Chrome
-12D3KooWCqThCDUMfW1YFoVhPksa5uxAYrnUq6gxd76Q67d6KFaW
+12D3KooWCXAbsCbCL3dh5Sx76L4o3BZKPYo73cPsQaGGWsAmnXpq
 //Firefox
-12D3KooWCkp3P9RSMLysvNdgiLhD27gfs3ZGE9hzJnmb48GrqdgE
+12D3KooWMEPYfrpBrCoJgn12tm5HDNhqjc22MnEdsCzRDP2AU3Ua
 
 //Domande e note
 
@@ -86,10 +86,7 @@ for(let i=0; i < input.length; i+=chunk){
    VFuse.addJob()
 }
 
-MAP-REDUCE
-
-let input = "VERY_BIG_TEXT"
-//let input = VFuse.getData('http://GATEWAY/ipfs/CID', start, end, VFuse.DATA.Type.String)
+MAP-REDUCE EXAMPLE
 
 let input = "Contrary to popular belief, Lorem Ipsum is not simply random text.\n" +
         "It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.\n" +
@@ -113,7 +110,7 @@ function reduce(data){
 function combine(data){
    let result = new Map()
    for(let key of data.keys())
-      result.set(key, result.has(key) ? result.get(key) + 1 : 1))
+      result.set(key, result.has(key) ? result.get(key) + 1 : 1)
    return result
 }
 
@@ -125,6 +122,7 @@ for (let row in input){
    reduced_results.push(mapped)
 }
 let result = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine
+
 
 
 

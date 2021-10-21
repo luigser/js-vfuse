@@ -63,12 +63,12 @@ class IdentityManager {
                     publishedWorkflows : [],
                     rewards: 10.00
                 }
-
                 await this.contentManager.makeDir('/workflows')
-                await this.contentManager.makeDir('/results/cids')
+                await this.contentManager.makeDir('/results')
                 await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile)/*new TextEncoder().encode(JSON.stringify(new_profile))*/,
                     {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
                 this.id = this.peerId
+                this.rewards = 10.00
                 this.eventManager.emit('profile.ready', { status : true, profile : {...new_profile, ...{id : this.id}}  })
                 console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.peerId)
             }else{
