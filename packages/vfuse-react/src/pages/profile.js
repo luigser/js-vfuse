@@ -66,7 +66,7 @@ export default function ProfilePage(props){
             node.eventManager.addListener('VFuse.ready', async function(data){
                 if(data.status){
                     let publishedWorkflows = await node.getPublishedWorkflows();
-                    console.log({publishedWorkflows})
+                    setPublishedWorkflows(publishedWorkflows)
                     setProfileId(data.profile.id)
                     setProfile(data.profile)
                     setWorkflows(data.workflows)

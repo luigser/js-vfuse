@@ -1,3 +1,6 @@
+const { CID } = require('multiformats/cid')
+const { base64 } = require("multiformats/bases/base64")
+
 class ContentManager{
     constructor(networkManager){
         this.networkManager = networkManager
@@ -34,7 +37,8 @@ class ContentManager{
 
     async getFromNetwork(cid){
         try{
-            return await this.networkManager.get(cid)
+            let pcid = CID.parse(cid)
+            return await this.networkManager.cat(pcid)
         }catch(e){
             console.log('Got some error during getting : %O', e)
         }
@@ -69,7 +73,8 @@ class ContentManager{
 
     async publish(cid, key, options){
         try{
-            return await this.networkManager.publish(cid, options ? options : { ttl : '72h', lifetime: '72h', allowOffline : true, key: key})
+            let pcid = CID.parse(cid)
+            return await this.networkManager.publish(pcid, options ? options : { ttl : '72h', lifetime: '72h', key: key, resolve: false})
         }catch (e) {
             console.log('Got error during publishing : %O', e)
         }

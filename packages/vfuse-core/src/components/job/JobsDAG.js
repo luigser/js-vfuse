@@ -11,6 +11,26 @@ class JobsDAGVertex{
 }
 
 class JobsDAG {
+
+    static getReadyNodes = (JSONJobDAG) => {
+        return JSONJobDAG.nodes.filter( n => n.job && n.job.status === Constants.JOB_SATUS.READY)
+    }
+
+    static setNodeState = (JSONJobDAG, node, state, data) => {
+        switch(state){
+            case Constants.JOB_SATUS.COMPLETED:
+                node.job.status = Constants.JOB_SATUS.COMPLETED
+                node.job.results.push(data.cid)
+
+                for(let dep of node.job.dependencies){
+                   let deps_nodes = JSONJobDAG.nodes.filter(n => n.id === dep || n.label === dep)
+                   for(let dn of deps_nodes)
+                       dn.job.status = Constants.JOB_SATUS.READY
+                }
+                break
+        }
+    }
+
     constructor() {
         this.edges = new Map();
         this.vertices = new Map()
@@ -60,7 +80,8 @@ class JobsDAG {
             nodes.push({
                 id: node.id,
                 label: node.label,
-                color: color
+                color: color,
+                job: node.job
             })
         }
         for (let n of this.edges.get(node)) {
@@ -69,7 +90,7 @@ class JobsDAG {
         }
     }
 
-    getJSON(){
+    toJSON(){
        let nodes = [], edges = []
        this.treeVisit(this.root, nodes, edges)
        return { nodes : nodes, edges : edges }

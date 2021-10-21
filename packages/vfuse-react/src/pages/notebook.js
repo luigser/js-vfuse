@@ -77,6 +77,7 @@ export default function NotebookPage(props){
                 let workflow = node.getWorkflow(workflowId)
                 setName(workflow.name)
                 setCode(workflow.code)
+                setDag(workflow.jobsDAG)
             }
         }
     },[])
@@ -89,19 +90,20 @@ export default function NotebookPage(props){
             });
         }else{
             setSaveWorkflowLoading(true)
-            let wid = await vFuseNode.saveWorkflow(workflowId, name, code, language)
-            if(!wid){
+            let workflow = await vFuseNode.saveWorkflow(workflowId, name, code, language)
+            if(workflow.error){
                 notification.error({
                     message : "Something went wrong",
-                    description : 'Some problems occurred during saving workflow'
+                    description : workflow.error.toString()
                 });
             }else{
+                setDag(workflow.jobsDAG)
+                setWorkflowId(workflow.id)
                 notification.info({
                     message : "Info",
                     description : 'Your workflow was successfully saved'
                 });
             }
-            setWorkflowId(wid)
             setSaveWorkflowLoading(false)
         }
     }
@@ -126,8 +128,8 @@ export default function NotebookPage(props){
 
     const onRunLocal = async () => {
         setRunLocalLoading(true)
-        let result = await vFuseNode.runLocalWorkflowCode(code)
-        let dag = result.workflow.jobsDAG.getJSON()
+        let result = await vFuseNode.checkWorkflow(code)
+        let dag = result.workflow.jobsDAG.toJSON()
         setDag(dag)
         setRunLocalLoading(false)
 

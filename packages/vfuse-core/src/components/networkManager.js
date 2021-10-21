@@ -255,7 +255,16 @@ class NetworkManager{
                     }*/
                     break
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST:
-                    this.eventManager.emit(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, {workflow: data.workflow})
+                    this.eventManager.emit(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, data.payload)
+                    break
+                case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST:
+                    this.eventManager.emit(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, data.payload)
+                    break
+                case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_RESPONSE:
+                    this.eventManager.emit(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_RESPONSE, data.payload)
+                    break
+                case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE:
+                    this.eventManager.emit(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, data.payload)
                     break
             }
 
@@ -348,17 +357,28 @@ class NetworkManager{
 
     async get(cid){
         try {
-            let content = [], decodedData = null
-            for await (const file of this.ipfs.get(cid)) {
-                if (!file.content) continue;
-                for await (const chunk of file.content) {
-                    content.push(chunk)
-                }
-            }
+            let content = [], result = null
+            for await (const parts of this.ipfs.get(cid))
+                content.push(parts)
             if (content.length > 0) {
-                decodedData = toString(content[0])
+                result = toString(content[0])
             }
-            return decodedData
+            return result
+        } catch (e) {
+            console.log('Got some error during data retrieving: %O', e)
+            return null
+        }
+    }
+
+    async cat(cid){
+        try {
+            let content = [], result = null
+            for await (const parts of this.ipfs.cat(cid))
+                content.push(parts)
+            if (content.length > 0) {
+                result = toString(content[0])
+            }
+            return result
         } catch (e) {
             console.log('Got some error during data retrieving: %O', e)
             return null
@@ -439,7 +459,7 @@ class NetworkManager{
         return files
     }
 
-    async cat(cid){
+    async catWithNS(cid){
         try {
             let ipfs_data_addr = "", content = [], decodedData = null
             //for await (const name of this.ipfs.name.resolve('/ipns/' + cid)) {

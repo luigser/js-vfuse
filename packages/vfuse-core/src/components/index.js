@@ -116,8 +116,8 @@ class VFuse {
         return await this.workflowManager.getPublishedWorkflows()
     }
 
-    async runLocalWorkflowCode(code){
-        return await this.workflowManager.runLocalWorkflowCode(code)
+    async checkWorkflow(code){
+        return await this.workflowManager.checkWorkflow(code)
     }
 
     async addJob(workflow, code, data, dependencies){

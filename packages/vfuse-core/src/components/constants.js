@@ -24,7 +24,12 @@ const Constants = {
             ACTIONS: {
                 DISCOVERY : 'discovery',
                 WORKFLOW : {
-                    EXECUTION_REQUEST : 'execution_request'
+                    EXECUTION_REQUEST : 'workflow_execution_request',
+                    EXECUTION_RESPONSE : 'workflow_execution_response'
+                },
+                JOB:{
+                    EXECUTION_REQUEST: 'job_execution_request',
+                    EXECUTION_RESPONSE: 'job_execution_response'
                 }
             }
         }
@@ -46,7 +51,9 @@ const Constants = {
     },
     TIMEOUTS:{
         DISCOVERY : 15000,
-        WORKFLOWS_PUBLISHING : 15000
+        WORKFLOWS_PUBLISHING : 15000,
+        JOBS_PUBLISHING : 15000,
+        RESULTS_PUBLISHING: 15000
     }
 }
 

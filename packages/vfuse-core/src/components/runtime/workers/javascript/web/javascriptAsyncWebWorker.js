@@ -115,13 +115,15 @@ const worker_code = () => {
                 break;
             case 'exec':
                 try {
-                    //debugger
                     //let F = new AsyncFunction('', '(async() => {' + job.code + '})()');
+                    if(!job.inline){
+                        job.code += 'return ' + job.name + "('" + job.data + "')"
+                    }
                     let F = new AsyncFunction('', job.code );
                     let results = await(F());
                     self.postMessage({
                         action: 'return',
-                        results
+                        results : results
                     });
                 } catch (err) {
                     console.log(err)

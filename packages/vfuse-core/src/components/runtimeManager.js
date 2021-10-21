@@ -43,7 +43,7 @@ class RuntimeManager{
     }
 
     async runLocalCode(code){
-        return await this.runtime.run({ code : code})
+        return await this.runtime.run({ code : code, inline : true})
     }
 
     async addJob(name, func, deps, input){

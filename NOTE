@@ -21,9 +21,9 @@ npm install ipfs-swarm-key-gen -g
 12D3KooWLGqTJsVQGMNrnLbRCGqPhHJrG9BLqA4xYLdWr3kCQfFq //SURFACE
 //REGULAR
 //Chrome
-12D3KooWAYHdPWZ9Qij8nii24N2wztff7uGdg8oDFxXgEmbzRPGZ
+12D3KooWCqThCDUMfW1YFoVhPksa5uxAYrnUq6gxd76Q67d6KFaW
 //Firefox
-12D3KooWHixWHCDH5SUUVxQx3hpBaMs2hE6QnZLzWfuQmPQkU8U6
+12D3KooWCkp3P9RSMLysvNdgiLhD27gfs3ZGE9hzJnmb48GrqdgE
 
 //Domande e note
 
@@ -98,30 +98,34 @@ let input = "Contrary to popular belief, Lorem Ipsum is not simply random text.\
         " Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero,\n" +
         " written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum," +
         "\"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32."
-
 function map(data){
    let tokens = []
-   data.split(/\W+/).map(word => token.push({ word : word , count : 1 }))
-   return token
+   data.split(/\W+/).map(word => tokens.push({ word : word , count : 1 }))
+   return tokens
 }
 
 function reduce(data){
    let reduced = new Map()
-   data.map( entry => reduced.set(entry.word, reduced.has(entry.word) ? entry.get(entry.word) + 1 : 1))
+   data.map( entry => reduced.set(entry.word, reduced.has(entry.word) ? reduced.get(entry.word) + 1 : 1))
    return reduced
 }
 
 function combine(data){
    let result = new Map()
-   data.map( entry => reduced.set(entry.word, result.has(entry.word) ? entry.get(entry.word) + 1 : 1))
+   for(let key of data.keys())
+      result.set(key, result.has(key) ? result.get(key) + 1 : 1))
    return result
 }
 
-let mapped = await Promise.all(input.split("\n").map(async row => await VFuse.addJob(map, row)))
-debugger
-let reduced = await Promise.all(mapped.map(async m => await VFuse.addJob(reduce, m, ['map'])))
-debugger
-let result = await VFuse.addJob(combine, reduced, ['reduce'])
+input = input.split("\n")
+let reduced_results = []
+for (let row in input){
+   let mapped = await VFuse.addJob(map, [], input[row])
+   let reduced = await VFuse.addJob(reduce, [mapped])
+   reduced_results.push(mapped)
+}
+let result = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine
+
 
 
 //TODO note
@@ -151,3 +155,7 @@ SUBMIT WORKFLOW DA CODICE PER LA SOTTOMISSINE DEL WORKFLOW NELLA RETE
 CHECK WORKFLOW PER OTTENERE INFO SULLO STATO DEL DAG ASSOCIATO
 
 TASK COMPUTATI DA MOLTI NODI PER GARANTIRE LA VALIDITà
+
+
+//TODO
+SE IL TAB NON è ATTIVO IL SISTEMA SI FERMA ... RISOLVERE CON WORKER O QALCOSA DEL GENERE
