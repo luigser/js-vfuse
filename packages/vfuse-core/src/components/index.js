@@ -108,8 +108,15 @@ class VFuse {
        return await this.workflowManager.saveWorkflow(name, id, code, language)
     }
 
+    async deleteWorkflow(workflow_id){
+        return await this.workflowManager.deleteWorkflow(workflow_id)
+    }
+
     async publishWorkflow(workflow_id){
         return await this.workflowManager.publishWorkflow(workflow_id)
+    }
+    async unpublishWorkflow(workflow_id){
+        return await this.workflowManager.unpublishWorkflow(workflow_id)
     }
 
     async getPublishedWorkflows(){

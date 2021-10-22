@@ -17,19 +17,20 @@ import 'prismjs/themes/prism-funky.css'*/
 const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
     "function map(data){\n" +
     "   let tokens = []\n" +
-    "   data.split(/\\W+/).map(word => token.push({ word : word , count : 1 }))\n" +
-    "   return token\n" +
+    "   data.split(/\\W+/).map(word => tokens.push({ word : word , count : 1 }))\n" +
+    "   return tokens\n" +
     "}\n" +
     "\n" +
     "function reduce(data){\n" +
     "   let reduced = new Map()\n" +
-    "   data.map( entry => reduced.set(entry.word, reduced.has(entry.word) ? entry.get(entry.word) + 1 : 1))\n" +
+    "   data.map( entry => reduced.set(entry.word, reduced.has(entry.word) ? reduced.get(entry.word) + 1 : 1))\n" +
     "   return reduced\n" +
     "}\n" +
     "\n" +
     "function combine(data){\n" +
     "   let result = new Map()\n" +
-    "   data.map( entry => reduced.set(entry.word, result.has(entry.word) ? entry.get(entry.word) + 1 : 1))\n" +
+    "   for(let key of data.keys())\n" +
+    "      result.set(key, result.has(key) ? result.get(key) + 1 : 1)\n" +
     "   return result\n" +
     "}\n" +
     "\n" +
@@ -40,7 +41,7 @@ const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
     "   let reduced = await VFuse.addJob(reduce, [mapped])\n" +
     "   reduced_results.push(mapped)\n" +
     "}\n" +
-    "let result = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and cal combine\n"
+    "let result = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine"
 
 const pythonCodeExample = `import numpy as np 
 a = [[2, 0], [0, 2]]
@@ -53,6 +54,7 @@ export default function NotebookPage(props){
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
     const [runLocalLoading, setRunLocalLoading] = useState(false)
     const [publishNetworkLoading, setPublishNetworkLoading] = useState(false)
+    const [unpublishNetworkLoading, setUnpublishNetworkLoading] = useState(false)
     const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(false)
     const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : null)
     const [code, setCode] = useState(javascriptCodeExample);
@@ -109,9 +111,40 @@ export default function NotebookPage(props){
     }
 
     const publishWorkflow = async () => {
-        setPublishNetworkLoading(true)
-        await vFuseNode.publishWorkflow(workflowId)
-        setPublishNetworkLoading(false)
+        try {
+            setPublishNetworkLoading(true)
+            let result = await vFuseNode.publishWorkflow(workflowId)
+            if(!result.error){
+                notification.info({
+                    message : "Info",
+                    description : 'Your workflow was successfully published'
+                });
+            }else{
+                notification.error({
+                    message : "Something went wrong",
+                    description : result.error.toString()
+                });
+            }
+            setPublishNetworkLoading(false)
+        }catch (e) {
+        }
+    }
+
+    const unpublishWorkflow = async () => {
+        setUnpublishNetworkLoading(true)
+        let result = await vFuseNode.unpublishWorkflow(workflowId)
+        if(!result.error){
+            notification.info({
+                message : "Info",
+                description : 'Your workflow was successfully unpublished'
+            });
+        }else{
+            notification.error({
+                message : "Something went wrong",
+                description : result.error.toString()
+            });
+        }
+        setUnpublishNetworkLoading(false)
     }
 
     const onChaneName = (e) => setName(e.target.value)
@@ -163,7 +196,7 @@ export default function NotebookPage(props){
                             <Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,
                             <Button key="2" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save</Button>,
                             <Button key="1" type="danger" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
-                            <Button key="1" type="danger" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Stop</Button>,
+                            <Button key="1" type="danger" disabled={!vFuseNode && !workflowId} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
                         ]}
                         avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
                         /*breadcrumb={{ routes }}*/

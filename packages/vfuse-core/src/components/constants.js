@@ -11,10 +11,10 @@ const Constants = {
         COMPLETED: 2,//results are available
         ERROR: 3,//something wrong during the execution
         COLORS:{
-            WAITING : '#DB4437',
+            WAITING : '#F4B400',
             READY: '#0F9D58',
             COMPLETED: '#4285F4',
-            ERROR: '#F4B400'
+            ERROR: '#DB4437'
         }
     },
     WORKFLOW : {

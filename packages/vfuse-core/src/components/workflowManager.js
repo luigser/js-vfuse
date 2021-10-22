@@ -36,11 +36,20 @@ class WorkflowManager{
             this.executionQueue =  []
 
             this.eventManager.addListener('profile.ready', async function(){await this.startWorkspace()}.bind(this))
-            if(isBrowser)
-               this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function(data){await this.executeWorkflow(data)}.bind(this))
-               this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, async function(data){await this.executeJob(data)}.bind(this))
-               this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function(data){await this.manageResults(data)}.bind(this))
-               this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, async function(data){await this.dropResults(data)}.bind(this))
+            if(isBrowser) {//TODO implement nodejs worker
+                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
+                    await this.executeWorkflow(data)
+                }.bind(this))
+                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, async function (data) {
+                    await this.executeJob(data)
+                }.bind(this))
+                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
+                    await this.manageResults(data)
+                }.bind(this))
+                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, async function (data) {
+                    await this.dropResults(data)
+                }.bind(this))
+            }
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
         }
@@ -307,26 +316,51 @@ class WorkflowManager{
         }
     }
 
+    async deleteWorkflow(workflow_id){
+        try{
+            await this.contentManager.delete('/workflows/'  + workflow_id + '.json')
+            await this.identityManager.deleteWorkflow(workflow_id)
+            this.workflows.splice(this.workflows.indexOf(this.getWorkflow(workflow_id)), 1);
+            //TODO UNPINNING
+            let filtered = this.publishedWorkflows.filter(pw => pw.id === workflow_id)
+            if(filtered.length === 0) await this.unpublishWorkflow(filtered[0])
+            console.log('Workflow successfully removed: %O')
+            return true
+        }catch (e){
+            log('Got some error during the workflow saving: %O', e)
+            return { error : e}
+        }
+    }
+
     async publishWorkflow(workflow_id){
         try{
-            //let workflow = this.getWorkflow(workflow_id)
-            //if(workflow){
-                /*let workflow_file = '/workflows/' + workflow.id + '.json'
-                let stat = await this.contentManager.stat(workflow_file)*/
-                let new_key = await this.contentManager.getKey(workflow_id)
-                let cid = this.identityManager.getWorkflowCid(workflow_id)
-                let name = await this.contentManager.publish(cid, new_key.name)//todo resolve
-                await this.identityManager.addPublishedWorkflow(workflow_id, name, cid)
-                this.publishedWorkflows = this.identityManager.publishedWorkflows
-                console.log('Workflow successfully published: %s', name)
-            /*}else{
-                throw 'Workflow ID do no exist. You need to save in your profile before publish it!'
-            }*/
-
+            let new_key = await this.contentManager.getKey(workflow_id)
+            let cid = this.identityManager.getWorkflowCid(workflow_id)
+            let name = await this.contentManager.publish(cid, new_key.name)//todo resolve
+            await this.identityManager.addPublishedWorkflow(workflow_id, name, cid)
+            this.publishedWorkflows = this.identityManager.publishedWorkflows
+            console.log('Workflow successfully published: %s', name)
             return true
-
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)
+            return { error : e}
+        }
+    }
+
+    async unpublishWorkflow(workflow_id){
+        try{
+            let filtered = this.publishedWorkflows.filter(pw => pw.id === workflow_id)
+            if(filtered.length === 1) {
+                await this.identityManager.unpublishWorkflow(filtered[0])
+                this.publishedWorkflows = this.identityManager.publishedWorkflows
+                console.log('Workflow successfully unpublished')
+                return true
+            }else{
+                return { error : 'There are not published workflows for given ID'}
+            }
+        }catch (e){
+            console.log('Got some error during the profile publishing: %O', e)
+            return { error : e}
         }
     }
 
@@ -348,11 +382,6 @@ class WorkflowManager{
             return null
         }
     }
-
-    /*async getJobs(workflow){
-        let jobs = await this.contentManager.ls(workflow)
-        console.log(jobs)
-    }*/
 }
 
 module.exports = WorkflowManager

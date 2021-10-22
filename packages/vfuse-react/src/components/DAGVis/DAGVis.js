@@ -89,7 +89,23 @@ export default function DAGVis(props) {
     const events = {
         select: function(event) {
             let { nodes, edges } = event;
-            //console.log(event)
+            let node = graph.nodes.filter(n => n.id === nodes[0])
+            if(node.length === 1 && node[0].job) {
+                node = node[0]
+                let status
+                switch (node.job.status) {
+                    case 2:
+                        status = 'COMPLETED'
+                        break
+                    case 1:
+                        status = 'READY'
+                        break
+                    case 0:
+                        status = 'WAITING'
+                        break
+                }
+                console.info("NAME : %s\nSTATUS : %s\nID : %s\nDATA : %O\nRESULTS: %O", node.label, status,  node.id, node.job.data, node.job.results)
+            }
 
         }
     };

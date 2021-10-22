@@ -15,7 +15,7 @@ class Job{
         this.status = Constants.JOB_SATUS.WAITING
         this.name = name
         this.code = code
-        this.data = data
+        this.data = !data ? [] : data
         this.dependencies = dependencies
         this.results = []
     }

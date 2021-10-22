@@ -97,6 +97,21 @@ class IdentityManager {
         }
     }
 
+    async deleteWorkflow(wid){
+        try{
+            let filtered = this.workflows.filter(w => w.id === wid)
+            let workflow = filtered.length > 0 ? filtered[0] : null
+            if(workflow){
+                this.workflows.splice(this.workflows.indexOf(workflow), 1);
+            }
+            await this.updateProfile()
+
+        }catch (e) {
+            console.log('Error during workflow deletion from profile : %O', e)
+        }
+
+    }
+
     getWorkflowCid(wid){
         let filtered = this.workflows.filter(w => w.id === wid)
         let workflow = filtered.length > 0 ? filtered[0] : null
@@ -115,6 +130,17 @@ class IdentityManager {
             await this.updateProfile()
         }catch (e) {
             console.log('Got error during add published workflow operation : %O', e)
+        }
+    }
+
+    async unpublishWorkflow(published_workflow){
+        try{
+            this.publishedWorkflows.splice(this.publishedWorkflows.indexOf(published_workflow), 1);
+            await this.updateProfile()
+            return true
+        }catch (e) {
+            console.log('Got error during unpublish workflow operation : %O', e)
+            return false
         }
     }
 

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification} from "antd";
+import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification, Divider} from "antd";
 import VFuse from "vfuse-core";
 
 import {useVFuse} from "../hooks/useVFuse"
@@ -117,6 +117,24 @@ export default function ProfilePage(props){
         }
     }
 
+    const removeWorkflow = async (wid) => {
+        try {
+            let result = await vFuseNode.deleteWorkflow(wid)
+            if(!result.error){
+                setWorkflows(vFuseNode.getWorkflows())
+                notification.info({
+                    message : "Info",
+                    description : 'Workflow removed'
+                });
+            }
+        }catch(e){
+            notification.error({
+                message : "Something went wrong",
+                description : e.message
+            });
+        }
+    }
+
     const columns = [
         {
             title : "Name",
@@ -133,7 +151,11 @@ export default function ProfilePage(props){
             title : "Action",
             dataIndex: "action",
             key: "action",
-            render: (text, record, index) => <Button type="primary" onClick={() =>  props.history.replace({pathname: '/notebook', params: {workflowId : record.id} })}>Open</Button>
+            render: (text, record, index) => <>
+                <Button type="primary" onClick={() =>  props.history.replace({pathname: '/notebook', params: {workflowId : record.id} })}>Open</Button>
+                <Divider type="vertical" />
+                <Button type="danger" onClick={() => removeWorkflow(record.id) }>Remove</Button>
+            </>
         }
     ]
 

@@ -585,7 +585,7 @@ class NetworkManager{
     async pinFileInMFS(path){
         try{
             let stat = await this.stat(path)
-            console.log({stat})
+            //console.log({stat})
             let pinning_result = await this.pin(stat.cid.toString())
             return pinning_result
         }catch (e) {

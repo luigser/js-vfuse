@@ -83,6 +83,13 @@ const worker_code = () => {
         }
     }
 
+    const convert = (results) => {
+        if(results instanceof Map)
+            return Array.from(results, ([key, value]) => ({ key, value }))
+        else
+            return results
+    }
+
     const onmessage = async function (e) {
         const {action, job, packages} = e.data;
 
@@ -116,21 +123,27 @@ const worker_code = () => {
             case 'exec':
                 try {
                     //let F = new AsyncFunction('', '(async() => {' + job.code + '})()');
-                    debugger
                     if(!job.inline){
                         //job.code += 'return ' + job.name + "(" + job.data + ")"
-                        let input = JSON.stringify(job.data)
-                        job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
-                            'return ' + job.name + "(input)"
+                        if(typeof job.data !== 'string') {
+                            let input = JSON.stringify(job.data)
+                            job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
+                                'return ' + job.name + "(input)"
+                        }else{
+                            job.code += '\nreturn ' + job.name + "('" + job.data + "')"
+                        }
+                        //console.log('code : %s', job.code)
                     }
                     let F = new AsyncFunction('', job.code );
                     let results = await(F());
+                    /*console.log(results)
+                    console.log('**********************************\n\n')*/
                     self.postMessage({
                         action: 'return',
-                        results : results
+                        results : convert(results)
                     });
                 } catch (err) {
-                    console.log(err)
+                    //console.log(err)
                     self.postMessage({
                         action: 'return',
                         results: {error: err}

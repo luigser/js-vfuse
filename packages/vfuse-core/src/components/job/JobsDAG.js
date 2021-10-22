@@ -1,5 +1,6 @@
 const _ = require('underscore')
 const PeerId = require('peer-id')
+const ResultsUtils = require('../../utils/resultsUtils')
 const Constants = require("../constants");
 
 class JobsDAGVertex{
@@ -19,46 +20,31 @@ class JobsDAG {
     static setNodeState = (JSONJobDAG, node, state, data) => {
         switch(state){
             case Constants.JOB_SATUS.COMPLETED:
-                node.job.status = Constants.JOB_SATUS.COMPLETED
-                node.color = Constants.JOB_SATUS.COLORS.COMPLETED
-                node.job.results.push(data.cid)
-                //TODO per i vertici label verificare che tutti i nodi dipendenti abbiamo un risultato
-                let results = [], isReady = true
-                for(let n of JSONJobDAG.nodes){
-                    if(n.job){
-                        for(let dependency of node.job.dependencies){
-                            let isJobId = false
-                            try {
-                                PeerId.createFromB58String(dependency)
-                                isJobId = true
-                            }catch (e){}
-                            if(isJobId) {
-                                n.job.status = Constants.JOB_SATUS.READY
-                                n.color = Constants.JOB_SATUS.COLORS.READY
-                                results = [...results, ...data.results]
-                            }else{
-                                let dep_nodes = JSONJobDAG.nodes.filter(n => n.label === dependency)
-                                for(let d of dep_nodes){
-                                    if(d.job.result.length === 0) isReady = false
-                                    else results = [...results, ...d.job.result]
-                                }
-                                if(isReady){
-                                    n.job.status = Constants.JOB_SATUS.READY
-                                    n.color = Constants.JOB_SATUS.COLORS.READY
-                                    n.job.data = results
-                                }
-                            }
-                        }
-                    }
+                if(data.results.error){
+                    node.job.status = Constants.JOB_SATUS.ERROR
+                    node.color = Constants.JOB_SATUS.COLORS.ERROR
+                    node.job.results = data.results
+                    return
                 }
 
-                /*for(let n of JSONJobDAG.nodes){
-                    if(n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.indexOf(node.label) >= 0)){
-                        n.job.status = Constants.JOB_SATUS.READY
-                        n.color = Constants.JOB_SATUS.COLORS.READY
-                        n.job.data = data.results
+                node.job.status = Constants.JOB_SATUS.COMPLETED
+                node.color = Constants.JOB_SATUS.COLORS.COMPLETED
+                node.job.results = ResultsUtils.combine(node.job.results, data.results)
+                let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.indexOf(node.job.name) >= 0))
+                for(let dependent_node of dependent_nodes){
+                    dependent_node.job.data = ResultsUtils.combine(dependent_node.job.data, node.job.results)
+                    let isReady = true
+                    for(let dep of dependent_node.job.dependencies){
+                        let dns = JSONJobDAG.nodes.filter(nd => nd.id === dep || nd.label === dep)
+                        for(let nx of dns) {
+                            if (nx.job.results.length === 0) isReady = false
+                        }
                     }
-                }*/
+                    if(isReady){
+                        dependent_node.job.status = Constants.JOB_SATUS.READY
+                        dependent_node.color = Constants.JOB_SATUS.COLORS.READY
+                    }
+                }
                 break
         }
     }
