@@ -24,7 +24,7 @@ export default function NodeModal(props) {
     };
 
     return (
-        <Modal title="VFuse" visible={isModalVisible} onOk={handleOk} cancelButtonProps={{ style: { display: 'none' } }} closable={false} width={'80vW'}>
+        <Modal title="Workflow Jobs DAG Node" visible={isModalVisible} onOk={handleOk} cancelButtonProps={{ style: { display: 'none' } }} closable={false} width={'80vW'}>
                 { node &&
                 <Descriptions layout="horizontal" bordered extra={[
                 ]}>

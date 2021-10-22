@@ -51,7 +51,7 @@ export default function VFuseCodeEditor(props) {
                             enableLiveAutocompletion: true,
                             enableSnippets: true
                         }}
-                        style={{width: "100%"}}
+                        style={{width: "100%", height:"50vh"}}
                     />
                 </Col>
             </Row>

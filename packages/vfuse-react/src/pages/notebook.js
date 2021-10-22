@@ -207,7 +207,7 @@ export default function NotebookPage(props){
                         ]}
                         extra={[
                             /*<Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,*/
-                            <Button key="2" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save</Button>,
+                            <Button key="2" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Build & Save</Button>,
                             <Button key="1" type="primary" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
                             <Button key="1" danger disabled={!vFuseNode && !workflowId} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
                         ]}
@@ -287,11 +287,6 @@ export default function NotebookPage(props){
                     <Tabs.TabPane tab="Jobs DAG" key="2">
                         <Col span={24} style={{height: "50vh"}}>
                            <DAGVis jobsDAG={dag} />
-                        </Col>
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="Running status" key="3">
-                        <Col span={24} style={{height: "50vh"}}>
-
                         </Col>
                     </Tabs.TabPane>
                 </Tabs>
