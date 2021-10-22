@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import Graph from "react-graph-vis";
+import NodeModal from "../modals/nodeModal";
 
 export default function DAGVis(props) {
 
     const [graph, setGraph] = useState(props.jobsDAG)
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [currentNode, setCurrentNode] = useState(null)
 
     useEffect(() => {
         try {
@@ -31,7 +34,7 @@ export default function DAGVis(props) {
             }
         },
         nodes: {
-            physics: true,
+            physics: false,
             shape: "box",
             font: {
                 //face: "Circular, Futura",
@@ -47,7 +50,7 @@ export default function DAGVis(props) {
                 left: 10,
                 right: 10
             },
-            mass: 1
+            mass: 0.5
         },
         edges: {
             width: 2,
@@ -92,6 +95,8 @@ export default function DAGVis(props) {
             let node = graph.nodes.filter(n => n.id === nodes[0])
             if(node.length === 1 && node[0].job) {
                 node = node[0]
+                setCurrentNode(node)
+                setIsModalVisible(true)
                 let status
                 switch (node.job.status) {
                     case 2:
@@ -122,6 +127,7 @@ export default function DAGVis(props) {
                     }}
                 />
             }
+            <NodeModal setVisible={setIsModalVisible} node={currentNode} isVisible={isModalVisible}/>
         </>
     )
 

@@ -132,8 +132,9 @@ class VFuse {
         await this.workflowManager.addJob(workflow, code, data, dependencies)
     }
 
-    registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){
+    registerCallbacks(discoveryCallback, updateWorkflowCallback, connectionCallback, getMessageFromProtocolCallback){
         this.networkManager.registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback)
+        this.workflowManager.registerCallback(updateWorkflowCallback)
     }
 
     async stop(){

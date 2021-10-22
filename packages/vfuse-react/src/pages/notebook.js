@@ -63,6 +63,7 @@ export default function NotebookPage(props){
     const [profile, setProfile] = useState(null)
     const [dag, setDag] = useState(null)
     const [fontSize, setFontSize] = useState(14)
+    const [isPublished, setIsPublished] = useState(false)
 
 
     useEffect(() => {
@@ -74,15 +75,24 @@ export default function NotebookPage(props){
             setPublishNetworkLoading(false)
             setSaveWorkflowLoading(false)
             setProfile(node.getProfile())
+            node.registerCallbacks(null, updateWorkflowCallback)
 
             if(workflowId){
                 let workflow = node.getWorkflow(workflowId)
                 setName(workflow.name)
                 setCode(workflow.code)
                 setDag(workflow.jobsDAG)
+                let profile = node.getProfile()
+                setIsPublished( profile.publishedWorkflows.filter( w => w.id === workflowId).length > 0)
             }
         }
     },[])
+
+    const updateWorkflowCallback = (workflow) => {
+        let dag = workflow.jobsDAG
+        setDag({nodes : [], edges : []})
+        setDag(dag)
+    }
 
     const saveWorkflow = async () => {
         if(!name){
@@ -115,6 +125,7 @@ export default function NotebookPage(props){
             setPublishNetworkLoading(true)
             let result = await vFuseNode.publishWorkflow(workflowId)
             if(!result.error){
+                setIsPublished(true)
                 notification.info({
                     message : "Info",
                     description : 'Your workflow was successfully published'
@@ -134,6 +145,7 @@ export default function NotebookPage(props){
         setUnpublishNetworkLoading(true)
         let result = await vFuseNode.unpublishWorkflow(workflowId)
         if(!result.error){
+            setIsPublished(false)
             notification.info({
                 message : "Info",
                 description : 'Your workflow was successfully unpublished'
@@ -191,12 +203,13 @@ export default function NotebookPage(props){
                             status === VFuse.Constants.NODE_STATE.STOP && <Tag color="red">Stopped</Tag>,
                             status === VFuse.Constants.NODE_STATE.INITIALIZING && <Tag color="blue">Initializing</Tag>,
                             status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
+                            isPublished ? <Tag color="#0F9D58">Current workflow is Published</Tag> : <Tag color="#DB4437">Current workflow is not Published</Tag>
                         ]}
                         extra={[
-                            <Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,
+                            /*<Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,*/
                             <Button key="2" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save</Button>,
-                            <Button key="1" type="danger" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
-                            <Button key="1" type="danger" disabled={!vFuseNode && !workflowId} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
+                            <Button key="1" type="primary" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
+                            <Button key="1" danger disabled={!vFuseNode && !workflowId} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
                         ]}
                         avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
                         /*breadcrumb={{ routes }}*/

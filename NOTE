@@ -110,7 +110,7 @@ function reduce(data){
 function combine(data){
    let result = new Map()
    for(let d of data)
-      result.set(d.name, result.has(d.name) ? result.get(d.name) + d.value : d.value)
+      result.set(d.key, result.has(d.key) ? result.get(d.key) + d.value : d.value)
    return result
 }
 

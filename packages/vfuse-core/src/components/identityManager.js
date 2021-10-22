@@ -47,7 +47,8 @@ class IdentityManager {
     getCurrentProfile(){
         return {
             id: this.id,
-            rewards : this.rewards
+            rewards : this.rewards,
+            publishedWorkflows: this.publishedWorkflows
         }
     }
 

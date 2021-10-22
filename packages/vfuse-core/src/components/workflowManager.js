@@ -35,6 +35,8 @@ class WorkflowManager{
             this.workflowsQueue = []
             this.executionQueue =  []
 
+            this.updateWorkflowCallback = null
+
             this.eventManager.addListener('profile.ready', async function(){await this.startWorkspace()}.bind(this))
             if(isBrowser) {//TODO implement nodejs worker
                 this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
@@ -53,6 +55,10 @@ class WorkflowManager{
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
         }
+    }
+
+    registerCallback(updateWorkflowCallback){
+        this.updateWorkflowCallback = updateWorkflowCallback
     }
 
     async start(){
@@ -94,6 +100,7 @@ class WorkflowManager{
             setInterval(async function(){
                 for(let pwf of this.publishedWorkflows){
                     let workflow = this.getWorkflow(pwf.id)
+                    if(!workflow) continue
                     for(let node of workflow.jobsDAG.nodes){
                         if(!node.job || node.job.status !== Constants.JOB_SATUS.READY) continue
                         await this.contentManager.sendOnTopic({
@@ -216,6 +223,7 @@ class WorkflowManager{
                     if (job_node[0].job.results.length < 1) {//Num of replica for job results, just one for test
                         JobsDAG.setNodeState(workflow.jobsDAG, job_node[0], Constants.JOB_SATUS.COMPLETED, data)
                         await this.updatePublishedWorkflow(workflow)
+                        if(this.updateWorkflowCallback) this.updateWorkflowCallback(workflow)
                     } else {
                         await this.contentManager.sendOnTopic({
                             action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,

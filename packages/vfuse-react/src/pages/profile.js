@@ -32,6 +32,7 @@ export default function ProfilePage(props){
                 setProfile(profile)
                 setProfileId(profile?.id)
                 setWorkflows(workflows)
+                setPublishedWorkflows(profile.publishedWorkflows)
                 setStatus(VFuse.Constants.NODE_STATE.RUNNING)
             }
         }catch(e){
@@ -65,8 +66,7 @@ export default function ProfilePage(props){
 
             node.eventManager.addListener('VFuse.ready', async function(data){
                 if(data.status){
-                    let publishedWorkflows = await node.getPublishedWorkflows();
-                    setPublishedWorkflows(publishedWorkflows)
+                    setPublishedWorkflows(data.profile.publishedWorkflows)
                     setProfileId(data.profile.id)
                     setProfile(data.profile)
                     setWorkflows(data.workflows)
