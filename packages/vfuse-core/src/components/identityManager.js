@@ -65,6 +65,9 @@ class IdentityManager {
                     rewards: 10.00
                 }
                 await this.contentManager.makeDir('/workflows')
+                await this.contentManager.makeDir('/workflows/published')
+                await this.contentManager.makeDir('/workflows/running')
+                await this.contentManager.makeDir('/workflows/completed')
                 await this.contentManager.makeDir('/results')
                 await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile)/*new TextEncoder().encode(JSON.stringify(new_profile))*/,
                     {create : true, parents: true, mode: parseInt('0775', 8), pin : true})

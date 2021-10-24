@@ -49,6 +49,21 @@ class JobsDAG {
         }
     }
 
+    static compare(dag1, dag2){
+        let dag1_ready_nodes = JobsDAG.getReadyNodes(dag1)
+        let dag2_ready_nodes = JobsDAG.getReadyNodes(dag1)
+        if(dag1_ready_nodes.length === dag2_ready_nodes.length){
+            for(let i=0; i < dag1_ready_nodes.length; i++) {
+                if (dag1_ready_nodes[i].id !== dag2_ready_nodes[i]) return 3
+            }
+        }else if(dag1_ready_nodes.length > dag2_ready_nodes.length)
+            return 1
+        else if(dag1_ready_nodes.length < dag2_ready_nodes.length)
+           return 2
+        return 0
+
+    }
+
     constructor() {
         this.edges = new Map();
         this.vertices = new Map()

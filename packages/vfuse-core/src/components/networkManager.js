@@ -558,6 +558,7 @@ class NetworkManager{
             return decodedData
         }catch (e) {
             console.log('Got some error during write: %O', e)
+            return null
         }
     }
 
