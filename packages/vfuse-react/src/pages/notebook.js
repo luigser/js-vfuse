@@ -67,25 +67,30 @@ export default function NotebookPage(props){
 
 
     useEffect(() => {
-        let node = gStore.get("vFuseNode")
-        if(node){
-            setVFuseNode(node)
-            setStatus(VFuse.Constants.NODE_STATE.RUNNING)
-            setRunLocalLoading(false)
-            setPublishNetworkLoading(false)
-            setSaveWorkflowLoading(false)
-            setProfile(node.getProfile())
-            node.registerCallbacks(null, updateWorkflowCallback)
+        const init = async() =>
+        {
+            let node = gStore.get("vFuseNode")
+            if (node) {
+                setVFuseNode(node)
+                setStatus(VFuse.Constants.NODE_STATE.RUNNING)
+                setRunLocalLoading(false)
+                setPublishNetworkLoading(false)
+                setSaveWorkflowLoading(false)
+                setProfile(node.getProfile())
+                node.registerCallbacks(null, updateWorkflowCallback)
 
-            if(workflowId){
-                let workflow = node.getWorkflow(workflowId)
-                setName(workflow.name)
-                setCode(workflow.code)
-                setDag(workflow.jobsDAG)
-                let profile = node.getProfile()
-                setIsPublished( profile.publishedWorkflows.filter( w => w.id === workflowId).length > 0)
+                if (workflowId) {
+                    let workflow = await node.getWorkflow(workflowId)
+                    setName(workflow.name)
+                    setCode(workflow.code)
+                    setDag(workflow.jobsDAG)
+                    let profile = node.getProfile()
+                    setIsPublished(profile.publishedWorkflows.filter(w => w.id === workflowId).length > 0)
+                }
             }
         }
+
+        init()
     },[])
 
     const updateWorkflowCallback = (workflow) => {

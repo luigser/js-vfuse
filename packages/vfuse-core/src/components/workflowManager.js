@@ -156,25 +156,28 @@ class WorkflowManager{
     async handleRequestExecutionWorkflow(data){
         try{
             if(!data.workflow_id && !data.cid) return
-            let override = true, decoded_workflow
+            let override = true, decoded_workflow, running_workflow, encoded_workflow, decoded_running_workflow
+
+            encoded_workflow = await this.contentManager.getFromNetwork(data.cid.toString())
+            decoded_workflow = JSON.parse(encoded_workflow)
+
             let saved_workflow = await this.contentManager.get('/workflows/published/' + data.workflow_id + '.json')
             if(saved_workflow){//I already have this workflow in published queue
                 //check if the received workflow is more up to date
-                let encoded_workflow = await this.contentManager.getFromNetwork(data.cid.toString())
-                decoded_workflow = JSON.parse(encoded_workflow)
-                let running_workflow = await this.contentManager.get('/workflows/running/' + data.workflow_id + '.json')
-                let decoded_running_workflow = JSON.parse(running_workflow)
-                /* todo pensare ad un meccanismo migliore poichè può accedere che i job ready siano numericamente
-                    uguali ma che si rifericano a job diversi e questo può innescare potenzialmente un loop
-                    - si potrebbero confrontare due DAG
+                running_workflow = await this.contentManager.get('/workflows/running/' + data.workflow_id + '.json')
+                decoded_running_workflow = JSON.parse(running_workflow)
+                /* TODO - trovare una strategia per non perdere l'esecuzione di jobs
                 */
                 let compare = JobsDAG.compare(decoded_running_workflow.jobsDAG, decoded_workflow.jobsDAG)
                 if(compare === 1 || compare === 3)
                     override = false
             }
-            if(override)
-                await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(decoded_workflow),
-                    {create : true, parents: true, mode: parseInt('0775', 8), truncate: true})
+            if(override) {
+                await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(data),
+                    {create: true, parents: true, mode: parseInt('0775', 8), truncate: true})
+                await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', JSON.stringify(decoded_workflow),
+                    {create: true, parents: true, mode: parseInt('0775', 8), truncate: true})
+            }
             await this.manageWorkflowsExecution()
         }catch (e) {
             console.log('Error during workflow execution : %O', e)
@@ -194,8 +197,12 @@ class WorkflowManager{
                 let results = await this.runJob(node.job)
                 if(results){
                     JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_SATUS.COMPLETED, results)
-                    await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow),
+                    let cid = await this.contentManager.save('/workflows/running/' + workflow.id + '.json',
+                        JSON.stringify(workflow),
                         {create : true, parents: true, mode: parseInt('0775', 8), truncate: true})
+                    await this.contentManager.save('/workflows/published/' + workflow.id + '.json',
+                        JSON.stringify({workflow_id : workflow.id, cid : cid}),
+                        {create: true, parents: true, mode: parseInt('0775', 8), truncate: true})
                 }
             }
         }catch (e) {
@@ -276,12 +283,18 @@ class WorkflowManager{
         return this.identityManager.publishedWorkflows
     }
 
-    getWorkflow(workflowId){
+    async getWorkflow(workflowId){
         try {
             let workflow = this.workflows.filter(w => w.id === workflowId)
-            if (workflow && workflow.length === 1) {
-                this.currentWorkflow = workflow[0]
-                return workflow[0]
+            if (workflow.length === 1) {
+                workflow = workflow[0]
+                let filtered = this.publishedWorkflows.filter(w => w.id === workflow.id)
+                if(filtered.length === 1){
+                    let result_workflow = await this.contentManager.getFromNetwork(filtered[0].cid)
+                    workflow = JSON.parse(result_workflow)
+                }
+                this.currentWorkflow = workflow
+                return workflow
             }
             /*else
                 throw 'Selected workflow do not exists'*/
@@ -367,10 +380,10 @@ class WorkflowManager{
             //let new_key = await this.contentManager.getKey(workflow_id)
             let cid = this.identityManager.getWorkflowCid(workflow_id)
             let name //= await this.contentManager.publish(cid, new_key.name)//todo resolve
-            await this.identityManager.addPublishedWorkflow(workflow_id, name, cid)
-            this.publishedWorkflows = this.identityManager.publishedWorkflows
             await this.contentManager.save('/workflows/published/' + workflow_id + '.json', JSON.stringify({workflow_id : workflow_id, cid : cid}),
                 {create : true, parents: true, mode: parseInt('0775', 8), truncate: true, pin : true})
+            await this.identityManager.addPublishedWorkflow(workflow_id, name, cid)
+            this.publishedWorkflows = this.identityManager.publishedWorkflows
             console.log('Workflow successfully published: %s', name)
             return true
         }catch (e){

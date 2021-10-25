@@ -100,8 +100,8 @@ class VFuse {
         return this.workflowManager.getCurrentWorkflows()
     }
 
-    getWorkflow(id){
-        return this.workflowManager.getWorkflow(id)
+    async getWorkflow(id){
+        return await this.workflowManager.getWorkflow(id)
     }
 
     async saveWorkflow(name, id, code, language){

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Descriptions, Modal, Tag} from 'antd'
+import ReactJson from 'react-json-view'
 
 export default function NodeModal(props) {
 
@@ -41,10 +42,15 @@ export default function NodeModal(props) {
                             {node.job.status === 3 && <Tag color="#DB4437">ERROR</Tag>}
                         </Descriptions.Item >
                     <Descriptions.Item label="Data" span={4}>
-                        <b>{JSON.stringify(node.job.data)}</b>
+                        {
+                            typeof node.job.data === 'string' && <i>{node.job.data}</i>
+                        }
+                        {
+                            typeof node.job.data !== 'string' && <ReactJson src={node.job.data} collapsed={true}/>
+                        }
                     </Descriptions.Item >
                     <Descriptions.Item label="Results" span={4}>
-                        <b>{JSON.stringify(node.job.results)}</b>
+                        <ReactJson src={node.job.results} collapsed={true} />
                     </Descriptions.Item >
                 </Descriptions>
                 }
