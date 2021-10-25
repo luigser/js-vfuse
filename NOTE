@@ -23,7 +23,7 @@ npm install ipfs-swarm-key-gen -g
 //Chrome
 12D3KooWAFC525pEtNwBxSiunRainuwPyLvYyU5BKzX3HG4RPrHE
 //Firefox
-12D3KooWDDnwGGZcq6LzayYkjAYD5BUvU29h9QVVvFTKkgisssQE
+12D3KooWEJpJXYYtY8u32SmKYjnrSghPaMTSHRFt9BoaNpEnHHe7
 
 //Domande e note
 
@@ -182,3 +182,6 @@ POSSIBILE SOLUZIONE
     - eseguo i jobs READY ma prima recupero l'input dal CID
     - aggiorno il workflow selezinato
     - pubblico il workflow aggiornato
+
+// TODO
+verificare che il gossip sia ricevuto anche quando i nodi si disconnottono

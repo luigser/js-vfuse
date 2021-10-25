@@ -124,7 +124,7 @@ class WorkflowManager{
                     let decoded_workflow = JSON.parse(encoded_workflow)
                     await this.contentManager.sendOnTopic({
                         action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
-                        payload: {workflow: decoded_workflow}
+                        payload: decoded_workflow
                     })
                 }
             }.bind(this), Constants.TIMEOUTS.WORKFLOWS_PUBLISHING)
