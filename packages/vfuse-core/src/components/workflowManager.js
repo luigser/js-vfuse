@@ -42,7 +42,7 @@ class WorkflowManager{
                 this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
                     await this.handleRequestExecutionWorkflow(data)
                 }.bind(this))
-                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, async function (data) {
+                /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, async function (data) {
                     await this.executeJob(data)
                 }.bind(this))
                 this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
@@ -50,7 +50,7 @@ class WorkflowManager{
                 }.bind(this))
                 this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, async function (data) {
                     await this.dropResults(data)
-                }.bind(this))
+                }.bind(this))*/
             }
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
@@ -74,9 +74,9 @@ class WorkflowManager{
     async startWorkspace(){
         try{
             //Get workflows
-            let workflows = await this.contentManager.list('/workflows')
+            let workflows = await this.contentManager.list('/workflows/private')
             for (let w in workflows){
-                let workflow = await this.contentManager.get('/workflows/' + workflows[w])
+                let workflow = await this.contentManager.get('/workflows/private/' + workflows[w])
                 if(workflow) {
                     workflow = JSON.parse(workflow)
                     this.workflows.push(workflow)
@@ -85,9 +85,9 @@ class WorkflowManager{
             //Start publish on topic
             console.log(this.workflows)
             this.publishedWorkflows = this.identityManager.publishedWorkflows
-            this.publishJobs()
-            //this.publishWorkflows()
-            this.publishResults()
+            //this.publishJobs()
+            this.publishWorkflows()
+            //this.publishResults()
             this.eventManager.emit('VFuse.ready', { status : true, workflows : this.workflows, profile : this.identityManager.getCurrentProfile() })
         }catch(e){
             this.eventManager.emit('VFuse.ready', { status : false, error : e})
@@ -120,7 +120,7 @@ class WorkflowManager{
             setInterval(async function(){
                 let published_workflows = await this.contentManager.list('/workflows/published')
                 for(let workflow of published_workflows) {
-                    let encoded_workflow = await this.contentManager.get('/workfows/published/' + workflow)
+                    let encoded_workflow = await this.contentManager.get('/workflows/published/' + workflow)
                     let decoded_workflow = JSON.parse(encoded_workflow)
                     await this.contentManager.sendOnTopic({
                         action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
@@ -168,7 +168,8 @@ class WorkflowManager{
                     uguali ma che si rifericano a job diversi e questo può innescare potenzialmente un loop
                     - si potrebbero confrontare due DAG
                 */
-                if(JobsDAG.getReadyNodes(decoded_running_workflow.jobsDAG) < JobsDAG.getReadyNodes(decoded_workflow.jobsDAG))
+                let compare = JobsDAG.compare(decoded_running_workflow.jobsDAG, decoded_workflow.jobsDAG)
+                if(compare === 1 || compare === 3)
                     override = false
             }
             if(override)
@@ -184,39 +185,42 @@ class WorkflowManager{
         try {
             let running_workflows = await this.contentManager.list('/workflows/running')
             let workflow_to_run_index = Math.floor(Math.random() * running_workflows.length - 1)
-            let encoded_workflow = await this.contentManager.get('/workfows/running/' + running_workflows[workflow_to_run_index])
+            let encoded_workflow = await this.contentManager.get('/workflows/running/' + running_workflows[workflow_to_run_index])
             let workflow = JSON.parse(encoded_workflow)
             let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
             let node_index = Math.floor(Math.random() * nodes.length - 1)
             let node = nodes[node_index]
             if (node && node.job) {
-                await this.runJob(workflow.id, node.job)
-                await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow),
-                    {create : true, parents: true, mode: parseInt('0775', 8), truncate: true})
+                let results = await this.runJob(node.job)
+                if(results){
+                    JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_SATUS.COMPLETED, results)
+                    await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow),
+                        {create : true, parents: true, mode: parseInt('0775', 8), truncate: true})
+                }
             }
-
         }catch (e) {
             console.log('Got error during workflows execution : %O', e)
         }
         console.log('WORKFLOWS EXECUTION RESULTS : %O', this.results)
     }
 
-    async runJob(workflow_id, job) {
+    async runJob(job) {
         try {
+            let results = null
             let node_execution = this.executionQueue.filter(r => r === job.id)
             let node_results = this.results.filter(r => r.job_id === job.id)
             if (node_execution.length === 0 && node_results.length === 0) { //TODO manage results replication
                 this.executionQueue.push(job.id)
                 let execution_results = await this.runtimeManager.runJob(job)
-                let results = {
-                    workflow_id: workflow_id,
+                results = {
                     job_id: job.id,
                     results: execution_results
                 }
-                await this.contentManager.save('/results/' + job.id + '.json', JSON.stringify(results),
-                    {create: true, parents: true, mode: parseInt('0775', 8), truncate: true})
+               /* await this.contentManager.save('/results/' + job.id + '.json', JSON.stringify(results),
+                    {create: true, parents: true, mode: parseInt('0775', 8), truncate: true})*/
                 this.executionQueue.splice(this.executionQueue.indexOf(job.id), 1);
             }
+            return results
         }catch (e) {
             console.log('Got error executing job : %O', e)
         }
@@ -330,7 +334,7 @@ class WorkflowManager{
             let execution_result = await this.checkWorkflow(workflow)
             if(execution_result.error) return execution_result
             workflow.jobsDAG = this.currentWorkflow.jobsDAG.toJSON()
-            let workflow_cid = await this.contentManager.save('/workflows/' + workflow.id + '.json', JSON.stringify(workflow),
+            let workflow_cid = await this.contentManager.save('/workflows/private/' + workflow.id + '.json', JSON.stringify(workflow),
                 {create : true, parents: true, mode: parseInt('0775', 8), truncate: true, pin : true})
             //todo
             await this.identityManager.saveWorkflow(workflow.id, workflow_cid.toString())
@@ -362,7 +366,7 @@ class WorkflowManager{
         try{
             //let new_key = await this.contentManager.getKey(workflow_id)
             let cid = this.identityManager.getWorkflowCid(workflow_id)
-            //let name = await this.contentManager.publish(cid, new_key.name)//todo resolve
+            let name //= await this.contentManager.publish(cid, new_key.name)//todo resolve
             await this.identityManager.addPublishedWorkflow(workflow_id, name, cid)
             this.publishedWorkflows = this.identityManager.publishedWorkflows
             await this.contentManager.save('/workflows/published/' + workflow_id + '.json', JSON.stringify({workflow_id : workflow_id, cid : cid}),
