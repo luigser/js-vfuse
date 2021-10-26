@@ -158,20 +158,23 @@ class WorkflowManager{
             if(!data.workflow_id && !data.cid) return
             let override = true, decoded_workflow, running_workflow, encoded_workflow, decoded_running_workflow
 
-            encoded_workflow = await this.contentManager.getFromNetwork(data.cid.toString())
-            decoded_workflow = JSON.parse(encoded_workflow)
-
-            let saved_workflow = await this.contentManager.get('/workflows/published/' + data.workflow_id + '.json')
-            if(saved_workflow){//I already have this workflow in published queue
-                //check if the received workflow is more up to date
-                running_workflow = await this.contentManager.get('/workflows/running/' + data.workflow_id + '.json')
+            running_workflow = await this.contentManager.get('/workflows/running/' + data.workflow_id + '.json')
+            if(running_workflow) {
                 decoded_running_workflow = JSON.parse(running_workflow)
-                /* TODO - trovare una strategia per non perdere l'esecuzione di jobs
-                */
-                let compare = JobsDAG.compare(decoded_running_workflow.jobsDAG, decoded_workflow.jobsDAG)
-                if(compare === 1 || compare === 3)
-                    override = false
+                let ready_nodes = JobsDAG.getReadyNodes(decoded_running_workflow)
+                if(ready_nodes.length === decoded_running_workflow.jobsDAG.nodes.length)
+                {
+                    //All jobs are ready
+                    return
+                }else{
+                    encoded_workflow = await this.contentManager.getFromNetwork(data.cid.toString())
+                    decoded_workflow = JSON.parse(encoded_workflow)
+                    let compare = JobsDAG.compare(decoded_running_workflow.jobsDAG, decoded_workflow.jobsDAG)
+                    if(compare === 0 || compare === 2)
+                        override = false
+                }
             }
+
             if(override) {
                 await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(data),
                     {create: true, parents: true, mode: parseInt('0775', 8), truncate: true})
@@ -191,6 +194,7 @@ class WorkflowManager{
             let encoded_workflow = await this.contentManager.get('/workflows/running/' + running_workflows[workflow_to_run_index])
             let workflow = JSON.parse(encoded_workflow)
             let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
+            //Maybe is better to select a bundle of jobs
             let node_index = Math.floor(Math.random() * nodes.length - 1)
             let node = nodes[node_index]
             if (node && node.job) {
@@ -201,7 +205,7 @@ class WorkflowManager{
                         JSON.stringify(workflow),
                         {create : true, parents: true, mode: parseInt('0775', 8), truncate: true})
                     await this.contentManager.save('/workflows/published/' + workflow.id + '.json',
-                        JSON.stringify({workflow_id : workflow.id, cid : cid}),
+                        JSON.stringify({workflow_id : workflow.id, cid : cid.toString()}),
                         {create: true, parents: true, mode: parseInt('0775', 8), truncate: true})
                 }
             }
