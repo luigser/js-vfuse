@@ -109,7 +109,7 @@ export default function DAGVis(props) {
                         status = 'WAITING'
                         break
                 }
-                console.info("NAME : %s\nSTATUS : %s\nID : %s\nDATA : %O\nRESULTS: %O", node.label, status,  node.id, node.job.data, node.job.results)
+                //console.info("NAME : %s\nSTATUS : %s\nID : %s\nDATA : %O\nRESULTS: %O", node.label, status,  node.id, node.job.data, node.job.results)
             }
 
         }

@@ -25,10 +25,7 @@ class IdentityManager {
             let decoded_profile = await this.contentManager.get('/profiles/' + (!id ? this.id : id) + '.json')
             if(decoded_profile){
                 let p = JSON.parse(decoded_profile)
-                if(p.content) p.content = JSON.parse(p.content)
-                this.rewards = p.rewards
-                this.workflows = p.workflows
-                this.publishedWorkflows = p.publishedWorkflows
+                this.assignProfile(p)
                 console.log('Profile loaded : %O', p)
                 //console.log(this.workflows[0].id)
                 this.eventManager.emit('profile.ready', { status : true, profile : {...p, ...{id : this.id}}  })
@@ -52,11 +49,18 @@ class IdentityManager {
         }
     }
 
+    assignProfile(p){
+        if(p.content) p.content = JSON.parse(p.content)
+        this.rewards = p.rewards
+        this.workflows = p.workflows
+        this.publishedWorkflows = p.publishedWorkflows
+    }
+
     async createProfile(){
         try{
             //try to check if profile for you peerId already exist
             //if yes do not create no one but get it
-            let profile = await this.getProfile(this.peerId)
+            let profile = await this.contentManager.get('/profiles/' + this.peerId + '.json')
             if(!profile){
                 //Todo check if profile already exist, of yes remove and create from scratch
                 let new_profile = {
@@ -67,14 +71,16 @@ class IdentityManager {
                 await this.contentManager.makeDir('/workflows/private')
                 await this.contentManager.makeDir('/workflows/published')
                 await this.contentManager.makeDir('/workflows/running')
-                //await this.contentManager.makeDir('/results')
-                await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile)/*new TextEncoder().encode(JSON.stringify(new_profile))*/,
-                    {create : true, parents: true, mode: parseInt('0775', 8), pin : true})
+                await this.contentManager.makeDir('/workflows/completed')
+                /*new TextEncoder().encode(JSON.stringify(new_profile))*/
+                await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile), {pin : true})
                 this.id = this.peerId
                 this.rewards = 10.00
                 this.eventManager.emit('profile.ready', { status : true, profile : {...new_profile, ...{id : this.id}}  })
                 console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.peerId)
             }else{
+                let p = JSON.parse(profile)
+                this.assignProfile(p)
                 this.id = this.peerId
                 this.eventManager.emit('profile.ready', { status : true, profile : {...profile, ...{id : this.id}} })
             }
@@ -121,14 +127,14 @@ class IdentityManager {
         return workflow ? workflow.cid : null
     }
 
-    async addPublishedWorkflow(wid, name, cid){
+    async updatePublishedWorkflow(wid, ipns_name, cid){
         try{
             let filtered = this.publishedWorkflows.filter(pw => pw.id === wid)
             if(filtered.length > 0){
-                filtered[0].name = name
+                filtered[0].ipns_name = ipns_name
                 filtered[0].cid = cid
             }else {
-                this.publishedWorkflows.push({id: wid, name: name, cid: cid})
+                this.publishedWorkflows.push({id: wid, ipns_name: ipns_name, cid: cid})
             }
             await this.updateProfile()
         }catch (e) {
@@ -155,9 +161,7 @@ class IdentityManager {
                 rewards : this.rewards
             }
 
-            await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile)/*new TextEncoder().encode(JSON.stringify(profile))*/,
-                {create : true, parents: true, mode: parseInt('0775', 8), truncate: true, pin : true})
-            console.log('Workflow successfully published in the profile')
+            await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile), {pin : true})
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)
         }

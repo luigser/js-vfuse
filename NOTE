@@ -22,12 +22,12 @@ npm install ipfs-swarm-key-gen -g
 //REGULAR
 //Chrome
 //ALLINONE
-12D3KooWAFC525pEtNwBxSiunRainuwPyLvYyU5BKzX3HG4RPrHE
+12D3KooWSz8xCReetryX7vpE7VNDDAxWtyh1pe6pWZ33nyoQzo8D
 //SURFACE
 12D3KooWEXq1trVMayJaFjnutSciyn3HgDrTu3NrKWVVTNpRo5Xa
 //Firefox
 //ALLINONE
-12D3KooWEJpJXYYtY8u32SmKYjnrSghPaMTSHRFt9BoaNpEnHHe7
+12D3KooWEyShEo5ycTjet7AuJGFUWBryL9b48FhJVsRUZ4v61jE6
 //SURFACE
 12D3KooWJwkjUvWWu9vdzyE1d3CtkzXsmGDXaM8LXuCq6LjunWak
 
@@ -189,5 +189,3 @@ POSSIBILE SOLUZIONE
     - aggiorno il workflow selezinato
     - pubblico il workflow aggiornato
 
-// TODO
-verificare che il gossip sia ricevuto anche quando i nodi si disconnottono

@@ -9,8 +9,41 @@ module.exports = {
             bootstrapNodes: [],
             packages: [],
             ipfs: {
-                repo: Repo,
+                repo: 'vfuse-repo',//Repo,
                 config: {
+                    Datastore: {
+                        StorageMax: "30GB",
+                        StorageGCWatermark: 90,
+                        GCPeriod: "1h",
+                        Spec: {
+                            mounts: [
+                                {
+                                    child: {
+                                       path: "blocks",
+                                       shardFunc: "/repo/flatfs/shard/v1/next-to-last/2",
+                                       sync: true,
+                                       type: "flatfs"
+                                    },
+                                    mountpoint: "/blocks",
+                                    prefix: "flatfs.datastore",
+                                    type: "measure"
+                                },
+                                {
+                                    child: {
+                                        compression: "none",
+                                        path: "datastore",
+                                        type: "levelds"
+                                    },
+                                    mountpoint: "/",
+                                    prefix: "leveldb.datastore",
+                                    type: "measure"
+                                }
+                            ],
+                            type: "mount"
+                        },
+                        HashOnRead: false,
+                        BloomFilterSize: 0
+                    },
                     Bootstrap: [/*'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE'*/],
                     Addresses: {
                         API: "/ip4/0.0.0.0/tcp/5001",
@@ -22,6 +55,14 @@ module.exports = {
                         Announce: [],
                         Gateway: "/ip4/0.0.0.0/tcp/8080",
                         Delegates: []
+                    },
+                    Mounts: {
+                        IPFS: "/ipfs",
+                        IPNS: "/ipns",
+                        FuseAllowOther: false
+                    },
+                    Routing: {
+                        Type: "dht"
                     },
                     /*Protocols: [
                         "/ipfs/bitswap",
@@ -110,7 +151,8 @@ module.exports = {
                     },
                     Discovery: {
                         MDNS: {
-                            Enabled: true
+                            Enabled: true,
+                            Interval : 10
                         },
                         webRTCStar: {
                             Enabled: true

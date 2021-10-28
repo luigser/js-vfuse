@@ -16,7 +16,7 @@ export const useVFuse = () => {
                         ipfs:{
                             config: {
                                 Bootstrap :[
-                                    //'/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWK1GrwHL5SU2Hm5L7eTsz2jAa859fX3hpo9MiujPZHgqH',//ALL-IN-ONE
+                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWD57UYjLZEjqJN7pt34Nhzs1wBstW67E3K9icP2VGqcR7',//ALL-IN-ONE
                                     '/ip4/192.168.1.10/tcp/4003/ws/p2p/12D3KooWCbNme4yGjuhrmBvFSCckC7NqJjb49ijgamaiUD115Fye',//SURFACE
                                 ]
                             }
@@ -28,7 +28,7 @@ export const useVFuse = () => {
                         discoveryCallback: () => {},
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},
-                        //ipfsClusterApi: {host: '192.168.1.57', port: '9094', protocol: 'http'},
+                        ipfsClusterApi: {host: '192.168.1.57', port: '9094', protocol: 'http'},
                         //ipfsClientOptions: {host: '192.168.1.57', port: '5001', protocol: 'http'}
                     }
                 )

@@ -10,3 +10,4 @@ package-lock.json
 /node_modules/
 /packages/vfuse-core/dist/
 /packages/vfuse-react/src/libs/synapse/
+/packages/vfuse-gateway/vfuse-repo/

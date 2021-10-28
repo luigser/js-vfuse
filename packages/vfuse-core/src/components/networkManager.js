@@ -368,7 +368,7 @@ class NetworkManager{
             }
             return result
         } catch (e) {
-            console.log('Got some error during data retrieving: %O', e)
+            //console.log('Got some error during data retrieving: %O', e)
             return null
         }
     }
@@ -383,7 +383,7 @@ class NetworkManager{
             }
             return result
         } catch (e) {
-            console.log('Got some error during data retrieving: %O', e)
+            //console.log('Got some error during data retrieving: %O', e)
             return null
         }
     }
@@ -541,7 +541,7 @@ class NetworkManager{
         try {
             return await this.api.files.rm(path, options)
         }catch (e) {
-            console.log('Got some error during write: %O', e)
+            //console.log('Got some error during write: %O', e)
         }
     }
 
@@ -557,7 +557,7 @@ class NetworkManager{
             }
             return decodedData
         }catch (e) {
-            console.log('Got some error during write: %O', e)
+           // console.log('Got some error during write: %O', e)
             return null
         }
     }
@@ -566,7 +566,7 @@ class NetworkManager{
         try {
            return await this.api.files.stat(path)
         }catch (e) {
-            console.log('Got some error during stat: %O', e)
+            //console.log('Got some error during stat: %O', e)
         }
     }
 
@@ -587,12 +587,22 @@ class NetworkManager{
         try{
             let stat = await this.stat(path)
             //console.log({stat})
-            let pinning_result = await this.pin(stat.cid.toString())
+            let pinning_result = await this.pin(stat.cid)
             return pinning_result
         }catch (e) {
             console.log('Got some error during stat: %O', e)
         }
+    }
 
+    async addToCluster(data){
+        try{
+            let result = await this.cluster.add(Buffer.from(data))
+            console.log('AddToCluster : %O', result)
+            return result.hash ? result.hash : { error : result }
+        }catch (e) {
+            console.log('Error adding content to cluster : %O', e)
+            return { error : e }
+        }
     }
 
     /*CLUSTER API FOR PINNING*/
@@ -600,8 +610,8 @@ class NetworkManager{
     async pin(cid){
         try {
             //todo delete previous version
-            let data_cid = await this.cluster.pin.add(cid)
-            return data_cid
+            let data_cid = await this.cluster.pin.add(cid,  { filter : 'all'})
+            return data_cid.cid['/']
         }catch (e){
             console.log('Got some error during the data update: %O', e)
             return null

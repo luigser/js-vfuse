@@ -17,9 +17,10 @@ class ContentManager{
     //MFS API
     async save(path, content, options){
         try{
-            let cid = await this.networkManager.writeFile(path, content, options)
+            let cid = await this.networkManager.writeFile(path, content, {...{create : true, parents: true, mode: parseInt('0775', 8), truncate: true, cidVersion: 1}, ...options})
             if(options && options.pin){
                 cid = await this.networkManager.pinFileInMFS(path)
+                //cid = await this.networkManager.addToCluster(content)
             }
             return cid
         }catch(e){
@@ -31,14 +32,15 @@ class ContentManager{
         try{
             return await this.networkManager.readFile(path, options)
         }catch(e){
-            console.log('Got some error during getting : %O', e)
+            //console.log('Got some error during getting : %O', e)
         }
     }
 
     async getFromNetwork(cid){
         try{
-            let pcid = CID.parse(cid)
-            return await this.networkManager.cat(pcid)
+            //let pcid = CID.parse(cid)
+            return await this.networkManager.cat(cid)
+            //return await this.networkManager.get(cid)
         }catch(e){
             console.log('Got some error during getting : %O', e)
         }
