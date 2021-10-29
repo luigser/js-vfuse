@@ -16,8 +16,7 @@ export const useVFuse = () => {
                         ipfs:{
                             config: {
                                 Bootstrap :[
-                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWD57UYjLZEjqJN7pt34Nhzs1wBstW67E3K9icP2VGqcR7',//ALL-IN-ONE
-                                    '/ip4/192.168.1.10/tcp/4003/ws/p2p/12D3KooWCbNme4yGjuhrmBvFSCckC7NqJjb49ijgamaiUD115Fye',//SURFACE
+                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWABQCBbz6YaxesW2ryqGcS8asRJ8i9dVSEdd1JMdq34S7',//ALL-IN-ONE
                                 ]
                             }
                         },
