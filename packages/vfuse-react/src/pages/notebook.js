@@ -94,9 +94,11 @@ export default function NotebookPage(props){
     },[])
 
     const updateWorkflowCallback = (workflow) => {
-        let dag = workflow.jobsDAG
-        setDag({nodes : [], edges : []})
-        setDag(dag)
+        if(workflow.id === workflowId) {
+            let dag = workflow.jobsDAG
+            setDag({nodes: [], edges: []})
+            setDag(dag)
+        }
     }
 
     const saveWorkflow = async () => {

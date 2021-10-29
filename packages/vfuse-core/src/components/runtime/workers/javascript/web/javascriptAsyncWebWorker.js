@@ -156,7 +156,7 @@ const worker_code = () => {
                         if(typeof job.data !== 'string') {
                             let input = JSON.stringify(job.data)
                             input.replace(/'/g, '\&apos;')
-                            job.code += '\nlet input = JSON.parse("' + input + '")\n' +
+                            job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
                                 'return ' + job.name + "(input)"
                             //job.code += `\nlet input = JSON.parse('${input.replace(/'/g, " ")}')\nreturn ${job.name}(input)`//backticks
                         }else{
