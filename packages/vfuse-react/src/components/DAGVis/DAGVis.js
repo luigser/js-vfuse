@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Graph from "react-graph-vis";
 import NodeModal from "../modals/nodeModal";
+import { Statistic, Row, Col } from 'antd';
 
 export default function DAGVis(props) {
 
@@ -118,14 +119,24 @@ export default function DAGVis(props) {
     return (
         <>
             {graph &&
-                <Graph
-                    graph={graph}
-                    options={options}
-                    events={events}
-                    getNetwork={network => {
-                        //  if you want access to vis.js network api you can set the state in a parent component using this property
-                    }}
-                />
+                <>
+                    <Row gutter={16}>
+                        <Col span={4}>
+                            <Statistic title="Nodes" value={graph.nodes.length} />
+                        </Col>
+                        <Col span={4}>
+                            <Statistic title="Edges" value={graph.edges.length} />
+                        </Col>
+                    </Row>
+                    <Graph
+                        graph={graph}
+                        options={options}
+                        events={events}
+                        getNetwork={network => {
+                            //  if you want access to vis.js network api you can set the state in a parent component using this property
+                        }}
+                    />
+                </>
             }
             <NodeModal setVisible={setIsModalVisible} node={currentNode} isVisible={isModalVisible}/>
         </>
