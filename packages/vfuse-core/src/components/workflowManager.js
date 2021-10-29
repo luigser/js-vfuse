@@ -160,19 +160,24 @@ class WorkflowManager{
         }
     }
 
+    async updatePublishedWorkflow(data){
+        await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(data))
+        let encoded_workflow = await this.contentManager.getFromNetwork(data.cid)
+        await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
+    }
+
     async handleRequestExecutionWorkflow(data){
         try{
             if(!data.workflow_id && !data.cid) return
             //avoid the execution of private workflow
             if(this.getWorkflow(data.workflow_id)) return
-
-            let encoded_workflow
             //check if received workflow is already in published dir
             let published_workflow = await this.contentManager.get('/workflows/published/' + data.workflow_id + '.json')
             if(!published_workflow) {
-                await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(data))
-                encoded_workflow = await this.contentManager.getFromNetwork(data.cid)
-                await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
+                await this.updatePublishedWorkflow(data)
+            }else{
+                let decoded = JSON.parse(published_workflow)
+                if(decoded.cid !== data.cid) await this.updatePublishedWorkflow(data)
             }
         }catch (e) {
             console.log('Error during workflow execution : %O', e)

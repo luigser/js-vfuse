@@ -43,3 +43,4 @@ for (let row in input){
 
 let combine_job_id = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine
 await VFuse.addJob(getMaxOccurenceWord, [combine_job_id])
+

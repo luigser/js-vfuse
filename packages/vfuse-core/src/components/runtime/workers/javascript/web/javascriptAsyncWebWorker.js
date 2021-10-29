@@ -155,7 +155,7 @@ const worker_code = () => {
                         //job.code += 'return ' + job.name + "(" + job.data + ")"
                         if(typeof job.data !== 'string') {
                             let input = JSON.stringify(job.data)
-                            job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
+                            job.code += '\nlet input = JSON.parse(\"' + input + '\")\n' +
                                 'return ' + job.name + "(input)"
                         }else{
                             job.code += '\nreturn ' + job.name + "('" + job.data + "')"
