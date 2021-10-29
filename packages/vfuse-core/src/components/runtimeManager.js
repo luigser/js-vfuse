@@ -55,8 +55,13 @@ class RuntimeManager{
         }
     }
 
-    async saveCurrentWorkflow(){
-
+    async getDataFromUrl(url, start, end, type){
+        try {
+            //UPDATE JobsDAG
+            return this.workflowManager.getDataFromUrl(url, start, end, type)
+        }catch (e) {
+            console.log(e)
+        }
     }
 
 }

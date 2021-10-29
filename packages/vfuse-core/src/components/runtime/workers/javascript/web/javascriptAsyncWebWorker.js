@@ -32,8 +32,36 @@ const worker_code = () => {
            return promise
         },
 
+        getDataFromUrl : (url, start, end, type) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data;
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'getDataFromUrl')
+                            resolve(e.data.data.content)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
 
-        saveWorkflow : () => {
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'getDataFromUrl',
+                    params: JSON.stringify({
+                        url : url,
+                        start : start,
+                        end : end,
+                        type : type
+                    })
+                }
+            })
+
+            return promise
+        },
+
+        /*saveWorkflow : () => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data;
@@ -80,7 +108,7 @@ const worker_code = () => {
             })
 
             return promise
-        }
+        }*/
     }
 
     const convert = (results) => {

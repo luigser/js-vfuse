@@ -85,9 +85,9 @@ class WebWorkerRuntime {
                         break
                     case 'VFuse:worker':
                         const {func, params} = e.data.todo
+                        let p = JSON.parse(params)
                         switch(func){
                             case 'addJob':
-                                let p = JSON.parse(params)
                                 let job = await this.runtimeManager.addJob(p.name, p.func, p.deps, p.input)
                                 if(job) {
                                     this.webworker.postMessage({
@@ -103,6 +103,26 @@ class WebWorkerRuntime {
                                         data: {
                                             func: "addJob",
                                             error : 'Error adding job'
+                                        }
+                                    })
+                                }
+                                break
+                            case 'getDataFromUrl':
+                                let content = await this.runtimeManager.getDataFromUrl(p.url, p.start, p.end, p.type)
+                                if(content && !content.error) {
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "getDataFromUrl",
+                                            content: content
+                                        }
+                                    })
+                                }else{
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "getDataFromUrl",
+                                            error : content.error.toString()
                                         }
                                     })
                                 }

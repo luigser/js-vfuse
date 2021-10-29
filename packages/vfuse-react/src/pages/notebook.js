@@ -85,7 +85,7 @@ export default function NotebookPage(props){
                     setCode(workflow.code)
                     setDag(workflow.jobsDAG)
                     let profile = node.getProfile()
-                    setIsPublished(profile.publishedWorkflows.filter(w => w.id === workflowId).length > 0)
+                    setIsPublished(workflow.published)
                 }
             }
         }
@@ -213,8 +213,8 @@ export default function NotebookPage(props){
                         extra={[
                             /*<Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,*/
                             <Button key="2" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Build & Save</Button>,
-                            <Button key="1" type="primary" disabled={!vFuseNode && !workflowId} loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
-                            <Button key="1" danger disabled={!vFuseNode && !workflowId} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
+                            <Button key="1" type="primary" disabled={!vFuseNode && !workflowId || isPublished } loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
+                            <Button key="1" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
                         ]}
                         avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
                         /*breadcrumb={{ routes }}*/

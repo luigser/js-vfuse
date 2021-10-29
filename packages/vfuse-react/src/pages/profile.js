@@ -145,7 +145,7 @@ export default function ProfilePage(props){
             title : "Published",
             dataIndex: "published",
             key: "published",
-            render: (text, record, index) => publishedWorkflows.filter( w => w.id === record.id).length > 0 ? <Tag color="#0F9D58">Yes</Tag> : <Tag color="#DB4437">Not</Tag>
+            render: (text, record, index) => record.published ? <Tag color="#0F9D58">Yes</Tag> : <Tag color="#DB4437">Not</Tag>
         },
         {
             title : "Action",

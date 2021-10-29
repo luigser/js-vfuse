@@ -629,6 +629,42 @@ class NetworkManager{
         }
     }
 
+    getDataFromUrl(url, start, end, type){
+        return new Promise((resolve, reject) => {
+            try {
+                if (isNode) {
+                    const http = require('http')
+                    http.get(url, (response) => {
+                        let chunks_of_data = [];
+
+                        response.on('data', (fragments) => {
+                            chunks_of_data.push(fragments)
+                        })
+
+                        response.on('end', () => {
+                            let response_body = Buffer.concat(chunks_of_data);
+                            resolve(response_body.toString())
+                        })
+
+                        response.on('error', (error) => {
+                            reject({error: error});
+                        })
+                    })
+                } else if (isBrowser) {
+                    fetch(url, {
+                        method: "GET"
+                    })
+                        .then(response => resolve(response.text()))
+                        .catch(error => reject({error: error}))
+                }
+            }catch (e) {
+                reject({error : e})
+            }
+        })
+    }
+
+
+
 
 
 

@@ -120,6 +120,15 @@ function combine(data){
    return result
 }
 
+function getMaxOccurenceWord(data){
+    let max = data[0]
+    for(let entry of data){
+        if(entry.value > max.value)
+           max = entry
+    }
+    return max
+}
+
 input = input.split("\n")
 let reduced_results = []
 for (let row in input){
@@ -127,7 +136,9 @@ for (let row in input){
    let reduced = await VFuse.addJob(reduce, [mapped])
    reduced_results.push(mapped)
 }
-let result = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine
+
+let combine_job_id = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine
+await VFuse.addJob(getMaxOccurenceWord, [combine_job_id])
 
 
 

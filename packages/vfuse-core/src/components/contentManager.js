@@ -115,6 +115,15 @@ class ContentManager{
             console.log('Got some error during getting : %O', e)
         }
     }
+
+    //General porpoise utils
+    async getDataFromUrl(url, start, end, type){
+        try{
+            return await this.networkManager.getDataFromUrl(url, start, end, type)
+        }catch (e) {
+            console.log('Error fetching data from url : %O', e)
+        }
+    }
 }
 
 module.exports = ContentManager
