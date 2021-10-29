@@ -118,6 +118,20 @@ const worker_code = () => {
             return results
     }
 
+    function escape (key, val) {
+        if (typeof(val)!="string") return val;
+        return val
+            .replace(/[\\]/g, '\\\\')
+            .replace(/[\/]/g, '\\/')
+            .replace(/[\b]/g, '\\b')
+            .replace(/[\f]/g, '\\f')
+            .replace(/[\n]/g, '\\n')
+            .replace(/[\r]/g, '\\r')
+            .replace(/[\t]/g, '\\t')
+            .replace(/[\"]/g, '\\"')
+            .replace(/\\'/g, "\\'");
+    }
+
     const onmessage = async function (e) {
         const {action, job, packages} = e.data;
 
@@ -154,8 +168,7 @@ const worker_code = () => {
                     if(!job.inline){
                         //job.code += 'return ' + job.name + "(" + job.data + ")"
                         if(typeof job.data !== 'string') {
-                            let input = JSON.stringify(job.data)
-                            input.replace(/'/g, '\&apos;')
+                            let input = JSON.stringify(job.data, escape)
                             job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
                                 'return ' + job.name + "(input)"
                             //job.code += `\nlet input = JSON.parse('${input.replace(/'/g, " ")}')\nreturn ${job.name}(input)`//backticks
@@ -166,8 +179,6 @@ const worker_code = () => {
                     }
                     let F = new AsyncFunction('', job.code );
                     let results = await(F());
-                    /*console.log(results)
-                    console.log('**********************************\n\n')*/
                     self.postMessage({
                         action: 'return',
                         results : convert(results)
