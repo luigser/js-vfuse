@@ -104,7 +104,7 @@ class WorkflowManager{
     executionCycle(){
         setInterval(async function(){
             await this.manageWorkflowsExecution()
-        }.bind(this), 3000)
+        }.bind(this), Constants.TIMEOUTS.EXECUTION_CYCLE)
     }
 
     publishWorkflows(){
