@@ -174,7 +174,7 @@ const worker_code = () => {
                     //console.log(err)
                     self.postMessage({
                         action: 'return',
-                        results: {error: err}
+                        results: {error: err.message}
                     });
                 }
                 break;

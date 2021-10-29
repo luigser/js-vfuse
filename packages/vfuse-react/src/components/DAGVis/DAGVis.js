@@ -35,7 +35,7 @@ export default function DAGVis(props) {
             }
         },
         nodes: {
-            physics: true,
+            physics: false,
             shape: "box",
             font: {
                 //face: "Circular, Futura",

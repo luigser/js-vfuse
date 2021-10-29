@@ -35,8 +35,6 @@ class WorkflowManager{
             this.workflowsQueue = []
             this.jobsExecutionQueue =  []
 
-            this.executionLock = false
-
             this.updateWorkflowCallback = null
 
             this.eventManager.addListener('profile.ready', async function(){await this.startWorkspace()}.bind(this))
@@ -183,15 +181,11 @@ class WorkflowManager{
 
     async manageWorkflowsExecution(){
         try {
-            if(this.executionLock) return
-            this.executionLock = true
+            if(this.jobsExecutionQueue.length === Constants.LIMITS.MAX_CONCURRENT_JOBS) return
             let running_workflows = await this.contentManager.list('/workflows/running')
             let workflow_to_run_index = Math.floor(Math.random() * running_workflows.length)
             let encoded_workflow = await this.contentManager.get('/workflows/running/' + running_workflows[workflow_to_run_index])
-            if(!encoded_workflow) {
-                this.executionLock = false
-                return
-            }
+            if(!encoded_workflow) return
             let workflow = JSON.parse(encoded_workflow)
             let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
             //Maybe is better to select a bundle of jobs
@@ -204,9 +198,7 @@ class WorkflowManager{
                     await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow))
                 }
             }
-            this.executionLock = false
         }catch (e) {
-            this.executionLock = false
             console.log('Got error during workflows execution : %O', e)
         }
     }
@@ -229,26 +221,22 @@ class WorkflowManager{
 
     async manageResults(data){
         try{
-            if(!data.wid && !data.nodes || this.executionLock) return
-            this.executionLock = true
+            if(!data.wid && !data.nodes) return
             //return if the received job is currently running
             //here we can check the job results to ensure that the results are correct
-            if(this.jobsExecutionQueue.filter(r => r === data.node.job.id).length === 1) {
-                this.executionLock = false
-                return
-            }
             let workflow = this.getWorkflow(data.wid)
             if(workflow) {
                 let completed_nodes = workflow.jobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB_SATUS.COMPLETED || n.job.status === Constants.JOB_SATUS.ERROR))
                 if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){//do not consider the root node
                     await this.contentManager.save('/workflows/completed/' + workflow.id, "completed")
-                    this.executionLock = false
                     return
                 }
                 for(let n of data.nodes){
                     let job_node = workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
-                    job_node.color = n.color
-                    job_node.job = n.job
+                    if(job_node.job.results.length < 1){
+                        job_node.color = n.color
+                        job_node.job = n.job
+                    }
                 }
                 await this.updateWorkflow(workflow)
                 if(this.updateWorkflowCallback && this.currentWorkflow.id === data.wid) this.updateWorkflowCallback(workflow)
@@ -260,18 +248,14 @@ class WorkflowManager{
                 running_workflow = JSON.parse(running_workflow)
                 for(let n of data.nodes){
                     let job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
-                    if (job_node.job.results.length === 0) {
+                    if (job_node.job.results.length < 1 && this.jobsExecutionQueue.indexOf(n.job.id) < 0) {
                         job_node.color = n.color
                         job_node.job = n.job
                     }
                 }
                 await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
             }
-
-            this.executionLock = false
-            //console.log('GOT RESULTS : %O', data)
         }catch (e) {
-            this.executionLock = false
             console.log('Error during results management : %O', e)
         }
     }

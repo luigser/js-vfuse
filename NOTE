@@ -157,46 +157,6 @@ xmlhttp.send();
 console.info(xmlhttp); //--> returns only the partial content
 
 //TODO
-SI VA IN ERRORE QUANDO IL PROFILO GIà ESISTE E SI CERCA DI CREARNE UN ALTRO.
-QUANDO SI SALVA IL RPOFILO QUESTO VIENE APPESO A QUELLO PRECEDENTE
-L'ERRORE è DOCUTO ALLA SOVREAPPOSOZIONE NEL DAG DEI BLOCCHI
-
-SALVARE IL DAG
-
-DIPENDENZE COME ID DEL JOBS / NOME FUNZIONE PER INDICARE UNA DIPENDENZA TOTALE DAI RISULTATI DELLA STESSA //Done
-
-SUBMIT WORKFLOW DA CODICE PER LA SOTTOMISSINE DEL WORKFLOW NELLA RETE
-
-CHECK WORKFLOW PER OTTENERE INFO SULLO STATO DEL DAG ASSOCIATO
-
-TASK COMPUTATI DA MOLTI NODI PER GARANTIRE LA VALIDITà
-
-
-//TODO
-SE IL TAB NON è ATTIVO IL SISTEMA SI FERMA ... RISOLVERE CON WORKER O QALCOSA DEL GENERE
-
-//TODO
-é nescessatio che il workflow continuo la sua esecuzione nella sua interezza anche quando il nodo che lo ha generato
-non è online.
-- Questo significa che bisogna condividere il workflow non i job
-- bisogna fare gossip del workflow aggiornato
-- bisogna gestire i risultati con i cid
-- il creatore del workflow deve ottenere i risultati anche dopo il tempo limite (48h al momento ma configurabile)
-
-POSSIBILE SOLUZIONE
-
-1)
-    - pubblico workflow -> { wid: id, cid: cid }
-    - metto in /workflows/published/wid.json -> { wid: workflow, cid: cid }
-    - aggiorno in profilo publishedWorkflows per tenere traccia dei mei workflow pubblicati
-    - pubblico all READY jobs for all workflows in /workflows/published/*.json
-2)ricevo un workflow
-    - controllo se il workflows che ho ha un numero di jobs READY minore di quello che ricevo
-        - controllo anche il numero di repliche per i results
-    - se quello che ho ricevuto è più aggiornato -> salvo in file /workflows/published/wid.json
-3)esecuzione
-    - seleziono casualmente un wid da /workflows/published/*.json
-    - eseguo i jobs READY ma prima recupero l'input dal CID
-    - aggiorno il workflow selezinato
-    - pubblico il workflow aggiornato
+Indicizzare i workflows in locale
+    -quando un workflow è molto grosso capita che la filtering impieghi molto tempo per ottenere i risultati
 
