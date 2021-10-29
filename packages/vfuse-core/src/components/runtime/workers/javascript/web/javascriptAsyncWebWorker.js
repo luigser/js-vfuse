@@ -120,6 +120,7 @@ const worker_code = () => {
 
     function escape (key, val) {
         if (typeof(val)!="string") return val;
+        //return encodeURIComponent(val);
         return val
             .replace(/[\\]/g, '\\\\')
             .replace(/[\/]/g, '\\/')
@@ -128,7 +129,7 @@ const worker_code = () => {
             .replace(/[\n]/g, '\\n')
             .replace(/[\r]/g, '\\r')
             .replace(/[\t]/g, '\\t')
-            .replace(/[\"]/g, '\\"')
+            .replace(/["]/g, '\\\"')
             .replace(/\\'/g, "\\'");
     }
 
@@ -166,12 +167,11 @@ const worker_code = () => {
                 try {
                     //let F = new AsyncFunction('', '(async() => {' + job.code + '})()');
                     if(!job.inline){
-                        //job.code += 'return ' + job.name + "(" + job.data + ")"
                         if(typeof job.data !== 'string') {
                             let input = JSON.stringify(job.data, escape)
-                            job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
-                                'return ' + job.name + "(input)"
-                            //job.code += `\nlet input = JSON.parse('${input.replace(/'/g, " ")}')\nreturn ${job.name}(input)`//backticks
+                            job.code += `\nlet input = JSON.parse('${input}')\nreturn ${job.name}(input)`//backticks
+                            /*job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
+                                'return ' + job.name + "(input)"*/
                         }else{
                             job.code += '\nreturn ' + job.name + '("' + job.data + '")'
                         }

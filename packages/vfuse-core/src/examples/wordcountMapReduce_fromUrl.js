@@ -22,7 +22,7 @@ function getMaxOccurenceWord(data){
     return max
 }
 
-input = input.toString().replace(/'/g, "").split("\n")
+input = input.toString().split("\n")
 let chunck = Math.floor(input.length / 100), r = 0
 for (; r < input.length; r += chunck){
     await VFuse.addJob(map, [], input.slice(r, r + chunck))

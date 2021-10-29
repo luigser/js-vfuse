@@ -253,7 +253,7 @@ class WorkflowManager{
                 running_workflow = JSON.parse(running_workflow)
                 for(let n of data.nodes){
                     let job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
-                    if (job_node.job.results.length < 1 && this.jobsExecutionQueue.indexOf(n.job.id) < 0) {
+                    if ( this.jobsExecutionQueue.indexOf(n.job.id) < 0 || job_node.job.results.length < 1) {
                         job_node.color = n.color
                         job_node.job = n.job
                     }
