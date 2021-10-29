@@ -548,13 +548,14 @@ class NetworkManager{
 
     async readFile(path, options){
         try {
-            let chunks = [], decodedData = null
+            let chunks = [], decodedData = ""
             for await (const chunk of this.api.files.read(path, options)) {
                 chunks.push(chunk)
             }
 
             if (chunks.length > 0) {
-                decodedData = toString(chunks[0])
+                for(let chunk of chunks)
+                   decodedData += toString(chunk)
             }
             return decodedData
         }catch (e) {
