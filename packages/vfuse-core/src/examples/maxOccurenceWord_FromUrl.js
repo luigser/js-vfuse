@@ -39,11 +39,10 @@ for (; r < input.length; r += chunck){
 }
 
 let diff = input.length - r
-if( r !== 0){
+if( diff > 0){
     let mapped = await VFuse.addJob(map, [], input.slice(r, r + diff))
     let reduced = await VFuse.addJob(reduce, [mapped])
 }
-
 
 
 let combine_job_id = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine

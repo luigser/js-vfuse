@@ -375,11 +375,12 @@ class NetworkManager{
 
     async cat(cid){
         try {
-            let content = [], result = null
+            let content = [], result = ""
             for await (const parts of this.ipfs.cat(cid))
                 content.push(parts)
             if (content.length > 0) {
-                result = toString(content[0])
+                for(let part of content)
+                   result += toString(part)
             }
             return result
         } catch (e) {
