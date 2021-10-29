@@ -160,7 +160,7 @@ class WorkflowManager{
         }
     }
 
-    async updatePublishedWorkflow(data){
+    async updatePublishedWorkflowFiles(data){
         await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(data))
         let encoded_workflow = await this.contentManager.getFromNetwork(data.cid)
         await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
@@ -174,10 +174,10 @@ class WorkflowManager{
             //check if received workflow is already in published dir
             let published_workflow = await this.contentManager.get('/workflows/published/' + data.workflow_id + '.json')
             if(!published_workflow) {
-                await this.updatePublishedWorkflow(data)
+                await this.updatePublishedWorkflowFiles(data)
             }else{
                 let decoded = JSON.parse(published_workflow)
-                if(decoded.cid !== data.cid) await this.updatePublishedWorkflow(data)
+                if(decoded.cid !== data.cid) await this.updatePublishedWorkflowFiles(data)
             }
         }catch (e) {
             console.log('Error during workflow execution : %O', e)
@@ -261,7 +261,7 @@ class WorkflowManager{
                 await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
             }
         }catch (e) {
-            console.log('Error during results management : %O', e)
+            //console.log('Error during results management : %O', e)
         }
     }
 
