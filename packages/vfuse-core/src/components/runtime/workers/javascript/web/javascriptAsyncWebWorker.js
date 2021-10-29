@@ -155,10 +155,12 @@ const worker_code = () => {
                         //job.code += 'return ' + job.name + "(" + job.data + ")"
                         if(typeof job.data !== 'string') {
                             let input = JSON.stringify(job.data)
-                            job.code += '\nlet input = JSON.parse(\"' + input + '\")\n' +
+                            input.replace(/'/g, '\&apos;')
+                            job.code += '\nlet input = JSON.parse("' + input + '")\n' +
                                 'return ' + job.name + "(input)"
+                            //job.code += `\nlet input = JSON.parse('${input.replace(/'/g, " ")}')\nreturn ${job.name}(input)`//backticks
                         }else{
-                            job.code += '\nreturn ' + job.name + "('" + job.data + "')"
+                            job.code += '\nreturn ' + job.name + '("' + job.data + '")'
                         }
                         //console.log('code : %s', job.code)
                     }

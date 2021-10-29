@@ -2,11 +2,7 @@ let input = await VFuse.getDataFromUrl("https://raw.githubusercontent.com/bwhite
 
 function map(data){
     let mapped = new Map()
-    data.map(d => {
-        d.split(/\W+/).map(word => {
-            mapped.set(word, mapped.has(word) ? mapped.get(word) + 1 : 1)
-        })
-    })
+    data.map(d => d.split(/\W+/).map(word => mapped.set(word, mapped.has(word) ? mapped.get(word) + 1 : 1)))
     return mapped
 }
 
@@ -26,7 +22,7 @@ function getMaxOccurenceWord(data){
     return max
 }
 
-input = input.toString().split("\n")
+input = input.toString().replace(/'/g, "").split("\n")
 let chunck = Math.floor(input.length / 100), r = 0
 for (; r < input.length; r += chunck){
     await VFuse.addJob(map, [], input.slice(r, r + chunck))

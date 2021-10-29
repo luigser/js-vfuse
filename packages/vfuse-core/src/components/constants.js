@@ -66,7 +66,7 @@ const Constants = {
         EXECUTION_CYCLE: 10000
     },
     LIMITS: {
-        MAX_CONCURRENT_JOBS : 10
+        MAX_CONCURRENT_JOBS : 20
     }
 }
 
