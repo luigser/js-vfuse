@@ -129,7 +129,7 @@ const worker_code = () => {
             .replace(/[\n]/g, '\\n')
             .replace(/[\r]/g, '\\r')
             .replace(/[\t]/g, '\\t')
-            .replace(/["]/g, '\\\"')
+            .replace(/["]/g, '\\"')
             .replace(/\\'/g, "\\'");
     }
 
@@ -169,11 +169,9 @@ const worker_code = () => {
                     if(!job.inline){
                         if(typeof job.data !== 'string') {
                             let input = JSON.stringify(job.data, escape)
-                            job.code += `\nlet input = JSON.parse('${input}')\nreturn ${job.name}(input)`//backticks
-                            /*job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
-                                'return ' + job.name + "(input)"*/
+                            job.code += `\nlet input = JSON.parse(\`${input}\`)\nreturn ${job.name}(input)`//backticks
                         }else{
-                            job.code += '\nreturn ' + job.name + '(\'' + job.data + '\')'
+                            job.code += `\nreturn job.name(\`${job.data}\`)`
                         }
                         //console.log('code : %s', job.code)
                     }
@@ -187,7 +185,10 @@ const worker_code = () => {
                     //console.log(err)
                     self.postMessage({
                         action: 'return',
-                        results: {error: err.message}
+                        results: {error: {
+                            message : err.message,
+                            code : job.code
+                        }}
                     });
                 }
                 break;
