@@ -165,8 +165,8 @@ const worker_code = () => {
                 break;
             case 'exec':
                 try {
-                    //let F = new AsyncFunction('', '(async() => {' + job.code + '})()');
                     if(!job.inline){
+
                         if(typeof job.data !== 'string') {
                             let input = JSON.stringify(job.data, escape)
                             job.code += `\nlet input = JSON.parse(\`${input}\`)\nreturn ${job.name}(input)`//backticks
