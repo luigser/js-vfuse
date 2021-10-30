@@ -173,7 +173,7 @@ const worker_code = () => {
                             /*job.code += '\nlet input = JSON.parse(\'' + input + '\')\n' +
                                 'return ' + job.name + "(input)"*/
                         }else{
-                            job.code += '\nreturn ' + job.name + '("' + job.data + '")'
+                            job.code += '\nreturn ' + job.name + '(\'' + job.data + '\')'
                         }
                         //console.log('code : %s', job.code)
                     }
