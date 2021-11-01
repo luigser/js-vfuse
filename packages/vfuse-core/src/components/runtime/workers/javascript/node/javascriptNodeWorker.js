@@ -1,5 +1,6 @@
 class JavascriptNodeWorker {
-
+    constructor() {
+    }
    /* const vm = require('vm');
 
     const x = 1;

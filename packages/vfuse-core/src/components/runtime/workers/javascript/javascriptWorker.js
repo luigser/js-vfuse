@@ -11,7 +11,6 @@ class JavascriptWorker{
 
     getDefaultPackages(){
         return []
-
     }
 }
 

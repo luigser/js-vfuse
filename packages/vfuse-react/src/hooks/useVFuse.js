@@ -20,10 +20,10 @@ export const useVFuse = () => {
                                 ]
                             }
                         },
-                       /* runtime: {
-                            worker : PythonWorker,
+                        runtime: {
+                            worker : new PythonWorker(),
                             packages : []
-                        },*/
+                        },
                         discoveryCallback: () => {},
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},

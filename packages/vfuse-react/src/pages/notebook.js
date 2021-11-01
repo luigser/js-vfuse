@@ -84,6 +84,7 @@ export default function NotebookPage(props){
                     setName(workflow.name)
                     setCode(workflow.code)
                     setDag(workflow.jobsDAG)
+                    setLanguage(workflow.language)
                     let profile = node.getProfile()
                     setIsPublished(workflow.published)
                 }
@@ -267,7 +268,7 @@ export default function NotebookPage(props){
                             </Row>
                         </Descriptions.Item >
                         <Descriptions.Item span={1} label="Actions" >
-                            <Select defaultValue="javascript" style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
+                            <Select defaultValue={language ? language :"javascript"} style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
                                 <Select.Option value="javascript">Javascript</Select.Option>
                                 <Select.Option value="python">Python</Select.Option>
                             </Select>

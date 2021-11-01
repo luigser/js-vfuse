@@ -11,9 +11,22 @@ class PythonWorker{
         })
         let worker = new Worker(URL.createObjectURL(blob))
         return worker
+
+        from js import VFuse
+class VFuse:
+    async def addJob(func, deps, input):
+        return await window.postMessage(func, deps, input)
+
+    async def getDataFromUrl(url, start, end, type):
+        return await window.postMessage()
     }*/
 
-    static getWebWorker(){
+    constructor() {}
+    getDefaultPackages(){
+        return []
+    }
+
+    getWebWorker(){
         //return new Worker("./components/web/pythonWebWorker.js")
         const PythonWebWorkerScript = require('./components/web/pythonWebWorker')
         return new Worker(PythonWebWorkerScript);
