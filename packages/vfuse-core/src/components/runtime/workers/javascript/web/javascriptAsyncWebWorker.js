@@ -170,7 +170,7 @@ const worker_code = () => {
                             let input = JSON.stringify(job.data, escape)
                             job.code += `\nlet input = JSON.parse(\`${input}\`)\nreturn ${job.name}(input)`//backticks
                         }else{
-                            job.code += `\nreturn job.name(\`${job.data}\`)`
+                            job.code += `\nreturn ${job.name}(\`${job.data}\`)`
                         }
                     }
                     let F = new AsyncFunction('', job.code );

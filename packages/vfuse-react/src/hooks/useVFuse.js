@@ -21,6 +21,7 @@ export const useVFuse = () => {
                             }
                         },
                         runtime: {
+                            language : VFuse.Constants.PROGRAMMING_LANGUAGE.PYTHON,
                             worker : new PythonWorker(),
                             packages : []
                         },

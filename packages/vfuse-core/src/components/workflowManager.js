@@ -308,7 +308,7 @@ class WorkflowManager{
         try{
             this.currentWorkflow = workflow
             this.currentWorkflow.jobsDAG = new JobsDAG()
-            let result = await this.runtimeManager.runLocalCode(workflow.code)
+            let result = await this.runtimeManager.runLocalCode(workflow.code, workflow.language)
             return !result ? {workflow : this.currentWorkflow} : result
         }catch (e){
             console.log('Got some error during the workflow execution: %O', e)
@@ -437,7 +437,8 @@ class WorkflowManager{
                 name,
                 code,
                 data,
-                dependencies
+                dependencies,
+                this.currentWorkflow.language
             )
 
             let new_vertex = this.currentWorkflow.jobsDAG.addJob(job)

@@ -1,18 +1,22 @@
 const WebWorkerRuntime = require("./runtime/webWorkerRuntime")
 const  { isNode, isWebWorker, isBrowser } = require("browser-or-node");
 const JavascriptWorker = require('./runtime/workers/javascript/javascriptWorker')
+const Constants = require('./constants')
 
 class RuntimeManager{
     constructor(options, workflowManager) {
         this.workflowManager = workflowManager
+        this.runtimes = new Map()
         this.load(options)
     }
 
     async start(){
         try {
-            if (this.runtime) {
-                await this.runtime.init()
-                await this.runtime.load()
+            if (this.runtimes) {
+                for(let key of this.runtimes.keys()){
+                    await this.runtimes.get(key).init()
+                    await this.runtimes.get(key).load()
+                }
             }
         }catch(e){
             console.log("Got some error during runtime initialization %O", e)
@@ -22,8 +26,9 @@ class RuntimeManager{
     load(options){
         try {
             if (isBrowser) {
-                this.worker = !options ? new JavascriptWorker() : options.worker
-                this.runtime = new WebWorkerRuntime(this, this.worker, options)
+                if(options)
+                    this.runtimes.set(options.language, new WebWorkerRuntime(this,  options.worker, options))
+                this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, new WebWorkerRuntime(this,  new JavascriptWorker(), {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT}))
             }
             if (isNode) {
 
@@ -39,11 +44,13 @@ class RuntimeManager{
     }
 
     async runJob(job){
-        return await this.runtime.run(job)
+        let runtime = this.runtimes.get(job.language)
+        return runtime ? await runtime.run(job) : { error : job.language + ' is not currently supported'}
     }
 
-    async runLocalCode(code){
-        return await this.runtime.run({ code : code, inline : true})
+    async runLocalCode(code, language){
+        let runtime = this.runtimes.get(language)
+        return await runtime.run({ code : code, inline : true, language: language})
     }
 
     async addJob(name, func, deps, input){

@@ -23,7 +23,7 @@ const worker_code = () => {
                     func: 'addJob',
                     params: JSON.stringify({
 
-                        name: func.name,
+                        name: func.__name__,
                         func: func.toString(),
                         input: input,
                         deps: deps
@@ -87,19 +87,26 @@ def run_code(code):\n\
             .join('\n');
     }
 
-    self.onmessage = async function (e) {
+    const onmessage = async function (e) {
         const {action, job} = e.data;
 
         switch (action) {
             case 'init':
                 globalThis.VFuse = VFuse
                 languagePluginLoader
-                    .then(() => {
-                        self.pyodide.runPythonAsync(/*self.run_code*/VFuse.python_import).then(() => {
+                    .then(async () => {
+                        try{
+                            await self.pyodide.runPythonAsync(/*self.run_code*/VFuse.python_import)
                             self.postMessage({
                                 action: 'initialized'
+                            })
+                        }catch (e) {
+                            self.postMessage({
+                                action: 'initialized',
+                                error : e.message
                             });
-                        })
+
+                        }
                     })
                     .catch(err => {
                         self.postMessage({
@@ -109,7 +116,7 @@ def run_code(code):\n\
                     });
                 break;
             case 'load':
-                let packages = [['numpy'], ...e.data.packages]
+                let packages = [...'numpy', ...e.data.packages]
                 self.pyodide
                     .loadPackage(packages)
                     .then(() => {
@@ -129,7 +136,7 @@ def run_code(code):\n\
                     debugger
                     self.pyodide.globals.function_to_run = job.code;
                     self.pyodide.globals.input = job.data
-                    let results = self.pyodide.runPythonAsync(!job.inline ? 'function_to_run(input)' : job.code)
+                    let results = await self.pyodide.runPythonAsync(!job.inline ? 'function_to_run(input)' : job.code)
                     self.postMessage(
                         {
                             action: 'return',
@@ -169,6 +176,8 @@ def run_code(code):\n\
                 break;
         }
     }
+
+    self.onmessage = onmessage
 }
 
 let code = worker_code.toString();

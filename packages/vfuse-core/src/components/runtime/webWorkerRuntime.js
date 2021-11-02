@@ -1,8 +1,11 @@
 'use strict'
 
+const Constants = require ("../constants")
+
 class WebWorkerRuntime {
     constructor(runtimeManager, worker , options, callback) {
         this.count = 0
+        this.language = options.language
         this.id =  this.getRandomBetween(0,1000)
         this.history = []
         this.value = null
@@ -75,7 +78,8 @@ class WebWorkerRuntime {
     }
 
     exec(job) {
-        this.webworker = this.worker.getWebWorker()
+        //todo to fix
+        if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) this.webworker = this.worker.getWebWorker()
         const promise = new Promise((resolve, reject) => {
             this.webworker.addEventListener('message', async(e) => {
                 const { action, results } = e.data
