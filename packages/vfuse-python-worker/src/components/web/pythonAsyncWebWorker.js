@@ -25,7 +25,7 @@ const worker_code = () => {
                         name: name,
                         func: code.toString(),
                         input: input,
-                        deps: deps
+                        deps: deps.toJs()
                     })
                 }
             })
