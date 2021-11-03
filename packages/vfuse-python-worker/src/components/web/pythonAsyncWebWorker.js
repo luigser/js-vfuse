@@ -120,7 +120,10 @@ const worker_code = () => {
                     });
                 break;
             case 'load':
-                let packages =  ['numpy', 'cloudpickle']//[...'numpy', ...'cloudpickle', ...e.data.packages]
+                self.postMessage({
+                    action: 'loaded'
+                });
+                /*let packages =  ['numpy', 'cloudpickle']//[...'numpy', ...'cloudpickle', ...e.data.packages]
                 self.pyodide
                     .loadPackage(packages)
                     .then(() => {
@@ -133,15 +136,18 @@ const worker_code = () => {
                             action: 'error',
                             results: err.message
                         });
-                    });
+                    });*/
                 break;
             case 'exec':
                 try {
                     debugger
-                    if(job.inline)
-                       await self.pyodide.runPythonAsync(self.PythonVFuse)
+                    if(job.inline) {
+                        await self.pyodide.loadPackagesFromImports(self.PythonVFuse)
+                        await self.pyodide.runPythonAsync(self.PythonVFuse)
+                    }
                     self.pyodide.globals.function_to_run = job.code
                     self.pyodide.globals.input = job.data
+                    await self.pyodide.loadPackagesFromImports(job.code)
                     //let async_execution_code = `async def main():\n   ${job.code.replaceAll('\n', '\t\n')}\nmain()`
                     let results = await self.pyodide.runPythonAsync(!job.inline ?  'VFuse.execute(function_to_run, input)' : job.code)
                     self.postMessage(
