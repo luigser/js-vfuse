@@ -24,7 +24,7 @@ const worker_code = () => {
 
                         name: name,
                         func: code.toString(),
-                        input: input,
+                        input: input && typeof(input) !== 'string' ? input.toJs() : input,
                         deps: deps.toJs()
                     })
                 }
@@ -72,7 +72,7 @@ const worker_code = () => {
         "import cloudpickle\n" +
         "class VFuse:\n" +
         "    @staticmethod\n" +
-        "    async def addJob(func, deps, input):\n" +
+        "    async def addJob(func, deps, input = None):\n" +
         "        func_source = cloudpickle.dumps(func)\n" +
         "        return await JSVFuse.addJob(func_source, func.__name__, deps, input)\n"
 
@@ -131,7 +131,8 @@ const worker_code = () => {
             case 'exec':
                 try {
                     debugger
-                    await self.pyodide.runPythonAsync(self.PythonVFuse)
+                    if(job.inline)
+                       await self.pyodide.runPythonAsync(self.PythonVFuse)
                     self.pyodide.globals.function_to_run = job.code
                     self.pyodide.globals.input = job.data
                     //let async_execution_code = `async def main():\n   ${job.code.replaceAll('\n', '\t\n')}\nmain()`
