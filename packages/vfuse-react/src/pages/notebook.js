@@ -43,11 +43,15 @@ const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
     "}\n" +
     "let result = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine"
 
-const pythonCodeExample = `import numpy as np 
-a = [[2, 0], [0, 2]]
-b = [[4, 1], [2, 2]]
-c = np.dot(a, b)
-print(c)`
+const pythonCodeExample = `input = """I'm learning Python.
+I refer to TechBeamers.com tutorials.
+It is the most popular site for Python programmers."""
+
+def map(data):
+    return data
+    
+for x in input.splitlines():
+   VFuse.addJob(map, [], x)`
 
 export default function NotebookPage(props){
     const [vFuseNode, setVFuseNode] = useState(null)

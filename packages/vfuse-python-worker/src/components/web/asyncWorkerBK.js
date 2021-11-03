@@ -1,6 +1,6 @@
 const worker_code = () => {
-    languagePluginUrl = 'https://cdn.jsdelivr.net/pyodide/v0.18.1/full/';
-    importScripts('https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js');
+    languagePluginUrl = 'https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';
+    importScripts('https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js');
 
     const JSVFuse = {
         addJob: (code, name, deps, input) => {
@@ -59,7 +59,7 @@ const worker_code = () => {
                 }
             })
 
-            return self.pyodide.toPy(promise)
+            return promise
         }
     }
 
@@ -131,15 +131,14 @@ const worker_code = () => {
             case 'exec':
                 try {
                     debugger
-                    await self.pyodide.runPythonAsync(self.PythonVFuse)
                     self.pyodide.globals.function_to_run = job.code
                     self.pyodide.globals.input = job.data
-                    //let async_execution_code = `async def main():\n   ${job.code.replaceAll('\n', '\t\n')}\nmain()`
+                    let async_execution_code = "async def main():\n   function_to_run\nmain()"
                     let results = await self.pyodide.runPythonAsync(!job.inline ?  'function_to_run(input)' : job.code)
                     self.postMessage(
                         {
                             action: 'return',
-                            results: results
+                            results: results.toString()
                         });
                 } catch (err) {
                     self.postMessage({
