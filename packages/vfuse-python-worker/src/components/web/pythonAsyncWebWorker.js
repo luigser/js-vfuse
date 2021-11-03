@@ -59,7 +59,7 @@ const worker_code = () => {
                 }
             })
 
-            return self.pyodide.toPy(promise)
+            return promise
         }
     }
 
@@ -75,6 +75,13 @@ const worker_code = () => {
         "    async def addJob(func, deps, input = None):\n" +
         "        func_source = cloudpickle.dumps(func)\n" +
         "        return await JSVFuse.addJob(func_source, func.__name__, deps, input)\n"
+        "    @staticmethod\n" +
+        "    async def getDataFromUrl(url, start  = None, end  = None, type = None):\n" +
+        "        return await JSVFuse.getDataFromUrl(url, start, end, type)\n"
+        "    @staticmethod\n" +
+        "    async def execute(func, data = None):\n" +
+        "        func_caller = cloudpickle.load(func)\n" +
+        "        return await func_caller(data)\n" +
 
     function parseLog(log) {
         return log
@@ -136,7 +143,7 @@ const worker_code = () => {
                     self.pyodide.globals.function_to_run = job.code
                     self.pyodide.globals.input = job.data
                     //let async_execution_code = `async def main():\n   ${job.code.replaceAll('\n', '\t\n')}\nmain()`
-                    let results = await self.pyodide.runPythonAsync(!job.inline ?  'function_to_run(input)' : job.code)
+                    let results = await self.pyodide.runPythonAsync(!job.inline ?  'VFuse.execute(function_to_run, input)' : job.code)
                     self.postMessage(
                         {
                             action: 'return',
