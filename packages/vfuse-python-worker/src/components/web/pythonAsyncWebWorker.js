@@ -1,9 +1,8 @@
 const worker_code = () => {
-    languagePluginUrl = 'https://cdn.jsdelivr.net/pyodide/v0.18.1/full/';
-    importScripts('https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js');
+    languagePluginUrl = 'https://cdn.jsdelivr.net/pyodide/v0.16.1/full/';
+    importScripts('https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js');
 
-    const VFuse = {
-        python_import : 'from js import VFuse',
+    const JSVFuse = {
         addJob: (code, name, deps, input) => {
             const promise = new Promise((resolve, reject) => {
                 self.onmessage = (e) => {
@@ -16,7 +15,7 @@ const worker_code = () => {
                     }
                 }
             })
-
+            debugger
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
@@ -25,8 +24,8 @@ const worker_code = () => {
 
                         name: name,
                         func: code.toString(),
-                        input: input.toJs(),
-                        deps: deps.toJs()
+                        input: input,
+                        deps: deps
                     })
                 }
             })
@@ -64,21 +63,18 @@ const worker_code = () => {
         }
     }
 
-    self.run_code =
-        "import sys, io, traceback\n\
-        namespace = {}\n\
-        def run_code(code):\n\
-          out = io.StringIO()\n\
-          oldout = sys.stdout\n\
-          olderr = sys.stderr\n\
-          sys.stdout = sys.stderr = out\n\
-          try:\n\
-              exec(code, namespace)\n\
-          except:\n\
-              traceback.print_exc()\n\
-          sys.stdout = oldout\n\
-          sys.stderr = olderr\n\
-          return out.getvalue()"
+    self.installDill = "async def installDill():\n" +
+        "    import micropip\n" +
+        "    await micropip.install('marshall')\n" +
+        "installDill()"
+
+    self.PythonVFuse = "from js import JSVFuse\n" +
+        "import cloudpickle\n" +
+        "class VFuse:\n" +
+        "    @staticmethod\n" +
+        "    def addJob(func, deps, input):\n" +
+        "        func_source = cloudpickle.dumps(func)\n" +
+        "        return JSVFuse.addJob(func_source, func.__name__, deps, input)\n"
 
     function parseLog(log) {
         return log
@@ -92,11 +88,12 @@ const worker_code = () => {
 
         switch (action) {
             case 'init':
-                globalThis.VFuse = VFuse
+                globalThis.JSVFuse = JSVFuse
                 languagePluginLoader
                     .then(async () => {
                         try{
-                            await self.pyodide.runPythonAsync(/*self.run_code*/VFuse.python_import)
+                            //await self.pyodide.runPythonAsync(self.installDill)
+                            await self.pyodide.runPythonAsync(self.PythonVFuse)
                             self.postMessage({
                                 action: 'initialized'
                             })
@@ -116,7 +113,7 @@ const worker_code = () => {
                     });
                 break;
             case 'load':
-                let packages = ['numpy', 'cloudpickle']//[...'numpy', ...e.data.packages]
+                let packages = [...'numpy', ...'cloudpickle', ...e.data.packages]
                 self.pyodide
                     .loadPackage(packages)
                     .then(() => {
@@ -134,40 +131,20 @@ const worker_code = () => {
             case 'exec':
                 try {
                     debugger
-                    self.pyodide.globals.function_to_run = job.code;
+                    self.pyodide.globals.function_to_run = job.code
                     self.pyodide.globals.input = job.data
-                    let results = await self.pyodide.runPythonAsync(!job.inline ? 'function_to_run(input)' : job.code)
+                    let async_execution_code = "async def main():\n   function_to_run\nmain()"
+                    let results = await self.pyodide.runPythonAsync(!job.inline ?  'function_to_run(input)' : job.code)
                     self.postMessage(
                         {
                             action: 'return',
-                            results
+                            results: results.toString()
                         });
-                    /*self.pyodide
-                        .runPythonAsync('run_code(code_to_run)')
-                        .then(results => {
-                            self.postMessage(
-                                {
-                                    action: 'return',
-                                    results
-                                });
-                        })
-                        .catch(err => {
-                            self.postMessage({
-                                action: 'error',
-                                results: {
-                                    error: {
-                                        message : err.message
-                                            .split(/\r?\n/)
-                                            .slice(-2)
-                                            .join('\n'),
-                                        code : job.code
-                                    }}
-                            });
-                        });*/
                 } catch (err) {
                     self.postMessage({
                         action: 'error',
-                        results: {error: {
+                        results: {
+                            error: {
                                 message : err.message,
                                 code : job.code
                             }}

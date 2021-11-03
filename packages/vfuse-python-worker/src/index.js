@@ -28,7 +28,7 @@ class VFuse:
 
     getWebWorker(){
         //return new Worker("./components/web/pythonWebWorker.js")
-        const PythonWebWorkerScript = require('./components/web/pythonWebWorker')
+        const PythonWebWorkerScript = require('./components/web/pythonAsyncWebWorker')
         return new Worker(PythonWebWorkerScript);
     }
 }
