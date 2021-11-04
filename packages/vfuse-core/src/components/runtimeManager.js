@@ -50,8 +50,9 @@ class RuntimeManager{
 
     async runLocalCode(code, language){
         let runtime = this.runtimes.get(language)
-        if(language === Constants.PROGRAMMING_LANGUAGE.PYTHON)
+        if(language === Constants.PROGRAMMING_LANGUAGE.PYTHON) {
             await runtime.restart()
+        }
         return await runtime.run({ code : code, inline : true, language: language})
     }
 
@@ -66,7 +67,6 @@ class RuntimeManager{
 
     async getDataFromUrl(url, start, end, type){
         try {
-            //UPDATE JobsDAG
             return this.workflowManager.getDataFromUrl(url, start, end, type)
         }catch (e) {
             console.log(e)

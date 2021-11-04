@@ -142,6 +142,11 @@ export default function ProfilePage(props){
             key: "name"
         },
         {
+            title : "Language",
+            dataIndex: "language",
+            key: "language"
+        },
+        {
             title : "Published",
             dataIndex: "published",
             key: "published",
