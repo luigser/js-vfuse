@@ -117,7 +117,7 @@ export default function NotebookPage(props){
             if(workflow.error){
                 notification.error({
                     message : "Something went wrong",
-                    description : workflow.error.toString()
+                    description : workflow.error.message ? workflow.error.message : workflow.error.toString()
                 });
             }else{
                 setDag(workflow.jobsDAG)
@@ -222,7 +222,7 @@ export default function NotebookPage(props){
                             <Button key="1" type="primary" disabled={!vFuseNode && !workflowId || isPublished } loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
                             <Button key="1" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
                         ]}
-                        avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
+                        //avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
                         /*breadcrumb={{ routes }}*/
                     >
                         <Layout.Content
@@ -271,7 +271,7 @@ export default function NotebookPage(props){
                             </Row>
                         </Descriptions.Item >
                         <Descriptions.Item span={1} label="Actions" >
-                            <Select defaultValue={language} style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
+                            <Select value={language} style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
                                 <Select.Option value="javascript">Javascript</Select.Option>
                                 <Select.Option value="python">Python</Select.Option>
                             </Select>

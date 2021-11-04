@@ -169,7 +169,7 @@ export default function ProfilePage(props){
             <Row>
                 <Col span={24}>
                     <PageHeader
-                        title="VFuse IdentityManager"
+                        title="VFuse Profile"
                         className="site-page-header"
                         subTitle="Node status"
                         tags={[
@@ -182,7 +182,7 @@ export default function ProfilePage(props){
                             <Button key="2" type="danger" disabled={stopDisabled} loading={stopLoading} onClick={onStop}>Stop</Button>,
                             /*<Button key="2" type="default" disabled={createDisabled} loading={createLoading} onClick={() => onStartNode("create")}>Create</Button>,*/
                         ]}
-                        avatar={{ src: 'https://avatars1.githubusercontent.com/u/8186664?s=460&v=4' }}
+                        //avatar={{ src: 'https://avatars1.githubusercontent.com/u/8186664?s=460&v=4' }}
                         /*breadcrumb={{ routes }}*/
                     >
                         <Layout.Content

@@ -71,7 +71,7 @@ const worker_code = () => {
         "        func_source = cloudpickle.dumps(func)\n" +
         "        return await JSVFuse.addJob(func_source, func.__name__, deps, input)\n" +
         "    @staticmethod\n" +
-        "    async def getDataFromUrl(url, start  = None, end  = None, type = None):\n" +
+        "    async def getDataFromUrl(url, start = None, end = None, type = None):\n" +
         "        result = await JSVFuse.getDataFromUrl(url, start, end, type)\n" +
         "        if type(result) != str:\n" +
         "            return result.to_py()\n" +

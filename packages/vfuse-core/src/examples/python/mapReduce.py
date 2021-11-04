@@ -1,10 +1,6 @@
-input = """Contrary to popular belief, Lorem Ipsum is not simply random text.
-It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.
-Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur,
-from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.
-Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero,
-written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum,
-Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32."""
+import math
+
+input = await VFuse.getDataFromUrl("https://raw.githubusercontent.com/bwhite/dv_hadoop_tests/master/python-streaming/word_count/input/4300.txt")
 
 def map(data):
     result = {}
@@ -24,6 +20,21 @@ def reduce(data):
             result[d['key']] = d['value']
     return result
 
-for x in input.splitlines():
-   job_id = await VFuse.addJob(map, [], x)
-   await VFuse.addJob(reduce, [job_id])
+def getMaxWordOccurence(data):
+    max = data[0]
+    for d in data:
+        if d['value'] > max['value']:
+            max = data
+    return max
+
+input = input.splitlines()
+chunk = math.floor(len(input) / 100)
+for i in range(len(input)):
+    map_job_id = await VFuse.addJob(map, [], input[i:i + chunk])
+
+diff = len(input) - input
+if diff > 0:
+    map_job_id = await VFuse.addJob(map, [], input[i:i + diff])
+
+reduce_job_id = await VFuse.addJob(reduce,['map'])
+await VFuse.addJob(getMaxWordOccurence, [reduce_job_id])
