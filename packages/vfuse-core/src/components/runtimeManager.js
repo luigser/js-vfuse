@@ -50,6 +50,8 @@ class RuntimeManager{
 
     async runLocalCode(code, language){
         let runtime = this.runtimes.get(language)
+        if(language === Constants.PROGRAMMING_LANGUAGE.PYTHON)
+            await runtime.restart()
         return await runtime.run({ code : code, inline : true, language: language})
     }
 

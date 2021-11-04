@@ -92,6 +92,13 @@ const worker_code = () => {
             .join('\n');
     }
 
+    const convert = (results) => {
+        if(results instanceof Map)
+            return Array.from(results, ([key, value]) => ({ key, value }))
+        else
+            return results
+    }
+
     const onmessage = async function (e) {
         const {action, job} = e.data;
 
@@ -144,8 +151,7 @@ const worker_code = () => {
                 try {
                     self.pyodide.globals.function_to_run = job.code
                     self.pyodide.globals.input = job.data
-                    //todo make a function ti get the code from uint array before call load package
-                    if(job.inline)
+                    if(job.inline)//todo clear prev python code by calling init and load
                        self.packages = await self.pyodide.pyodide_py.find_imports(job.code)
                     else
                        self.pyodide.loadPackagesFromImports(job.packages)
@@ -153,11 +159,11 @@ const worker_code = () => {
                     self.postMessage(
                         {
                             action: 'return',
-                            results: typeof(results)!="string" ? results.toJs() : results
+                            results: results && typeof(results)!="string" ? convert(results.toJs()) : results
                         });
                 } catch (err) {
                     self.postMessage({
-                        action: 'error',
+                        action: 'return',
                         results: {
                             error: {
                                 message : err.message,

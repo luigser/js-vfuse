@@ -66,13 +66,10 @@ class WebWorkerRuntime {
 
     async restart() {
         const startTs = Date.now()
-
         this.webworker.terminate()
-        this.packages.clear()
-
+        this.webworker = this.worker.getWebWorker()
         await this.init()
-        await this.load(this.packages)
-
+        await this.load()
         const log = { start: startTs, end: Date.now(), cmd: '$RESTART SESSION$' }
         this.history.push(log)
     }

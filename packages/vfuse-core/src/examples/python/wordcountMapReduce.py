@@ -25,5 +25,6 @@ def reduce(data):
     return result
 
 for x in input.splitlines():
-   job_id = await VFuse.addJob(map, [], x)
-   await VFuse.addJob(reduce, [job_id])
+   await VFuse.addJob(map, [], x)
+
+await VFuse.addJob(reduce, ['map'])
