@@ -429,7 +429,7 @@ class WorkflowManager{
         }catch (e) {}
     }
 
-    async addJob(name, code, dependencies, data){
+    async addJob(name, code, dependencies, data, packages){
         try{
             let job_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
             let job = new Job(
@@ -438,7 +438,8 @@ class WorkflowManager{
                 code,
                 data,
                 dependencies,
-                this.currentWorkflow.language
+                this.currentWorkflow.language,
+                packages
             )
 
             let new_vertex = this.currentWorkflow.jobsDAG.addJob(job)

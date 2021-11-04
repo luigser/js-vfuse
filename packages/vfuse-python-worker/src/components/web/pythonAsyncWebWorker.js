@@ -15,7 +15,6 @@ const worker_code = () => {
                     }
                 }
             })
-            debugger
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
@@ -23,9 +22,10 @@ const worker_code = () => {
                     params: JSON.stringify({
 
                         name: name,
-                        func: code.toString(),
+                        func: code.toJs(),
                         input: input && typeof(input) !== 'string' ? input.toJs() : input,
-                        deps: deps.toJs()
+                        deps: deps.toJs(),
+                        packages : self.packages.toJs()
                     })
                 }
             })
@@ -63,25 +63,27 @@ const worker_code = () => {
         }
     }
 
-    self.installDill = "async def installDill():\n" +
-        "    import micropip\n" +
-        "    await micropip.install('marshall')\n" +
-        "installDill()"
-
     self.PythonVFuse = "from js import JSVFuse\n" +
         "import cloudpickle\n" +
         "class VFuse:\n" +
         "    @staticmethod\n" +
         "    async def addJob(func, deps, input = None):\n" +
         "        func_source = cloudpickle.dumps(func)\n" +
-        "        return await JSVFuse.addJob(func_source, func.__name__, deps, input)\n"
+        "        return await JSVFuse.addJob(func_source, func.__name__, deps, input)\n" +
         "    @staticmethod\n" +
         "    async def getDataFromUrl(url, start  = None, end  = None, type = None):\n" +
-        "        return await JSVFuse.getDataFromUrl(url, start, end, type)\n"
+        "        result = await JSVFuse.getDataFromUrl(url, start, end, type)\n" +
+        "        if type(result) != str:\n" +
+        "            return result.to_py()\n" +
+        "        else:\n" +
+        "            return result\n" +
         "    @staticmethod\n" +
-        "    async def execute(func, data = None):\n" +
-        "        func_caller = cloudpickle.load(func)\n" +
-        "        return await func_caller(data)\n" +
+        "    def execute(func, data = None):\n" +
+        "        code = bytes(func.to_py().values())\n" +
+        "        if type(data) != str:\n" +
+        "            data = data.to_py()\n" +
+        "        func_caller = cloudpickle.loads(code)\n" +
+        "        return func_caller(data)\n"
 
     function parseLog(log) {
         return log
@@ -99,8 +101,6 @@ const worker_code = () => {
                 languagePluginLoader
                     .then(async () => {
                         try{
-                            //await self.pyodide.runPythonAsync(self.installDill)
-                            await self.pyodide.runPythonAsync(self.PythonVFuse)
                             self.postMessage({
                                 action: 'initialized'
                             })
@@ -120,6 +120,8 @@ const worker_code = () => {
                     });
                 break;
             case 'load':
+                await self.pyodide.loadPackagesFromImports(self.PythonVFuse)
+                await self.pyodide.runPythonAsync(self.PythonVFuse)
                 self.postMessage({
                     action: 'loaded'
                 });
@@ -140,20 +142,18 @@ const worker_code = () => {
                 break;
             case 'exec':
                 try {
-                    debugger
-                    if(job.inline) {
-                        await self.pyodide.loadPackagesFromImports(self.PythonVFuse)
-                        await self.pyodide.runPythonAsync(self.PythonVFuse)
-                    }
                     self.pyodide.globals.function_to_run = job.code
                     self.pyodide.globals.input = job.data
-                    await self.pyodide.loadPackagesFromImports(job.code)
-                    //let async_execution_code = `async def main():\n   ${job.code.replaceAll('\n', '\t\n')}\nmain()`
-                    let results = await self.pyodide.runPythonAsync(!job.inline ?  'VFuse.execute(function_to_run, input)' : job.code)
+                    //todo make a function ti get the code from uint array before call load package
+                    if(job.inline)
+                       self.packages = await self.pyodide.pyodide_py.find_imports(job.code)
+                    else
+                       self.pyodide.loadPackagesFromImports(job.packages)
+                    let results = await self.pyodide.runPythonAsync(!job.inline ?  `VFuse.execute(function_to_run, input)` : job.code)
                     self.postMessage(
                         {
                             action: 'return',
-                            results: results
+                            results: typeof(results)!="string" ? results.toJs() : results
                         });
                 } catch (err) {
                     self.postMessage({

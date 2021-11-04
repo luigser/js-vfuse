@@ -92,7 +92,7 @@ class WebWorkerRuntime {
                         let p = JSON.parse(params)
                         switch(func){
                             case 'addJob':
-                                let job = await this.runtimeManager.addJob(p.name, p.func, p.deps, p.input)
+                                let job = await this.runtimeManager.addJob(p.name, p.func, p.deps, p.input, p.packages)
                                 if(job) {
                                     this.webworker.postMessage({
                                         action: 'VFuse:runtime',
