@@ -31,7 +31,8 @@ const Constants = {
                 DISCOVERY : 'discovery',
                 WORKFLOW : {
                     EXECUTION_REQUEST : 'workflow_execution_request',
-                    EXECUTION_RESPONSE : 'workflow_execution_response'
+                    EXECUTION_RESPONSE : 'workflow_execution_response',
+                    UNPUBLISH : 'workflow_unpublish'
                 },
                 JOB:{
                     EXECUTION_REQUEST: 'job_execution_request',

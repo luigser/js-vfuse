@@ -4,11 +4,12 @@ input = await VFuse.getDataFromUrl("https://raw.githubusercontent.com/bwhite/dv_
 
 def map(data):
     result = {}
-    for w in data.split(' '):
-        if w in result:
-            result[w] = result[w] + 1
-        else:
-            result[w] = 1
+    for row in data:
+        for word in row.split(' '):
+            if word in result:
+                result[word] = result[word] + 1
+            else:
+                result[word] = 1
     return result
 
 def reduce(data):

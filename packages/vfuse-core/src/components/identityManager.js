@@ -70,6 +70,7 @@ class IdentityManager {
                 }
                 await this.contentManager.makeDir('/workflows/private')
                 await this.contentManager.makeDir('/workflows/published')
+                await this.contentManager.makeDir('/workflows/unpublished')
                 await this.contentManager.makeDir('/workflows/running')
                 await this.contentManager.makeDir('/workflows/completed')
                 /*new TextEncoder().encode(JSON.stringify(new_profile))*/

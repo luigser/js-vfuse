@@ -42,6 +42,9 @@ class WorkflowManager{
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
                 await this.handleRequestExecutionWorkflow(data)
             }.bind(this))
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
+                await this.handleWorflowsUnpublishing(data)
+            }.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
                 await this.manageResults(data)
             }.bind(this))
@@ -117,6 +120,16 @@ class WorkflowManager{
                         payload: decoded_workflow
                     })
                 }
+
+                let unpublished_workflows = await this.contentManager.list('/workflows/unpublished')
+                if (unpublished_workflows){
+                    await this.contentManager.sendOnTopic({
+                        action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH,
+                        payload: {
+                            wids: unpublished_workflows,
+                        }
+                    })
+                }
             }.bind(this), Constants.TIMEOUTS.WORKFLOWS_PUBLISHING)
         }catch(e){
             console.log('Error during workflows publishing : %O', e)
@@ -157,6 +170,16 @@ class WorkflowManager{
         }catch (e) {
             if(e.message !== 'file does not exist')
                console.log('Got error during results publishing : %O', e)
+        }
+    }
+
+    async handleWorflowsUnpublishing(data){
+        try{
+            if(!data.wids) return
+            for(let wid of data.wids)
+                await this.contentManager.delete('/workflows/published/' + wid + '.json')
+        }catch (e) {
+
         }
     }
 
@@ -271,6 +294,7 @@ class WorkflowManager{
             for(let wid of data.wids) {
                 await this.contentManager.delete('/workflows/running/' + wid + '.json')
                 await this.contentManager.delete('/workflows/published/' + wid + '.json')
+                await this.contentManager.delete('/workflows/unpublished/' + wid + '.json')
                 await this.contentManager.delete('/workflows/completed/' + wid)
             }
         }catch (e) {
@@ -411,7 +435,7 @@ class WorkflowManager{
                 await this.contentManager.delete('/workflows/published/'  + workflow_id + '.json')
                 await this.identityManager.unpublishWorkflow(filtered[0])
                 this.publishedWorkflows = this.identityManager.publishedWorkflows
-                await this.contentManager.save('/workflows/completed/' + workflow_id, "completed")
+                await this.contentManager.save('/workflows/unpublished/' + workflow_id, "completed")
                 console.log('Workflow successfully unpublished')
                 return true
             }else{
