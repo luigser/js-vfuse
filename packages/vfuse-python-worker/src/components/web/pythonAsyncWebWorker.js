@@ -63,6 +63,9 @@ const worker_code = () => {
         }
     }
 
+    /*"        #if type(result) != str:\n" +
+    "        #    result = result.to_py()\n" +*/
+
     self.PythonVFuse = "from js import JSVFuse\n" +
         "import cloudpickle\n" +
         "class VFuse:\n" +
@@ -72,11 +75,7 @@ const worker_code = () => {
         "        return await JSVFuse.addJob(func_source, func.__name__, deps, input)\n" +
         "    @staticmethod\n" +
         "    async def getDataFromUrl(url, start = None, end = None, type = None):\n" +
-        "        result = await JSVFuse.getDataFromUrl(url, start, end, type)\n" +
-        "        if type(result) != str:\n" +
-        "            return result.to_py()\n" +
-        "        else:\n" +
-        "            return result\n" +
+        "        return await JSVFuse.getDataFromUrl(url, start, end, type)\n" +
         "    @staticmethod\n" +
         "    def execute(func, data = None):\n" +
         "        code = bytes(func.to_py().values())\n" +

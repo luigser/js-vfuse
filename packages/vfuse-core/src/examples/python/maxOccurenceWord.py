@@ -29,10 +29,12 @@ def getMaxWordOccurence(data):
 
 input = input.splitlines()
 chunk = math.floor(len(input) / 100)
-for i in range(len(input)):
+i = 0
+while i < len(input):
     map_job_id = await VFuse.addJob(map, [], input[i:i + chunk])
+    i = i + chunk
 
-diff = len(input) - input
+diff = len(input) - i
 if diff > 0:
     map_job_id = await VFuse.addJob(map, [], input[i:i + diff])
 
