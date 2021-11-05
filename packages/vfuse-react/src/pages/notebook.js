@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification, Select, Tabs} from "antd";
+import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification, Select, Tabs, Divider} from "antd";
 import VFuse from "vfuse-core";
 import {gStore} from "../store";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -60,6 +60,7 @@ export default function NotebookPage(props){
     const [publishNetworkLoading, setPublishNetworkLoading] = useState(false)
     const [unpublishNetworkLoading, setUnpublishNetworkLoading] = useState(false)
     const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(false)
+    const [testLocallyLoading, setTestLocallyLoading] = useState(false)
     const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : null)
     const [code, setCode] = useState(javascriptCodeExample);
     const [language, setLanguage] = useState(VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
@@ -182,22 +183,22 @@ export default function NotebookPage(props){
 
     const handleChangeFontSize = (value) => setFontSize(parseInt(value))
 
-    const onRunLocal = async () => {
-        setRunLocalLoading(true)
-        let result = await vFuseNode.checkWorkflow(code)
-        let dag = result.workflow.jobsDAG.toJSON()
-        setDag(dag)
-        setRunLocalLoading(false)
-
-        if(result && result.error){
+    const testLocally = async () => {
+        setTestLocallyLoading(true)
+        let workflow = await vFuseNode.testWorkflow(code, language)
+        setTestLocallyLoading(false)
+        if(workflow && workflow.error){
             notification.error({
                 message : "Something went wrong",
-                description : result.error.message
+                description : workflow.error.message
             });
         }else{
+            let dag = workflow.jobsDAG
+            setDag(dag)
+
             notification.info({
                 message : "Info",
-                description : 'Run completed'
+                description : 'Local Run completed'
             });
         }
     }
@@ -207,7 +208,7 @@ export default function NotebookPage(props){
             <Row>
                 <Col span={24}>
                     <PageHeader
-                        title="VFuse Notebook"
+                        title="Notebook"
                         className="site-page-header"
                         subTitle="Node status"
                         tags={[
@@ -218,9 +219,10 @@ export default function NotebookPage(props){
                         ]}
                         extra={[
                             /*<Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,*/
-                            <Button key="2" type="info" disabled={!vFuseNode || isPublished} loading={saveWorkflowLoading} onClick={saveWorkflow}>Build & Save</Button>,
-                            <Button key="1" type="primary" disabled={!vFuseNode && !workflowId || isPublished } loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
-                            <Button key="1" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
+                            <Button key="1" type="info" disabled={!vFuseNode || isPublished} loading={saveWorkflowLoading} onClick={saveWorkflow}>Build & Save</Button>,
+                            <Button key="2" type="primary" disabled={!vFuseNode && !workflowId || isPublished } loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
+                            <Button key="3" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
+                            <><Divider type="vertical"/><Button disabled={!vFuseNode ||  isPublished} type="primary" key="4" loading={testLocallyLoading} onClick={testLocally}>Test Locally</Button></>,
                         ]}
                         //avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
                         /*breadcrumb={{ routes }}*/

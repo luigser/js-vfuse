@@ -1,5 +1,6 @@
 import math
-
+#scikit-learn
+#tensorflow
 input = await VFuse.getDataFromUrl("https://raw.githubusercontent.com/bwhite/dv_hadoop_tests/master/python-streaming/word_count/input/4300.txt")
 
 def map(data):
@@ -25,12 +26,13 @@ def getMaxWordOccurence(data):
     max = data[0]
     for d in data:
         if d['value'] > max['value']:
-            max = data
+            max = d
     return max
 
 input = input.splitlines()
-chunk = math.floor(len(input) / 100)
+chunk = math.floor(len(input) / 10)
 i = 0
+
 while i < len(input):
     map_job_id = await VFuse.addJob(map, [], input[i:i + chunk])
     i = i + chunk

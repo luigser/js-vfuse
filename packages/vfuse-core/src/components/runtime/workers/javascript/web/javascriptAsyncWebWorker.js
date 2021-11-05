@@ -173,7 +173,7 @@ const worker_code = () => {
                             job.code += `\nreturn ${job.name}(\`${job.data}\`)`
                         }
                     }
-                    let F = new AsyncFunction('', job.code );
+                    let F = new AsyncFunction('', job.code )
                     let results = await(F());
                     self.postMessage({
                         action: 'return',

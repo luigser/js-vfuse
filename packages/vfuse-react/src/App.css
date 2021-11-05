@@ -126,7 +126,7 @@
   height: 32px;
   line-height: 32px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.65);
+  color: #1890ff;
   font-weight: 700;
   background: rgba(255, 255, 255, 0.2);
   margin: 16px;
@@ -135,7 +135,7 @@
 }
 
 .logo span {
-  color: #fef69e;
+  color: #1890ff;
 }
 
 .ant-layout-sider-collapsed .logo {

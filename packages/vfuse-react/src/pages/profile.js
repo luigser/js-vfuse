@@ -42,7 +42,7 @@ export default function ProfilePage(props){
                 description : "Cannot establish connection to network"
             });
         }
-    },[])
+    },[workflows])
 
 
     const onProfileIdChange = (e) =>{

@@ -68,6 +68,7 @@ const worker_code = () => {
 
     self.PythonVFuse = "from js import JSVFuse\n" +
         "import cloudpickle\n" +
+        "import micropip\n" +
         "class VFuse:\n" +
         "    @staticmethod\n" +
         "    async def addJob(func, deps, input = None):\n" +
@@ -150,10 +151,13 @@ const worker_code = () => {
                 try {
                     self.pyodide.globals.function_to_run = job.code
                     self.pyodide.globals.input = job.data
-                    if(job.inline)//todo clear prev python code by calling init and load
-                       self.packages = await self.pyodide.pyodide_py.find_imports(job.code)
-                    else
-                       self.pyodide.loadPackagesFromImports(job.packages)
+                    if(job.inline) {//todo clear prev python code by calling init and load
+                        await self.pyodide.loadPackagesFromImports(job.code)
+                        self.packages = await self.pyodide.pyodide_py.find_imports(job.code)
+                    }
+                    else {
+                        self.pyodide.loadPackagesFromImports(job.packages)
+                    }
                     let results = await self.pyodide.runPythonAsync(!job.inline ?  `VFuse.execute(function_to_run, input)` : job.code)
                     self.postMessage(
                         {

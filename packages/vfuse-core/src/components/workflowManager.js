@@ -9,6 +9,7 @@ const Workflow = require('./job/workflow')
 const Job = require('./job/job')
 const {JobsDAG} = require('./job/JobsDAG')
 const Constants = require('./constants')
+const _ = require('lodash')
 
 /*
 WorkflowManager is responsible for job management and execution
@@ -42,9 +43,9 @@ class WorkflowManager{
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
                 await this.handleRequestExecutionWorkflow(data)
             }.bind(this))
-            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
+            /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
                 await this.handleWorflowsUnpublishing(data)
-            }.bind(this))
+            }.bind(this))*/
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
                 await this.manageResults(data)
             }.bind(this))
@@ -121,7 +122,7 @@ class WorkflowManager{
                     })
                 }
 
-                let unpublished_workflows = await this.contentManager.list('/workflows/unpublished')
+                /*let unpublished_workflows = await this.contentManager.list('/workflows/unpublished')
                 if (unpublished_workflows){
                     await this.contentManager.sendOnTopic({
                         action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH,
@@ -129,7 +130,7 @@ class WorkflowManager{
                             wids: unpublished_workflows,
                         }
                     })
-                }
+                }*/
             }.bind(this), Constants.TIMEOUTS.WORKFLOWS_PUBLISHING)
         }catch(e){
             console.log('Error during workflows publishing : %O', e)
@@ -276,7 +277,7 @@ class WorkflowManager{
                 running_workflow = JSON.parse(running_workflow)
                 for(let n of data.nodes){
                     let job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
-                    if ( this.jobsExecutionQueue.indexOf(n.job.id) < 0 || job_node.job.results.length < 1) {
+                    if ( this.jobsExecutionQueue.indexOf(n.job.id) < 0 || !_.isEqual(job_node, n)) {
                         job_node.color = n.color
                         job_node.job = n.job
                     }
@@ -294,7 +295,7 @@ class WorkflowManager{
             for(let wid of data.wids) {
                 await this.contentManager.delete('/workflows/running/' + wid + '.json')
                 await this.contentManager.delete('/workflows/published/' + wid + '.json')
-                await this.contentManager.delete('/workflows/unpublished/' + wid + '.json')
+                //await this.contentManager.delete('/workflows/unpublished/' + wid + '.json')
                 await this.contentManager.delete('/workflows/completed/' + wid)
             }
         }catch (e) {
@@ -338,6 +339,36 @@ class WorkflowManager{
             console.log('Got some error during the workflow execution: %O', e)
             return {error : e}
         }
+    }
+
+    async testWorkflow(code, language){
+        try{
+            let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
+            let workflow = new Workflow(workflow_id._idB58String, 'Test Locally', code, language, new JobsDAG())
+            let result = await this.checkWorkflow(workflow)
+            if(!result.error){
+                workflow = this.currentWorkflow
+                workflow.jobsDAG = workflow.jobsDAG.toJSON()
+                let error = false
+                let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
+                while(nodes.length > 0) {
+                    for (let node of nodes) {
+                        let results = await this.runJob(workflow.id, node.job)
+                        if (results) {
+                            JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_SATUS.COMPLETED, {results: results})
+                        }
+                    }
+                    nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
+                }
+                return workflow
+            }else{
+                return { error : result.error}
+            }
+        }catch (e) {
+            console.log('Got some error during the workflow execution: %O', e)
+            return {error : e}
+        }
+
     }
 
     async updatePublishedWorkflow(workflow){
@@ -435,7 +466,7 @@ class WorkflowManager{
                 await this.contentManager.delete('/workflows/published/'  + workflow_id + '.json')
                 await this.identityManager.unpublishWorkflow(filtered[0])
                 this.publishedWorkflows = this.identityManager.publishedWorkflows
-                await this.contentManager.save('/workflows/unpublished/' + workflow_id, "completed")
+                await this.contentManager.save('/workflows/completed/' + workflow_id, "completed")
                 console.log('Workflow successfully unpublished')
                 return true
             }else{
