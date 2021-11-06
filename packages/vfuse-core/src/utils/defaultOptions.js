@@ -50,7 +50,9 @@ module.exports = {
                         Swarm: [
                             "/ip4/0.0.0.0/tcp/4001",
                             "/ip4/0.0.0.0/tcp/4003/ws",
-                            //options.SignalServer ? '/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star' : '',
+                            //'/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star'
+                            //'/ip4/0.0.0.0/tcp/2000/http/p2p-webrtc-direct'
+                            //options.SignalServer ? '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star' : '',
                         ],
                         Announce: [],
                         Gateway: "/ip4/0.0.0.0/tcp/8080",
@@ -173,20 +175,19 @@ module.exports = {
                 pass: "01234567890123456789",
                 config: {
                     Addresses: {
-                        Swarm: [
-                            /*// This is a public webrtc-star server
+                       /* Swarm: [
+                            /!*!// This is a public webrtc-star server
                             '/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star',
-                            '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star',*/
-
-                            //'/ip4/127.0.0.1/tcp/2000/wss/p2p-webrtc-star',
+                            '/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star',*!/
+                            //'/ip4/0.0.0.0/tcp/9090/http/p2p-webrtc-direct/p2p/',
                             //'/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
-                        ],
+                        ],*/
                         Delegates: options.ipfs.config.Bootstrap
                     },
                     Swarm: {
                         EnableRelayHop: true
                     },
-                    Bootstrap: [],
+                    Bootstrap: options.ipfs.config.Bootstrap,
                     Discovery: {
                          MDNS: {
                              Enabled: true
@@ -197,7 +198,7 @@ module.exports = {
                      },
                 }
             },
-            //libp2p: {addresses: {listen: ['/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star']}},
+            //libp2p: {addresses: {listen: ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star']}},
         },
         options)
     }

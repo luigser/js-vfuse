@@ -15,8 +15,15 @@ export const useVFuse = () => {
                         profileId: profileId,
                         ipfs:{
                             config: {
+                                Addresses : {
+                                    Swarm: [
+                                        '/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star',
+                                    ]
+                                },
                                 Bootstrap :[
-                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWJrzceQZqEgTk4NBGtYABucjnBZ2Nji6JatqBwwZPNYa9',//ALL-IN-ONE
+                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWSy9Gxdc3QcJ3hgiw8ydxab7NpQE37kCqZLSuVYnqHTtd',//ALL-IN-ONE
+                                    //'/ip4/192.168.1.57/tcp/2000/wss/p2p-webrtc-star',
+                                    //'/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct/p2p/12D3KooWSy9Gxdc3QcJ3hgiw8ydxab7NpQE37kCqZLSuVYnqHTtd'
                                 ]
                             }
                         },

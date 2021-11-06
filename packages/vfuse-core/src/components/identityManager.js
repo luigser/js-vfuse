@@ -15,8 +15,8 @@ class IdentityManager {
         this.publishedWorkflows = []
         this.workflows = []
         this.rewards   = 0.00
-
-        this.eventManager.addListener('circuit_enabled', async function(){await this.checkProfile()}.bind(this))
+        //todo MANAGE IT
+        //this.eventManager.addListener('circuit_enabled', async function(){await this.checkProfile()}.bind(this))
     }
 
     async getProfile(id) {

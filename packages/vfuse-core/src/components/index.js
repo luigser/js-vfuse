@@ -28,8 +28,9 @@ class VFuse {
         this.options.peerId  = this.networkManager.key[0].id
         this.identityManager = new IdentityManager(this.contentManager, this.eventManager, this.options)
         this.workflowManager = new WorkflowManager(this.contentManager, this.identityManager, this.eventManager, this.options)
-        /*await this.workflowManager.start()
-        await this.identityManager.checkProfile()*/
+        //TODO MANAGE IT
+        await this.workflowManager.start()
+        await this.identityManager.checkProfile()
     }
 
     async start(){

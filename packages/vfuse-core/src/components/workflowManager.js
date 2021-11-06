@@ -26,7 +26,8 @@ class WorkflowManager{
             this.eventManager = eventManager
             this.runtimeManager = new RuntimeManager(options.runtime, this)
             this.workflowsQueue = []
-            this.eventManager.addListener('circuit_enabled', async function(){await this.start()}.bind(this))
+            //todo MANAGE IT
+            //this.eventManager.addListener('circuit_enabled', async function(){await this.start()}.bind(this))
 
             this.currentWorkflow = null
             this.workflows = []
@@ -40,24 +41,25 @@ class WorkflowManager{
 
             this.eventManager.addListener('profile.ready', async function(){await this.startWorkspace()}.bind(this))
 
-            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
-                await this.handleRequestExecutionWorkflow(data)
-            }.bind(this))
-            /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
-                await this.handleWorflowsUnpublishing(data)
-            }.bind(this))*/
-            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
-                await this.manageResults(data)
-            }.bind(this))
-            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, async function (data) {
-                await this.dropWorkflows(data)
-            }.bind(this))
-            /*
-            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, async function (data) {
-                await this.executeJob(data)
-            }.bind(this))
-            */
-
+            if(isBrowser) {
+                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
+                    await this.handleRequestExecutionWorkflow(data)
+                }.bind(this))
+                /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
+                    await this.handleWorflowsUnpublishing(data)
+                }.bind(this))*/
+                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
+                    await this.manageResults(data)
+                }.bind(this))
+                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, async function (data) {
+                    await this.dropWorkflows(data)
+                }.bind(this))
+                /*
+                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, async function (data) {
+                    await this.executeJob(data)
+                }.bind(this))
+                */
+            }
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
         }
@@ -93,9 +95,10 @@ class WorkflowManager{
             //Start publish on topic
             if(isBrowser) {//TODO implement nodejs worker
                 this.executionCycle()
+                this.publishWorkflows()
+                this.publishResults()
             }
-            this.publishWorkflows()
-            this.publishResults()
+
             this.eventManager.emit('VFuse.ready', { status : true, workflows : this.workflows, profile : this.identityManager.getCurrentProfile() })
         }catch(e){
             this.eventManager.emit('VFuse.ready', { status : false, error : e})
@@ -277,7 +280,7 @@ class WorkflowManager{
                 running_workflow = JSON.parse(running_workflow)
                 for(let n of data.nodes){
                     let job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
-                    if ( this.jobsExecutionQueue.indexOf(n.job.id) < 0 || !_.isEqual(job_node, n)) {
+                    if (this.jobsExecutionQueue.indexOf(n.job.id) < 0 && !_.isEqual(job_node, n)) {
                         job_node.color = n.color
                         job_node.job = n.job
                     }

@@ -1,13 +1,12 @@
 'use strict'
 
 const IPFS = require('ipfs')
-/*const Bootstrap = require('libp2p-bootstrap')
+const Bootstrap = require('libp2p-bootstrap')
 const Noise = require('libp2p-noise')
-const WebSockets = require('libp2p-websockets')
 const Mplex = require('libp2p-mplex')
-const filters = require('libp2p-websockets/src/filters')*/
-/*const Gossipsub = require('libp2p-gossipsub')
-const WebRTCDirect = require('libp2p-webrtc-direct')*/
+const filters = require('libp2p-websockets/src/filters')
+const Gossipsub = require('libp2p-gossipsub')
+const WebRTCDirect = require('libp2p-webrtc-direct')
 const WebSockets = require('libp2p-websockets')
 const { CID } = require('multiformats/cid')
 const TCP = require('libp2p-tcp')
@@ -78,7 +77,6 @@ class NetworkManager{
             repo: this.ipfsOptions && this.ipfsOptions.repo ? this.ipfsOptions.repo : repo_id._idB58String,
             config: {
                 ...this.ipfsOptions.config,
-                //Bootstrap: this.bootstrapNodes,
                 Pubsub: {
                     Router: "gossipsub",
                     Enabled: true
@@ -91,29 +89,26 @@ class NetworkManager{
                 connProtector: new Protector((new TextEncoder()).encode(this.swarmKey)),
             }
 
-        if(isBrowser) {
-            /*const transportKey = WebRTCStar.prototype[Symbol.toStringTag]
-            opt.libp2p = {
+       /* if(isBrowser) {
+            //const transportKey = WebRTCStar.prototype[Symbol.toStringTag]
+            opt.libp2p ={
                 modules: {
-                    transport: [WebRTCStar],
-                    peerDiscovery: [WebRTCStar]
+                    transport: [WebRTCDirect],
+                    streamMuxer: [Mplex],
+                    connEncryption: [Noise],
+                    peerDiscovery: [Bootstrap]
                 },
                 config: {
                     peerDiscovery: {
-                        autoDial: true,
-                        webRTCStar: {
-                            enabled: true
-                        }
-                    },
-                    transport: {
-                        [transportKey]: {
-                            wrtc
+                        [Bootstrap.tag]: {
+                            enabled: true,
+                            list: this.ipfsOptions.config.Bootstrap
                         }
                     }
                 },
                 ...this.libp2pOptions
-            }*/
-            const filters = require('libp2p-websockets/src/filters')
+            }
+           /!* const filters = require('libp2p-websockets/src/filters')
             const transportKey = WebSockets.prototype[Symbol.toStringTag]
             opt.libp2p = {
                 config: {
@@ -124,23 +119,42 @@ class NetworkManager{
                         [transportKey]: {
                             filter: filters.all
                         }
+                    },
+                    peerDiscovery: {
+                        [Bootstrap.tag]: {
+                            enabled: true,
+                            list: ['/ip4/0.0.0.0/tcp/9090/http/p2p-webrtc-direct']
+                        }
                     }
                 },
                 ...opt.libp2p
             }
-
+*!/
             this.httpClient = this.ipfsClientOptions ? IpfsHttpClient.create(this.ipfsClientOptions) : null
-        }
+        }*/
 
         if(isNode) {
-            /*opt.libp2p = {
+            opt.libp2p = {
+                addresses: {
+                    listen: [
+                        '/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct',
+                        //'/ip4/0.0.0.0/tcp/2000/wss/p2p-webrtc-star',
+                        "/ip4/0.0.0.0/tcp/4001",
+                        "/ip4/0.0.0.0/tcp/4003/ws",
+                    ]
+                },
                 modules: {
+                    //transport: [WebRTCDirect, TCP]
                     transport: [WebRTCStar, TCP]
                 },
                 config: {
                     peerDiscovery: {
                         webRTCStar: {
                             enabled: true
+                        },
+                        [Bootstrap.tag]: {
+                            enabled: false,
+                            list: ['/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct']
                         }
                     },
                     transport: {
@@ -150,7 +164,7 @@ class NetworkManager{
                     }
                 },
                 ...opt.libp2p
-            }*/
+            }
         }
 
         let node = await IPFS.create(opt)
@@ -164,7 +178,7 @@ class NetworkManager{
 
         await this.initTopicsChannel()
         this.hookEvents()
-        this.announce()
+        //this.announce()
 
         this.cluster = this.ipfsClusterApi ? ipfsCluster(this.ipfsClusterApi) : this.ipfs
         this.api = isBrowser && this.httpClient ?  this.httpClient : this.ipfs
@@ -179,9 +193,9 @@ class NetworkManager{
 
     announce(){
         setInterval(async function(){
-            if(isNode && this.isBootstrapNode)
-               await this.ipfs.pubsub.publish("announce-circuit", "peer-alive")
-            await this.send({ action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, peer : this.peerId })
+            //if(isNode && this.isBootstrapNode)
+               await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, "peer-alive")
+            //await this.send({ action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, peer : this.peerId })
         }.bind(this), Constants.TIMEOUTS.DISCOVERY);
     }
 
@@ -228,7 +242,7 @@ class NetworkManager{
             await this.ipfs.swarm.connect(addr);
         } catch(err) {
             console.log(err);
-            await this.ipfs.swarm.connect(addr);
+            //await this.ipfs.swarm.connect(addr);
         }
     }
 
@@ -285,7 +299,7 @@ class NetworkManager{
 
     async initTopicsChannel(){
         await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, this.topicHandler.bind(this) )
-        await this.ipfs.pubsub.subscribe("announce-circuit", this.processAnnounce.bind(this));
+        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, this.processAnnounce.bind(this));
     }
 
     async send(data){
@@ -309,7 +323,7 @@ class NetworkManager{
 
     hookEvents(){
         this.libp2p.on('peer:discovery', function(peerId) {
-            //console.log(`Found peer ${peerId.toB58String()}`)
+            console.log(`Found peer ${peerId.toB58String()}`)
             if(this.discoveryCallback) this.discoveryCallback(peerId);
         }.bind(this))
 
@@ -331,7 +345,7 @@ class NetworkManager{
             for (const multiaddr of multiaddrs) {
                 addresses.push(multiaddr.toString())
             }
-            //console.log('change:multiaddrs', {peerId, multiaddrs, addresses})
+            console.log('change:multiaddrs', {peerId, multiaddrs, addresses})
         })
         //this.node.libp2p.peerStore.on('change:protocols', ({ peerId, protocols}) => console.log('change:protocols', {peerId, protocols}))
         this.libp2p.on('error', (err) => console.log('error', err))
