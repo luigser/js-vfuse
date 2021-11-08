@@ -178,7 +178,7 @@ class NetworkManager{
 
         await this.initTopicsChannel()
         this.hookEvents()
-        //this.announce()
+        this.announce()
 
         this.cluster = this.ipfsClusterApi ? ipfsCluster(this.ipfsClusterApi) : this.ipfs
         this.api = isBrowser && this.httpClient ?  this.httpClient : this.ipfs
@@ -193,6 +193,14 @@ class NetworkManager{
 
     announce(){
         setInterval(async function(){
+            let peers = await this.ipfs.swarm.peers()
+            console.log(peers)
+            for(let p of peers){
+                if(!this.connectedPeers.has(p.peer)){
+                    await this.ipfs.swarm.connect(p.addr)
+                    this.connectedPeers.set(p.peer, p)
+                }
+            }
             //if(isNode && this.isBootstrapNode)
                await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, "peer-alive")
             //await this.send({ action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, peer : this.peerId })
@@ -328,9 +336,9 @@ class NetworkManager{
         }.bind(this))
 
         // Listen for new connections to peers
-        // Listen for new connections to peers
         this.libp2p.connectionManager.on('peer:connect', async function(connection){
-           console.log(`Connected to ${connection.remoteAddr.toString()}`)
+            //if(connection.remoteAddr) this.connectedPeers.set(connection.remoteAddr.toString(), connection.remoteAddr)
+            console.log(`Connected to ${connection && connection.remoteAddr ? connection.remoteAddr.toString() : connection}`)
         }.bind(this))
 
         // Listen for peers disconnecting

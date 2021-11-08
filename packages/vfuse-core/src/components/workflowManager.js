@@ -259,15 +259,16 @@ class WorkflowManager{
             let workflow = this.getWorkflow(data.wid)
             if(workflow) {
                 let completed_nodes = workflow.jobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB_SATUS.COMPLETED || n.job.status === Constants.JOB_SATUS.ERROR))
-                if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){//do not consider the root node
+                if(completed_nodes.length === workflow.jobsDAG.nodes.length){//do not consider the root node
                     await this.contentManager.save('/workflows/completed/' + workflow.id, "completed")
                     return
-                }
-                for(let n of data.nodes){
-                    let job_node = workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
-                    if(job_node.job.results.length < 1){
-                        job_node.color = n.color
-                        job_node.job = n.job
+                }else{
+                    for(let n of data.nodes){
+                        let job_node = workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
+                        if(job_node.job.results.length < 1){
+                            job_node.color = n.color
+                            job_node.job = n.job
+                        }
                     }
                 }
                 await this.updateWorkflow(workflow)
@@ -280,7 +281,11 @@ class WorkflowManager{
                 running_workflow = JSON.parse(running_workflow)
                 for(let n of data.nodes){
                     let job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
-                    if (this.jobsExecutionQueue.indexOf(n.job.id) < 0 && !_.isEqual(job_node, n)) {
+                    if (this.jobsExecutionQueue.indexOf(n.job.id) < 0 &&
+                        ((n.job.status === Constants.JOB_SATUS.COMPLETED && job_node.job.status === Constants.JOB_SATUS.READY) ||
+                            n.job.status === Constants.JOB_SATUS.ERROR
+                        )
+                    ) {
                         job_node.color = n.color
                         job_node.job = n.job
                     }

@@ -196,6 +196,9 @@ module.exports = {
                              Enabled: true
                          }
                      },
+                    pubsub:{
+                        enabled : true
+                    }
                 }
             },
             //libp2p: {addresses: {listen: ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star']}},
