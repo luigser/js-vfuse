@@ -89,9 +89,9 @@ class NetworkManager{
                 connProtector: new Protector((new TextEncoder()).encode(this.swarmKey)),
             }
 
-       /* if(isBrowser) {
+        if(isBrowser) {
             //const transportKey = WebRTCStar.prototype[Symbol.toStringTag]
-            opt.libp2p ={
+            /*opt.libp2p ={
                 modules: {
                     transport: [WebRTCDirect],
                     streamMuxer: [Mplex],
@@ -107,8 +107,8 @@ class NetworkManager{
                     }
                 },
                 ...this.libp2pOptions
-            }
-           /!* const filters = require('libp2p-websockets/src/filters')
+            }*/
+            const filters = require('libp2p-websockets/src/filters')
             const transportKey = WebSockets.prototype[Symbol.toStringTag]
             opt.libp2p = {
                 config: {
@@ -120,21 +120,21 @@ class NetworkManager{
                             filter: filters.all
                         }
                     },
-                    peerDiscovery: {
+                    /*peerDiscovery: {
                         [Bootstrap.tag]: {
                             enabled: true,
                             list: ['/ip4/0.0.0.0/tcp/9090/http/p2p-webrtc-direct']
                         }
-                    }
+                    }*/
                 },
                 ...opt.libp2p
             }
-*!/
+
             this.httpClient = this.ipfsClientOptions ? IpfsHttpClient.create(this.ipfsClientOptions) : null
-        }*/
+        }
 
         if(isNode) {
-            opt.libp2p = {
+            /*opt.libp2p = {
                 addresses: {
                     listen: [
                         '/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct',
@@ -153,8 +153,8 @@ class NetworkManager{
                             enabled: true
                         },
                         [Bootstrap.tag]: {
-                            enabled: false,
-                            list: ['/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct']
+                            enabled: true,
+                            //list: ['/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct']
                         }
                     },
                     transport: {
@@ -164,7 +164,7 @@ class NetworkManager{
                     }
                 },
                 ...opt.libp2p
-            }
+            }*/
         }
 
         let node = await IPFS.create(opt)
@@ -193,14 +193,14 @@ class NetworkManager{
 
     announce(){
         setInterval(async function(){
-            let peers = await this.ipfs.swarm.peers()
+            /*let peers = await this.ipfs.swarm.peers()
             console.log(peers)
             for(let p of peers){
                 if(!this.connectedPeers.has(p.peer)){
                     await this.ipfs.swarm.connect(p.addr)
                     this.connectedPeers.set(p.peer, p)
                 }
-            }
+            }*/
             //if(isNode && this.isBootstrapNode)
                await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, "peer-alive")
             //await this.send({ action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, peer : this.peerId })
