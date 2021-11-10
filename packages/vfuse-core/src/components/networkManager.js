@@ -7,7 +7,9 @@ const Mplex = require('libp2p-mplex')
 const filters = require('libp2p-websockets/src/filters')
 const Gossipsub = require('libp2p-gossipsub')
 const WebRTCDirect = require('libp2p-webrtc-direct')
+const MDNS = require('libp2p-mdns')
 const WebSockets = require('libp2p-websockets')
+const KadDHT = require('libp2p-kad-dht')
 const { CID } = require('multiformats/cid')
 const TCP = require('libp2p-tcp')
 const WebRTCStar = require('libp2p-webrtc-star')
@@ -65,7 +67,7 @@ class NetworkManager{
         this.connectionCallback = options.connectionCallback
         this.getMessageFromProtocolCallback = options.getMessageFromProtocolCallback
 
-        this.connectedPeers = new Map()
+        this.connectedPeers = new Set()
     }
 
     async start() {
@@ -90,15 +92,34 @@ class NetworkManager{
             }
 
         if(isBrowser) {
-            //const transportKey = WebRTCStar.prototype[Symbol.toStringTag]
-            /*opt.libp2p ={
+            const filters = require('libp2p-websockets/src/filters')
+            opt.libp2p = {
+                addresses: {
+                    listen: this.ipfsOptions.config.Addresses.Swarm
+                },
                 modules: {
-                    transport: [WebRTCDirect],
+                    transport: [WebSockets, WebRTCStar],
                     streamMuxer: [Mplex],
                     connEncryption: [Noise],
-                    peerDiscovery: [Bootstrap]
+                    peerDiscovery: [Bootstrap],
+                    dht: KadDHT,
+                    pubsub : Gossipsub
                 },
                 config: {
+                    transport: {
+                        // This is added for local demo!
+                        // In a production environment the default filter should be used
+                        // where only DNS + WSS addresses will be dialed by websockets in the browser.
+                        [WebSockets.prototype[Symbol.toStringTag]]: {
+                            filter: filters.all
+                        }
+                    },
+                    dht: {
+                        enabled: true,
+                        randomWalk: {
+                            enabled: true
+                        }
+                    },
                     peerDiscovery: {
                         [Bootstrap.tag]: {
                             enabled: true,
@@ -107,78 +128,71 @@ class NetworkManager{
                     }
                 },
                 ...this.libp2pOptions
-            }*/
-            const filters = require('libp2p-websockets/src/filters')
-            const transportKey = WebSockets.prototype[Symbol.toStringTag]
-            opt.libp2p = {
-                config: {
-                    transport: {
-                        // This is added for local demo!
-                        // In a production environment the default filter should be used
-                        // where only DNS + WSS addresses will be dialed by websockets in the browser.
-                        [transportKey]: {
-                            filter: filters.all
-                        }
-                    },
-                    /*peerDiscovery: {
-                        [Bootstrap.tag]: {
-                            enabled: true,
-                            list: ['/ip4/0.0.0.0/tcp/9090/http/p2p-webrtc-direct']
-                        }
-                    }*/
-                },
-                ...opt.libp2p
             }
 
             this.httpClient = this.ipfsClientOptions ? IpfsHttpClient.create(this.ipfsClientOptions) : null
         }
 
         if(isNode) {
-            /*opt.libp2p = {
+            opt.libp2p = {
                 addresses: {
-                    listen: [
-                        '/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct',
-                        //'/ip4/0.0.0.0/tcp/2000/wss/p2p-webrtc-star',
-                        "/ip4/0.0.0.0/tcp/4001",
-                        "/ip4/0.0.0.0/tcp/4003/ws",
-                    ]
+                    listen: this.ipfsOptions.config.Addresses.Swarm
                 },
                 modules: {
-                    //transport: [WebRTCDirect, TCP]
-                    transport: [WebRTCStar, TCP]
+                    transport: [ WebRTCStar, TCP, WebSockets ],
+                    streamMuxer: [ Mplex ],
+                    connEncryption: [ Noise ],
+                    peerDiscovery: [ MDNS ],
+                    dht: KadDHT,
+                    pubsub: Gossipsub
                 },
                 config: {
-                    peerDiscovery: {
+                   /* peerDiscovery: {
                         webRTCStar: {
                             enabled: true
                         },
-                        [Bootstrap.tag]: {
+                        /!*[Bootstrap.tag]: {
                             enabled: true,
                             //list: ['/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct']
+                        }*!/
+                    },*/
+                    transport : {
+                        [WebRTCStar.prototype[Symbol.toStringTag]]: {
+                            wrtc
                         }
                     },
-                    transport: {
-                        WebRTCStar: {
-                            wrtc
+                    relay: {
+                        enabled: true,
+                        hop: {
+                            enabled: true
+                        },
+                        advertise: {
+                            enabled: true,
+                        }
+                    },
+                    dht: {
+                        enabled: true,
+                        randomWalk: {
+                            enabled: true
                         }
                     }
                 },
-                ...opt.libp2p
-            }*/
+                ...this.libp2pOptions
+            }
         }
 
         let node = await IPFS.create(opt)
         this.ipfs = node
         this.libp2p = node.libp2p
-        let pid = await this.ipfs.id()
-        this.peerId= pid.id
-        console.log("IPFS Peer ID:", pid)
+        this.peerId = this.libp2p.addressManager.peerId._idB58String
+
+        console.log("Peer ID:", this.peerId)
         this.key = await this.ipfs.key.list()
-        console.log(this.key)
+        //console.log(this.key)
 
         await this.initTopicsChannel()
         this.hookEvents()
-        this.announce()
+        //this.announce()
 
         this.cluster = this.ipfsClusterApi ? ipfsCluster(this.ipfsClusterApi) : this.ipfs
         this.api = isBrowser && this.httpClient ?  this.httpClient : this.ipfs
@@ -306,12 +320,12 @@ class NetworkManager{
     }
 
     async initTopicsChannel(){
-        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, this.topicHandler.bind(this) )
-        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, this.processAnnounce.bind(this));
+        await this.libp2p.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, this.topicHandler.bind(this) )
+        await this.libp2p.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, this.processAnnounce.bind(this));
     }
 
     async send(data){
-        await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME,  new TextEncoder().encode(JSON.stringify(data)))
+        await this.libp2p.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME,  new TextEncoder().encode(JSON.stringify(data)))
     }
 
     registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){
@@ -337,13 +351,15 @@ class NetworkManager{
 
         // Listen for new connections to peers
         this.libp2p.connectionManager.on('peer:connect', async function(connection){
-            //if(connection.remoteAddr) this.connectedPeers.set(connection.remoteAddr.toString(), connection.remoteAddr)
             console.log(`Connected to ${connection && connection.remoteAddr ? connection.remoteAddr.toString() : connection}`)
+            if (this.connectedPeers.has(connection.remotePeer.toB58String())) return
+            this.connectedPeers.add(connection.remotePeer.toB58String())
         }.bind(this))
 
         // Listen for peers disconnecting
         this.libp2p.connectionManager.on('peer:disconnect', (connection) => {
             console.log(`Disconnected from ${connection.remotePeer.toB58String()}`)
+            this.connectedPeers.delete(connection.remotePeer.toB58String())
         })
 
         //this.node.libp2p.peerStore.on('peer', (peerId) => console.log('peer', peerId))

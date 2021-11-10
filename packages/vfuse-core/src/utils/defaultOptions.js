@@ -51,8 +51,8 @@ module.exports = {
                             "/ip4/0.0.0.0/tcp/4001",
                             "/ip4/0.0.0.0/tcp/4003/ws",
                             //'/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star'
+                            options.SignalServer ? '/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star/' : '',
                             //'/ip4/0.0.0.0/tcp/2000/http/p2p-webrtc-direct'
-                            //options.SignalServer ? '/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star' : '',
                         ],
                         Announce: [],
                         Gateway: "/ip4/0.0.0.0/tcp/8080",
@@ -132,7 +132,7 @@ module.exports = {
                         RepublishPeriod: "",*/
                         ResolveCacheSize: 128
                     },
-                    Swarm: {
+                   /* Swarm: {
                         AddrFilters: null,
                         ConnMgr: {
                             GracePeriod: "20s",
@@ -145,11 +145,11 @@ module.exports = {
                         DisableRelay: false,
                         EnableAutoRelay: true,
                         EnableRelayHop: false,
-                        /* Transports: {
+                        /!* Transports: {
                              Multiplexers: {},
                              Network: {},
                              Security: {}
-                         }*/
+                         }*!/
                     },
                     Discovery: {
                         MDNS: {
@@ -159,7 +159,7 @@ module.exports = {
                         webRTCStar: {
                             Enabled: true
                         }
-                    },
+                    },*/
                 }
             }
         },
@@ -184,7 +184,7 @@ module.exports = {
                         ],*/
                         Delegates: options.ipfs.config.Bootstrap
                     },
-                    Swarm: {
+                    /*Swarm: {
                         EnableRelayHop: true
                     },
                     Bootstrap: options.ipfs.config.Bootstrap,
@@ -198,7 +198,7 @@ module.exports = {
                      },
                     pubsub:{
                         enabled : true
-                    }
+                    }*/
                 }
             },
             //libp2p: {addresses: {listen: ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star']}},

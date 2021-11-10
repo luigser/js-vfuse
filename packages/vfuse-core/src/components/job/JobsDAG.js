@@ -30,12 +30,14 @@ class JobsDAG {
                 node.job.status = Constants.JOB_SATUS.COMPLETED
                 node.color = Constants.JOB_SATUS.COLORS.COMPLETED
                 node.job.results = ResultsUtils.combine(node.job.results, data.results)
-                let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.indexOf(node.job.name) >= 0))
+                //let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.indexOf(node.job.name) >= 0))
+                let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.filter( d => (new RegExp(d)).test(node.job.name)).length > 0))
                 for(let dependent_node of dependent_nodes){
                     dependent_node.job.data = ResultsUtils.combine(dependent_node.job.data, node.job.results)
                     let isReady = true
                     for(let dep of dependent_node.job.dependencies){
-                        let dns = JSONJobDAG.nodes.filter(nd => nd.id === dep || nd.label === dep)
+                        //let dns = JSONJobDAG.nodes.filter(nd => nd.id === dep || nd.label === dep)
+                        let dns = JSONJobDAG.nodes.filter(nd => nd.id === dep || (new RegExp(dep)).test(nd.label))
                         for(let nx of dns) {
                             if (nx.job.results.length === 0) isReady = false
                         }
@@ -131,7 +133,7 @@ class JobsDAG {
 
     addVertexByLabel(node, dependency, vertex){
         let adjList = this.edges.get(node)
-        if(node.label === dependency){
+        if(dependency.test(node.label)){
             this.addEdge(node, vertex)
         }else if(adjList.length > 0){
             for (let n = 0; n < adjList.length; n++) {
@@ -177,7 +179,7 @@ class JobsDAG {
                             new_job_vertex
                         )
                     }else{
-                        this.addVertexByLabel(this.root, dependency, new_job_vertex)
+                        this.addVertexByLabel(this.root, new RegExp(dependency), new_job_vertex)
                     }
                 })
             }

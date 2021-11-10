@@ -17,12 +17,13 @@ export const useVFuse = () => {
                             config: {
                                 Addresses : {
                                     Swarm: [
-                                        '/ip4/192.168.1.11/tcp/2000/ws/p2p-webrtc-star',
+                                        '/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star',
                                     ]
                                 },
                                 Bootstrap :[
-                                    //'/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWSy9Gxdc3QcJ3hgiw8ydxab7NpQE37kCqZLSuVYnqHTtd',//ALL-IN-ONE
-                                    '/ip4/192.168.1.11/tcp/4003/ws/p2p/12D3KooWMKjYJRm5th1vHigqLyBjcZMJYySmRGYrEJHbH9PfrFAy',//SURFACE
+                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWSy9Gxdc3QcJ3hgiw8ydxab7NpQE37kCqZLSuVYnqHTtd',//ALL-IN-ONE
+                                    //'/ip4/192.168.1.11/tcp/4003/ws/p2p/12D3KooWMKjYJRm5th1vHigqLyBjcZMJYySmRGYrEJHbH9PfrFAy',//SURFACE
+
                                     //'/ip4/192.168.1.57/tcp/2000/wss/p2p-webrtc-star',
                                     //'/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct/p2p/12D3KooWSy9Gxdc3QcJ3hgiw8ydxab7NpQE37kCqZLSuVYnqHTtd'
                                 ]
@@ -36,7 +37,7 @@ export const useVFuse = () => {
                         discoveryCallback: () => {},
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},
-                        ipfsClusterApi: {host: '192.168.1.11', port: '9094', protocol: 'http'},
+                        ipfsClusterApi: {host: '192.168.1.57', port: '9094', protocol: 'http'},
                         //ipfsClientOptions: {host: '192.168.1.57', port: '5001', protocol: 'http'}
                     }
                 )

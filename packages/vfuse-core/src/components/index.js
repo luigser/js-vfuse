@@ -25,7 +25,7 @@ class VFuse {
         this.networkManager = new NetworkManager(this.options, this.eventManager)
         this.contentManager = new ContentManager(this.networkManager, this.eventManager)
         await this.networkManager.start()
-        this.options.peerId  = this.networkManager.key[0].id
+        this.options.peerId  = this.networkManager.peerId
         this.identityManager = new IdentityManager(this.contentManager, this.eventManager, this.options)
         this.workflowManager = new WorkflowManager(this.contentManager, this.identityManager, this.eventManager, this.options)
         //TODO MANAGE IT
@@ -43,7 +43,7 @@ class VFuse {
             } else if (isNode) {
                 //Start signal server
                 if (this.options.SignalServer) {
-                    const WStarSignalingServer = require('libp2p-webrtc-star/src/sig-server/index')
+                    const WStarSignalingServer = require('libp2p-webrtc-star/src/sig-server')
                     this.webRtcStartServer = await WStarSignalingServer.start(
                         {
                             port: 2000,
