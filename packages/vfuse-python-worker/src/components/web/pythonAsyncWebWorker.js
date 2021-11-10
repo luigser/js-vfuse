@@ -3,7 +3,7 @@ const worker_code = () => {
     importScripts('https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js');
 
     const JSVFuse = {
-        addJob: (code, name, deps, input) => {
+        addJob: (code, name, deps, group, input) => {
             const promise = new Promise((resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data;
@@ -20,11 +20,11 @@ const worker_code = () => {
                 todo: {
                     func: 'addJob',
                     params: JSON.stringify({
-
                         name: name,
                         func: code.toJs(),
                         input: input && typeof(input) !== 'string' ? input.toJs() : input,
                         deps: deps.toJs(),
+                        group: group && typeof(group) !== 'string' ? group.toJs() : group,
                         packages : self.packages.toJs()
                     })
                 }
@@ -71,9 +71,9 @@ const worker_code = () => {
         "import micropip\n" +
         "class VFuse:\n" +
         "    @staticmethod\n" +
-        "    async def addJob(func, deps, input = None):\n" +
+        "    async def addJob(func, deps, input = None, group = None):\n" +
         "        func_source = cloudpickle.dumps(func)\n" +
-        "        return await JSVFuse.addJob(func_source, func.__name__, deps, input)\n" +
+        "        return await JSVFuse.addJob(func_source, func.__name__, deps, group, input)\n" +
         "    @staticmethod\n" +
         "    async def getDataFromUrl(url, start = None, end = None, type = None):\n" +
         "        return await JSVFuse.getDataFromUrl(url, start, end, type)\n" +

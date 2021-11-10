@@ -492,7 +492,7 @@ class WorkflowManager{
         }catch (e) {}
     }
 
-    async addJob(name, code, dependencies, data, packages){
+    async addJob(name, code, dependencies, data, group, packages){
         try{
             let job_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })
             let job = new Job(
@@ -501,6 +501,7 @@ class WorkflowManager{
                 code,
                 data,
                 dependencies,
+                group,
                 this.currentWorkflow.language,
                 packages
             )

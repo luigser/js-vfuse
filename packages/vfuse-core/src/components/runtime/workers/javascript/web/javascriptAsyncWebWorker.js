@@ -3,7 +3,7 @@ const worker_code = () => {
     const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
     const VFuse = {
-        addJob : (func, deps, input) => {
+        addJob : (func, deps, group, input) => {
            const promise = new  Promise( (resolve, reject) => {
                self.onmessage = (e) => {
                    const {action} = e.data;
@@ -24,6 +24,7 @@ const worker_code = () => {
                        name: func.name,
                        func: func.toString(),
                        input: input,
+                       group: group,
                        deps: deps
                    })
                }

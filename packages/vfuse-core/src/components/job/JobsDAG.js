@@ -8,6 +8,7 @@ class JobsDAGVertex{
         this.id = props.id
         this.label = props.label
         this.job   = props.job
+        this.group = props.group
     }
 }
 
@@ -156,7 +157,7 @@ class JobsDAG {
 
     addJob(job){
         try {
-            let new_job_vertex = new JobsDAGVertex({id: job.id, label: job.name, job: job})
+            let new_job_vertex = new JobsDAGVertex({id: job.id, label: job.name, job: job, group : job.group})
             this.addVertex(new_job_vertex)
             if (!job.dependencies || (_.isArray(job.dependencies) && job.dependencies.length === 0)) {
                 new_job_vertex.job.status = Constants.JOB_SATUS.READY
