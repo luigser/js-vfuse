@@ -2,6 +2,7 @@ const _ = require('underscore')
 const PeerId = require('peer-id')
 const ResultsUtils = require('../../utils/resultsUtils')
 const Constants = require("../constants");
+const Utils = require("../../utils/miscellaneous")
 
 class JobsDAGVertex{
     constructor(props) {
@@ -23,29 +24,31 @@ class JobsDAG {
             case Constants.JOB_SATUS.COMPLETED:
                 if(data.results.error){
                     node.job.status = Constants.JOB_SATUS.ERROR
-                    node.color = Constants.JOB_SATUS.COLORS.ERROR
+                    node.color = Utils.getColor(Constants.JOB_SATUS.ERROR)
                     node.job.results = data.results
                     return
                 }
 
                 node.job.status = Constants.JOB_SATUS.COMPLETED
-                node.color = Constants.JOB_SATUS.COLORS.COMPLETED
+                node.color = Utils.getColor(Constants.JOB_SATUS.COMPLETED)
                 node.job.results = ResultsUtils.combine(node.job.results, data.results)
                 //let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.indexOf(node.job.name) >= 0))
-                let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.filter( d => (new RegExp(d)).test(node.job.name)).length > 0))
+                let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0
+                    || n.job.dependencies.filter( d => (new RegExp(d)).test(node.job.name) || new RegExp(d).test(node.job.group)).length > 0)
+                )
                 for(let dependent_node of dependent_nodes){
                     dependent_node.job.data = ResultsUtils.combine(dependent_node.job.data, node.job.results)
                     let isReady = true
                     for(let dep of dependent_node.job.dependencies){
                         //let dns = JSONJobDAG.nodes.filter(nd => nd.id === dep || nd.label === dep)
-                        let dns = JSONJobDAG.nodes.filter(nd => nd.id === dep || (new RegExp(dep)).test(nd.label))
+                        let dns = JSONJobDAG.nodes.filter(nd => nd.id === dep || (new RegExp(dep)).test(nd.label) || (new RegExp(dep).test(nd.group)))
                         for(let nx of dns) {
                             if (nx.job.results.length === 0) isReady = false
                         }
                     }
                     if(isReady){
                         dependent_node.job.status = Constants.JOB_SATUS.READY
-                        dependent_node.color = Constants.JOB_SATUS.COLORS.READY
+                        dependent_node.color = Utils.getColor(Constants.JOB_SATUS.READY)
                     }
                 }
                 break
@@ -70,7 +73,7 @@ class JobsDAG {
     constructor() {
         this.edges = new Map();
         this.vertices = new Map()
-        this.root = new JobsDAGVertex({id : 'root', label: 'root', job : null})
+        this.root = new JobsDAGVertex({id : 'root', label: 'root', job : null, color : '#838383'})
         this.addVertex(this.root)
     }
 
@@ -98,26 +101,14 @@ class JobsDAG {
         if(!this.checkIfNodeExist(nodes, node.id)) {
             let color = '#838383'
             if(node.job) {
-                switch (node.job.status) {
-                    case Constants.JOB_SATUS.WAITING:
-                        color = Constants.JOB_SATUS.COLORS.WAITING
-                        break
-                    case Constants.JOB_SATUS.COMPLETED:
-                        color = Constants.JOB_SATUS.COLORS.COMPLETED
-                        break
-                    case Constants.JOB_SATUS.ERROR:
-                        color = Constants.JOB_SATUS.COLORS.ERROR
-                        break
-                    case Constants.JOB_SATUS.READY:
-                        color = Constants.JOB_SATUS.COLORS.READY
-                        break
-                }
+                color = Utils.getColor(node.job.status)
             }
             nodes.push({
                 id: node.id,
                 label: node.label,
                 color: color,
-                job: node.job
+                job: node.job,
+                group : node.group
             })
         }
         for (let n of this.edges.get(node)) {

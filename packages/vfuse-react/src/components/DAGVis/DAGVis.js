@@ -35,15 +35,14 @@ export default function DAGVis(props) {
             }
         },
         nodes: {
-            physics: false,
+            borderWidth: 1,
+            borderWidthSelected : 3,
+            physics: true,
             shape: "box",
             font: {
                 //face: "Circular, Futura",
                 color: "#fff",
                 size: 15
-            },
-            color: {
-                border: "red"
             },
             margin: {
                 top: 7,
@@ -72,6 +71,7 @@ export default function DAGVis(props) {
                 enabled: true,
                 type: "continuous",
                 forceDirection: "horizontal"
+
             }
         },
         interaction: { hover: true },
@@ -83,36 +83,62 @@ export default function DAGVis(props) {
         },
         //height: "800px",
         //width: "100%",
-        /*groups: {
-             selected: { color: { background: "#feff00" } },
-            map: { color: { background: "#feff00" } },
-            reduce: { color: { background: "#feff00" } }
-        }*/
-    };
+        groups: {
+        },
+        clustering: {
+            initialMaxNodes: 100,
+            clusterThreshold:500,
+            reduceToNodes:300,
+            chainThreshold: 0.4,
+            clusterEdgeThreshold: 20,
+            sectorThreshold: 100,
+            screenSizeThreshold: 0.2,
+            fontSizeMultiplier:  4.0,
+            maxFontSize: 1000,
+            forceAmplification:  0.1,
+            distanceAmplification: 0.1,
+            edgeGrowth: 20,
+            nodeScaling: {width:  1,
+                height: 1,
+                radius: 1},
+            maxNodeSizeIncrements: 600,
+            activeAreaBoxSize: 100,
+            clusterLevelDifference: 2
+        }
+    }
+
+    const highlightGroup = (node, active) => {
+        let group = graph.nodes.filter(n => n.group !== node.group)
+        for(let n of group) {
+            if(active){
+                n.prevColor = n.color
+                n.color =  '#83838380'
+            }else{
+                n.color = n.prevColor
+            }
+        }
+        if(active){
+            node.prevColor = node.color
+            node.color =  '#83838380'
+        }else{
+            node.color = node.prevColor
+        }
+        setGraph({nodes: [], edges: []})
+        setGraph(graph)
+    }
 
     const events = {
-        select: function(event) {
-            let { nodes, edges } = event;
-            let node = graph.nodes.filter(n => n.id === nodes[0])
-            if(node.length === 1 && node[0].job) {
-                node = node[0]
+        selectNode: function(event) {
+            let node = graph.nodes.filter(n => n.id === event.nodes[0])[0]
+            if (node.job) {
                 setCurrentNode(node)
+                highlightGroup(node, true)
                 setIsModalVisible(true)
-                let status
-                switch (node.job.status) {
-                    case 2:
-                        status = 'COMPLETED'
-                        break
-                    case 1:
-                        status = 'READY'
-                        break
-                    case 0:
-                        status = 'WAITING'
-                        break
-                }
-                //console.info("NAME : %s\nSTATUS : %s\nID : %s\nDATA : %O\nRESULTS: %O", node.label, status,  node.id, node.job.data, node.job.results)
             }
-
+        },
+        deselectNode: function(event){
+            if(currentNode)
+               highlightGroup(currentNode, false)
         }
     };
 
