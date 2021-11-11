@@ -8,6 +8,7 @@ export default function DAGVis(props) {
     const [graph, setGraph] = useState(props.jobsDAG)
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentNode, setCurrentNode] = useState(null)
+    const [selectedGroup, setSelectedGroup] = useState('None')
 
     useEffect(() => {
         try {
@@ -124,6 +125,7 @@ export default function DAGVis(props) {
             node.color = node.prevColor
         }
         setGraph({nodes: [], edges: []})
+        setSelectedGroup(active ? node.group : 'None')
         setGraph(graph)
     }
 
@@ -161,6 +163,9 @@ export default function DAGVis(props) {
                         </Col>
                         <Col span={4}>
                             <Statistic title="Completed" value={graph.nodes.filter(n=>n.job && n.job.status === 2).length} />
+                        </Col>
+                        <Col span={4}>
+                            <Statistic title="Selected Group" value={selectedGroup} />
                         </Col>
                     </Row>
                     <Graph
