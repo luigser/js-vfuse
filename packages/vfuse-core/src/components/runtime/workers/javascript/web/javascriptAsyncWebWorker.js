@@ -3,7 +3,7 @@ const worker_code = () => {
     const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
     const VFuse = {
-        addJob : (func, deps, group, input) => {
+        addJob : (func, deps, input, group) => {
            const promise = new  Promise( (resolve, reject) => {
                self.onmessage = (e) => {
                    const {action} = e.data;
@@ -60,56 +60,7 @@ const worker_code = () => {
             })
 
             return promise
-        },
-
-        /*saveWorkflow : () => {
-            const promise = new  Promise( (resolve, reject) => {
-                self.onmessage = (e) => {
-                    const {action} = e.data;
-                    if (action === 'VFuse:runtime') {
-                        const {func} = e.data.data
-                        if(func === 'saveWorkflow')
-                            resolve(e.data.data.workflow_id)
-                        self.onmessage = onmessage
-                    }
-                }
-            })
-
-            self.postMessage({
-                action: 'VFuse:worker',
-                todo: {
-                    func: 'saveWorkflow',
-                    params: JSON.stringify({
-                    })
-                }
-            })
-
-            return promise
-        },
-        submitWorkflow: () => {
-            const promise = new  Promise( (resolve, reject) => {
-                self.onmessage = (e) => {
-                    const {action} = e.data;
-                    if (action === 'VFuse:runtime') {
-                        const {func} = e.data.data
-                        if(func === 'submitWorkflow')
-                            resolve(e.data.data.job_id)
-                        self.onmessage = onmessage
-                    }
-                }
-            })
-
-            self.postMessage({
-                action: 'VFuse:worker',
-                todo: {
-                    func: 'submitWorkflow',
-                    params: JSON.stringify({
-                    })
-                }
-            })
-
-            return promise
-        }*/
+        }
     }
 
     const convert = (results) => {

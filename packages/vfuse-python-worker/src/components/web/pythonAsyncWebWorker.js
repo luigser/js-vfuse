@@ -3,7 +3,7 @@ const worker_code = () => {
     importScripts('https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js');
 
     const JSVFuse = {
-        addJob: (code, name, deps, group, input) => {
+        addJob: (code, name, deps, input, group) => {
             const promise = new Promise((resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data;
@@ -73,7 +73,7 @@ const worker_code = () => {
         "    @staticmethod\n" +
         "    async def addJob(func, deps, input = None, group = None):\n" +
         "        func_source = cloudpickle.dumps(func)\n" +
-        "        return await JSVFuse.addJob(func_source, func.__name__, deps, group, input)\n" +
+        "        return await JSVFuse.addJob(func_source, func.__name__, deps, input, group)\n" +
         "    @staticmethod\n" +
         "    async def getDataFromUrl(url, start = None, end = None, type = None):\n" +
         "        return await JSVFuse.getDataFromUrl(url, start, end, type)\n" +

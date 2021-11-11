@@ -40,9 +40,9 @@ const Miscellaneous = {
         return {
             background : color,
             border : Miscellaneous.shadeColor(color,-40),
-            highlight : color + 'E6',
+            highlight : color + 'CC',
             hover : {
-                background : color + 'E6'
+                background : color + 'CC'
             }
         }
     }

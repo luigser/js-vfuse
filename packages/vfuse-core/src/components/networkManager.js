@@ -6,6 +6,7 @@ const Noise = require('libp2p-noise')
 const Mplex = require('libp2p-mplex')
 const filters = require('libp2p-websockets/src/filters')
 const Gossipsub = require('libp2p-gossipsub')
+const Floodsub = require('libp2p-floodsub')
 const WebRTCDirect = require('libp2p-webrtc-direct')
 const MDNS = require('libp2p-mdns')
 const WebSockets = require('libp2p-websockets')
@@ -103,7 +104,7 @@ class NetworkManager{
                     connEncryption: [Noise],
                     peerDiscovery: [Bootstrap],
                     dht: KadDHT,
-                    pubsub : Gossipsub
+                    pubsub : Floodsub//Gossipsub
                 },
                 config: {
                     transport: {
@@ -121,6 +122,9 @@ class NetworkManager{
                         }
                     },
                     peerDiscovery: {
+                        [WebRTCStar.tag]: {
+                            enabled: true
+                        },
                         [Bootstrap.tag]: {
                             enabled: true,
                             list: this.ipfsOptions.config.Bootstrap
@@ -144,18 +148,18 @@ class NetworkManager{
                     connEncryption: [ Noise ],
                     peerDiscovery: [ MDNS ],
                     dht: KadDHT,
-                    pubsub: Gossipsub
+                    pubsub: Floodsub//Gossipsub
                 },
                 config: {
-                   /* peerDiscovery: {
-                        webRTCStar: {
+                    peerDiscovery: {
+                        [WebRTCStar.tag]: {
                             enabled: true
                         },
-                        /!*[Bootstrap.tag]: {
+                        /*[Bootstrap.tag]: {
                             enabled: true,
                             //list: ['/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct']
-                        }*!/
-                    },*/
+                        }*/
+                    },
                     transport : {
                         [WebRTCStar.prototype[Symbol.toStringTag]]: {
                             wrtc
@@ -189,6 +193,8 @@ class NetworkManager{
         console.log("Peer ID:", this.peerId)
         this.key = await this.ipfs.key.list()
         //console.log(this.key)
+
+        //console.log('PEER STORE : %O', this.libp2p.peerStore.peers)
 
         await this.initTopicsChannel()
         this.hookEvents()
@@ -351,7 +357,7 @@ class NetworkManager{
 
         // Listen for new connections to peers
         this.libp2p.connectionManager.on('peer:connect', async function(connection){
-            console.log(`Connected to ${connection && connection.remoteAddr ? connection.remoteAddr.toString() : connection}`)
+            console.log('Connection established to:', connection.remotePeer.toB58String())
             if (this.connectedPeers.has(connection.remotePeer.toB58String())) return
             this.connectedPeers.add(connection.remotePeer.toB58String())
         }.bind(this))

@@ -118,15 +118,11 @@ export default function DAGVis(props) {
                 n.color = n.prevColor
             }
         }
-        if(active){
-            node.prevColor = node.color
-            node.color =  '#83838380'
-        }else{
-            node.color = node.prevColor
-        }
+
         setGraph({nodes: [], edges: []})
         setSelectedGroup(active ? node.group : 'None')
         setGraph(graph)
+
     }
 
     const events = {
@@ -142,7 +138,7 @@ export default function DAGVis(props) {
             if(currentNode)
                highlightGroup(currentNode, false)
         }
-    };
+    }
 
     return (
         <>
@@ -173,7 +169,16 @@ export default function DAGVis(props) {
                         options={options}
                         events={events}
                         getNetwork={network => {
-                            //  if you want access to vis.js network api you can set the state in a parent component using this property
+                            /*let options = {
+                                joinCondition:function(nodeOptions) {
+                                    return nodeOptions.group === 'map';
+                                },
+                                clusterNodeProperties: {
+                                    allowSingleNodeCluster: true
+                                }
+                            }
+
+                            network.clustering.cluster(options);*/
                         }}
                     />
                 </>
