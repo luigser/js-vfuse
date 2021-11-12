@@ -517,6 +517,15 @@ class WorkflowManager{
             return null
         }
     }
+
+    async saveOnNetwork(data){
+        try{
+            return await this.contentManager.saveOnIpfs(JSON.stringify(data))
+        }catch (e) {
+            console.log('Got error during saving on network : %O', e)
+            return e
+        }
+    }
 }
 
 module.exports = WorkflowManager

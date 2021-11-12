@@ -567,7 +567,7 @@ class NetworkManager{
             let pinning_result = await this.cluster.pin.add(added_data.cid.toString());
             //il cid(hash) del pin diventa accessibile attraverso /ipfs(gateway)?
             //se si utilizzare l'api file per pubblicare su ipns il cid pinnato
-            return added_data
+            return pinning_result
         }catch (e){
             console.log('Got some error during the data adding and pinning: %O', e)
             return null

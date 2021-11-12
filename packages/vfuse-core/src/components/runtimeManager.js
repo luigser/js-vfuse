@@ -73,6 +73,14 @@ class RuntimeManager{
         }
     }
 
+    async saveOnNetwork(data){
+        try {
+            return this.workflowManager.saveOnNetwork(data)
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
 }
 
 module.exports = RuntimeManager

@@ -124,6 +124,14 @@ class ContentManager{
             console.log('Error fetching data from url : %O', e)
         }
     }
+
+    async saveOnIpfs(data){
+        try{
+            return await this.networkManager.addAndPin(data)
+        }catch (e) {
+            console.log('Error fetching data from url : %O', e)
+        }
+    }
 }
 
 module.exports = ContentManager

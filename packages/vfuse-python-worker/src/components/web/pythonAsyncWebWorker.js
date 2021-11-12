@@ -60,6 +60,32 @@ const worker_code = () => {
             })
 
             return promise
+        },
+
+        saveOnNetwork : (data) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data;
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'saveOnNetwork')
+                            resolve(e.data.data.cid)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
+
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'saveOnNetwork',
+                    params: JSON.stringify({
+                        data : typeof(data) !== 'string' ? data.toJs() : data
+                    })
+                }
+            })
+
+            return promise
         }
     }
 
@@ -77,6 +103,9 @@ const worker_code = () => {
         "    @staticmethod\n" +
         "    async def getDataFromUrl(url, start = None, end = None, type = None):\n" +
         "        return await JSVFuse.getDataFromUrl(url, start, end, type)\n" +
+        "    @staticmethod\n" +
+        "    async def saveOnNetwork(data):\n" +
+        "        return await JSVFuse.saveOnNetwork(data)\n" +
         "    @staticmethod\n" +
         "    def execute(func, data = None):\n" +
         "        code = bytes(func.to_py().values())\n" +

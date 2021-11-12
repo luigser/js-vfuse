@@ -60,6 +60,32 @@ const worker_code = () => {
             })
 
             return promise
+        },
+
+        saveOnNetwork : (data) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data;
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'saveOnNetwork')
+                            resolve(e.data.data.cid)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
+
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'saveOnNetwork',
+                    params: JSON.stringify({
+                        data : data,
+                    })
+                }
+            })
+
+            return promise
         }
     }
 

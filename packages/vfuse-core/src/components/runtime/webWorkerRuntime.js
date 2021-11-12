@@ -128,9 +128,25 @@ class WebWorkerRuntime {
                                     })
                                 }
                                 break
-                            case 'saveWorkflow':
-                                break
-                            case 'submitWorkflow':
+                            case 'saveOnNetwork':
+                                let cid = await this.runtimeManager.saveOnNetwork(p.data)
+                                if(content && !content.error) {
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "saveOnNetwork",
+                                            cid: cid
+                                        }
+                                    })
+                                }else{
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "saveOnNetwork",
+                                            error : content.error.toString()
+                                        }
+                                    })
+                                }
                                 break
                         }
                         break
