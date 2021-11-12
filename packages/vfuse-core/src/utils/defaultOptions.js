@@ -167,12 +167,12 @@ module.exports = {
     },
     getBrowserOptions : (options) => {
         return lodash.merge({
-            swarmKey: "/key/swarm/psk/1.0.0/\n" +
+         /*   swarmKey: "/key/swarm/psk/1.0.0/\n" +
                 "/base16/\n" +
-                "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3",
+                "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3",*/
             ipfs: {
                 repo: 'vfuse-browser-repo',
-                pass: "01234567890123456789",
+                //pass: "01234567890123456789",
                 config: {
                     Addresses: {
                        /* Swarm: [

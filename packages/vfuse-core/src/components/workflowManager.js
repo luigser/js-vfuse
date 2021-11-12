@@ -161,7 +161,7 @@ class WorkflowManager{
                         }
                     }
                     let completed_workflows = await this.contentManager.list('/workflows/completed')
-                    if (completed_workflows){
+                    if (completed_workflows.length > 0){
                         await this.contentManager.sendOnTopic({
                             action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,
                             payload: {

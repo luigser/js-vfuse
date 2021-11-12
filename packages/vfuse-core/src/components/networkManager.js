@@ -6,7 +6,7 @@ const Noise = require('libp2p-noise')
 const Mplex = require('libp2p-mplex')
 const filters = require('libp2p-websockets/src/filters')
 const Gossipsub = require('libp2p-gossipsub')
-const Floodsub = require('libp2p-floodsub')
+const Foodsub = require('libp2p-floodsub')
 const WebRTCDirect = require('libp2p-webrtc-direct')
 const MDNS = require('libp2p-mdns')
 const WebSockets = require('libp2p-websockets')
@@ -30,6 +30,7 @@ class NetworkManager{
     /**
      * @param {Object} config
      * @param {Options} config.options
+     *
      */
     constructor(options, eventManager) {
         this.eventManager = eventManager
@@ -78,13 +79,6 @@ class NetworkManager{
         let opt = {
             ...this.ipfsOptions,
             repo: this.ipfsOptions && this.ipfsOptions.repo ? this.ipfsOptions.repo : repo_id._idB58String,
-            config: {
-                ...this.ipfsOptions.config,
-                Pubsub: {
-                    Router: "gossipsub",
-                    Enabled: true
-                }
-            }
         }
 
         if (this.swarmKey)
@@ -92,7 +86,7 @@ class NetworkManager{
                 connProtector: new Protector((new TextEncoder()).encode(this.swarmKey)),
             }
 
-        if(isBrowser) {
+        /*if(isBrowser) {
             const filters = require('libp2p-websockets/src/filters')
             opt.libp2p = {
                 addresses: {
@@ -104,7 +98,16 @@ class NetworkManager{
                     connEncryption: [Noise],
                     peerDiscovery: [Bootstrap],
                     dht: KadDHT,
-                    pubsub : Floodsub//Gossipsub
+                    pubsub : Gossipsub
+                },
+                dialer: {
+                    maxParallelDials: 100,
+                    maxDialsPerPeer: 4,
+                    dialTimeout: 30e3
+                },
+                peerStore: {
+                    persistence: false,
+                    threshold: 5
                 },
                 config: {
                     transport: {
@@ -148,17 +151,26 @@ class NetworkManager{
                     connEncryption: [ Noise ],
                     peerDiscovery: [ MDNS ],
                     dht: KadDHT,
-                    pubsub: Floodsub//Gossipsub
+                    pubsub: Gossipsub
+                },
+                dialer: {
+                    maxParallelDials: 100,
+                    maxDialsPerPeer: 4,
+                    dialTimeout: 30e3
+                },
+                peerStore: {
+                    persistence: false,
+                    threshold: 5
                 },
                 config: {
                     peerDiscovery: {
                         [WebRTCStar.tag]: {
                             enabled: true
                         },
-                        /*[Bootstrap.tag]: {
+                        /!*[Bootstrap.tag]: {
                             enabled: true,
                             //list: ['/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct']
-                        }*/
+                        }*!/
                     },
                     transport : {
                         [WebRTCStar.prototype[Symbol.toStringTag]]: {
@@ -182,6 +194,24 @@ class NetworkManager{
                     }
                 },
                 ...this.libp2pOptions
+            }
+        }*/
+
+        if(isBrowser){
+            const filters = require('libp2p-websockets/src/filters')
+            const transportKey = WebSockets.prototype[Symbol.toStringTag]
+            opt.libp2p = {
+                config: {
+                    transport: {
+                        // This is added for local demo!
+                        // In a production environment the default filter should be used
+                        // where only DNS + WSS addresses will be dialed by websockets in the browser.
+                        [transportKey]: {
+                            filter: filters.all
+                        }
+                    }
+                },
+                ...opt.libp2p
             }
         }
 
@@ -213,34 +243,31 @@ class NetworkManager{
 
     announce(){
         setInterval(async function(){
-            /*let peers = await this.ipfs.swarm.peers()
-            console.log(peers)
-            for(let p of peers){
-                if(!this.connectedPeers.has(p.peer)){
-                    await this.ipfs.swarm.connect(p.addr)
-                    this.connectedPeers.set(p.peer, p)
+            /*try {
+                for (let peer of this.libp2p.peerStore.peers.values()) {
+                    console.log("try to connect to : %s", peer.id._idB58String)
+                    await this.ipfs.swarm.connect(peer.addresses[0].multiaddr)
                 }
+            }catch (e) {
+                console.log("Error during dialing peer : %O", e)
             }*/
-            //if(isNode && this.isBootstrapNode)
+            /*if(isNode && this.isBootstrapNode)
                await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, "peer-alive")
-            //await this.send({ action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, peer : this.peerId })
+            await this.send({ action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, peer : this.peerId })*/
+            await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, "peer-alive")
         }.bind(this), Constants.TIMEOUTS.DISCOVERY);
     }
 
     // processes a circuit-relay announce over pubsub
     async processAnnounce(addr) {
-        // get our peerid
         let me = await this.ipfs.id();
         me = me.id;
-
         // not really an announcement if it's from us
         if (addr.from === me) {
             return;
         }
-
-        // if we got a keep-alive, nothing to do
+        console.log('Get Anoounce from %s', addr.from)
         if (addr === "keep-alive") {
-            console.log(addr);
             return;
         }
 
@@ -254,7 +281,6 @@ class NetworkManager{
             this.profileChecked = true
         }
 
-        // get a list of peers
         let peers = await this.ipfs.swarm.peers();
         for (let i in peers) {
             // if we're already connected to the peer, don't bother doing a
@@ -264,8 +290,7 @@ class NetworkManager{
                 return;
             }
         }
-        // connection almost always fails the first time, but almost always
-        // succeeds the second time, so we do this:
+        return
         try {
             await this.ipfs.swarm.connect(addr);
         } catch(err) {
@@ -278,10 +303,16 @@ class NetworkManager{
         this.topicListeners.push(callback)
     }
 
+    async initTopicsChannel(){
+        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, this.topicHandler.bind(this) )
+        await this.ipfs.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, this.processAnnounce.bind(this));
+    }
+
     async topicHandler(message){
         try{
             if(message.from === this.peerId) return
             let data = JSON.parse(new TextDecoder().decode(message.data));
+            console.log('Got Message from %s : %O', message.from, data)
             switch(data.action){
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY:
                     this.connectedPeers.set(data.peer, data.peer)
@@ -323,11 +354,6 @@ class NetworkManager{
         }catch (e) {
             console.log('Error during VFuse topic message handling : %O', e)
         }
-    }
-
-    async initTopicsChannel(){
-        await this.libp2p.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, this.topicHandler.bind(this) )
-        await this.libp2p.pubsub.subscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, this.processAnnounce.bind(this));
     }
 
     async send(data){
