@@ -23,14 +23,14 @@ function getMaxOccurenceWord(data){
 }
 
 input = input.toString().split("\n")
-let chunck = Math.floor(input.length / 100), r = 0
+let chunck = Math.floor(input.length / 10), r = 0
 for (; r < input.length; r += chunck){
-    await VFuse.addJob(map, [], input.slice(r, r + chunck))
+    await VFuse.addJob(map, [], input.slice(r, r + chunck), 'map')
 }
 
 let diff = input.length - r
 if( diff > 0){
-    await VFuse.addJob(map, [], input.slice(r, r + diff))
+    await VFuse.addJob(map, [], input.slice(r, r + diff), 'map')
 }
 
 

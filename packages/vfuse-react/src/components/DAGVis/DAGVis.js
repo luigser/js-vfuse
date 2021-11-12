@@ -24,7 +24,7 @@ export default function DAGVis(props) {
     const options = {
         layout: {
             hierarchical: {
-                enabled: true,
+                enabled: props.jobsDAG.nodes.length < 50,
                 levelSeparation: 300,
                 nodeSpacing: 60,
                 treeSpacing: 100,

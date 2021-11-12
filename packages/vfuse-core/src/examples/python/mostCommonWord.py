@@ -34,12 +34,12 @@ chunk = math.floor(len(input) / 10)
 i = 0
 
 while i < len(input):
-    map_job_id = await VFuse.addJob(map, [], input[i:i + chunk])
+    map_job_id = await VFuse.addJob(map, [], input[i:i + chunk], 'map')
     i = i + chunk
 
 diff = len(input) - i
 if diff > 0:
-    map_job_id = await VFuse.addJob(map, [], input[i:i + diff])
+    map_job_id = await VFuse.addJob(map, [], input[i:i + diff], 'map')
 
 reduce_job_id = await VFuse.addJob(reduce,['map'])
 await VFuse.addJob(getMaxWordOccurence, [reduce_job_id])

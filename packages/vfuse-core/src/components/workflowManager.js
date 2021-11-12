@@ -460,6 +460,7 @@ class WorkflowManager{
                 return {error : 'The current workflow is not saved in your private space'}
             let name //= await this.contentManager.publish(cid, new_key.name)//todo resolve
             await this.contentManager.save('/workflows/published/' + workflow_id + '.json', JSON.stringify({workflow_id : workflow_id, cid : cid}), {pin : true})
+            await this.contentManager.delete('/workflows/completed/' + workflow_id)
             await this.identityManager.updatePublishedWorkflow(workflow_id, name, cid)
             this.publishedWorkflows = this.identityManager.publishedWorkflows
             console.log('Workflow successfully published: %s', name)
