@@ -9,7 +9,7 @@ const Workflow = require('./job/workflow')
 const Job = require('./job/job')
 const {JobsDAG} = require('./job/JobsDAG')
 const Constants = require('./constants')
-const _ = require('lodash')
+const Miscellaneous = require('../utils/miscellaneous')
 
 /*
 WorkflowManager is responsible for job management and execution
@@ -150,13 +150,16 @@ class WorkflowManager{
                         if(workflow) {
                             workflow = JSON.parse(workflow)
                             let nodes_to_publish = workflow.jobsDAG.nodes.filter(n => n.job && (n.job.status !== Constants.JOB_SATUS.WAITING))
-                            await this.contentManager.sendOnTopic({
-                                action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
-                                payload: {
-                                    wid: workflow.id,
-                                    nodes: nodes_to_publish
-                                }
-                            })
+                            //let nodes_to_publish_chunks = Miscellaneous.arrayChunks(nodes_to_publish)
+                            for(let node of nodes_to_publish) {
+                                await this.contentManager.sendOnTopic({
+                                    action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
+                                    payload: {
+                                        wid: workflow.id,
+                                        nodes: [node]
+                                    }
+                                })
+                            }
 
                         }
                     }
@@ -263,11 +266,12 @@ class WorkflowManager{
                     await this.contentManager.save('/workflows/completed/' + workflow.id, "completed")
                     return
                 }else{
-                    for(let n of data.nodes){
-                        let job_node = workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
-                        if(job_node.job.results.length < 1){
-                            job_node.color = n.color
-                            job_node.job = n.job
+                    for(let result_node of data.nodes){
+                        let local_job_node = workflow.jobsDAG.nodes.filter(nd => nd.id === result_node.id)[0]
+                        if( local_job_node.job.status !== Constants.JOB_SATUS.COMPLETED ||
+                            (local_job_node.job.status === Constants.JOB_SATUS.WAITING && result_node.job.status === Constants.JOB_SATUS.READY)){
+                            local_job_node.color = result_node.color
+                            local_job_node.job = result_node.job
                         }
                     }
                 }
@@ -279,15 +283,13 @@ class WorkflowManager{
             let running_workflow = await this.contentManager.get('/workflows/running/' + data.wid + '.json')
             if(running_workflow){
                 running_workflow = JSON.parse(running_workflow)
-                for(let n of data.nodes){
-                    let job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === n.id)[0]
-                    if (this.jobsExecutionQueue.indexOf(n.job.id) < 0 &&
-                        ((n.job.status === Constants.JOB_SATUS.COMPLETED && job_node.job.status === Constants.JOB_SATUS.READY) ||
-                            n.job.status === Constants.JOB_SATUS.ERROR
-                        )
-                    ) {
-                        job_node.color = n.color
-                        job_node.job = n.job
+                for(let result_node of data.nodes){
+                    let local_job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === result_node.id)[0]
+                    if (this.jobsExecutionQueue.indexOf(result_node.job.id) < 0 &&
+                        (local_job_node.job.status !== Constants.JOB_SATUS.COMPLETED ||
+                        (local_job_node.job.status === Constants.JOB_SATUS.WAITING && result_node.job.status === Constants.JOB_SATUS.READY))){
+                        local_job_node.color = result_node.color
+                        local_job_node.job = result_node.job
                     }
                 }
                 await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
@@ -412,6 +414,7 @@ class WorkflowManager{
             }
             workflow.jobsDAG = this.currentWorkflow.jobsDAG.toJSON ? this.currentWorkflow.jobsDAG.toJSON() : this.currentWorkflow.jobsDAG
             let workflow_cid = await this.contentManager.save('/workflows/private/' + workflow.id + '.json', JSON.stringify(workflow), {pin : true})
+            await this.contentManager.delete('/workflows/completed/' + workflow.id)
             //todo
             //the CID depends on if a pin cluster (first case) or regular net(second case) is used
             await this.identityManager.saveWorkflow(workflow.id, workflow_cid)

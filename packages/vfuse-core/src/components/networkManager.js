@@ -6,7 +6,7 @@ const Noise = require('libp2p-noise')
 const Mplex = require('libp2p-mplex')
 const filters = require('libp2p-websockets/src/filters')
 const Gossipsub = require('libp2p-gossipsub')
-const Foodsub = require('libp2p-floodsub')
+const Floodsub = require('libp2p-floodsub')
 const WebRTCDirect = require('libp2p-webrtc-direct')
 const MDNS = require('libp2p-mdns')
 const WebSockets = require('libp2p-websockets')
@@ -197,10 +197,13 @@ class NetworkManager{
             }
         }*/
 
-        if(isBrowser){
+        //if(isBrowser){
             const filters = require('libp2p-websockets/src/filters')
             const transportKey = WebSockets.prototype[Symbol.toStringTag]
             opt.libp2p = {
+                modules: {
+                    pubsub: Gossipsub
+                },
                 config: {
                     transport: {
                         // This is added for local demo!
@@ -213,7 +216,7 @@ class NetworkManager{
                 },
                 ...opt.libp2p
             }
-        }
+        //}
 
         let node = await IPFS.create(opt)
         this.ipfs = node
@@ -401,7 +404,7 @@ class NetworkManager{
             for (const multiaddr of multiaddrs) {
                 addresses.push(multiaddr.toString())
             }
-            console.log('change:multiaddrs', {peerId, multiaddrs, addresses})
+            //console.log('change:multiaddrs', {peerId, multiaddrs, addresses})
         })
         //this.node.libp2p.peerStore.on('change:protocols', ({ peerId, protocols}) => console.log('change:protocols', {peerId, protocols}))
         this.libp2p.on('error', (err) => console.log('error', err))

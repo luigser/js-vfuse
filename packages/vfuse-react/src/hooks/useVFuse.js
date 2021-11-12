@@ -17,7 +17,7 @@ export const useVFuse = () => {
                             config: {
                                 Addresses : {
                                     Swarm: [
-                                        //'/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star',
+                                        '/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star',
                                     ]
                                 },
                                 Bootstrap :[

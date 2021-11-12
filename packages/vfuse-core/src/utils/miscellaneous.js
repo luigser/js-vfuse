@@ -45,6 +45,18 @@ const Miscellaneous = {
                 background : color + 'CC'
             }
         }
+    },
+    splitToChunks : (array, parts) => {
+        let result = [];
+        for (let i = parts; i > 0; i--) {
+            result.push(array.splice(0, Math.ceil(array.length / i)));
+        }
+        return result;
+    },
+    arrayChunks : (array) => {
+        let encoded = JSON.stringify(array)
+        let chunks = Math.ceil(encoded.length / 1000000)
+        return Miscellaneous.splitToChunks(array, (array.length - Math.floor(array.length / chunks)))
     }
 }
 
