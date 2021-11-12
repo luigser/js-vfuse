@@ -23,6 +23,7 @@ const worker_code = () => {
                    params: JSON.stringify({
                        name: func.name,
                        func: func.toString(),
+
                        input: input,
                        group: group,
                        deps: deps
