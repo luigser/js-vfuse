@@ -152,6 +152,7 @@ class JobsDAG {
             this.addVertex(new_job_vertex)
             if (!job.dependencies || (_.isArray(job.dependencies) && job.dependencies.length === 0)) {
                 new_job_vertex.job.status = Constants.JOB_SATUS.READY
+                new_job_vertex.job.initialStatus = Constants.JOB_SATUS.READY
                 this.addEdge(
                     this.root,
                     new_job_vertex

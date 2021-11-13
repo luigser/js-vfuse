@@ -145,7 +145,12 @@ class WorkflowManager{
                         let workflow = await this.contentManager.get('/workflows/running/' + running_workflows[w])
                         if(workflow) {
                             workflow = JSON.parse(workflow)
-                            let nodes_to_publish = workflow.jobsDAG.nodes.filter(n => n.job && (n.job.status !== Constants.JOB_SATUS.WAITING))
+                            let nodes_to_publish = workflow.jobsDAG.nodes.filter(n => n.job &&
+                                (
+                                    (n.job.status === Constants.JOB_SATUS.COMPLETED || n.job.status === Constants.JOB_SATUS.ERROR) ||
+                                    (n.job.status === Constants.JOB_SATUS.READY && n.job.initialStatus === Constants.JOB_SATUS.WAITING)
+                                )
+                            )
                             //let nodes_to_publish_chunks = Miscellaneous.arrayChunks(nodes_to_publish)
                             for(let node of nodes_to_publish) {
                                 await this.contentManager.sendOnTopic({

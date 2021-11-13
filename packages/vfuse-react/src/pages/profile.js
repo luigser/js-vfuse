@@ -195,11 +195,11 @@ export default function ProfilePage(props){
                             }
                         >
                             <>
-                                <Typography.Paragraph>
+                               {/* <Typography.Paragraph>
                                     <Col span={12} >
                                         <Input placeholder="Your IdentityManager ID here" onChange={onProfileIdChange} />
                                     </Col>
-                                </Typography.Paragraph>
+                                </Typography.Paragraph>*/}
                                 <Descriptions title="User Info" layout="vertical" bordered>
                                     <Descriptions.Item label="Profile ID">{profile?.id}</Descriptions.Item>
                                     <Descriptions.Item label="Workflows numbers">{workflows.length}</Descriptions.Item>
