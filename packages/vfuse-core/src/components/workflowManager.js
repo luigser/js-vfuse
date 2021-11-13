@@ -467,6 +467,10 @@ class WorkflowManager{
             await this.contentManager.delete('/workflows/completed/' + workflow_id)
             await this.identityManager.updatePublishedWorkflow(workflow_id, name, cid)
             this.publishedWorkflows = this.identityManager.publishedWorkflows
+            await this.contentManager.sendOnTopic({
+                action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
+                payload: {workflow_id : workflow_id, cid : cid}
+            })
             console.log('Workflow successfully published: %s', name)
             return true
         }catch (e){

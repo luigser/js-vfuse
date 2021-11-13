@@ -63,7 +63,7 @@ const Constants = {
         DISCOVERY : 15000,
         WORKFLOWS_PUBLISHING : 60000,
         JOBS_PUBLISHING : 15000,
-        RESULTS_PUBLISHING: 15000,
+        RESULTS_PUBLISHING: 120000,
         EXECUTION_CYCLE: 1000
     },
     LIMITS: {
