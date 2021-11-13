@@ -222,12 +222,16 @@ class WorkflowManager{
             //Maybe is better to select a bundle of jobs
             let node_index = Math.floor(Math.random() * nodes.length)
             let node = nodes[node_index]
-            if (node && node.job) {//do not consider the root
-                let results = await this.runJob(workflow.id, node.job)
+            if(!node) return
+            let node_execution = this.jobsExecutionQueue.filter(r => r === node.job.id)
+            if (node_execution.length === 0) { //TODO manage results replication
+                this.jobsExecutionQueue.push(node.job.id)
+                let results = await this.runtimeManager.runJob(node.job)
                 if(results){
                     JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_SATUS.COMPLETED, {results : results})
                     await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow))
                 }
+                this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1);
             }
         }catch (e) {
             console.log('Got error during workflows execution : %O', e)
