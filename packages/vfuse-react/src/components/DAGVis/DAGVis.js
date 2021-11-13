@@ -24,7 +24,7 @@ export default function DAGVis(props) {
     const options = {
         layout: {
             hierarchical: {
-                enabled: props.jobsDAG.nodes.length < 50,
+                enabled: true,
                 levelSeparation: 300,
                 nodeSpacing: 60,
                 treeSpacing: 100,
@@ -38,7 +38,7 @@ export default function DAGVis(props) {
         nodes: {
             borderWidth: 1,
             borderWidthSelected : 3,
-            physics: true,
+            physics: props.jobsDAG ? props.jobsDAG.nodes.length < 50 : false,
             shape: "box",
             font: {
                 //face: "Circular, Futura",
