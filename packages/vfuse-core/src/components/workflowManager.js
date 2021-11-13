@@ -487,6 +487,12 @@ class WorkflowManager{
                 await this.identityManager.unpublishWorkflow(filtered[0])
                 this.publishedWorkflows = this.identityManager.publishedWorkflows
                 await this.contentManager.save('/workflows/completed/' + workflow_id, "completed")
+                await this.contentManager.sendOnTopic({
+                    action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,
+                    payload: {
+                        wids: [workflow_id],
+                    }
+                })
                 console.log('Workflow successfully unpublished')
                 return true
             }else{
