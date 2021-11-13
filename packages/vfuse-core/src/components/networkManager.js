@@ -21,6 +21,7 @@ const fromString = require('uint8arrays/from-string')
 const ipfsCluster = require('ipfs-cluster-api')
 const IpfsHttpClient = require("ipfs-http-client")
 const PeerId = require('peer-id')
+const LZUTF8 = require('lzutf8');
 
 const  { isNode, isBrowser } = require("browser-or-node");
 
@@ -314,7 +315,7 @@ class NetworkManager{
     async topicHandler(message){
         try{
             if(message.from === this.peerId) return
-            let data = JSON.parse(new TextDecoder().decode(message.data));
+            let data = JSON.parse(LZUTF8.decompress(message.data));
             console.log('Got Message from %s : %O', message.from, data)
             switch(data.action){
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY:
@@ -360,7 +361,7 @@ class NetworkManager{
     }
 
     async send(data){
-        await this.libp2p.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME,  new TextEncoder().encode(JSON.stringify(data)))
+        await this.libp2p.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, LZUTF8.compress(JSON.stringify(data)))
     }
 
     registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){

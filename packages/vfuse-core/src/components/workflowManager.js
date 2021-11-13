@@ -151,16 +151,16 @@ class WorkflowManager{
                                     (n.job.status === Constants.JOB_SATUS.READY && n.job.initialStatus === Constants.JOB_SATUS.WAITING)
                                 )
                             )
-                            //let nodes_to_publish_chunks = Miscellaneous.arrayChunks(nodes_to_publish)
-                            for(let node of nodes_to_publish) {
+
+                            //for(let node of nodes_to_publish) {
                                 await this.contentManager.sendOnTopic({
                                     action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                     payload: {
                                         wid: workflow.id,
-                                        nodes: [node]
+                                        nodes: [nodes_to_publish]
                                     }
                                 })
-                            }
+                            //}
 
                         }
                     }
