@@ -1,21 +1,42 @@
+const vm = require('vm');
+const ResultsUtils = require('../../../../../utils/resultsUtils')
+
 class JavascriptNodeWorker {
-    constructor() {
+    constructor(runtime) {
+        this.vm = vm
     }
-   /* const vm = require('vm');
 
-    const x = 1;
+    async run(job){
+        try {
+            if (!job.inline) {
+                if (typeof job.data !== 'string') {
+                    this.sandbox.input = job.data
+                    job.code += `\nresults = ${job.name}(input)`
+                } else {
+                    job.code += `\nresults = ${job.name}(\`${job.data}\`)`
+                }
+            }
+            this.vm.createContext(this.sandbox)
+            this.vm.runInContext(job.code, this.sandbox);
+            return ResultsUtils.convert(this.sandbox.results)
+        }catch (e) {
+            return {
+                error : e.message,
+                code : job.code
+            }
+        }
+    }
 
-    const sandbox = { x: 2 };
-    vm.createContext(sandbox); // Contextify the sandbox.
+    async init(){
+        this.sandbox = {
+            addJob : async(name, func, deps, input, group, packages) =>  await runtime.addJob(name, func, deps, input, group, packages),
+            getDataFromUrl : async (url, start, end, type) => await runtime.getDataFromUrl(url, start, end, type),
+            saveOnNetwork : async (data) => await runtime.saveOnNetwork(data),
+            results : null
+        }
+    }
 
-    const code = 'x += 40; var y = 17;';
-// `x` and `y` are global variables in the sandboxed environment.
-// Initially, x has the value 2 because that is the value of sandbox.x.
-    vm.runInContext(code, sandbox);
-
-    console.log(sandbox.x); // 42
-    console.log(sandbox.y); // 17
-
-    console.log(x); // 1; y is not defined.*/
-
+    async load(){}
 }
+
+module.exports = JavascriptNodeWorker

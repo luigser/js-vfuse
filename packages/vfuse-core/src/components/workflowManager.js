@@ -41,25 +41,23 @@ class WorkflowManager{
 
             this.eventManager.addListener('profile.ready', async function(){await this.startWorkspace()}.bind(this))
 
-            if(isBrowser) {
-                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
-                    await this.handleRequestExecutionWorkflow(data)
-                }.bind(this))
-                /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
-                    await this.handleWorflowsUnpublishing(data)
-                }.bind(this))*/
-                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
-                    await this.manageResults(data)
-                }.bind(this))
-                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, async function (data) {
-                    await this.dropWorkflows(data)
-                }.bind(this))
-                /*
-                this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, async function (data) {
-                    await this.executeJob(data)
-                }.bind(this))
-                */
-            }
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
+                await this.handleRequestExecutionWorkflow(data)
+            }.bind(this))
+            /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
+                await this.handleWorflowsUnpublishing(data)
+            }.bind(this))*/
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
+                await this.manageResults(data)
+            }.bind(this))
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, async function (data) {
+                await this.dropWorkflows(data)
+            }.bind(this))
+            /*
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, async function (data) {
+                await this.executeJob(data)
+            }.bind(this))
+            */
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
         }
@@ -93,11 +91,9 @@ class WorkflowManager{
                 }
             }
             //Start publish on topic
-            if(isBrowser) {//TODO implement nodejs worker
-                this.executionCycle()
-                this.publishWorkflows()
-                this.publishResults()
-            }
+            this.executionCycle()
+            this.publishWorkflows()
+            this.publishResults()
 
             this.eventManager.emit('VFuse.ready', { status : true, workflows : this.workflows, profile : this.identityManager.getCurrentProfile() })
         }catch(e){
@@ -242,8 +238,7 @@ class WorkflowManager{
         try {
             let execution_results = null
             let node_execution = this.jobsExecutionQueue.filter(r => r === job.id)
-            let node_results = this.results.filter(r => r.job_id === job.id)
-            if (node_execution.length === 0 && node_results.length === 0) { //TODO manage results replication
+            if (node_execution.length === 0) { //TODO manage results replication
                 this.jobsExecutionQueue.push(job.id)
                 execution_results = await this.runtimeManager.runJob(job)
                 this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(job.id), 1);

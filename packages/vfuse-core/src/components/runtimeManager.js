@@ -31,7 +31,7 @@ class RuntimeManager{
                 this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, new WebWorkerRuntime(this,  new JavascriptWorker(), {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT}))
             }
             if (isNode) {
-
+                this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this))
             }
         }catch(e){
             console.log("Got some error during runtime manager creation %O", e)

@@ -9,8 +9,8 @@ module.exports = {
     },
 
     convert : (results) => {
-        if(_.isMap(results))
-           return Array.from(results, ([key, value]) => ({ key, value }))
+        if(results.has)
+            return Array.from(results, ([key, value]) => ({ key, value }))
         else
             return results
     }

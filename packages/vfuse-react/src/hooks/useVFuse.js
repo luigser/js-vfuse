@@ -21,7 +21,7 @@ export const useVFuse = () => {
                                     ]
                                 },
                                 Bootstrap :[
-                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWD87Hx9e4ENMyf7hZPA3bgiyP4pDeRKL2q8dFtF6MEQZ3',//ALL-IN-ONE
+                                    '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWGysUW9fVHJ9KJreJ4wCDF48ANBS3BTpSGS15a1uUmLBE',//ALL-IN-ONE
                                     '/ip4/192.168.1.51/tcp/4003/ws/p2p/12D3KooWLoK9JGoCAdkNjPeZXJNfGaAPTYc93h3W9WWfLGwuQ5u5',//SURFACE
 
                                     //'/ip4/192.168.1.57/tcp/2000/wss/p2p-webrtc-star',
