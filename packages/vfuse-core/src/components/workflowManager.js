@@ -157,7 +157,7 @@ class WorkflowManager{
                                     action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                     payload: {
                                         wid: workflow.id,
-                                        nodes: [nodes_to_publish]
+                                        nodes: nodes_to_publish
                                     }
                                 })
                             //}
