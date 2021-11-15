@@ -1,9 +1,8 @@
-const vm = require('vm');
-const ResultsUtils = require('../../../../../utils/resultsUtils')
+//https://github.com/gabrielfreire/neuralnet.js/tree/wasm-nodejs
+const pyodide = require('pyodide')
 
-class JavascriptNodeWorker {
+class PythonNodeWorker {
     constructor(runtime) {
-        this.vm = vm
         this.runtime = runtime
     }
 
@@ -29,6 +28,7 @@ class JavascriptNodeWorker {
     }
 
     async init(){
+
         this.sandbox = {
             addJob : async(name, func, deps, input, group, packages) =>  await this.runtime.addJob(name, func, deps, input, group, packages),
             getDataFromUrl : async (url, start, end, type) => await this.runtime.getDataFromUrl(url, start, end, type),
@@ -40,4 +40,4 @@ class JavascriptNodeWorker {
     async load(){}
 }
 
-module.exports = JavascriptNodeWorker
+module.exports = PythonNodeWorker
