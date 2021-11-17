@@ -27,10 +27,12 @@ class RuntimeManager{
         try {
             if (isBrowser) {
                 if(options)
-                    this.runtimes.set(options.language, new WebWorkerRuntime(this,  options.worker, options))
+                    this.runtimes.set(options.language, new WebWorkerRuntime(this,  new options.worker(), options))
                 this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, new WebWorkerRuntime(this,  new JavascriptWorker(), {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT}))
             }
             if (isNode) {
+                if(options)
+                    this.runtimes.set(options.language,  (new options.worker()).getNodeWorker(this))
                 this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this))
             }
         }catch(e){
