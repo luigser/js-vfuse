@@ -120,7 +120,7 @@ class JobsDAG {
     toJSON(){
        let nodes = [], edges = []
        this.treeVisit(this.root, nodes, edges)
-       return { nodes : nodes, edges : edges }
+       return { nodes : nodes, edges : edges, weights : nodes.map( n => 1 / nodes.length) }
     }
 
     addVertexByLabel(node, dependency, vertex){

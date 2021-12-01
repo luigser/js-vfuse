@@ -10,7 +10,7 @@ const Job = require('./job/job')
 const {JobsDAG} = require('./job/JobsDAG')
 const Constants = require('./constants')
 const Miscellaneous = require('../utils/miscellaneous')
-
+const MathJs = rrquire('mathjs')
 /*
 WorkflowManager is responsible for job management and execution
  */
@@ -36,6 +36,7 @@ class WorkflowManager{
             this.results = []
             this.workflowsQueue = []
             this.jobsExecutionQueue =  []
+            this.workflowsWeights = []
 
             this.updateWorkflowCallback = null
 
@@ -195,6 +196,9 @@ class WorkflowManager{
         await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(data))
         let encoded_workflow = await this.contentManager.getFromNetwork(data.cid)
         await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
+        let running_workflows = await this.contentManager.list('/workflows/running')
+        this.workflowsWeights = running_workflows.map(w => 1 / w.length)
+
     }
 
     async handleRequestExecutionWorkflow(data){
@@ -219,13 +223,15 @@ class WorkflowManager{
         try {
             if(this.jobsExecutionQueue.length === Constants.LIMITS.MAX_CONCURRENT_JOBS) return
             let running_workflows = await this.contentManager.list('/workflows/running')
-            let workflow_to_run_index = Math.floor(Math.random() * running_workflows.length)
+            //let workflow_to_run_index = Math.floor(Math.random() * running_workflows.length)
+            let workflow_to_run_index = MathJs.pickRandom(running_workflows, this.workflowsWeights)
             let encoded_workflow = await this.contentManager.get('/workflows/running/' + running_workflows[workflow_to_run_index])
             if(!encoded_workflow) return
             let workflow = JSON.parse(encoded_workflow)
             let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
             //Maybe is better to select a bundle of jobs
-            let node_index = Math.floor(Math.random() * nodes.length)
+            //let node_index = Math.floor(Math.random() * nodes.length)
+            let node_index = MathJs.pickRandom(nodes, workflow.jobsDAG.weights)
             let node = nodes[node_index]
             if(!node) return
             let node_execution = this.jobsExecutionQueue.filter(r => r === node.job.id)

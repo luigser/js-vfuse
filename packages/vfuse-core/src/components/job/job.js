@@ -22,6 +22,7 @@ class Job{
         this.language = language
         this.results = []
         this.packages = packages
+        this.reward = 0
     }
 }
 
