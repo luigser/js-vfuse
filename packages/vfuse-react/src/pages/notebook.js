@@ -173,7 +173,7 @@ export default function NotebookPage(props){
 
     const onChaneName = (e) => setName(e.target.value)
 
-    const onNew = () => {
+    const onClear = () => {
         setCode('')
         setWorkflowId(null)
         setName('')
@@ -285,7 +285,7 @@ export default function NotebookPage(props){
                                 <Select.Option value="20">20pt</Select.Option>
                                 <Select.Option value="24">24pt</Select.Option>
                             </Select>
-                            <Button key="4" type="secondary" onClick={onNew}>New workflow</Button>
+                            <Button key="4" type="secondary" onClick={onClear}>Clear</Button>
                         </Descriptions.Item>
                     </Descriptions>
                 </Col>

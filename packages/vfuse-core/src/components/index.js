@@ -152,12 +152,15 @@ class VFuse {
      * @param {Options} options
      */
     static async create (options = {}) {
-        let currentOptions = isBrowser ? DefaultOptions.getBrowserOptions(options) : DefaultOptions.getGatewayOptions(options)
-        const vfuse = new VFuse(currentOptions)
-        await vfuse.start()
-        await vfuse.networkManager.send("VFuse node is ready")
-
-        return vfuse
+        try {
+            let currentOptions = isBrowser ? DefaultOptions.getBrowserOptions(options) : DefaultOptions.getGatewayOptions(options)
+            const vfuse = new VFuse(currentOptions)
+            await vfuse.start()
+            await vfuse.networkManager.send("VFuse node is ready")
+            return vfuse
+        }catch (e) {
+            return { error : e.message}
+        }
     }
 }
 

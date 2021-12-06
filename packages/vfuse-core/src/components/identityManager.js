@@ -12,9 +12,20 @@ class IdentityManager {
         this.peerId = options.peerId
         this.contentManager = contentManager
         this.eventManager = eventManager
-        this.publishedWorkflows = []
         this.workflows = []
-        this.rewards   = 0.00
+        this.rewards = 0.00
+        this.preferences = {
+            TIMEOUTS:{
+                DISCOVERY : 15000,
+                WORKFLOWS_PUBLISHING : 60000,
+                JOBS_PUBLISHING : 15000,
+                RESULTS_PUBLISHING: 120000,
+                EXECUTION_CYCLE: 1000
+            },
+            LIMITS: {
+                MAX_CONCURRENT_JOBS : 20
+            }
+        }
         //todo MANAGE IT
         //this.eventManager.addListener('circuit_enabled', async function(){await this.checkProfile()}.bind(this))
     }
@@ -45,7 +56,7 @@ class IdentityManager {
         return {
             id: this.id,
             rewards : this.rewards,
-            publishedWorkflows: this.publishedWorkflows
+            preferences : this.preferences
         }
     }
 
@@ -53,7 +64,7 @@ class IdentityManager {
         if(p.content) p.content = JSON.parse(p.content)
         this.rewards = p.rewards
         this.workflows = p.workflows
-        this.publishedWorkflows = p.publishedWorkflows
+        this.preferences = p.preferences
     }
 
     async createProfile(){
@@ -65,12 +76,23 @@ class IdentityManager {
                 //Todo check if profile already exist, of yes remove and create from scratch
                 let new_profile = {
                     workflows : [],
-                    publishedWorkflows : [],
-                    rewards: 10.00
+                    rewards: 10.00,
+                    preferences : {
+                        TIMEOUTS:{
+                            DISCOVERY : 15000,
+                            WORKFLOWS_PUBLISHING : 60000,
+                            JOBS_PUBLISHING : 15000,
+                            RESULTS_PUBLISHING: 120000,
+                            EXECUTION_CYCLE: 1000
+                        },
+                        LIMITS: {
+                            MAX_CONCURRENT_JOBS : 20
+                        }
+                    }
                 }
                 await this.contentManager.makeDir('/workflows/private')
                 await this.contentManager.makeDir('/workflows/published')
-                await this.contentManager.makeDir('/workflows/unpublished')
+                await this.contentManager.makeDir('/workflows/published/my')
                 await this.contentManager.makeDir('/workflows/running')
                 await this.contentManager.makeDir('/workflows/completed')
                 /*new TextEncoder().encode(JSON.stringify(new_profile))*/
@@ -122,46 +144,32 @@ class IdentityManager {
 
     }
 
+    async savePreferences(preferences){
+        try{
+            let prefs = {
+                ...this.preferences,
+                ...preferences
+            }
+            this.preferences = prefs
+            await this.updateProfile()
+        }catch (e) {
+            console.log('Error saving preferences : %O', e)
+        }
+    }
+
     getWorkflowCid(wid){
         let filtered = this.workflows.filter(w => w.id === wid)
         let workflow = filtered.length > 0 ? filtered[0] : null
         return workflow ? workflow.cid : null
     }
 
-    async updatePublishedWorkflow(wid, ipns_name, cid){
-        try{
-            let filtered = this.publishedWorkflows.filter(pw => pw.id === wid)
-            if(filtered.length > 0){
-                filtered[0].ipns_name = ipns_name
-                filtered[0].cid = cid
-            }else {
-                this.publishedWorkflows.push({id: wid, ipns_name: ipns_name, cid: cid})
-            }
-            await this.updateProfile()
-        }catch (e) {
-            console.log('Got error during add published workflow operation : %O', e)
-        }
-    }
-
-    async unpublishWorkflow(published_workflow){
-        try{
-            this.publishedWorkflows.splice(this.publishedWorkflows.indexOf(published_workflow), 1);
-            await this.updateProfile()
-            return true
-        }catch (e) {
-            console.log('Got error during unpublish workflow operation : %O', e)
-            return false
-        }
-    }
-
     async updateProfile(){
         try{
             let profile = {
-                workflows : this.workflows,
-                publishedWorkflows : this.publishedWorkflows,
-                rewards : this.rewards
+                workflows: this.workflows,
+                rewards: this.rewards,
+                preferences: this.preferences
             }
-
             await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile), {pin : true})
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)

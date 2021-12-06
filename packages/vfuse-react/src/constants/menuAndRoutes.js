@@ -1,7 +1,8 @@
-import { faUserCircle, faMagic, faCodeBranch, faNetworkWired } from '@fortawesome/free-solid-svg-icons'
+import { faUserCircle, faMagic, faCodeBranch, faNetworkWired, faEdit } from '@fortawesome/free-solid-svg-icons'
 import ProfilePage from "../pages/profile";
 import NotebookPage from "../pages/notebook";
 import NetworkPage from "../pages/network";
+import WorkflowsPage from "../pages/workflows";
 
 export const globalMenu = [{
     type : "flat",
@@ -16,12 +17,19 @@ export const globalMenu = [{
             icon: faUserCircle
         },
         {
+            key  : 'workflows-page',
+            name : "Workflows",
+            path : "/workflows",
+            page : WorkflowsPage,
+            icon: faCodeBranch
+        },
+       /* {
             key  : 'notebook-page',
             name : "Notebook",
             path : "/notebook",
             page : NotebookPage,
-            icon: faCodeBranch
-        },
+            icon: faEdit
+        },*/
         {
             key  : 'network-page',
             name : "Network",
@@ -38,6 +46,12 @@ export const globalRoutes = [
         name : "profile-page-menu",
         path : "/profile",
         page : ProfilePage
+    },
+    {
+        key  : 'workflows-page',
+        name : "Workflows",
+        path : "/workflows",
+        page : WorkflowsPage,
     },
     {
         key  : 'notebook-page',
