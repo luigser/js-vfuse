@@ -16,14 +16,22 @@ class IdentityManager {
         this.rewards = 0.00
         this.preferences = {
             TIMEOUTS:{
-                DISCOVERY : 15000,
-                WORKFLOWS_PUBLISHING : 60000,
-                JOBS_PUBLISHING : 15000,
-                RESULTS_PUBLISHING: 120000,
-                EXECUTION_CYCLE: 1000
+                DISCOVERY : 15,
+                WORKFLOWS_PUBLISHING : 60,
+                JOBS_PUBLISHING : 15,
+                RESULTS_PUBLISHING: 120,
+                EXECUTION_CYCLE: 1
             },
             LIMITS: {
-                MAX_CONCURRENT_JOBS : 20
+                MAX_CONCURRENT_JOBS : 10
+            },
+            CONSTANTS:{
+                cpuConstant : 0.2,
+                discoveryTimeoutConstant : 15,
+                workflowsPublishingTimeoutConstant : 60,
+                resultsPublishingTimeoutConstant : 120,
+                executionCycleTimeoutConstant : 1,
+                maxConcurrentJobsConstant : 10
             }
         }
         //todo MANAGE IT
@@ -79,14 +87,22 @@ class IdentityManager {
                     rewards: 10.00,
                     preferences : {
                         TIMEOUTS:{
-                            DISCOVERY : 15000,
-                            WORKFLOWS_PUBLISHING : 60000,
-                            JOBS_PUBLISHING : 15000,
-                            RESULTS_PUBLISHING: 120000,
-                            EXECUTION_CYCLE: 1000
+                            DISCOVERY : 15,
+                            WORKFLOWS_PUBLISHING : 60,
+                            JOBS_PUBLISHING : 15,
+                            RESULTS_PUBLISHING: 120,
+                            EXECUTION_CYCLE: 1
                         },
                         LIMITS: {
-                            MAX_CONCURRENT_JOBS : 20
+                            MAX_CONCURRENT_JOBS : 10
+                        },
+                        CONSTANTS:{
+                            CPU_USAGE : 0.2,
+                            DISCOVERY_TIMEOUT : 15,
+                            WORKFLOWS_PUBLISHING_TIMEOUT : 60,
+                            RESULTS_PUBLISHING_TIMEOUT : 120,
+                            EXECUTION_CYCLE_TIMEOUT : 1,
+                            MAX_CONCURRENT_JOBS_TIMEOUT : 10
                         }
                     }
                 }

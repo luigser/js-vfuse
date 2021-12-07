@@ -65,7 +65,6 @@ export default function ProfilePage(props){
         }
     },[])
 
-
     const onProfileIdChange = (e) =>{
         setProfileId(e.nativeEvent.target.value)
     }
@@ -88,13 +87,13 @@ export default function ProfilePage(props){
                     setProfileId(data.profile.id)
                     setProfile(data.profile)
                     setPreferences(data.profile.preferences)
-                    setDiscoveryTimeout(data.profile.preferences.TIMEOUTS.DISCOVERY / 1000)
-                    setWorkflowPublishingTimeout(data.profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING / 1000)
-                    setResultsPublishingTimeout(data.profile.preferences.TIMEOUTS.RESULTS_PUBLISHING / 1000)
-                    setExecutionCycleTimeout(data.profile.preferences.TIMEOUTS.EXECUTION_CYCLE / 1000)
+                    setDiscoveryTimeout(data.profile.preferences.TIMEOUTS.DISCOVERY)
+                    setWorkflowPublishingTimeout(data.profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING)
+                    setResultsPublishingTimeout(data.profile.preferences.TIMEOUTS.RESULTS_PUBLISHING)
+                    setExecutionCycleTimeout(data.profile.preferences.TIMEOUTS.EXECUTION_CYCLE)
                     setMaxConcurrentJobs(data.profile.preferences.LIMITS.MAX_CONCURRENT_JOBS)
+                    setUsage(data.profile.preferences.CONSTANTS.CPU_USAGE)
                     setWorkflows(data.workflows)
-                    calculateUsage()
                     setStartDisabled(true)
                     setStopDisabled(false)
                     setStatus(VFuse.Constants.NODE_STATE.RUNNING)
@@ -138,11 +137,27 @@ export default function ProfilePage(props){
     }
 
     const calculateUsage = () => {
-        let usage = ((discoveryTimeout / 100) +
-            (workflowPublishingTimeout / 100) +
-            (resultsPublishingTimeout / 100) * 1.5) +
-            (((executionCycleTimeout * 70) / 100) + ((maxConcurrentJobs * 30) / 100) * 6)
-        setUsage(usage / 100)
+        let cpuConstant = 0.2
+        let discoveryTimeoutConstant = 15,
+            workflowsPublishingTimeoutConstant = 60,
+            resultsPublishingTimeoutConstant = 120,
+            executionCycleTimeoutConstant = 1,
+            maxConcurrentJobsConstant = 10,
+            discoveryTimeoutWeight = 0.001,
+            workflowsPublishingTimeoutWeight = 0.005,
+            resultsPublishingTimeoutWeight = 0.005,
+            executionCycleTimeoutWeight = 0.05,
+            maxConcurrentJobsWeight = 0.06
+        let usage = cpuConstant + (
+            (((discoveryTimeoutConstant - discoveryTimeout) * discoveryTimeoutWeight)) +
+            (((workflowsPublishingTimeoutConstant - workflowPublishingTimeout) * workflowsPublishingTimeoutWeight)) +
+            (((resultsPublishingTimeoutConstant - resultsPublishingTimeout) * resultsPublishingTimeoutWeight)) +
+            (((executionCycleTimeoutConstant - executionCycleTimeout) * executionCycleTimeoutWeight)) +
+            (((maxConcurrentJobs - maxConcurrentJobsConstant) * maxConcurrentJobsWeight))
+        )
+        if(usage <= 0) usage = 0
+        if(usage > 1)  usage = 1
+        setUsage(usage)
     }
 
     const onPreferencesChange = (type, value) =>{
@@ -150,19 +165,19 @@ export default function ProfilePage(props){
         switch(type){
             case 'TIMEOUTS.DISCOVERY':
                 setDiscoveryTimeout(value)
-                prefs.TIMEOUTS.DISCOVERY = value * 1000
+                prefs.TIMEOUTS.DISCOVERY = value
                 break
             case 'TIMEOUTS.WORKFLOWS_PUBLISHING':
                 setWorkflowPublishingTimeout(value)
-                prefs.TIMEOUTS.WORKFLOWS_PUBLISHING = value * 1000
+                prefs.TIMEOUTS.WORKFLOWS_PUBLISHING = value
                 break
             case 'TIMEOUTS.RESULTS_PUBLISHING':
                 setResultsPublishingTimeout(value)
-                prefs.TIMEOUTS.RESULTS_PUBLISHING = value * 1000
+                prefs.TIMEOUTS.RESULTS_PUBLISHING = value
                 break
             case 'TIMEOUTS.EXECUTION_CYCLE':
                 setExecutionCycleTimeout(value)
-                prefs.TIMEOUTS.EXECUTION_CYCLE = value * 1000
+                prefs.TIMEOUTS.EXECUTION_CYCLE = value
                 break
             case 'LIMITS.MAX_CONCURRENT_JOBS':
                 setMaxConcurrentJobs(value)
