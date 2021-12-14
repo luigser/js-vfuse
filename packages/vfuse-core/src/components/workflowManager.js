@@ -264,6 +264,14 @@ class WorkflowManager{
                     await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow))
                 }
                 this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1);
+
+                await this.contentManager.sendOnTopic({
+                    action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
+                    payload: {
+                        wid: workflow.id,
+                        nodes: [node]
+                    }
+                })
             }
         }catch (e) {
             console.log('Got error during workflows execution : %O', e)
@@ -292,8 +300,11 @@ class WorkflowManager{
             //here we can check the job results to ensure that the results are correct
             let workflow = this.getWorkflow(data.wid)
             if(workflow) {
+                //check if workflow do not stand in the completed ones
+                let completed = await this.contentManager.get('/workflows/completed/' + workflow.id)
+                if(completed) return
                 let completed_nodes = workflow.jobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB_SATUS.COMPLETED || n.job.status === Constants.JOB_SATUS.ERROR))
-                if(completed_nodes.length === workflow.jobsDAG.nodes.length){//do not consider the root node
+                if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){// -1 to not consider the root
                     await this.contentManager.save('/workflows/completed/' + workflow.id, "completed")
                     return
                 }else{
@@ -309,21 +320,21 @@ class WorkflowManager{
                 await this.updateWorkflow(workflow)
                 if(this.updateWorkflowCallback && this.currentWorkflow.id === data.wid) this.updateWorkflowCallback(workflow)
 
-            }
-
-            let running_workflow = await this.contentManager.get('/workflows/running/' + data.wid + '.json')
-            if(running_workflow){
-                running_workflow = JSON.parse(running_workflow)
-                for(let result_node of data.nodes){
-                    let local_job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === result_node.id)[0]
-                    if (this.jobsExecutionQueue.indexOf(result_node.job.id) < 0 &&
-                        (local_job_node.job.status !== Constants.JOB_SATUS.COMPLETED ||
-                            (local_job_node.job.status === Constants.JOB_SATUS.WAITING && result_node.job.status === Constants.JOB_SATUS.READY))){
-                        local_job_node.color = result_node.color
-                        local_job_node.job = result_node.job
+            }else {
+                let running_workflow = await this.contentManager.get('/workflows/running/' + data.wid + '.json')
+                if (running_workflow) {
+                    running_workflow = JSON.parse(running_workflow)
+                    for (let result_node of data.nodes) {
+                        let local_job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === result_node.id)[0]
+                        if (this.jobsExecutionQueue.indexOf(result_node.job.id) < 0 &&
+                            (local_job_node.job.status !== Constants.JOB_SATUS.COMPLETED ||
+                                (local_job_node.job.status === Constants.JOB_SATUS.WAITING && result_node.job.status === Constants.JOB_SATUS.READY))) {
+                            local_job_node.color = result_node.color
+                            local_job_node.job = result_node.job
+                        }
                     }
+                    await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
                 }
-                await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
             }
         }catch (e) {
             //console.log('Error during results management : %O', e)
