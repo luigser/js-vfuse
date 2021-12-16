@@ -152,10 +152,13 @@ const worker_code = () => {
                         }
                     }
                     let F = new AsyncFunction('', job.code )
-                    let results = await(F());
+                    let start = performance.now()
+                    let results = await(F())
+                    let executionTime = performance.now() - start
                     self.postMessage({
                         action: 'return',
-                        results : convert(results)
+                        results : convert(results),
+                        executionTime : executionTime
                     });
                 } catch (err) {
                     //console.log(err)

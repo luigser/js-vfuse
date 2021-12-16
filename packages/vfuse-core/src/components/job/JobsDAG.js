@@ -31,7 +31,8 @@ class JobsDAG {
 
                 node.job.status = Constants.JOB_SATUS.COMPLETED
                 node.color = Utils.getColor(Constants.JOB_SATUS.COMPLETED)
-                node.job.results = ResultsUtils.combine(node.job.results, data.results)
+                node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
+                node.job.executionTime = data.results.executionTime
                 //let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.indexOf(node.job.name) >= 0))
                 let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0
                     || n.job.dependencies.filter( d => (new RegExp(d)).test(node.job.name) || new RegExp(d).test(node.job.group)).length > 0)

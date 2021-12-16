@@ -82,7 +82,7 @@ class WebWorkerRuntime {
                 const { action, results } = e.data
                 switch(action){
                     case 'return':
-                        resolve(results)
+                        resolve({results: results, executionTime : e.data.executionTime} )
                         break
                     case 'VFuse:worker':
                         const {func, params} = e.data.todo
