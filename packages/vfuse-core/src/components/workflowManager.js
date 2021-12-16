@@ -425,16 +425,6 @@ class WorkflowManager{
 
     }
 
-    async updatePublishedWorkflow(workflow){
-        try{
-            let workflow_cid = await this.contentManager.save('/workflows/' + workflow.id + '.json', JSON.stringify(workflow), {pin : true})
-            await this.identityManager.saveWorkflow(workflow.id, workflow_cid.toString())
-            await this.publishWorkflows(workflow.id)
-        }catch (e) {
-            console.log('Error during workflow updating : %O', e)
-        }
-    }
-
     async saveWorkflow(id, name, code, language){
         try{
             let isNew = false
