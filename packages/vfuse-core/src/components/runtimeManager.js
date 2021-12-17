@@ -1,5 +1,7 @@
-const WebWorkerRuntime = require("./runtime/webWorkerRuntime")
-const  { isNode, isWebWorker, isBrowser } = require("browser-or-node");
+const WebWorkerRuntime = require('./runtime/webWorkerRuntime')
+const NodeWorkerRuntime = require('./runtime/nodeWorkerRuntime')
+const JavascriptNodeWorker = require('./runtime/workers/javascript/node/javascriptNodeWorker')
+const  { isNode, isWebWorker, isBrowser } = require('browser-or-node');
 const JavascriptWorker = require('./runtime/workers/javascript/javascriptWorker')
 const Constants = require('./constants')
 
@@ -33,7 +35,8 @@ class RuntimeManager{
             if (isNode) {
                 if(options)
                     this.runtimes.set(options.language,  (new options.worker()).getNodeWorker(this))
-                this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this))
+                //this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this))
+                this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT,new NodeWorkerRuntime(this, {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT}))
             }
         }catch(e){
             console.log("Got some error during runtime manager creation %O", e)

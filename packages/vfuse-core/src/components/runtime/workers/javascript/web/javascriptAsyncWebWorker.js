@@ -6,7 +6,7 @@ const worker_code = () => {
         addJob : (func, deps, input, group) => {
            const promise = new  Promise( (resolve, reject) => {
                self.onmessage = (e) => {
-                   const {action} = e.data;
+                   const {action} = e.data
                    if (action === 'VFuse:runtime') {
                        const {func} = e.data.data
                        if(func === 'addJob')
@@ -36,7 +36,7 @@ const worker_code = () => {
         getDataFromUrl : (url, start, end, type) => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
-                    const {action} = e.data;
+                    const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
                         if(func === 'getDataFromUrl')
@@ -65,7 +65,7 @@ const worker_code = () => {
         saveOnNetwork : (data) => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
-                    const {action} = e.data;
+                    const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
                         if(func === 'saveOnNetwork')
@@ -97,8 +97,8 @@ const worker_code = () => {
     }
 
     function escape (key, val) {
-        if (typeof(val)!="string") return val;
-        //return encodeURIComponent(val);
+        if (typeof(val)!="string") return val
+        //return encodeURIComponent(val)
         return val
             .replace(/[\\]/g, '\\\\')
             .replace(/[\/]/g, '\\/')
@@ -108,18 +108,18 @@ const worker_code = () => {
             .replace(/[\r]/g, '\\r')
             .replace(/[\t]/g, '\\t')
             .replace(/["]/g, '\\"')
-            .replace(/\\'/g, "\\'");
+            .replace(/\\'/g, "\\'")
     }
 
     const onmessage = async function (e) {
-        const {action, job, packages} = e.data;
+        const {action, job, packages} = e.data
 
         switch (action) {
             case 'init':
                 self.postMessage({
                     action: 'initialized'
-                });
-                break;
+                })
+                break
             case 'load':
                 try {
                     let results = null
@@ -132,15 +132,15 @@ const worker_code = () => {
                     self.postMessage({
                         action: 'loaded',
                         results
-                    });
+                    })
                 } catch (err) {
                     console.log(err)
                     self.postMessage({
                         action: 'loaded',
                         results: {error: err}
-                    });
+                    })
                 }
-                break;
+                break
             case 'exec':
                 try {
                     if(!job.inline){
@@ -159,7 +159,7 @@ const worker_code = () => {
                         action: 'return',
                         results : convert(results),
                         executionTime : executionTime
-                    });
+                    })
                 } catch (err) {
                     //console.log(err)
                     self.postMessage({
@@ -168,19 +168,19 @@ const worker_code = () => {
                             message : err.message,
                             code : job.code
                         }}
-                    });
+                    })
                 }
-                break;
+                break
         }
     }
 
     self.onmessage = onmessage
 }
 
-let code = worker_code.toString();
-code = code.substring(code.indexOf("{")+1, code.lastIndexOf("}"));
+let code = worker_code.toString()
+code = code.substring(code.indexOf("{")+1, code.lastIndexOf("}"))
 
-let blob = new Blob([code], {type: "application/javascript"});
-let worker_script = URL.createObjectURL(blob);
+let blob = new Blob([code], {type: "application/javascript"})
+let worker_script = URL.createObjectURL(blob)
 
-module.exports = worker_script;
+module.exports = worker_script
