@@ -17,9 +17,9 @@ class JavascriptNodeWorker {
                     job.code += `\nresults = ${job.name}(\`${job.data}\`)`
                 }
             }
-            this.vm.createContext(this.sandbox)
+            let start = performance.now()
             this.vm.runInContext(job.code, this.sandbox);
-            return ResultsUtils.convert(this.sandbox.results)
+            return {results: ResultsUtils.convert(this.sandbox.results), executionTime : performance.now() - start}
         }catch (e) {
             return {
                 error : e.message,
@@ -35,6 +35,7 @@ class JavascriptNodeWorker {
             saveOnNetwork : async (data) => await this.runtime.saveOnNetwork(data),
             results : null
         }
+        this.vm.createContext(this.sandbox)
     }
 
     async load(){}

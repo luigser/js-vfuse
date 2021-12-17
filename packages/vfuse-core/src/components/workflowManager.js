@@ -217,9 +217,6 @@ class WorkflowManager{
         await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(data))
         let encoded_workflow = await this.contentManager.getFromNetwork(data.cid)
         await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
-        let running_workflows = await this.contentManager.list('/workflows/running')
-        this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
-
     }
 
     async handleRequestExecutionWorkflow(data){
@@ -245,7 +242,7 @@ class WorkflowManager{
             if(this.jobsExecutionQueue.length === Constants.LIMITS.MAX_CONCURRENT_JOBS) return
             let running_workflows = await this.contentManager.list('/workflows/running')
             //let workflow_to_run_index = Math.floor(Math.random() * running_workflows.length)
-            let workflow_to_run = MathJs.pickRandom(running_workflows, this.workflowsWeights)
+            let workflow_to_run = MathJs.pickRandom(running_workflows, running_workflows.map(w => 1 / running_workflows.length))
             let encoded_workflow = await this.contentManager.get('/workflows/running/' + workflow_to_run)
             if(!encoded_workflow) return
             let workflow = JSON.parse(encoded_workflow)
@@ -419,6 +416,7 @@ class WorkflowManager{
                 return { error : result.error}
             }
         }catch (e) {
+
             console.log('Got some error during the workflow execution: %O', e)
             return {error : e}
         }
