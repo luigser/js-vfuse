@@ -1,5 +1,3 @@
-const JavascriptNodeWorker = require('./node/javascriptNodeWorker')
-
 class JavascriptWorker{
 
     constructor() {
@@ -12,6 +10,7 @@ class JavascriptWorker{
     }
 
     getNodeWorker(runtime){
+        const JavascriptNodeWorker = require('./node/javascriptNodeWorker')
         return new JavascriptNodeWorker(runtime)
     }
 

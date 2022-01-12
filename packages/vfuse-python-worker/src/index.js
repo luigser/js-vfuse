@@ -3,6 +3,7 @@
 class PythonWorker{
 
     constructor() {}
+
     getDefaultPackages(){
         return []
     }
@@ -17,6 +18,10 @@ class PythonWorker{
         //return new Worker("./components/web/pythonWebWorker.js")
         const PythonWebWorkerScript = require('./components/web/pythonAsyncWebWorker')
         return new Worker(PythonWebWorkerScript);
+    }
+
+    static getLanguage(){
+        return 'python'
     }
 }
 

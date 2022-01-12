@@ -24,6 +24,7 @@ class Job{
         this.packages = packages
         this.reward = 0
         this.executionTime = 0
+        this.executorPeerId = null
     }
 }
 

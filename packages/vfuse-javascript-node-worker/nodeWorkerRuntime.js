@@ -1,6 +1,5 @@
 'use strict'
 const { Worker } = require('worker_threads')
-const Constants = require ("../constants")
 const path = require('path')
 class NodeWorkerRuntime {
     constructor(runtimeManager, options, callback) {
@@ -10,10 +9,10 @@ class NodeWorkerRuntime {
         this.history = []
         this.value = null
         //this.packages = [worker.getDefaultPackages(), ... options && options.packages ? options.packages : []]
-        this.worker   = new Worker(path.join(__dirname, 'workers' ,'javascript', 'node', 'javascriptNodeWorker.js'), { workerData: {}})
+        this.worker   = new Worker(path.join(__dirname, 'workers' ,'javascript', 'node', 'javascriptThreadNodeWorker.js'), { workerData: {}})
         this.callback = callback
         this.runtimeManager = runtimeManager
-
+        this.package = null
         // attach web worker callbacks
         this.worker.onerror = (e) => {
             console.log(
@@ -75,7 +74,7 @@ class NodeWorkerRuntime {
 
     exec(job) {
         //todo to fix
-        //this.worker = new Worker('./node/javascriptNodeWorker.js', { workerData: {}})
+        this.worker =  new Worker(path.join(__dirname, 'workers' ,'javascript', 'node', 'javascriptNodeWorker.js'), { workerData: {}})
         const promise = new Promise((resolve, reject) => {
             this.worker.on('message', async(e) => {
                 const { action, results } = e

@@ -48,7 +48,14 @@ export default function ProfilePage(props){
                 setProfileId(profile?.id)
                 setWorkflows(workflows)
                 setPreferences(profile.preferences)
+                setDiscoveryTimeout(profile.preferences.TIMEOUTS.DISCOVERY)
+                setWorkflowPublishingTimeout(profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING)
+                setResultsPublishingTimeout(profile.preferences.TIMEOUTS.RESULTS_PUBLISHING)
+                setExecutionCycleTimeout(profile.preferences.TIMEOUTS.EXECUTION_CYCLE)
+                setMaxConcurrentJobs(profile.preferences.LIMITS.MAX_CONCURRENT_JOBS)
+                setUsage(profile.preferences.CONSTANTS.CPU_USAGE)
                 setStatus(VFuse.Constants.NODE_STATE.RUNNING)
+                calculateUsage()
             }else if(vFuseNode && vFuseNode.error){
                 setStatus(VFuse.Constants.NODE_STATE.STOP)
                 notification.error({

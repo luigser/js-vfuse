@@ -52,6 +52,9 @@ export default function NodeModal(props) {
                     <Descriptions.Item label="Results" span={4}>
                          <ReactJson src={node.job.results} collapsed={true} />
                     </Descriptions.Item >
+                    <Descriptions.Item label="Executor PeerId" span={4}>
+                        <i>{node.job.executorPeerId}</i>
+                    </Descriptions.Item >
                     <Descriptions.Item label="Execution Time" span={4}>
                         <i>{node.job.executionTime}</i>
                     </Descriptions.Item >

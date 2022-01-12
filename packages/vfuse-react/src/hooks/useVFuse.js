@@ -30,7 +30,6 @@ export const useVFuse = () => {
                             }
                         },
                         runtime: {
-                            language : VFuse.Constants.PROGRAMMING_LANGUAGE.PYTHON,
                             worker : PythonWorker,
                             packages : []
                         },

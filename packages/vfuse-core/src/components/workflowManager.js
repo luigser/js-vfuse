@@ -257,6 +257,7 @@ class WorkflowManager{
                 this.jobsExecutionQueue.push(node.job.id)
                 let results = await this.runtimeManager.runJob(node.job)
                 if(results){
+                    node.job.executorPeerId = this.identityManager.peerId
                     JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_SATUS.COMPLETED, {results : results})
                     await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow))
                 }

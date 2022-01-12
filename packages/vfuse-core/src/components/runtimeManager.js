@@ -1,6 +1,4 @@
-const WebWorkerRuntime = require('./runtime/webWorkerRuntime')
-const NodeWorkerRuntime = require('./runtime/nodeWorkerRuntime')
-const JavascriptNodeWorker = require('./runtime/workers/javascript/node/javascriptNodeWorker')
+//const JavascriptNodeWorker = require('./runtime/workers/javascript/node/javascriptNodeWorker')
 const  { isNode, isWebWorker, isBrowser } = require('browser-or-node');
 const JavascriptWorker = require('./runtime/workers/javascript/javascriptWorker')
 const Constants = require('./constants')
@@ -28,15 +26,17 @@ class RuntimeManager{
     load(options){
         try {
             if (isBrowser) {
+                const WebWorkerRuntime = require('./runtime/webWorkerRuntime')
                 if(options)
-                    this.runtimes.set(options.language, new WebWorkerRuntime(this,  new options.worker(), options))
+                    this.runtimes.set(options.worker.getLanguage(), new WebWorkerRuntime(this,  new options.worker(), options))
                 this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, new WebWorkerRuntime(this,  new JavascriptWorker(), {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT}))
             }
             if (isNode) {
+                //const NodeWorkerRuntime = require('./runtime/nodeWorkerRuntime')
                 if(options)
-                    this.runtimes.set(options.language,  (new options.worker()).getNodeWorker(this))
-                //this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this))
-                this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT,new NodeWorkerRuntime(this, {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT}))
+                    this.runtimes.set(options.getLanguage(),new options(this, {language : options.getLanguage()}))
+                if(!options || options.getLoadedLanguages() !== Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
+                   this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this))
             }
         }catch(e){
             console.log("Got some error during runtime manager creation %O", e)
