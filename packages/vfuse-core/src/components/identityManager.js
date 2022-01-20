@@ -23,7 +23,8 @@ class IdentityManager {
                 EXECUTION_CYCLE: 1
             },
             LIMITS: {
-                MAX_CONCURRENT_JOBS : 5
+                MAX_CONCURRENT_JOBS : 5,
+                MAX_MANAGED_WORKFLOW : 100,
             },
             CONSTANTS:{
                 cpuConstant : 0.2,
@@ -94,7 +95,8 @@ class IdentityManager {
                             EXECUTION_CYCLE: 1
                         },
                         LIMITS: {
-                            MAX_CONCURRENT_JOBS : 5
+                            MAX_CONCURRENT_JOBS : 5,
+                            MAX_MANAGED_WORKFLOW : 100,
                         },
                         CONSTANTS:{
                             CPU_USAGE : 0.2,

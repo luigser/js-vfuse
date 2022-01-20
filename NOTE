@@ -160,3 +160,12 @@ console.info(xmlhttp); //--> returns only the partial content
 Indicizzare i workflows in locale
     -quando un workflow è molto grosso capita che la filtering impieghi molto tempo per ottenere i risultati
 
+//TODO NEW
+    - TIMEOUT sull'esecuzione del job ( evitare overload)
+    - meccanismo per la REPUTATION
+    - meccanismo per il CHECKING dei risultati (possibile accumulare i risultati di più esecuzioni e confrontarli)
+    - limitare il numero di workflow su cui lavorare in un feterminato momento
+    - marcare i job di OUTPUT (invorsimile in alcuni casi recuperare l'output dal DAG
+    - prevedere un meccanismo per registrare le funzioni senza includere il codice in ogni job ma recuperandolo dal workflow
+    - definire un meccanismo che consenta ai job di ricevere uno stream senza diventare COMPLETED
+

@@ -164,11 +164,22 @@ class WebWorkerRuntime {
     }
 
     async run(job) {
-        let result
+        let result = null
         try {
             const startTs = Date.now()
+            setTimeout(function () {
+                if(!result) {
+                    this.worker.terminate()
+                    result = {
+                        action: 'return',
+                        results: {error: {
+                                message : "Current job exceed the execution timeout",
+                                code : job.code
+                            }}
+                    }
+                }
+            }.bind(this), Constants.TIMEOUTS.JOB_EXECUTION)
             result = await this.exec(job)
-
             const log = {start: startTs, end: Date.now(), cmd: job.code}
             this.history.push(log)
         }catch (e) {
