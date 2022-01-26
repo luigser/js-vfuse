@@ -20,7 +20,8 @@ class IdentityManager {
                 WORKFLOWS_PUBLISHING : 60,
                 JOBS_PUBLISHING : 15,
                 RESULTS_PUBLISHING: 120,
-                EXECUTION_CYCLE: 1
+                EXECUTION_CYCLE: 1,
+                JOB_EXECUTION : 60
             },
             LIMITS: {
                 MAX_CONCURRENT_JOBS : 5,
@@ -92,7 +93,8 @@ class IdentityManager {
                             WORKFLOWS_PUBLISHING : 60,
                             JOBS_PUBLISHING : 15,
                             RESULTS_PUBLISHING: 120,
-                            EXECUTION_CYCLE: 1
+                            EXECUTION_CYCLE: 1,
+                            JOB_EXECUTION : 60
                         },
                         LIMITS: {
                             MAX_CONCURRENT_JOBS : 5,

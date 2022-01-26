@@ -105,12 +105,30 @@ class WorkflowManager{
             this.executionCycle()
             this.publishWorkflows()
             this.publishResults()
+            this.dropExpiredWorkflows()
 
             this.eventManager.emit('VFuse.ready', { status : true, workflows : this.workflows, profile : this.identityManager.getCurrentProfile() })
         }catch(e){
             this.eventManager.emit('VFuse.ready', { status : false, error : e})
             console.log('Error getting workflows from MFS : %O, e')
         }
+    }
+
+    dropExpiredWorkflows(){
+        setInterval(async function(){
+            let workflows_to_drop = []
+            let published_workflows = await this.contentManager.list('/workflows/published')
+            for(let published_workflow of published_workflows){
+                let encoded_workflow = await this.contentManager.get('/workflows/published/' + published_workflow)
+                let decoded_workflow = JSON.parse(encoded_workflow)
+                if(decoded_workflow.publishedAt > (Date.now() + (2 * 24 * 60 * 60 * 1000))){//2 days
+                    workflows_to_drop.push(decoded_workflow.wid)
+                }
+            }
+            if(workflows_to_drop.length > 0)
+                await this.dropWorkflows({wids : workflows_to_drop})
+        }.bind(this),5 * 60 * 1000)
+
     }
 
     executionCycle(){
@@ -169,8 +187,8 @@ class WorkflowManager{
                             workflow = JSON.parse(workflow)
                             let nodes_to_publish = workflow.jobsDAG.nodes.filter(n => n.job &&
                                 (
-                                    (n.job.status === Constants.JOB_SATUS.COMPLETED || n.job.status === Constants.JOB_SATUS.ERROR) ||
-                                    (n.job.status === Constants.JOB_SATUS.READY && n.job.initialStatus === Constants.JOB_SATUS.WAITING)
+                                    (n.job.status === Constants.JOB_STATUS.COMPLETED || n.job.status === Constants.JOB_STATUS.ERROR) ||
+                                    (n.job.status === Constants.JOB_STATUS.READY && n.job.initialStatus === Constants.JOB_STATUS.WAITING)
                                 )
                             )
 
@@ -221,6 +239,8 @@ class WorkflowManager{
 
     async handleRequestExecutionWorkflow(data){
         try{
+            let published_workflows = await this.contentManager.list('/workflows/published')
+            if(published_workflows.length > Constants.LIMITS.MAX_MANAGED_WORKFLOW) return;
             if(!data.workflow_id && !data.cid) return
             //avoid the execution of private workflow
             if(this.getWorkflow(data.workflow_id)) return
@@ -258,7 +278,7 @@ class WorkflowManager{
                 let results = await this.runtimeManager.runJob(node.job)
                 if(results){
                     node.job.executorPeerId = this.identityManager.peerId
-                    JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_SATUS.COMPLETED, {results : results})
+                    JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_STATUS.COMPLETED, {results : results})
                     await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow))
                 }
                 this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1);
@@ -301,17 +321,28 @@ class WorkflowManager{
                 //check if workflow do not stand in the completed ones
                 let completed = await this.contentManager.get('/workflows/completed/' + workflow.id)
                 if(completed) return
-                let completed_nodes = workflow.jobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB_SATUS.COMPLETED || n.job.status === Constants.JOB_SATUS.ERROR))
+                let completed_nodes = workflow.jobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB_STATUS.COMPLETED || n.job.status === Constants.JOB_STATUS.ERROR))
                 if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){// -1 to not consider the root
                     await this.contentManager.save('/workflows/completed/' + workflow.id, "completed")
+                    await this.contentManager.sendOnTopic({
+                        action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,
+                        payload: {
+                            wids: [workflow.id],
+                        }
+                    })
                     return
                 }else{
                     for(let result_node of data.nodes){
                         let local_job_node = workflow.jobsDAG.nodes.filter(nd => nd.id === result_node.id)[0]
-                        if( local_job_node.job.status !== Constants.JOB_SATUS.COMPLETED ||
-                            (local_job_node.job.status === Constants.JOB_SATUS.WAITING && result_node.job.status === Constants.JOB_SATUS.READY)){
+                        if( local_job_node.job.status !== Constants.JOB_STATUS.COMPLETED ||
+                            (local_job_node.job.status === Constants.JOB_STATUS.WAITING && result_node.job.status === Constants.JOB_STATUS.READY)){
                             local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
+                        }else{
+                            //Check results
+                            if(local_job_node.job.results !== result_node.job.results){
+                                //Do something
+                            }
                         }
                     }
                 }
@@ -325,8 +356,8 @@ class WorkflowManager{
                     for (let result_node of data.nodes) {
                         let local_job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === result_node.id)[0]
                         if (this.jobsExecutionQueue.indexOf(result_node.job.id) < 0 &&
-                            (local_job_node.job.status !== Constants.JOB_SATUS.COMPLETED ||
-                                (local_job_node.job.status === Constants.JOB_SATUS.WAITING && result_node.job.status === Constants.JOB_SATUS.READY))) {
+                            (local_job_node.job.status !== Constants.JOB_STATUS.COMPLETED ||
+                                (local_job_node.job.status === Constants.JOB_STATUS.WAITING && result_node.job.status === Constants.JOB_STATUS.READY))) {
                             local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
                         }
@@ -407,7 +438,7 @@ class WorkflowManager{
                     for (let node of nodes) {
                         let results = await this.runJob(workflow.id, node.job)
                         if (results) {
-                            JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_SATUS.COMPLETED, {results: results})
+                            JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_STATUS.COMPLETED, {results: results})
                         }
                     }
                     nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
@@ -491,13 +522,15 @@ class WorkflowManager{
             let cid = this.identityManager.getWorkflowCid(workflow_id)
             if(!cid)
                 return {error : 'The current workflow is not saved in your private space'}
+            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, publishedAt : Date.now()}
+
             let name //= await this.contentManager.publish(cid, new_key.name)//todo resolve
-            await this.contentManager.save('/workflows/published/my/' + workflow_id + '.json', JSON.stringify({workflow_id : workflow_id, cid : cid}), {pin : true})
+            await this.contentManager.save('/workflows/published/my/' + workflow_id + '.json', JSON.stringify(workflow_to_publish), {pin : true})
             await this.contentManager.delete('/workflows/completed/' + workflow_id)
             this.publishedWorkflows.push({workflow_id: workflow_id, ipns_name: name, cid: cid})
             await this.contentManager.sendOnTopic({
                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
-                payload: {workflow_id : workflow_id, cid : cid}
+                payload: workflow_to_publish
             })
             console.log('Workflow successfully published: %s', name)
             return true

@@ -5,7 +5,7 @@ const Constants = {
         GATEWAY   : "GATEWAY",//use as node gateway and http api,,
         PROACTIVE_GATEWAY: "PROACTIVE_GATEWAY", //be proactive and set gateway and api if configured
     },
-    JOB_SATUS : {
+    JOB_STATUS : {
         WAITING : 0,//due to dependencies
         READY: 1,//no dependences and ready to be executed
         COMPLETED: 2,//results are available
@@ -15,13 +15,19 @@ const Constants = {
             READY: '#0F9D58',
             COMPLETED: '#4285F4',
             ERROR: '#DB4437'
-        }
+        },
+    },
+    JOB_TYPE:{
+        OUTPUT : 'OUTPUT',
+        EXECUTOR : 'EXECUTOR'
+        //STREAM?
     },
     WORKFLOW : {
         STATUS: {
             IDLE: 0,
             RUNNING: 1,
             COMPLETED: 2
+
         }
     },
     TOPICS: {
@@ -68,7 +74,8 @@ const Constants = {
         JOB_EXECUTION : 60000
     },
     LIMITS: {
-        MAX_CONCURRENT_JOBS : 5
+        MAX_CONCURRENT_JOBS : 5,
+        MAX_MANAGED_WORKFLOW : 100
     }
 }
 

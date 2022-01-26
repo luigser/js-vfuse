@@ -1,3 +1,5 @@
+import Constants from "../../../../constants";
+
 const vm = require('vm');
 const ResultsUtils = require('../../../../../utils/resultsUtils')
 
@@ -18,7 +20,7 @@ class JavascriptNodeWorker {
                 }
             }
             let start = performance.now()
-            this.vm.runInContext(job.code, this.sandbox);
+            this.vm.runInContext(job.code, this.sandbox, Constants.TIMEOUTS.JOB_EXECUTION);
             return {results: ResultsUtils.convert(this.sandbox.results), executionTime : performance.now() - start}
         }catch (e) {
             return {

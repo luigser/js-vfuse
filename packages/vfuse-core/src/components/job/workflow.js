@@ -16,6 +16,7 @@ class Workflow{
     }*/
 
     constructor(id, name = '', code, language, jobsDAG) {
+        this.timestamp = Date.now()
         this.id = id
         this.name = name
         this.code = code

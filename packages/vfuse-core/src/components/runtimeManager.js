@@ -34,7 +34,7 @@ class RuntimeManager{
             if (isNode) {
                 //const NodeWorkerRuntime = require('./runtime/nodeWorkerRuntime')
                 if(options)
-                    this.runtimes.set(options.getLanguage(),new options(this, {language : options.getLanguage()}))
+                    this.runtimes.set(options.getLanguage(),new options.worker(this, {language : options.getLanguage()}))
                 if(!options || options.getLoadedLanguages() !== Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
                    this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this))
             }

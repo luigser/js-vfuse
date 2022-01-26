@@ -16,21 +16,21 @@ class JobsDAGVertex{
 class JobsDAG {
 
     static getReadyNodes = (JSONJobDAG) => {
-        return JSONJobDAG.nodes.filter( n => n.job && n.job.status === Constants.JOB_SATUS.READY)
+        return JSONJobDAG.nodes.filter( n => n.job && n.job.status === Constants.JOB_STATUS.READY)
     }
 
     static setNodeState = (JSONJobDAG, node, state, data) => {
         switch(state){
-            case Constants.JOB_SATUS.COMPLETED:
+            case Constants.JOB_STATUS.COMPLETED:
                 if(data.results.error){
-                    node.job.status = Constants.JOB_SATUS.ERROR
-                    node.color = Utils.getColor(Constants.JOB_SATUS.ERROR)
+                    node.job.status = Constants.JOB_STATUS.ERROR
+                    node.color = Utils.getColor(Constants.JOB_STATUS.ERROR)
                     node.job.results = data.results
                     return
                 }
 
-                node.job.status = Constants.JOB_SATUS.COMPLETED
-                node.color = Utils.getColor(Constants.JOB_SATUS.COMPLETED)
+                node.job.status = Constants.JOB_STATUS.COMPLETED
+                node.color = Utils.getColor(Constants.JOB_STATUS.COMPLETED)
                 node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
                 node.job.executionTime = data.results.executionTime
                 //let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0 || n.job.dependencies.indexOf(node.job.name) >= 0))
@@ -48,12 +48,22 @@ class JobsDAG {
                         }
                     }
                     if(isReady){
-                        dependent_node.job.status = Constants.JOB_SATUS.READY
-                        dependent_node.color = Utils.getColor(Constants.JOB_SATUS.READY)
+                        dependent_node.job.status = Constants.JOB_STATUS.READY
+                        dependent_node.color = Utils.getColor(Constants.JOB_STATUS.READY)
                     }
                 }
                 break
         }
+    }
+
+    static getOutputNodes(JSONJobDAG){
+        //get all nodes with no children
+        let outputNodes = JSONJobDAG.nodes.filter(n => {
+            let edges = JSONJobDAG.edges.filter(e => e.from === n.id)
+            if(edges.length === 0)
+                return n
+        })
+        return outputNodes
     }
 
     static compare(dag1, dag2){
@@ -152,8 +162,8 @@ class JobsDAG {
             let new_job_vertex = new JobsDAGVertex({id: job.id, label: job.name, job: job, group : job.group})
             this.addVertex(new_job_vertex)
             if (!job.dependencies || (_.isArray(job.dependencies) && job.dependencies.length === 0)) {
-                new_job_vertex.job.status = Constants.JOB_SATUS.READY
-                new_job_vertex.job.initialStatus = Constants.JOB_SATUS.READY
+                new_job_vertex.job.status = Constants.JOB_STATUS.READY
+                new_job_vertex.job.initialStatus = Constants.JOB_STATUS.READY
                 this.addEdge(
                     this.root,
                     new_job_vertex
