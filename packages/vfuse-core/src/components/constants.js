@@ -10,11 +10,13 @@ const Constants = {
         READY: 1,//no dependences and ready to be executed
         COMPLETED: 2,//results are available
         ERROR: 3,//something wrong during the execution
+        ENDLESS: 4,
         COLORS:{
             WAITING : '#F4B400',
             READY: '#0F9D58',
             COMPLETED: '#4285F4',
-            ERROR: '#DB4437'
+            ERROR: '#DB4437',
+            ENDLESS : '#0c0e43'
         },
     },
     JOB_TYPE:{

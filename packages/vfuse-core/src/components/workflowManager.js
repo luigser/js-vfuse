@@ -119,6 +119,7 @@ class WorkflowManager{
             let workflows_to_drop = []
             let published_workflows = await this.contentManager.list('/workflows/published')
             for(let published_workflow of published_workflows){
+                if(published_workflow === 'my') continue
                 let encoded_workflow = await this.contentManager.get('/workflows/published/' + published_workflow)
                 let decoded_workflow = JSON.parse(encoded_workflow)
                 if(decoded_workflow.publishedAt > (Date.now() + (2 * 24 * 60 * 60 * 1000))){//2 days
@@ -600,6 +601,43 @@ class WorkflowManager{
             return e
         }
     }
+
+    async getRunningWorkflows(){
+        try{
+            let running_workflows = await this.contentManager.list('/workflows/running')
+            return running_workflows.map(w => w.replace('.json', ''))
+
+        }catch (e) {
+            console.log('There was an error during running workflows retrieving : %O', e)
+            return []
+        }
+    }
+
+    async getRunningWorkflow(id){
+        try{
+            let encoded_workflow = await this.contentManager.get('/workflows/running/' + id + '.json')
+            if(!encoded_workflow) return null
+            return JSON.parse(encoded_workflow)
+        }catch (e) {
+            console.log('There was an error during running workflow retrieving : %O', e)
+            return null
+        }
+    }
+
+    async removeRunningWorkflow(id){
+        try{
+            await this.contentManager.delete('/workflows/running/' + id + '.json')
+            await this.contentManager.delete('/workflows/published/' + id + '.json')
+            await this.contentManager.delete('/workflows/completed/' + id)
+            let running_workflows = await this.contentManager.list('/workflows/running')
+            this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
+        }catch (e) {
+            console.log('There was an error removing running workflow : %O', e)
+            return null
+        }
+    }
+
+
 }
 
 module.exports = WorkflowManager

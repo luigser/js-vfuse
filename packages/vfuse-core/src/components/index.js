@@ -132,6 +132,17 @@ class VFuse {
         return await this.workflowManager.testWorkflow(code, language)
     }
 
+    async getRunningWorkflows(){
+        return await this.workflowManager.getRunningWorkflows()
+    }
+
+    async getRunningWorkflow(id){
+        return await this.workflowManager.getRunningWorkflow(id)
+    }
+    async removeRunningWorkflow(id){
+        await this.workflowManager.removeRunningWorkflow(id)
+    }
+
     async addJob(workflow, code, data, dependencies){
         //Todo the dependencies and data should be extracted directly from the entire code in the notebook
         await this.workflowManager.addJob(workflow, code, data, dependencies)

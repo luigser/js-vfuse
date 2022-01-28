@@ -18,7 +18,7 @@ export const globalMenu = [{
         },
         {
             key  : 'workflows-page',
-            name : "Workflows",
+            name : "My Workflows",
             path : "/workflows",
             page : WorkflowsPage,
             icon: faCodeBranch
