@@ -579,6 +579,7 @@ class WorkflowManager{
                 name,
                 code,
                 data,
+
                 dependencies,
                 group,
                 this.currentWorkflow.language,
