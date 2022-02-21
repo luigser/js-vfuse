@@ -22,6 +22,7 @@ class Workflow{
         this.code = code
         this.language = language
         this.jobsDAG = jobsDAG
+        this.functions = []
     }
 }
 module.exports = Workflow

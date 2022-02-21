@@ -1,4 +1,4 @@
-import Constants from "../../../../constants";
+const Constants =  require("../../../../constants");
 
 const vm = require('vm');
 const ResultsUtils = require('../../../../../utils/resultsUtils')

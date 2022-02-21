@@ -571,6 +571,16 @@ class WorkflowManager{
         }catch (e) {}
     }
 
+    async registerFunction(name, func){
+        try {
+            this.currentWorkflow.functions.push({name: name, func: func})
+            return true
+        }catch (e) {
+            console.log('Error during register function : %O', e)
+            return false
+        }
+    }
+
     async addJob(name, code, dependencies, data, group, packages){
         try{
             let job_id = await PeerId.create({ bits: 1024, keyType: 'RSA' })

@@ -61,8 +61,6 @@ class VFuse {
                 }
 
                 await this.startManagers()
-                await this.workflowManager.start()
-                await this.identityManager.checkProfile()
 
                 if (this.options.IPFSGateway) {
                     const Gateway = require('ipfs-http-gateway');
