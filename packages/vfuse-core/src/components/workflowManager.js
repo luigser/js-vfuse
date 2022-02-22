@@ -570,7 +570,24 @@ class WorkflowManager{
             return await this.contentManager.getDataFromUrl(url, start, end, type)
         }catch (e) {}
     }
+    async saveOnNetwork(data){
+        try{
+            return await this.contentManager.saveOnIpfs(JSON.stringify(data))
+        }catch (e) {
+            console.log('Got error during saving on network : %O', e)
+            return e
+        }
+    }
 
+    async getFromNetwork(cid){
+        try{
+            return await this.contentManager.getFromNetwork(cid)
+        }catch (e) {
+            console.log('Got error during getting data from network : %O', e)
+            return e
+        }
+    }
+    //TODO da completare
     async registerFunction(name, func){
         try {
             this.currentWorkflow.functions.push({name: name, func: func})
@@ -589,7 +606,6 @@ class WorkflowManager{
                 name,
                 code,
                 data,
-
                 dependencies,
                 group,
                 this.currentWorkflow.language,
@@ -601,15 +617,6 @@ class WorkflowManager{
         }catch (e){
             console.log('Got some error during the workflow creation: %O', e)
             return null
-        }
-    }
-
-    async saveOnNetwork(data){
-        try{
-            return await this.contentManager.saveOnIpfs(JSON.stringify(data))
-        }catch (e) {
-            console.log('Got error during saving on network : %O', e)
-            return e
         }
     }
 

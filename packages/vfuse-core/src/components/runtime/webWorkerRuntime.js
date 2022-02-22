@@ -147,6 +147,26 @@ class WebWorkerRuntime {
                                     })
                                 }
                                 break
+                            case 'getFromNetwork':
+                                let data = await this.runtimeManager.getFromNetwork(p.cid)
+                                if(content && !content.error) {
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "getFromNetwork",
+                                            content: data
+                                        }
+                                    })
+                                }else{
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "getFromNetwork",
+                                            error : content.error.toString()
+                                        }
+                                    })
+                                }
+                                break
                         }
                         break
                     case 'error':

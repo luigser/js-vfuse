@@ -86,6 +86,14 @@ class RuntimeManager{
         }
     }
 
+    async getFromNetwork(cid){
+        try {
+            return this.workflowManager.getFromNetwork(cid)
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
 }
 
 module.exports = RuntimeManager

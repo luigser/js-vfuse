@@ -86,6 +86,32 @@ const worker_code = () => {
             })
 
             return promise
+        },
+
+        getFromNetwork : (cid) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'getFromNetwork')
+                            resolve(e.data.data.content)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
+
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'getFromNetwork',
+                    params: JSON.stringify({
+                        cid : cid,
+                    })
+                }
+            })
+
+            return promise
         }
     }
 
@@ -106,6 +132,9 @@ const worker_code = () => {
         "    @staticmethod\n" +
         "    async def saveOnNetwork(data):\n" +
         "        return await JSVFuse.saveOnNetwork(data)\n" +
+        "    @staticmethod\n" +
+        "    async def getFromNetwork(cid):\n" +
+        "        return await JSVFuse.getFromNetwork(cid)\n" +
         "    @staticmethod\n" +
         "    def execute(func, data = None):\n" +
         "        code = bytes(func.to_py().values())\n" +

@@ -86,7 +86,34 @@ const worker_code = () => {
             })
 
             return promise
+        },
+
+        getFromNetwork : (cid) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'getFromNetwork')
+                            resolve(e.data.data.content)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
+
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'getFromNetwork',
+                    params: JSON.stringify({
+                        cid : cid,
+                    })
+                }
+            })
+
+            return promise
         }
+
     }
 
     const convert = (results) => {
