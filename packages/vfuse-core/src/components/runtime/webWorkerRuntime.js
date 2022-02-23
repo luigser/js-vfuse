@@ -168,13 +168,13 @@ class WebWorkerRuntime {
                                 }
                                 break
                             case 'setEndlessJob':
-                                let result = await this.runtimeManager.setEndlessJob(p.job_id)
-                                if(result && !result.error) {
+                                let sejResult = await this.runtimeManager.setEndlessJob(p.job_id)
+                                if(sejResult && !sejResult.error) {
                                     this.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setEndlessJob",
-                                            result: result
+                                            result: sejResult
                                         }
                                     })
                                 }else{
@@ -182,31 +182,31 @@ class WebWorkerRuntime {
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setEndlessJob",
-                                            error : content.error.toString()
+                                            error : sejResult.error.toString()
                                         }
                                     })
                                 }
                                 break
-                        }
-                        break
-                    case 'addJobToGroup':
-                        let result = await this.runtimeManager.addJobToGroup(p.job_id, p.group)
-                        if(result && !result.error) {
-                            this.webworker.postMessage({
-                                action: 'VFuse:runtime',
-                                data: {
-                                    func: "addJobToGroup",
-                                    result: result
+                            case 'addJobToGroup':
+                                let atgResult = await this.runtimeManager.addJobToGroup(p.job_id, p.group)
+                                if(atgResult && !atgResult.error) {
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "addJobToGroup",
+                                            result: atgResult
+                                        }
+                                    })
+                                }else{
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "addJobToGroup",
+                                            error : atgResult.error.toString()
+                                        }
+                                    })
                                 }
-                            })
-                        }else{
-                            this.webworker.postMessage({
-                                action: 'VFuse:runtime',
-                                data: {
-                                    func: "addJobToGroup",
-                                    error : content.error.toString()
-                                }
-                            })
+                                break
                         }
                         break
                     case 'error':

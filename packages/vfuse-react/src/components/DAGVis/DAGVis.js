@@ -144,23 +144,26 @@ export default function DAGVis(props) {
         <>
             {graph &&
                 <>
-                    <Row gutter={16}>
-                        <Col span={4}>
-                            <Statistic title="Jobs" value={graph.nodes.length} />
+                    <Row gutter={30}>
+                        <Col span={3}>
+                            <Statistic title="Jobs" value={graph.nodes.length - 1} />
                         </Col>
-                        <Col span={4}>
+                        <Col span={3}>
                             <Statistic title="Dependencies" value={graph.edges.length} />
                         </Col>
-                        <Col span={4}>
+                        <Col span={3}>
                             <Statistic title="Waiting" value={graph.nodes.filter(n=>n.job && n.job.status === 0).length} />
                         </Col>
-                        <Col span={4}>
+                        <Col span={3}>
                             <Statistic title="Ready" value={graph.nodes.filter(n=>n.job && n.job.status === 1).length} />
                         </Col>
-                        <Col span={4}>
+                        <Col span={3}>
                             <Statistic title="Completed" value={graph.nodes.filter(n=>n.job && n.job.status === 2).length} />
                         </Col>
-                        <Col span={4}>
+                        <Col span={3}>
+                            <Statistic title="Endless" value={graph.nodes.filter(n=>n.job && n.job.status === 4).length} />
+                        </Col>
+                        <Col span={3}>
                             <Statistic title="Selected Group" value={selectedGroup} />
                         </Col>
                     </Row>

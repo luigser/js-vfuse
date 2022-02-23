@@ -16,7 +16,7 @@ const Constants = {
             READY: '#0F9D58',
             COMPLETED: '#4285F4',
             ERROR: '#DB4437',
-            ENDLESS : '#0c0e43'
+            ENDLESS : '#32586E'
         },
     },
     JOB_TYPE:{

@@ -40,6 +40,7 @@ export default function NodeModal(props) {
                             {node.job.status === 1 && <Tag color="#0F9D58">READY</Tag>}
                             {node.job.status === 2 && <Tag color="#4285F4">COMPLETED</Tag>}
                             {node.job.status === 3 && <Tag color="#DB4437">ERROR</Tag>}
+                            {node.job.status === 4 && <Tag color="#32586E">ENDLESS</Tag>}
                         </Descriptions.Item >
                     <Descriptions.Item label="Data" span={4}>
                         {
