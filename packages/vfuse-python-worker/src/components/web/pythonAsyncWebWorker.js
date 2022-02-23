@@ -112,7 +112,32 @@ const worker_code = () => {
             })
 
             return promise
-        }
+        },
+        setEndlessJob : (job_id) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'setEndlessJob')
+                            resolve(e.data.data.result)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
+
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'setEndlessJob',
+                    params: JSON.stringify({
+                        job_id : job_id,
+                    })
+                }
+            })
+
+            return promise
+        },
     }
 
     /*"        #if type(result) != str:\n" +
@@ -135,6 +160,9 @@ const worker_code = () => {
         "    @staticmethod\n" +
         "    async def getFromNetwork(cid):\n" +
         "        return await JSVFuse.getFromNetwork(cid)\n" +
+        "    @staticmethod\n" +
+        "    async def setEndlessJob(job_id):\n" +
+        "        return await JSVFuse.setEndlessJob(cid)\n" +
         "    @staticmethod\n" +
         "    def execute(func, data = None):\n" +
         "        code = bytes(func.to_py().values())\n" +

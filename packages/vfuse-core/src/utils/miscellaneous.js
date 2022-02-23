@@ -36,6 +36,9 @@ const Miscellaneous = {
             case Constants.JOB_STATUS.READY:
                 color = Constants.JOB_STATUS.COLORS.READY
                 break
+            case Constants.JOB_STATUS.ENDLESS:
+                color = Constants.JOB_STATUS.COLORS.ENDLESS
+                break
         }
         return {
             background : color,

@@ -77,16 +77,17 @@ Indicizzare i workflows in locale
 //TODO NEW
     - TIMEOUT sull'esecuzione del job ( evitare overload) [X]
     - reward con blockchain *** NEXT VERSION
-    - meccanismo per la REPUTATION
-    - meccanismo per il CHECKING dei risultati (possibile accumulare i risultati di più esecuzioni e confrontarli)
+    - meccanismo per la REPUTATION *** NEXT VERSION
+    - meccanismo per il CHECKING dei risultati (possibile accumulare i risultati di più esecuzioni e confrontarli) *** NEXT VERSION
     - limitare il numero di workflow su cui lavorare in un determinato momento[X]
     - marcare i job di OUTPUT (invorsimile in alcuni casi recuperare l'output dal DAG)[ X - Restiuire i nodi senza figli]
     - prevedere un meccanismo per registrare le funzioni senza includere il codice in ogni job ma recuperandolo dal workflow
-    - definire un meccanismo che consenta ai job di ricevere uno stream senza diventare COMPLETED *** ENDLESS JOB *** IMPORTANTE PER COMPLETEZZA DEL MODELLO DI PROGRAMMAZIONE
+    - definire un meccanismo che consenta ai job di ricevere uno stream senza diventare COMPLETED *** ENDLESS JOB *** IMPORTANTE PER COMPLETEZZA DEL MODELLO DI PROGRAMMAZIONE[*X]
     - pagine dei workflow in esecuzione con la possibilità di salvare il workflow nel proprio spazio privato *** IMPORTANTE
     - salvare le preferenze *** IMPORTANTE
     - PYTHON NODEJS WORKER *** IN SEGUITO MA IMPORTANTE
 
     - Completare e testare gli endless jobs
     - Completare e testare la register function
+    - Aggiungere gli snippert per vfuse
 

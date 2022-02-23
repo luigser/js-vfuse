@@ -70,6 +70,14 @@ class RuntimeManager{
         }
     }
 
+    async setEndlessJob(job_id){
+        try {
+            return this.workflowManager.setEndlessJob(job_id)
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
     async getDataFromUrl(url, start, end, type){
         try {
             return this.workflowManager.getDataFromUrl(url, start, end, type)

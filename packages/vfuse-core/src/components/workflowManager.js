@@ -620,6 +620,17 @@ class WorkflowManager{
         }
     }
 
+    async setEndlessJob(job_id){
+        try{
+            let result = this.currentWorkflow.jobsDAG.setEndlessJob(job_id)
+            return result
+        }catch (e){
+            console.log('Got some error setting endless job: %O', e)
+            return null
+        }
+
+    }
+
     async getRunningWorkflows(){
         try{
             let running_workflows = await this.contentManager.list('/workflows/running')

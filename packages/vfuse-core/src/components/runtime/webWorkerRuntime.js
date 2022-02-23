@@ -167,6 +167,26 @@ class WebWorkerRuntime {
                                     })
                                 }
                                 break
+                            case 'setEndlessJob':
+                                let result = await this.runtimeManager.setEndlessJob(p.job_id)
+                                if(content && !content.error) {
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "setEndlessJob",
+                                            result: result
+                                        }
+                                    })
+                                }else{
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "setEndlessJob",
+                                            error : content.error.toString()
+                                        }
+                                    })
+                                }
+                                break
                         }
                         break
                     case 'error':

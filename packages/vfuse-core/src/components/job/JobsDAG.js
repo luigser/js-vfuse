@@ -10,6 +10,7 @@ class JobsDAGVertex{
         this.label = props.label
         this.job   = props.job
         this.group = props.group
+        this.color = props.color
     }
 }
 
@@ -199,6 +200,24 @@ class JobsDAG {
             console.log('Error during adding job to DAG : %O', e)
             return null
         }
+    }
+
+    setEndlessJob(job_id){
+        try{
+            let vertex = this.vertices.get(job_id)
+            if(vertex){
+                vertex.job.status = Constants.JOB_STATUS.ENDLESS
+                vertex.job.initialStatus = Constants.JOB_STATUS.ENDLESS
+                vertex.color = Utils.getColor(Constants.JOB_STATUS.ENDLESS)
+                return vertex.job.id
+            }else{
+                return null
+            }
+        }catch (e) {
+            console.log('Error during setting endless job : %O', e)
+            return null
+        }
+
     }
 }
 
