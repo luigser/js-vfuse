@@ -36,6 +36,8 @@ class JavascriptNodeWorker {
             getDataFromUrl : async (url, start, end, type) => await this.runtime.getDataFromUrl(url, start, end, type),
             saveOnNetwork : async (data) => await this.runtime.saveOnNetwork(data),
             getFromNetwork: async(cid) => await this.runtime.getFromNetwork(cid),
+            setEndlessJob: async(job_id) => await this.runtime.setEndlessJob(job_id),
+            addJobToGroup: async(job_id, group) => await this.runtime.addJobToGroup(job_id, group),
             results : null
         }
         this.vm.createContext(this.sandbox)

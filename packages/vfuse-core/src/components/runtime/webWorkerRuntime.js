@@ -149,7 +149,7 @@ class WebWorkerRuntime {
                                 break
                             case 'getFromNetwork':
                                 let data = await this.runtimeManager.getFromNetwork(p.cid)
-                                if(content && !content.error) {
+                                if(data && !data.error) {
                                     this.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
@@ -169,7 +169,7 @@ class WebWorkerRuntime {
                                 break
                             case 'setEndlessJob':
                                 let result = await this.runtimeManager.setEndlessJob(p.job_id)
-                                if(content && !content.error) {
+                                if(result && !result.error) {
                                     this.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
@@ -187,6 +187,26 @@ class WebWorkerRuntime {
                                     })
                                 }
                                 break
+                        }
+                        break
+                    case 'addJobToGroup':
+                        let result = await this.runtimeManager.addJobToGroup(p.job_id, p.group)
+                        if(result && !result.error) {
+                            this.webworker.postMessage({
+                                action: 'VFuse:runtime',
+                                data: {
+                                    func: "addJobToGroup",
+                                    result: result
+                                }
+                            })
+                        }else{
+                            this.webworker.postMessage({
+                                action: 'VFuse:runtime',
+                                data: {
+                                    func: "addJobToGroup",
+                                    error : content.error.toString()
+                                }
+                            })
                         }
                         break
                     case 'error':

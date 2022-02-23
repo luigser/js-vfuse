@@ -138,6 +138,34 @@ const worker_code = () => {
 
             return promise
         },
+
+        addJobToGroup : (job_id, group) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'addJobToGroup')
+                            resolve(e.data.data.result)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
+
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'addJobToGroup',
+                    params: JSON.stringify({
+                        job_id : job_id,
+                        group: group
+                    })
+                }
+            })
+
+            return promise
+        },
+
     }
 
     /*"        #if type(result) != str:\n" +
@@ -162,7 +190,10 @@ const worker_code = () => {
         "        return await JSVFuse.getFromNetwork(cid)\n" +
         "    @staticmethod\n" +
         "    async def setEndlessJob(job_id):\n" +
-        "        return await JSVFuse.setEndlessJob(cid)\n" +
+        "        return await JSVFuse.setEndlessJob(job_id)\n" +
+        "    @staticmethod\n" +
+        "    async def addJobToGroup(job_id, group):\n" +
+        "        return await JSVFuse.addJobToGroup(job_id, group)\n" +
         "    @staticmethod\n" +
         "    def execute(func, data = None):\n" +
         "        code = bytes(func.to_py().values())\n" +

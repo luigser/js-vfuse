@@ -628,7 +628,16 @@ class WorkflowManager{
             console.log('Got some error setting endless job: %O', e)
             return null
         }
+    }
 
+    async addJobToGroup(job_id, group){
+        try{
+            let result = this.currentWorkflow.jobsDAG.addJobToGroup(job_id, group)
+            return result
+        }catch (e){
+            console.log('Got some error adding job to group: %O', e)
+            return null
+        }
     }
 
     async getRunningWorkflows(){

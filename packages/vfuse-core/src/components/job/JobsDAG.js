@@ -217,7 +217,21 @@ class JobsDAG {
             console.log('Error during setting endless job : %O', e)
             return null
         }
+    }
 
+    addJobToGroup(job_id, group){
+        try{
+            let vertex = this.vertices.get(job_id)
+            if(vertex){
+                vertex.group = group
+                return vertex.id
+            }else{
+                return null
+            }
+        }catch (e) {
+            console.log('Error during setting group to job : %O', e)
+            return null
+        }
     }
 }
 

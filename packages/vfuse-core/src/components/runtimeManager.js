@@ -78,6 +78,14 @@ class RuntimeManager{
         }
     }
 
+    async addJobToGroup(job_id, group){
+        try {
+            return this.workflowManager.addJobToGroup(job_id, group)
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
     async getDataFromUrl(url, start, end, type){
         try {
             return this.workflowManager.getDataFromUrl(url, start, end, type)

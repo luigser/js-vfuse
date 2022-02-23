@@ -139,6 +139,32 @@ const worker_code = () => {
 
             return promise
         },
+        addJobToGroup : (job_id, group) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'addJobToGroup')
+                            resolve(e.data.data.result)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
+
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'addJobToGroup',
+                    params: JSON.stringify({
+                        job_id : job_id,
+                        group: group
+                    })
+                }
+            })
+
+            return promise
+        },
 
     }
 
