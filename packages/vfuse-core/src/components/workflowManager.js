@@ -188,7 +188,7 @@ class WorkflowManager{
                             workflow = JSON.parse(workflow)
                             let nodes_to_publish = workflow.jobsDAG.nodes.filter(n => n.job &&
                                 (
-                                    (n.job.status === Constants.JOB_STATUS.COMPLETED || n.job.status === Constants.JOB_STATUS.ERROR) ||
+                                    (n.job.status === Constants.JOB_STATUS.COMPLETED || n.job.status === Constants.JOB_STATUS.ERROR || n.job.status === Constants.JOB_STATUS.ENDLESS) ||
                                     (n.job.status === Constants.JOB_STATUS.READY && n.job.initialStatus === Constants.JOB_STATUS.WAITING)
                                 )
                             )
@@ -279,7 +279,7 @@ class WorkflowManager{
                 let results = await this.runtimeManager.runJob(node.job)
                 if(results){
                     node.job.executorPeerId = this.identityManager.peerId
-                    JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_STATUS.COMPLETED, {results : results})
+                    JobsDAG.setNodeState(workflow.jobsDAG, node, node.job.status === Constants.JOB_STATUS.ENDLESS ? Constants.JOB_STATUS.ENDLESS : Constants.JOB_STATUS.COMPLETED, {results : results})
                     await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow))
                 }
                 this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1);
@@ -339,7 +339,10 @@ class WorkflowManager{
                             (local_job_node.job.status === Constants.JOB_STATUS.WAITING && result_node.job.status === Constants.JOB_STATUS.READY)){
                             local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
-                        }else{
+                        }else if(local_job_node.job.status === Constants.JOB_STATUS.ENDLESS){
+                            //Update result of endless job
+                            JobsDAG.combineResults(local_job_node, result_node)
+                        }else{//Already completed
                             //Check results
                             if(local_job_node.job.results !== result_node.job.results){
                                 //Do something

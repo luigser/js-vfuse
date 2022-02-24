@@ -17,7 +17,7 @@ class JobsDAGVertex{
 class JobsDAG {
 
     static getReadyNodes = (JSONJobDAG) => {
-        return JSONJobDAG.nodes.filter( n => n.job && n.job.status === Constants.JOB_STATUS.READY)
+        return JSONJobDAG.nodes.filter( n => n.job && (n.job.status === Constants.JOB_STATUS.READY || n.job.status === Constants.JOB_STATUS.ENDLESS))
     }
 
     static setNodeState = (JSONJobDAG, node, state, data) => {
@@ -61,6 +61,10 @@ class JobsDAG {
                 node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
                 break
         }
+    }
+
+    static combineResults(node1, node2){
+        node1.job.data = ResultsUtils.combine(node1.job.data, node2.job.results)
     }
 
     static getOutputNodes(JSONJobDAG){
@@ -173,6 +177,7 @@ class JobsDAG {
                 new_job_vertex.job.initialStatus = Constants.JOB_STATUS.READY
                 this.addEdge(
                     this.root,
+
                     new_job_vertex
                 )
             } else {
