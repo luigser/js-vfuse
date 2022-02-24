@@ -275,11 +275,14 @@ const worker_code = () => {
                     else {
                         self.pyodide.loadPackagesFromImports(job.packages)
                     }
+                    let start = performance.now()
                     let results = await self.pyodide.runPythonAsync(!job.inline ?  `VFuse.execute(function_to_run, input)` : job.code)
+                    let executionTime = performance.now() - start
                     self.postMessage(
                         {
                             action: 'return',
-                            results: results && typeof(results)!="string" ? convert(results.toJs()) : results
+                            results: results && typeof(results)!="string" ? convert(results.toJs()) : results,
+                            executionTime : executionTime
                         });
                 } catch (err) {
                     self.postMessage({
