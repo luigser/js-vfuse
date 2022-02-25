@@ -17,7 +17,9 @@ class IdentityManager {
         this.preferences = {
             ENDPOINTS:{
                 SIGNAL_SERVER : '',
-                BOOTSTRAPS: []
+                BOOTSTRAPS: [],
+                PINNING_SERVER : '',
+                DELEGATE_NODE : ''
             },
             TIMEOUTS:{
                 DISCOVERY : 15,

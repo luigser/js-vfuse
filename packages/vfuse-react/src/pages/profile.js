@@ -38,6 +38,8 @@ export default function ProfilePage(props){
     const [jobExecutionTimeout, setJobExecutionTimeout] = useState(0)
     const [usage, setUsage] = useState(0)
     const [signalServer, setSignalServer] = useState('/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star')
+    const [delegateNode, setDelegateNode] = useState('')
+    const [pinningServer, setPinningServer] = useState('/ip4/192.168.1.57/tcp/9094')
     const [bootstraps, setBootstrap] = useState(['/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY'])
     const [bootstrapsString, setBootstrapString] = useState('/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY')
     const [savePreferencesLoading, setSavePreferencesLoading] = useState(false)
@@ -65,6 +67,8 @@ export default function ProfilePage(props){
                 setSignalServer(profile.preferences.ENDPOINTS.SIGNAL_SERVER)
                 setBootstrap(profile.preferences.ENDPOINTS.BOOTSTRAPS)
                 setBootstrapString(profile.preferences.ENDPOINTS.BOOTSTRAPS.map(b => b + '\n'))
+                setPinningServer(profile.preferences.ENDPOINTS.PINNING_SERVER)
+                setDelegateNode(profile.preferences.ENDPOINTS.DELEGATE_NODE)
                 setStatus(VFuse.Constants.NODE_STATE.RUNNING)
                 calculateUsage()
             }else if(vFuseNode && vFuseNode.error){
@@ -92,7 +96,7 @@ export default function ProfilePage(props){
             setStartLoading(true)
             setStatus(VFuse.Constants.NODE_STATE.INITIALIZING)
 
-            let node = await getNode(signalServer, bootstraps)
+            let node = await getNode(signalServer, bootstraps, pinningServer, delegateNode)
             if(!node) {
                 setStatus(VFuse.Constants.NODE_STATE.STOP)
                 return
@@ -115,9 +119,12 @@ export default function ProfilePage(props){
                     setSignalServer(data.profile.preferences.ENDPOINTS.SIGNAL_SERVER === '' ? signalServer : data.profile.preferences.ENDPOINTS.SIGNAL_SERVER)
                     setBootstrap(data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length === 0 ? bootstraps : data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length)
                     setBootstrapString(data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length === 0 ? bootstrapsString : data.profile.preferences.ENDPOINTS.BOOTSTRAPS.map(b => b + '\n'))
+                    setPinningServer(data.profile.preferences.ENDPOINTS.PINNING_SERVER === '' ? pinningServer : data.profile.preferences.ENDPOINTS.PINNING_SERVER)
+                    setDelegateNode(data.profile.preferences.ENDPOINTS.DELEGATE_NODE === '' ? delegateNode : data.profile.preferences.ENDPOINTS.DELEGATE_NODE)
                     setWorkflows(data.workflows)
                     setStartDisabled(true)
                     setStopDisabled(false)
+                    setSavePreferencesDisabled(false)
                     setStatus(VFuse.Constants.NODE_STATE.RUNNING)
                     setStartLoading(false)
                 }else{
@@ -219,6 +226,16 @@ export default function ProfilePage(props){
                 setBootstrap(value.split('\n'))
                 if(vFuseNode)
                    prefs.ENDPOINTS.BOOTSTRAPS = value.split('\n')
+                break
+            case 'ENDPOINTS.PINNING_SERVER':
+                setPinningServer(value)
+                if(vFuseNode)
+                    prefs.ENDPOINTS.PINNING_SERVER = value
+                break
+            case 'ENDPOINTS.DELEGATE_NODE':
+                setDelegateNode(value)
+                if(vFuseNode)
+                    prefs.ENDPOINTS.DELEGATE_NODE = value
                 break
         }
         calculateUsage()
@@ -376,9 +393,9 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                                 <Row style={{height: "30vh"}}>
                                                                     <Slider vertical
-                                                                            max={100}
+                                                                            max={600}
                                                                             disabled={preferences === null}
-                                                                            step={1}
+                                                                            step={10}
                                                                             value={jobExecutionTimeout}
                                                                             onChange={(value) => onPreferencesChange('TIMEOUT.JOB_EXECUTION', value)}
                                                                     />
@@ -406,7 +423,7 @@ export default function ProfilePage(props){
                                             </Col>
                                         </Tabs.TabPane>
                                         <Tabs.TabPane tab="Endpoints" key="2">
-                                            <Col span={24} style={{height: "50vh"}}>
+                                            <Col span={24} style={{height: "60vh"}}>
                                                 <Descriptions
                                                     title="Preferences"
                                                     layout="vertical"
@@ -426,13 +443,40 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                             </Col>
                                                         </Row>
+                                                        <Row>
+                                                            <Col span={24}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>Pinning Server</Typography.Text>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Input
+                                                                        placeholder='/ip4/127.0.0.1/tcp/9094'
+                                                                        onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER',value.currentTarget.value)}
+                                                                        value={pinningServer} />
+                                                                </Row>
+                                                            </Col>
+                                                        </Row>
+                                                        <Row>
+                                                            <Col span={24}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>Delegate Node</Typography.Text>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Input
+                                                                        placeholder=''
+                                                                        onChange={(value) => onPreferencesChange('ENDPOINTS.DELEGATE_NODE',value.currentTarget.value)}
+                                                                        value={delegateNode} />
+                                                                </Row>
+                                                            </Col>
+                                                        </Row>
                                                         <Row style={{marginTop: 16}}>
                                                             <Col span={24}>
                                                                 <Row>
                                                                     <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>Bootstraps <b>(Separate bootstrap endpoints with newline. Remember to save preferences if you change this values)</b></Typography.Text>
                                                                 </Row>
-                                                                <Row style={{height: "30vh"}}>
+                                                                <Row>
                                                                     <Input.TextArea
+                                                                        style={{height : '20vh'}}
                                                                         onChange={(value) =>  onPreferencesChange('ENDPOINTS.BOOTSTRAPS',value.currentTarget.value)}
                                                                         value={bootstrapsString}
                                                                         placeholder="/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY"s/>

@@ -5,7 +5,7 @@ import {gStore} from "../store";
 
 export const useVFuse = () => {
 
-    const getNode = async(signalServer, bootstraps) => {
+    const getNode = async(signalServer, bootstraps, pinningServer, delegateNode) => {
         let node = null
         try {
             node = gStore.get("vFuseNode")
@@ -36,7 +36,9 @@ export const useVFuse = () => {
                         discoveryCallback: () => {},
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},
-                        ipfsClusterApi: {host: '192.168.1.57', port: '9094', protocol: 'http'},
+                        ipfsClusterApi : pinningServer !== '' ? pinningServer : null,
+                        ipfsClientOptions: delegateNode !== '' ? delegateNode : null
+                        //ipfsClusterApi: {host: '192.168.1.57', port: '9094', protocol: 'http'},
                         //ipfsClientOptions: {host: '192.168.1.57', port: '5001', protocol: 'http'}
                     }
                 )
