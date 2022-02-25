@@ -37,6 +37,7 @@ class WorkflowManager{
             this.workflowsQueue = []
             this.jobsExecutionQueue =  []
             this.workflowsWeights = []
+            this.getRunningWorkflowsLocks = new Map()
 
             this.executionCycleTimeout = 0;
             this.publishResultsTimeout = 0;
@@ -107,15 +108,15 @@ class WorkflowManager{
             this.eventManager.addListener(Constants.EVENTS.PROFILE_UPDATED, this.updateTimeoutsAndLimits)
 
             let profile = this.identityManager.getCurrentProfile();
-            this.executionCycleTimeout = profile.preferences.TIMEOUTS.EXECUTION_CYCLE
-            this.publishResultsTimeout = profile.preferences.TIMEOUTS.RESULTS_PUBLISHING
-            this.publishWorkflowsTimeout = profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING
+            this.executionCycleTimeout = profile.preferences.TIMEOUTS.EXECUTION_CYCLE * 1000
+            this.publishResultsTimeout = profile.preferences.TIMEOUTS.RESULTS_PUBLISHING * 1000
+            this.publishWorkflowsTimeout = profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING * 1000
             this.maxConcurrentJobs = profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
 
             //Start publish on topic
-            this.executionCycle()
+            if(isBrowser) this.executionCycle()
             this.publishWorkflows()
-            this.publishResults()
+            if(isBrowser) this.publishResults()
             this.dropExpiredWorkflows()
 
             this.eventManager.emit(Constants.EVENTS.NODE_STATUS, { status : true, workflows : this.workflows, profile : this.identityManager.getCurrentProfile() })
@@ -126,9 +127,9 @@ class WorkflowManager{
     }
 
     updateTimeoutsAndLimits(profile){
-        this.executionCycleTimeout = profile.preferences.TIMEOUTS.EXECUTION_CYCLE
-        this.publishResultsTimeout = profile.preferences.TIMEOUTS.RESULTS_PUBLISHING
-        this.publishWorkflowsTimeout = profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING
+        this.executionCycleTimeout = profile.preferences.TIMEOUTS.EXECUTION_CYCLE * 1000
+        this.publishResultsTimeout = profile.preferences.TIMEOUTS.RESULTS_PUBLISHING * 1000
+        this.publishWorkflowsTimeout = profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING * 1000
         this.maxConcurrentJobs = profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
 
         clearInterval(this.executionCycleInterval)
@@ -218,17 +219,15 @@ class WorkflowManager{
                                     (n.job.status === Constants.JOB_STATUS.READY && n.job.initialStatus === Constants.JOB_STATUS.WAITING)
                                 )
                             )
-
-                            //for(let node of nodes_to_publish) {
-                            await this.contentManager.sendOnTopic({
-                                action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
-                                payload: {
-                                    wid: workflow.id,
-                                    nodes: nodes_to_publish
-                                }
-                            })
-                            //}
-
+                            if(nodes_to_publish.length > 0) {
+                                await this.contentManager.sendOnTopic({
+                                    action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
+                                    payload: {
+                                        wid: workflow.id,
+                                        nodes: nodes_to_publish
+                                    }
+                                })
+                            }
                         }
                     }
                     let completed_workflows = await this.contentManager.list('/workflows/completed')
@@ -290,6 +289,10 @@ class WorkflowManager{
             let running_workflows = await this.contentManager.list('/workflows/running')
             //let workflow_to_run_index = Math.floor(Math.random() * running_workflows.length)
             let workflow_to_run = MathJs.pickRandom(running_workflows, running_workflows.map(w => 1 / running_workflows.length))
+            //Avoid to parse workflow if it is locked
+            if(this.getRunningWorkflowsLocks.get(workflow_to_run.replace('.json', ''))
+                && !this.getRunningWorkflowsLocks.get(workflow_to_run.replace('.json', ''))) return
+
             let encoded_workflow = await this.contentManager.get('/workflows/running/' + workflow_to_run)
             if(!encoded_workflow) return
             let workflow = JSON.parse(encoded_workflow)
@@ -303,6 +306,9 @@ class WorkflowManager{
                 this.jobsExecutionQueue.push(node.job.id)
                 let results = await this.runtimeManager.runJob(node.job)
                 if(results){
+                    //TODO
+                    while (this.getRunningWorkflowsLocks.get(workflow.id) !== null && !this.getRunningWorkflowsLocks.get(workflow.id))
+                    this.getRunningWorkflowsLocks.set(workflow.id, true)
                     node.job.executorPeerId = this.identityManager.peerId
                     JobsDAG.setNodeState(workflow.jobsDAG, node, node.job.status === Constants.JOB_STATUS.ENDLESS ? Constants.JOB_STATUS.ENDLESS : Constants.JOB_STATUS.COMPLETED, {results : results})
                     await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow))
@@ -315,6 +321,7 @@ class WorkflowManager{
                         }
                     })
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow)
+                    this.getRunningWorkflowsLocks.set(workflow.id, false)
                 }
             }
         }catch (e) {
