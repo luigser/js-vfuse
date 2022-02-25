@@ -36,7 +36,7 @@ export default function NetworkPage(props){
             <Row>
                 <Col span={24}>
                     <PageHeader
-                        title="VFuse NetworkManager Information"
+                        title="VFuse Network"
                         className="site-page-header"
                         subTitle="Node status"
                         tags={[
@@ -44,7 +44,6 @@ export default function NetworkPage(props){
                             status === VFuse.Constants.NODE_STATE.INITIALIZING && <Tag color="blue">Initializing</Tag>,
                             status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
                         ]}
-                        avatar={{ src: 'https://avatars1.githubusercontent.com/u/8186664?s=460&v=4' }}
                         /*breadcrumb={{ routes }}*/
                     >
                         <Layout.Content

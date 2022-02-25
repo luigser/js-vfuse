@@ -5,28 +5,28 @@ import {gStore} from "../store";
 
 export const useVFuse = () => {
 
-    const getNode = async(profileId) => {
+    const getNode = async(signalServer, bootstraps) => {
         let node = null
         try {
             node = gStore.get("vFuseNode")
             if (!node) {
                 node = await VFuse.create(
                     {
-                        profileId: profileId,
                         ipfs:{
                             config: {
                                 Addresses : {
                                     Swarm: [
-                                        '/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star',
+                                        signalServer
+                                        //'/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star',
                                     ]
                                 },
-                                Bootstrap :[
+                                Bootstrap : bootstraps/*[
                                     '/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY',//ALL-IN-ONE
                                     '/ip4/192.168.1.51/tcp/4003/ws/p2p/12D3KooWLoK9JGoCAdkNjPeZXJNfGaAPTYc93h3W9WWfLGwuQ5u5',//SURFACE
 
                                     //'/ip4/192.168.1.57/tcp/2000/wss/p2p-webrtc-star',
                                     //'/ip4/192.168.1.57/tcp/9090/http/p2p-webrtc-direct/p2p/12D3KooWSy9Gxdc3QcJ3hgiw8ydxab7NpQE37kCqZLSuVYnqHTtd'
-                                ]
+                                ]*/
                             }
                         },
                         runtime: {

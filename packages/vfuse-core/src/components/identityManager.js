@@ -15,19 +15,24 @@ class IdentityManager {
         this.workflows = []
         this.rewards = 0.00
         this.preferences = {
+            ENDPOINTS:{
+                SIGNAL_SERVER : '',
+                BOOTSTRAPS: []
+            },
             TIMEOUTS:{
                 DISCOVERY : 15,
                 WORKFLOWS_PUBLISHING : 60,
                 JOBS_PUBLISHING : 15,
                 RESULTS_PUBLISHING: 120,
                 EXECUTION_CYCLE: 1,
-                JOB_EXECUTION : 60
+                JOB_EXECUTION : 300,
             },
             LIMITS: {
                 MAX_CONCURRENT_JOBS : 5,
                 MAX_MANAGED_WORKFLOW : 100,
             },
             CONSTANTS:{
+                CPU_USAGE : 0.2,
                 cpuConstant : 0.2,
                 discoveryTimeoutConstant : 15,
                 workflowsPublishingTimeoutConstant : 60,
@@ -87,28 +92,7 @@ class IdentityManager {
                 let new_profile = {
                     workflows : [],
                     rewards: 10.00,
-                    preferences : {
-                        TIMEOUTS:{
-                            DISCOVERY : 15,
-                            WORKFLOWS_PUBLISHING : 60,
-                            JOBS_PUBLISHING : 15,
-                            RESULTS_PUBLISHING: 120,
-                            EXECUTION_CYCLE: 1,
-                            JOB_EXECUTION : 60
-                        },
-                        LIMITS: {
-                            MAX_CONCURRENT_JOBS : 5,
-                            MAX_MANAGED_WORKFLOW : 100,
-                        },
-                        CONSTANTS:{
-                            CPU_USAGE : 0.2,
-                            DISCOVERY_TIMEOUT : 15,
-                            WORKFLOWS_PUBLISHING_TIMEOUT : 60,
-                            RESULTS_PUBLISHING_TIMEOUT : 120,
-                            EXECUTION_CYCLE_TIMEOUT : 1,
-                            MAX_CONCURRENT_JOBS_TIMEOUT : 10
-                        }
-                    }
+                    preferences : this.preferences
                 }
                 await this.contentManager.makeDir('/workflows/private')
                 await this.contentManager.makeDir('/workflows/published')
@@ -172,8 +156,10 @@ class IdentityManager {
             }
             this.preferences = prefs
             await this.updateProfile()
+            return true
         }catch (e) {
             console.log('Error saving preferences : %O', e)
+            return false
         }
     }
 

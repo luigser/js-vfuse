@@ -151,6 +151,14 @@ class VFuse {
         this.workflowManager.registerCallback(updateWorkflowCallback)
     }
 
+    async savePreferences(preferences){
+        return await this.identityManager.savePreferences(preferences)
+    }
+
+    addListener(event, callback){
+        this.eventManager.addListener(event, callback)
+    }
+
     async stop(){
         console.log('Stopping VFuse node...')
         await this.networkManager.stop()

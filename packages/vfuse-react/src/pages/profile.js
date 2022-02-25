@@ -12,7 +12,7 @@ import {
     notification,
     Divider,
     Tabs,
-    Slider
+    Slider,
 } from "antd";
 import VFuse from "vfuse-core";
 import GaugeChart from 'react-gauge-chart'
@@ -35,7 +35,14 @@ export default function ProfilePage(props){
     const [resultsPublishingTimeout, setResultsPublishingTimeout] = useState(0)
     const [executionCycleTimeout, setExecutionCycleTimeout] = useState(0)
     const [maxConcurrentJobs, setMaxConcurrentJobs] = useState(0)
+    const [jobExecutionTimeout, setJobExecutionTimeout] = useState(0)
     const [usage, setUsage] = useState(0)
+    const [signalServer, setSignalServer] = useState('/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star')
+    const [bootstraps, setBootstrap] = useState(['/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY'])
+    const [bootstrapsString, setBootstrapString] = useState('/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY')
+    const [savePreferencesLoading, setSavePreferencesLoading] = useState(false)
+    const [savePreferencesDisabled, setSavePreferencesDisabled] = useState(!vFuseNode)
+
 
     const {getNode} = useVFuse()
 
@@ -54,6 +61,10 @@ export default function ProfilePage(props){
                 setExecutionCycleTimeout(profile.preferences.TIMEOUTS.EXECUTION_CYCLE)
                 setMaxConcurrentJobs(profile.preferences.LIMITS.MAX_CONCURRENT_JOBS)
                 setUsage(profile.preferences.CONSTANTS.CPU_USAGE)
+                setJobExecutionTimeout(profile.preferences.TIMEOUTS.JOB_EXECUTION)
+                setSignalServer(profile.preferences.ENDPOINTS.SIGNAL_SERVER)
+                setBootstrap(profile.preferences.ENDPOINTS.BOOTSTRAPS)
+                setBootstrapString(profile.preferences.ENDPOINTS.BOOTSTRAPS.map(b => b + '\n'))
                 setStatus(VFuse.Constants.NODE_STATE.RUNNING)
                 calculateUsage()
             }else if(vFuseNode && vFuseNode.error){
@@ -81,7 +92,7 @@ export default function ProfilePage(props){
             setStartLoading(true)
             setStatus(VFuse.Constants.NODE_STATE.INITIALIZING)
 
-            let node = await getNode(profileId)
+            let node = await getNode(signalServer, bootstraps)
             if(!node) {
                 setStatus(VFuse.Constants.NODE_STATE.STOP)
                 return
@@ -89,7 +100,7 @@ export default function ProfilePage(props){
 
             setVFuseNode(node)
 
-            node.eventManager.addListener('VFuse.ready', async function(data){
+            node.addListener('VFuse.ready', async function(data){
                 if(data.status){
                     setProfileId(data.profile.id)
                     setProfile(data.profile)
@@ -100,6 +111,10 @@ export default function ProfilePage(props){
                     setExecutionCycleTimeout(data.profile.preferences.TIMEOUTS.EXECUTION_CYCLE)
                     setMaxConcurrentJobs(data.profile.preferences.LIMITS.MAX_CONCURRENT_JOBS)
                     setUsage(data.profile.preferences.CONSTANTS.CPU_USAGE)
+                    setJobExecutionTimeout(data.profile.preferences.TIMEOUTS.JOB_EXECUTION)
+                    setSignalServer(data.profile.preferences.ENDPOINTS.SIGNAL_SERVER === '' ? signalServer : data.profile.preferences.ENDPOINTS.SIGNAL_SERVER)
+                    setBootstrap(data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length === 0 ? bootstraps : data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length)
+                    setBootstrapString(data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length === 0 ? bootstrapsString : data.profile.preferences.ENDPOINTS.BOOTSTRAPS.map(b => b + '\n'))
                     setWorkflows(data.workflows)
                     setStartDisabled(true)
                     setStopDisabled(false)
@@ -186,13 +201,43 @@ export default function ProfilePage(props){
                 setExecutionCycleTimeout(value)
                 prefs.TIMEOUTS.EXECUTION_CYCLE = value
                 break
+            case 'TIMEOUTS.JOB_EXECUTION':
+                setJobExecutionTimeout(value)
+                prefs.TIMEOUTS.JOB_EXECUTION = value
+                break
             case 'LIMITS.MAX_CONCURRENT_JOBS':
                 setMaxConcurrentJobs(value)
                 prefs.LIMITS.MAX_CONCURRENT_JOBS = value
                 break
+            case 'ENDPOINTS.SIGNAL_SERVER':
+                setSignalServer(value)
+                if(vFuseNode)
+                   prefs.ENDPOINTS.SIGNAL_SERVER = value
+                break
+            case 'ENDPOINTS.BOOTSTRAPS':
+                setBootstrapString(value)
+                setBootstrap(value.split('\n'))
+                if(vFuseNode)
+                   prefs.ENDPOINTS.BOOTSTRAPS = value.split('\n')
+                break
         }
         calculateUsage()
         setPreferences(prefs)
+    }
+
+    const savePreferences = async () => {
+        setSavePreferencesLoading(true)
+        let result = await vFuseNode.savePreferences(preferences)
+        if(!result) {
+            notification.error({
+                message: "Something went wrong",
+            });
+        }else{
+            notification.success({
+                message : "Preferences successfully saved",
+            });
+        }
+        setSavePreferencesLoading(false)
     }
 
     return(
@@ -229,109 +274,177 @@ export default function ProfilePage(props){
                                     <Descriptions.Item label="Rewards"><b>{profile && profile.rewards ? profile.rewards : '0.00'}</b> VFuseCoin</Descriptions.Item>
                                 </Descriptions>
                                 <Divider />
-                                <Descriptions title="Preferences" layout="vertical" bordered>
-                                    <Descriptions.Item label="">
-                                        <Row>
-                                            <Col span={2}>
-                                                <Row>
-                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{discoveryTimeout}s</Typography.Text>
-                                                </Row>
-                                                <Row style={{height: "30vh"}}>
-                                                    <Slider vertical
-                                                            max={360}
-                                                            disabled={preferences === null}
-                                                            step={1}
-                                                            value={discoveryTimeout}
-                                                            onChange={(value) => onPreferencesChange('TIMEOUTS.DISCOVERY', value)}
-                                                    />
-                                                </Row>
-                                                <Row>
-                                                    <Typography.Text style={{marginTop : 16}}>Discovery</Typography.Text>
-                                                </Row>
+                                <Row>
+                                    <Tabs defaultActiveKey="2" style={{width: "100%"}}>
+                                        <Tabs.TabPane tab="Timeouts and Limits" key="1">
+                                            <Col span={24}>
+                                                <Descriptions
+                                                    title="Preferences"
+                                                    layout="vertical"
+                                                    bordered
+                                                    extra={<Button disabled={savePreferencesDisabled} loading={savePreferencesLoading} type="primary" onClick={savePreferences}>Save</Button>}>
+                                                    <Descriptions.Item label="Use sliders to set values">
+                                                        <Row>
+                                                            <Col span={2}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{discoveryTimeout}s</Typography.Text>
+                                                                </Row>
+                                                                <Row style={{height: "30vh"}}>
+                                                                    <Slider vertical
+                                                                            max={360}
+                                                                            disabled={preferences === null}
+                                                                            step={1}
+                                                                            value={discoveryTimeout}
+                                                                            onChange={(value) => onPreferencesChange('TIMEOUTS.DISCOVERY', value)}
+                                                                    />
+                                                                </Row>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginTop : 16}}>Discovery</Typography.Text>
+                                                                </Row>
+                                                            </Col>
+                                                            <Col span={2}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{workflowPublishingTimeout}s</Typography.Text>
+                                                                </Row>
+                                                                <Row style={{height: "30vh"}}>
+                                                                    <Slider vertical
+                                                                            max={360}
+                                                                            disabled={preferences === null}
+                                                                            step={1}
+                                                                            value={workflowPublishingTimeout}
+                                                                            onChange={(value) => onPreferencesChange('TIMEOUTS.WORKFLOWS_PUBLISHING', value)}
+                                                                    />
+                                                                </Row>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginTop : 16}}>Workflows Publishing</Typography.Text>
+                                                                </Row>
+                                                            </Col>
+                                                            <Col span={2}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{resultsPublishingTimeout}s</Typography.Text>
+                                                                </Row>
+                                                                <Row style={{height: "30vh"}}>
+                                                                    <Slider vertical
+                                                                            max={360}
+                                                                            disabled={preferences === null}
+                                                                            step={1}
+                                                                            value={resultsPublishingTimeout}
+                                                                            onChange={(value) => onPreferencesChange('TIMEOUTS.RESULTS_PUBLISHING', value)}
+                                                                    />
+                                                                </Row>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginTop : 16}}>Results Publishing</Typography.Text>
+                                                                </Row>
+                                                            </Col>
+                                                            <Col span={2}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{executionCycleTimeout}s</Typography.Text>
+                                                                </Row>
+                                                                <Row style={{height: "30vh"}}>
+                                                                    <Slider vertical
+                                                                            max={10}
+                                                                            disabled={preferences === null}
+                                                                            step={1}
+                                                                            value={executionCycleTimeout}
+                                                                            onChange={(value) => onPreferencesChange('TIMEOUTS.EXECUTION_CYCLE', value)}
+                                                                    />
+                                                                </Row>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginTop : 16}}>Execution Cycle</Typography.Text>
+                                                                </Row>
+                                                            </Col>
+                                                            <Col span={2}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{maxConcurrentJobs}</Typography.Text>
+                                                                </Row>
+                                                                <Row style={{height: "30vh"}}>
+                                                                    <Slider vertical
+                                                                            max={100}
+                                                                            disabled={preferences === null}
+                                                                            step={1}
+                                                                            value={maxConcurrentJobs}
+                                                                            onChange={(value) => onPreferencesChange('LIMITS.MAX_CONCURRENT_JOBS', value)}
+                                                                    />
+                                                                </Row>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginTop : 16}}>Max Concurrent Jobs</Typography.Text>
+                                                                </Row>
+                                                            </Col>
+                                                            <Col span={2}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{jobExecutionTimeout}</Typography.Text>
+                                                                </Row>
+                                                                <Row style={{height: "30vh"}}>
+                                                                    <Slider vertical
+                                                                            max={100}
+                                                                            disabled={preferences === null}
+                                                                            step={1}
+                                                                            value={jobExecutionTimeout}
+                                                                            onChange={(value) => onPreferencesChange('TIMEOUT.JOB_EXECUTION', value)}
+                                                                    />
+                                                                </Row>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginTop : 16}}>Job Execution Timeout</Typography.Text>
+                                                                </Row>
+                                                            </Col>
+                                                            <Col span={8} style={{paddingTop : '2%'}}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginTop : 16, fontSize: 24, fontWeight: 800, width:'100%', textAlign:'center'}}>Usage</Typography.Text>
+                                                                </Row>
+                                                                <Row>
+                                                                    <GaugeChart id="usage-gauge-chart"
+                                                                                nrOfLevels={20}
+                                                                                percent={usage}
+                                                                                textColor={'#000000'}
+                                                                    />
+                                                                </Row>
+                                                            </Col>
+                                                        </Row>
+                                                    </Descriptions.Item>
+                                                </Descriptions>
+
                                             </Col>
-                                            <Col span={2}>
-                                                <Row>
-                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{workflowPublishingTimeout}s</Typography.Text>
-                                                </Row>
-                                                <Row style={{height: "30vh"}}>
-                                                    <Slider vertical
-                                                            max={360}
-                                                            disabled={preferences === null}
-                                                            step={1}
-                                                            value={workflowPublishingTimeout}
-                                                            onChange={(value) => onPreferencesChange('TIMEOUTS.WORKFLOWS_PUBLISHING', value)}
-                                                    />
-                                                </Row>
-                                                <Row>
-                                                    <Typography.Text style={{marginTop : 16}}>Workflows Publishing</Typography.Text>
-                                                </Row>
+                                        </Tabs.TabPane>
+                                        <Tabs.TabPane tab="Endpoints" key="2">
+                                            <Col span={24} style={{height: "50vh"}}>
+                                                <Descriptions
+                                                    title="Preferences"
+                                                    layout="vertical"
+                                                    bordered
+                                                    extra={<Button disabled={savePreferencesDisabled} loading={savePreferencesLoading} type="primary" onClick={savePreferences}>Save</Button>}>
+                                                    <Descriptions.Item label="Change endpoints before starting node if you want to use different a signal server or bootstraps">
+                                                        <Row>
+                                                            <Col span={24}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>Signal Server</Typography.Text>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Input
+                                                                        placeholder="/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star"
+                                                                        onChange={(value) => onPreferencesChange('ENDPOINTS.SIGNAL_SERVER',value.currentTarget.value)}
+                                                                        value={signalServer} />
+                                                                </Row>
+                                                            </Col>
+                                                        </Row>
+                                                        <Row style={{marginTop: 16}}>
+                                                            <Col span={24}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>Bootstraps <b>(Separate bootstrap endpoints with newline. Remember to save preferences if you change this values)</b></Typography.Text>
+                                                                </Row>
+                                                                <Row style={{height: "30vh"}}>
+                                                                    <Input.TextArea
+                                                                        onChange={(value) =>  onPreferencesChange('ENDPOINTS.BOOTSTRAPS',value.currentTarget.value)}
+                                                                        value={bootstrapsString}
+                                                                        placeholder="/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY"s/>
+                                                                </Row>
+                                                            </Col>
+                                                        </Row>
+                                                    </Descriptions.Item>
+                                                </Descriptions>
                                             </Col>
-                                            <Col span={2}>
-                                                <Row>
-                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{resultsPublishingTimeout}s</Typography.Text>
-                                                </Row>
-                                                <Row style={{height: "30vh"}}>
-                                                    <Slider vertical
-                                                            max={360}
-                                                            disabled={preferences === null}
-                                                            step={1}
-                                                            value={resultsPublishingTimeout}
-                                                            onChange={(value) => onPreferencesChange('TIMEOUTS.RESULTS_PUBLISHING', value)}
-                                                    />
-                                                </Row>
-                                                <Row>
-                                                    <Typography.Text style={{marginTop : 16}}>Results Publishing</Typography.Text>
-                                                </Row>
-                                            </Col>
-                                            <Col span={2}>
-                                                <Row>
-                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{executionCycleTimeout}s</Typography.Text>
-                                                </Row>
-                                                <Row style={{height: "30vh"}}>
-                                                    <Slider vertical
-                                                            max={10}
-                                                            disabled={preferences === null}
-                                                            step={1}
-                                                            value={executionCycleTimeout}
-                                                            onChange={(value) => onPreferencesChange('TIMEOUTS.EXECUTION_CYCLE', value)}
-                                                    />
-                                                </Row>
-                                                <Row>
-                                                    <Typography.Text style={{marginTop : 16}}>Execution Cycle</Typography.Text>
-                                                </Row>
-                                            </Col>
-                                            <Col span={2}>
-                                                <Row>
-                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{maxConcurrentJobs}</Typography.Text>
-                                                </Row>
-                                                <Row style={{height: "30vh"}}>
-                                                    <Slider vertical
-                                                            max={100}
-                                                            disabled={preferences === null}
-                                                            step={1}
-                                                            value={maxConcurrentJobs}
-                                                            onChange={(value) => onPreferencesChange('LIMITS.MAX_CONCURRENT_JOBS', value)}
-                                                    />
-                                                </Row>
-                                                <Row>
-                                                    <Typography.Text style={{marginTop : 16}}>Max Concurrent Jobs</Typography.Text>
-                                                </Row>
-                                            </Col>
-                                            <Col span={8} style={{paddingTop : '10%'}}>
-                                                <Row>
-                                                    <Typography.Text style={{marginTop : 16, fontSize: 24, fontWeight: 800, width:'100%', textAlign:'center'}}>Usage</Typography.Text>
-                                                </Row>
-                                                <Row>
-                                                    <GaugeChart id="usage-gauge-chart"
-                                                                nrOfLevels={20}
-                                                                percent={usage}
-                                                                textColor={'#000000'}
-                                                    />
-                                                </Row>
-                                            </Col>
-                                        </Row>
-                                    </Descriptions.Item>
-                                </Descriptions>
+                                        </Tabs.TabPane>
+                                    </Tabs>
+                                </Row>
                             </>
                         </Layout.Content>
                     </PageHeader>

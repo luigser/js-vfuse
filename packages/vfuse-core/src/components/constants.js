@@ -73,7 +73,7 @@ const Constants = {
         JOBS_PUBLISHING : 15000,
         RESULTS_PUBLISHING: 120000,
         EXECUTION_CYCLE: 1000,
-        JOB_EXECUTION : 60000
+        JOB_EXECUTION : 300000
     },
     LIMITS: {
         MAX_CONCURRENT_JOBS : 5,

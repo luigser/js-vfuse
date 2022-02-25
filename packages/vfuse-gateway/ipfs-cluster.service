@@ -1,0 +1,14 @@
+[Unit]
+Description=VFuse IPFS Cluster Service
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=isis
+ExecStart=/bin/bash /usr/bin/ipfs-cluster-service daemon
+
+[Install]
+WantedBy=multi-user.target
+
