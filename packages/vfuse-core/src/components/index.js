@@ -87,6 +87,10 @@ class VFuse {
         }
     }
 
+    getConnectedPeers(){
+        return this.networkManager.getConnectedPeers()
+    }
+
     registerTopicListener(callback){
         this.networkManager.registerTopicListener(callback)
     }
@@ -144,11 +148,6 @@ class VFuse {
     async addJob(workflow, code, data, dependencies){
         //Todo the dependencies and data should be extracted directly from the entire code in the notebook
         await this.workflowManager.addJob(workflow, code, data, dependencies)
-    }
-
-    registerCallbacks(discoveryCallback, updateWorkflowCallback, connectionCallback, getMessageFromProtocolCallback){
-        this.networkManager.registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback)
-        this.workflowManager.registerCallback(updateWorkflowCallback)
     }
 
     async savePreferences(preferences){

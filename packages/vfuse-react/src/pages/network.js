@@ -14,7 +14,8 @@ export default function NetworkPage(props){
         let node = gStore.get("vFuseNode")
         if(node){
             setStatus(node.status)
-            node.registerCallbacks(discoverCallback, null, null)
+            setPeers(node.getConnectedPeers())
+            node.addListener(VFuse.Constants.EVENTS.NETWORK_DISCOVERY_PEERS, discoverCallback)
         }
     },[])
 

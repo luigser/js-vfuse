@@ -104,7 +104,7 @@ export default function ProfilePage(props){
 
             setVFuseNode(node)
 
-            node.addListener('VFuse.ready', async function(data){
+            node.addListener(VFuse.Constants.EVENTS.NODE_STATUS, function(data){
                 if(data.status){
                     setProfileId(data.profile.id)
                     setProfile(data.profile)

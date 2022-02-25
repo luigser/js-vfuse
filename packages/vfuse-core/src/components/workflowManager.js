@@ -38,9 +38,16 @@ class WorkflowManager{
             this.jobsExecutionQueue =  []
             this.workflowsWeights = []
 
-            this.updateWorkflowCallback = null
+            this.executionCycleTimeout = 0;
+            this.publishResultsTimeout = 0;
+            this.publishWorkflowsTimeout = 0;
+            this.maxConcurrentJobs = 0;
 
-            this.eventManager.addListener('profile.ready', async function(){await this.startWorkspace()}.bind(this))
+            this.executionCycleInterval = 0;
+            this.publishResultsInterval = 0;
+            this.publishWorkflowsInterval = 0;
+
+            this.eventManager.addListener(Constants.EVENTS.PROFILE_STATUS, async function(){await this.startWorkspace()}.bind(this))
 
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
                 await this.handleRequestExecutionWorkflow(data)
@@ -62,10 +69,6 @@ class WorkflowManager{
         }catch(e){
             log('Got some error during runtime initialization: %O', e)
         }
-    }
-
-    registerCallback(updateWorkflowCallback){
-        this.updateWorkflowCallback = updateWorkflowCallback
     }
 
     async start(){
@@ -101,17 +104,40 @@ class WorkflowManager{
             let running_workflows = await this.contentManager.list('/workflows/running')
             this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
 
+            this.eventManager.addListener(Constants.EVENTS.PROFILE_UPDATED, this.updateTimeoutsAndLimits)
+
+            let profile = this.identityManager.getCurrentProfile();
+            this.executionCycleTimeout = profile.preferences.TIMEOUTS.EXECUTION_CYCLE
+            this.publishResultsTimeout = profile.preferences.TIMEOUTS.RESULTS_PUBLISHING
+            this.publishWorkflowsTimeout = profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING
+            this.maxConcurrentJobs = profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
+
             //Start publish on topic
             this.executionCycle()
             this.publishWorkflows()
             this.publishResults()
             this.dropExpiredWorkflows()
 
-            this.eventManager.emit('VFuse.ready', { status : true, workflows : this.workflows, profile : this.identityManager.getCurrentProfile() })
+            this.eventManager.emit(Constants.EVENTS.NODE_STATUS, { status : true, workflows : this.workflows, profile : this.identityManager.getCurrentProfile() })
         }catch(e){
-            this.eventManager.emit('VFuse.ready', { status : false, error : e})
+            this.eventManager.emit(Constants.EVENTS.NODE_STATUS, { status : false, error : e})
             console.log('Error getting workflows from MFS : %O, e')
         }
+    }
+
+    updateTimeoutsAndLimits(profile){
+        this.executionCycleTimeout = profile.preferences.TIMEOUTS.EXECUTION_CYCLE
+        this.publishResultsTimeout = profile.preferences.TIMEOUTS.RESULTS_PUBLISHING
+        this.publishWorkflowsTimeout = profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING
+        this.maxConcurrentJobs = profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
+
+        clearInterval(this.executionCycleInterval)
+        clearInterval(this.publishResultsInterval)
+        clearInterval(this.publishWorkflowsInterval)
+
+        this.executionCycle()
+        this.publishWorkflows()
+        this.publishResults()
     }
 
     dropExpiredWorkflows(){
@@ -133,14 +159,14 @@ class WorkflowManager{
     }
 
     executionCycle(){
-        setInterval(async function(){
+        this.executionCycleInterval = setInterval(async function(){
             await this.manageWorkflowsExecution()
-        }.bind(this), Constants.TIMEOUTS.EXECUTION_CYCLE)
+        }.bind(this), this.executionCycleTimeout)
     }
 
     publishWorkflows(){
         try{
-            setInterval(async function(){
+            this.publishWorkflowsInterval = setInterval(async function(){
                 let my_published_workflows = await this.contentManager.list('/workflows/published/my')
                 for(let workflow of my_published_workflows) {
                     let encoded_workflow = await this.contentManager.get('/workflows/published/my/' + workflow)
@@ -171,7 +197,7 @@ class WorkflowManager{
                         }
                     })
                 }*/
-            }.bind(this), Constants.TIMEOUTS.WORKFLOWS_PUBLISHING)
+            }.bind(this), this.publishWorkflowsTimeout)
         }catch(e){
             console.log('Error during workflows publishing : %O', e)
         }
@@ -179,7 +205,7 @@ class WorkflowManager{
 
     publishResults(){
         try{
-            setInterval(async function(){
+            this.publishResultsInterval = setInterval(async function(){
                 try {
                     let running_workflows = await this.contentManager.list('/workflows/running')
                     for (let w in running_workflows){
@@ -215,7 +241,7 @@ class WorkflowManager{
                         })
                     }
                 }catch (e) {}
-            }.bind(this), Constants.TIMEOUTS.RESULTS_PUBLISHING)
+            }.bind(this), this.publishResultsTimeout)
         }catch (e) {
             if(e.message !== 'file does not exist')
                 console.log('Got error during results publishing : %O', e)
@@ -260,7 +286,7 @@ class WorkflowManager{
 
     async manageWorkflowsExecution(){
         try {
-            if(this.jobsExecutionQueue.length === Constants.LIMITS.MAX_CONCURRENT_JOBS) return
+            if(this.jobsExecutionQueue.length === this.maxConcurrentJobs) return
             let running_workflows = await this.contentManager.list('/workflows/running')
             //let workflow_to_run_index = Math.floor(Math.random() * running_workflows.length)
             let workflow_to_run = MathJs.pickRandom(running_workflows, running_workflows.map(w => 1 / running_workflows.length))
@@ -269,7 +295,6 @@ class WorkflowManager{
             let workflow = JSON.parse(encoded_workflow)
             let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
             //Maybe is better to select a bundle of jobs
-            //let node_index = Math.floor(Math.random() * nodes.length)
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
             //let node = nodes[node_index]
             if(!node) return
@@ -281,16 +306,16 @@ class WorkflowManager{
                     node.job.executorPeerId = this.identityManager.peerId
                     JobsDAG.setNodeState(workflow.jobsDAG, node, node.job.status === Constants.JOB_STATUS.ENDLESS ? Constants.JOB_STATUS.ENDLESS : Constants.JOB_STATUS.COMPLETED, {results : results})
                     await this.contentManager.save('/workflows/running/' + workflow.id + '.json', JSON.stringify(workflow))
+                    this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1);
+                    await this.contentManager.sendOnTopic({
+                        action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
+                        payload: {
+                            wid: workflow.id,
+                            nodes: [node]
+                        }
+                    })
+                    this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow)
                 }
-                this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1);
-
-                await this.contentManager.sendOnTopic({
-                    action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
-                    payload: {
-                        wid: workflow.id,
-                        nodes: [node]
-                    }
-                })
             }
         }catch (e) {
             console.log('Got error during workflows execution : %O', e)
@@ -337,11 +362,10 @@ class WorkflowManager{
                         let local_job_node = workflow.jobsDAG.nodes.filter(nd => nd.id === result_node.id)[0]
                         if( local_job_node.job.status !== Constants.JOB_STATUS.COMPLETED ||
                             (local_job_node.job.status === Constants.JOB_STATUS.WAITING && result_node.job.status === Constants.JOB_STATUS.READY)){
+                            if(local_job_node.job.status === Constants.JOB_STATUS.ENDLESS)
+                                JobsDAG.combineResults(result_node, local_job_node)
                             local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
-                        }else if(local_job_node.job.status === Constants.JOB_STATUS.ENDLESS){
-                            //Update result of endless job
-                            JobsDAG.combineResults(local_job_node, result_node)
                         }else{//Already completed
                             //Check results
                             if(local_job_node.job.results !== result_node.job.results){
@@ -351,7 +375,7 @@ class WorkflowManager{
                     }
                 }
                 await this.updateWorkflow(workflow)
-                if(this.updateWorkflowCallback && this.currentWorkflow.id === data.wid) this.updateWorkflowCallback(workflow)
+                this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
 
             }else {
                 let running_workflow = await this.contentManager.get('/workflows/running/' + data.wid + '.json')
@@ -363,10 +387,13 @@ class WorkflowManager{
                             (local_job_node.job.status !== Constants.JOB_STATUS.COMPLETED ||
                                 (local_job_node.job.status === Constants.JOB_STATUS.WAITING && result_node.job.status === Constants.JOB_STATUS.READY))) {
                             local_job_node.color = result_node.color
+                            if(local_job_node.job.status === Constants.JOB_STATUS.ENDLESS)
+                                JobsDAG.combineResults(result_node, local_job_node)
                             local_job_node.job = result_node.job
                         }
                     }
                     await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
+                    this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
                 }
             }
         }catch (e) {
@@ -646,7 +673,7 @@ class WorkflowManager{
     async getRunningWorkflows(){
         try{
             let running_workflows = await this.contentManager.list('/workflows/running')
-            return running_workflows.map(w => w.replace('.json', ''))
+            return running_workflows.map(w => { return { id : w.replace('.json', '')}})
 
         }catch (e) {
             console.log('There was an error during running workflows retrieving : %O', e)

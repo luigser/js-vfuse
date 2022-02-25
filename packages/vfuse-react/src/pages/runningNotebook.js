@@ -53,22 +53,16 @@ def map(data):
 for x in input.splitlines():
    VFuse.addJob(map, [], x)`
 
-export default function NotebookPage(props){
+export default function RunningNotebookPage(props){
     const [vFuseNode, setVFuseNode] = useState(null)
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
-    const [runLocalLoading, setRunLocalLoading] = useState(false)
-    const [publishNetworkLoading, setPublishNetworkLoading] = useState(false)
-    const [unpublishNetworkLoading, setUnpublishNetworkLoading] = useState(false)
     const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(false)
-    const [testLocallyLoading, setTestLocallyLoading] = useState(false)
     const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : null)
     const [code, setCode] = useState(javascriptCodeExample);
     const [language, setLanguage] = useState(VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
     const [name, setName] = useState(null)
-    const [profile, setProfile] = useState(null)
     const [dag, setDag] = useState(null)
     const [fontSize, setFontSize] = useState(14)
-    const [isPublished, setIsPublished] = useState(false)
 
 
     useEffect(() => {
@@ -78,19 +72,15 @@ export default function NotebookPage(props){
             if (node) {
                 setVFuseNode(node)
                 setStatus(VFuse.Constants.NODE_STATE.RUNNING)
-                setRunLocalLoading(false)
-                setPublishNetworkLoading(false)
                 setSaveWorkflowLoading(false)
-                setProfile(node.getProfile())
-                node.addListener(VFuse.Constants.EVENTS.WORKFLOW_UPDATE, updateWorkflowCallback)
+                node.addListener(VFuse.Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, updateWorkflowCallback)
 
                 if (workflowId) {
-                    let workflow = await node.getWorkflow(workflowId)
+                    let workflow = await node.getRunningWorkflow(workflowId)
                     setName(workflow.name)
                     setCode(workflow.code)
                     setDag(workflow.jobsDAG)
                     setLanguage(workflow.language)
-                    setIsPublished(workflow.published)
                 }
             }
         }
@@ -107,101 +97,27 @@ export default function NotebookPage(props){
     }
 
     const saveWorkflow = async () => {
-        if(!name){
+        setSaveWorkflowLoading(true)
+        let workflow = await vFuseNode.saveWorkflow(workflowId, name, code, language)
+        if(workflow.error){
             notification.error({
                 message : "Something went wrong",
-                description : 'Give a title to you workflow please !!!'
+                description : workflow.error.message ? workflow.error.message : workflow.error.toString()
             });
         }else{
-            setSaveWorkflowLoading(true)
-            let workflow = await vFuseNode.saveWorkflow(workflowId, name, code, language)
-            if(workflow.error){
-                notification.error({
-                    message : "Something went wrong",
-                    description : workflow.error.message ? workflow.error.message : workflow.error.toString()
-                });
-            }else{
-                setDag(workflow.jobsDAG)
-                setWorkflowId(workflow.id)
-                notification.info({
-                    message : "Info",
-                    description : 'Your workflow was successfully saved'
-                });
-            }
-            setSaveWorkflowLoading(false)
-        }
-    }
-
-    const publishWorkflow = async () => {
-        try {
-            setPublishNetworkLoading(true)
-            let result = await vFuseNode.publishWorkflow(workflowId)
-            if(!result.error){
-                setIsPublished(true)
-                notification.info({
-                    message : "Info",
-                    description : 'Your workflow was successfully published'
-                });
-            }else{
-                notification.error({
-                    message : "Something went wrong",
-                    description : result.error.toString()
-                });
-            }
-            setPublishNetworkLoading(false)
-        }catch (e) {
-        }
-    }
-
-    const unpublishWorkflow = async () => {
-        setUnpublishNetworkLoading(true)
-        let result = await vFuseNode.unpublishWorkflow(workflowId)
-        if(!result.error){
-            setIsPublished(false)
+            setDag(workflow.jobsDAG)
+            setWorkflowId(workflow.id)
             notification.info({
                 message : "Info",
-                description : 'Your workflow was successfully unpublished'
-            });
-        }else{
-            notification.error({
-                message : "Something went wrong",
-                description : result.error.toString()
+                description : 'Your workflow was successfully saved'
             });
         }
-        setUnpublishNetworkLoading(false)
-    }
-
-    const onChaneName = (e) => setName(e.target.value)
-
-    const onClear = () => {
-        setCode('')
-        setWorkflowId(null)
-        setName('')
+        setSaveWorkflowLoading(false)
     }
 
     const handleChangeLanguage = (value) => setLanguage(value)
 
     const handleChangeFontSize = (value) => setFontSize(parseInt(value))
-
-    const testLocally = async () => {
-        setTestLocallyLoading(true)
-        let workflow = await vFuseNode.testWorkflow(code, language)
-        setTestLocallyLoading(false)
-        if(workflow && workflow.error){
-            notification.error({
-                message : "Something went wrong",
-                description : workflow.error.message
-            });
-        }else{
-            let dag = workflow.jobsDAG
-            setDag(dag)
-
-            notification.info({
-                message : "Info",
-                description : 'Local Run completed'
-            });
-        }
-    }
 
     return(
         <div>
@@ -214,18 +130,11 @@ export default function NotebookPage(props){
                         tags={[
                             status === VFuse.Constants.NODE_STATE.STOP && <Tag color="red">Stopped</Tag>,
                             status === VFuse.Constants.NODE_STATE.INITIALIZING && <Tag color="blue">Initializing</Tag>,
-                            status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
-                            isPublished ? <Tag color="#0F9D58">Current workflow is Published</Tag> : <Tag color="#DB4437">Current workflow is not Published</Tag>
+                            status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>
                         ]}
                         extra={[
-                            /*<Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,*/
-                            <Button key="1" type="info" disabled={!vFuseNode || isPublished} loading={saveWorkflowLoading} onClick={saveWorkflow}>Build & Save</Button>,
-                            <Button key="2" type="primary" disabled={!vFuseNode && !workflowId || isPublished } loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
-                            <Button key="3" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
-                            <><Divider type="vertical"/><Button disabled={!vFuseNode ||  isPublished} type="primary" key="4" loading={testLocallyLoading} onClick={testLocally}>Test Locally</Button></>,
+                            <Button key="1" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save in my private space</Button>,
                         ]}
-                        //avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
-                        /*breadcrumb={{ routes }}*/
                     >
                         <Layout.Content
                             extraContent={
@@ -238,22 +147,11 @@ export default function NotebookPage(props){
                         >
                         </Layout.Content>
                     </PageHeader>
-                    {/*<Descriptions layout="vertical" bordered>
-                        <Descriptions.Item label="IdentityManager ID">{profile?.id}</Descriptions.Item>
-                        <Descriptions.Item label="Workflows numbers">{profile?.workflows.length}</Descriptions.Item>
-                        <Descriptions.Item label="Rewards">{profile?.rewards} ETH</Descriptions.Item>
-                    </Descriptions>*/}
                 </Col>
             </Row>
             <Row>
                 <Col span={24} style={{marginTop: "24px"}}>
-                    <Descriptions layout="vertical" bordered extra={[
-                        /*<Select defaultValue="javascript" style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>
-                            <Select.Option value="javascript">Javascript</Select.Option>
-                            <Select.Option value="python">Python</Select.Option>
-                        </Select>,
-                        <Button key="4" type="secondary" onClick={onNew}>New workflow</Button>*/
-                    ]}>
+                    <Descriptions layout="vertical">
                         <Descriptions.Item label="Workflow Info" span={4}>
                             <Row style={{margin: 16}}>
                                 <Col span={4}>
@@ -268,7 +166,7 @@ export default function NotebookPage(props){
                                     <Typography.Text strong>Workflow Title : </Typography.Text>
                                 </Col>
                                 <Col span={20}>
-                                    <Input placeholder="Workflow title" onChange={onChaneName} value={name} />
+                                    <Input disabled placeholder="Workflow title" value={name} />
                                 </Col>
                             </Row>
                         </Descriptions.Item >
@@ -285,7 +183,6 @@ export default function NotebookPage(props){
                                 <Select.Option value="20">20pt</Select.Option>
                                 <Select.Option value="24">24pt</Select.Option>
                             </Select>
-                            <Button key="4" type="secondary" onClick={onClear}>Clear</Button>
                         </Descriptions.Item>
                     </Descriptions>
                 </Col>
@@ -299,7 +196,7 @@ export default function NotebookPage(props){
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Jobs DAG" key="2">
                         <Col span={24} style={{height: "50vh"}}>
-                           <DAGVis jobsDAG={dag} />
+                            <DAGVis jobsDAG={dag} />
                         </Col>
                     </Tabs.TabPane>
                 </Tabs>

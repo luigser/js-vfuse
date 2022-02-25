@@ -1,6 +1,8 @@
 'use strict'
 
-const log = require('debug')('vfuse:profile')
+const Constants = require('./constants');
+
+//const log = require('debug')('vfuse:profile')
 
 class IdentityManager {
     /**
@@ -56,15 +58,15 @@ class IdentityManager {
                 this.assignProfile(p)
                 console.log('Profile loaded : %O', p)
                 //console.log(this.workflows[0].id)
-                this.eventManager.emit('profile.ready', { status : true, profile : {...p, ...{id : this.id}}  })
+                this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : true, profile : {...p, ...{id : this.id}}  })
                 return p
             }else{
-                this.eventManager.emit('profile.ready', { status : false })
+                this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : false })
                 return false
             }
         }catch(e){
             console.log('Got some error during profile retrieving: %O', e)
-            this.eventManager.emit('profile.ready', { status : false, error : e})
+            this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : false, error : e})
             return false
         }
     }
@@ -105,16 +107,16 @@ class IdentityManager {
                 await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile), {pin : true})
                 this.id = this.peerId
                 this.rewards = 10.00
-                this.eventManager.emit('profile.ready', { status : true, profile : {...new_profile, ...{id : this.id}}  })
+                this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : true, profile : {...new_profile, ...{id : this.id}}  })
                 console.log('New remote profile created\nPreserve your PROFILE ID: %s\n', this.peerId)
             }else{
                 let p = JSON.parse(profile)
                 this.assignProfile(p)
                 this.id = this.peerId
-                this.eventManager.emit('profile.ready', { status : true, profile : {...profile, ...{id : this.id}} })
+                this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : true, profile : {...profile, ...{id : this.id}} })
             }
         }catch (e){
-            this.eventManager.emit('profile.ready', { status : false, error : e})
+            this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : false, error : e})
             console.log('Got some error during the profile creation: %O', e)
         }
     }
@@ -179,6 +181,7 @@ class IdentityManager {
                 preferences: this.preferences
             }
             await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile), {pin : true})
+            this.eventManager.emit(Constants.EVENTS.PROFILE_UPDATED, profile)
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)
         }
@@ -196,4 +199,5 @@ class IdentityManager {
         }
     }
 }
+
 module.exports = IdentityManager

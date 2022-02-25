@@ -93,3 +93,7 @@ Indicizzare i workflows in locale
 
 METTERE SU IL SISTEMA SU 172.16.15.178
 user: isis pwd: clgvittorio
+
+//TODO
+ - Bug: perchè i nodi dei running workflow vengono rimpiazzati anche se sono terminati
+ - Bug: perchè il timeout sull'esecuzione dei job non funziona e lancia un eccezione

@@ -70,7 +70,7 @@ class NetworkManager{
         this.connectionCallback = options.connectionCallback
         this.getMessageFromProtocolCallback = options.getMessageFromProtocolCallback
 
-        this.connectedPeers = new Set()
+        this.connectedPeers = new Map()
     }
 
     async start() {
@@ -323,10 +323,9 @@ class NetworkManager{
             switch(data.action){
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY:
                     this.connectedPeers.set(data.peer, data.peer)
-                    if(this.discoveryCallback) {
-                        let peers = [...this.connectedPeers.keys()].map(function(p){ return {peer : p} })
-                        this.discoveryCallback(peers)
-                    }
+                    let peers = [...this.connectedPeers.keys()].map(function(p){ return {peer : p} })
+                    this.eventManager(Constants.EVENTS.NETWORK_DISCOVERY_PEERS, peers)
+
                    /*try {
                         await this.ipfs.swarm.connect(message);
                     } catch(err) {
@@ -367,10 +366,8 @@ class NetworkManager{
         await this.libp2p.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, LZUTF8.compress(JSON.stringify(data)))
     }
 
-    registerCallbacks(discoveryCallback, connectionCallback, getMessageFromProtocolCallback){
-        this.discoveryCallback = discoveryCallback
-        this.connectionCallback = connectionCallback
-        this.getMessageFromProtocolCallback = getMessageFromProtocolCallback
+    getConnectedPeers(){
+        return [...this.connectedPeers.keys()].map(function(p){ return {peer : p} })
     }
 
     isBootstrap(peerId){
@@ -392,7 +389,9 @@ class NetworkManager{
         this.libp2p.connectionManager.on('peer:connect', async function(connection){
             console.log('Connection established to:', connection.remotePeer.toB58String())
             if (this.connectedPeers.has(connection.remotePeer.toB58String())) return
-            this.connectedPeers.add(connection.remotePeer.toB58String())
+            this.connectedPeers.set(connection.remotePeer.toB58String(), connection.remotePeer.toB58String())
+            let peers = [...this.connectedPeers.keys()].map(function(p){ return {peer : p} })
+            this.eventManager.emit(Constants.EVENTS.NETWORK_DISCOVERY_PEERS, peers)
         }.bind(this))
 
         // Listen for peers disconnecting
