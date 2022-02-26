@@ -7,6 +7,8 @@ import {faMagic} from "@fortawesome/free-solid-svg-icons";
 //import CodeEditor from "../components/CodeEditor/codeEditor";
 import VFuseCodeEditor from "../components/CodeEditor/vFuseCodeEditor";
 import DAGVis from "../components/DAGVis/DAGVis";
+import CTable from "../components/DataVisualization/CTable/CTable";
+import NodeModal from "../components/modals/nodeModal";
 
 /*
 //import Editor from "react-simple-code-editor";
@@ -63,6 +65,9 @@ export default function RunningNotebookPage(props){
     const [name, setName] = useState(null)
     const [dag, setDag] = useState(null)
     const [fontSize, setFontSize] = useState(14)
+    const [results, setResults] = useState([])
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [currentNode, setCurrentNode] = useState(null)
 
 
     useEffect(() => {
@@ -81,6 +86,7 @@ export default function RunningNotebookPage(props){
                     setCode(workflow.code)
                     setDag(workflow.jobsDAG)
                     setLanguage(workflow.language)
+                    setResults(node.getRunningWorkflowResults(workflowId))
                 }
             }
         }
@@ -93,6 +99,7 @@ export default function RunningNotebookPage(props){
             let dag = workflow.jobsDAG
             setDag({nodes: [], edges: []})
             setDag(dag)
+            setResults(vFuseNode.getRunningWorkflowResults(workflowId))
         }
     }
 
@@ -118,6 +125,41 @@ export default function RunningNotebookPage(props){
     const handleChangeLanguage = (value) => setLanguage(value)
 
     const handleChangeFontSize = (value) => setFontSize(parseInt(value))
+
+    const columns = [
+        {
+            title : "Name",
+            key: "name",
+            render: (text, record, index) => record.job.name
+        },
+        {
+            title : "Execution Time",
+            key: "executionTime",
+            render: (text, record, index) => record.job.executionTime
+        },
+        {
+            title : "Executor",
+            key: "executorPeerId",
+            render: (text, record, index) => record.job.executorPeerId
+        },
+        {
+            title : "Reward",
+            dataIndex: "reward",
+            key: "reward",
+            render: (text, record, index) => record.job.reward
+        },
+        {
+            title : "Action",
+            dataIndex: "action",
+            key: "action",
+            render: (text, record, index) => <>
+                <Button type="primary" onClick={() => {
+                    setCurrentNode(record)
+                    setIsModalVisible(true)
+                }}>Show</Button>
+            </>
+        }
+    ]
 
     return(
         <div>
@@ -199,8 +241,18 @@ export default function RunningNotebookPage(props){
                             <DAGVis jobsDAG={dag} />
                         </Col>
                     </Tabs.TabPane>
+                    <Tabs.TabPane tab="Results" key="3">
+                        <Col span={24} style={{height: "50vh"}}>
+                            <CTable
+                                dataSource={results}
+                                api={{}}
+                                columns={columns}
+                            />
+                        </Col>
+                    </Tabs.TabPane>
                 </Tabs>
             </Row>
+            <NodeModal setVisible={setIsModalVisible} node={currentNode} isVisible={isModalVisible}/>
         </div>
     )
 }

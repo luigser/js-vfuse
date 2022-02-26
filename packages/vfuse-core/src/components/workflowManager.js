@@ -113,9 +113,9 @@ class WorkflowManager{
             this.maxConcurrentJobs = profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
 
             //Start publish on topic
-            if(isBrowser) this.executionCycle()
+            this.executionCycle()
             this.publishWorkflows()
-            if(isBrowser) this.publishResults()
+            this.publishResults()
             //TODO fix
             //this.dropExpiredWorkflows()
 
@@ -721,6 +721,16 @@ class WorkflowManager{
             console.log('There was an error removing running workflow : %O', e)
             return {error : e.message}
         }
+    }
+
+    getWorkflowResults(wid){
+        let workflow = this.workflows.filter(w => w.id === wid)
+        return workflow.length > 0 ? JobsDAG.getOutputNodes(workflow[0].jobsDAG) : []
+    }
+
+    getRunningWorkflowResults(wid){
+        let workflow = this.runningWorkflowsQueue.get(wid)
+        return workflow ? JobsDAG.getOutputNodes(workflow.jobsDAG) : []
     }
 
 

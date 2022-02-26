@@ -10,7 +10,6 @@ export default function RunningWorkflowPage(props){
     const [vFuseNode, setVFuseNode] = useState(gStore.get("vFuseNode"))
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
     const [workflows, setWorkflows] = useState([])
-
     const {getNode} = useVFuse()
 
     useEffect(() => {

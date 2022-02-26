@@ -68,9 +68,11 @@ class JobsDAG {
     static getOutputNodes(JSONJobDAG){
         //get all nodes with no children
         let outputNodes = JSONJobDAG.nodes.filter(n => {
-            let edges = JSONJobDAG.edges.filter(e => e.from === n.id)
-            if(edges.length === 0)
-                return n
+            if(n.job && (n.job.status === Constants.JOB_STATUS.COMPLETED || n.job.status === Constants.JOB_STATUS.ENDLESS)){
+                let edges = JSONJobDAG.edges.filter(e => e.from === n.id)
+                if(edges.length === 0)
+                    return n
+            }
         })
         return outputNodes
     }

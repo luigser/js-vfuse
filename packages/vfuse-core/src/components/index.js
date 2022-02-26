@@ -150,6 +150,14 @@ class VFuse {
         await this.workflowManager.addJob(workflow, code, data, dependencies)
     }
 
+    getWorkflowResults(wid){
+        return this.workflowManager.getWorkflowResults(wid)
+    }
+
+    getRunningWorkflowResults(wid){
+        return this.workflowManager.getRunningWorkflowResults(wid)
+    }
+
     async savePreferences(preferences){
         return await this.identityManager.savePreferences(preferences)
     }

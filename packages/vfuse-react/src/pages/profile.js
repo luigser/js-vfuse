@@ -154,6 +154,7 @@ export default function ProfilePage(props){
                 setStartDisabled(false)
                 setProfile(null)
                 setVFuseNode(null)
+                gStore.set({vFuseNode: null})
             }
             setStopLoading(false)
         }catch(e){
