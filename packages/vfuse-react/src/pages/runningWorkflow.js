@@ -28,11 +28,32 @@ export default function RunningWorkflowPage(props){
         init()
     },[])
 
+    const removeWorkflow = async (id) =>{
+        let result = await vFuseNode.removeRunningWorkflow(id)
+        if(!result){
+            notification.error({
+                message : "Something went wrong",
+            });
+        }else{
+            let workflows = await vFuseNode.getRunningWorkflows()
+            setWorkflows(workflows)
+            notification.info({
+                message : "Info",
+                description : 'Workflow was successfully removed'
+            });
+        }
+    }
+
     const columns = [
         {
-            Title : "ID",
-            dataIndex: "id",
-            key: "id"
+            title : "Name",
+            dataIndex: "name",
+            key: "name"
+        },
+        {
+            title : "Language",
+            dataIndex: "language",
+            key: "language"
         },
         {
             title : "Action",
@@ -40,6 +61,8 @@ export default function RunningWorkflowPage(props){
             key: "action",
             render: (text, record, index) => <>
                 <Button type="primary" onClick={() =>  props.history.replace({pathname: '/running-notebook', params: {workflowId : record.id} })}>Open</Button>
+                <Divider type="vertical" />
+                <Button type="danger" onClick={async () => await removeWorkflow(record.id) }>Remove</Button>
             </>
         }
     ]

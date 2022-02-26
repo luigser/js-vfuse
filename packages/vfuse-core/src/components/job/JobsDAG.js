@@ -110,6 +110,10 @@ class JobsDAG {
         return null
     }
 
+    getNodeById(id){
+        return  this.vertices.get(id)
+    }
+
     checkIfNodeExist(nodes, id){
         for(let n in nodes){
             if(nodes[n].id === id) return true

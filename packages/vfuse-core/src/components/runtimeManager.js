@@ -27,14 +27,18 @@ class RuntimeManager{
         try {
             if (isBrowser) {
                 const WebWorkerRuntime = require('./runtime/webWorkerRuntime')
-                if(options)
-                    this.runtimes.set(options.worker.getLanguage(), new WebWorkerRuntime(this,  new options.worker(), options))
+                if(options) {
+                    for(let option of options)
+                       this.runtimes.set(option.worker.getLanguage(), new WebWorkerRuntime(this, new option.worker(), option))
+                }
                 this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, new WebWorkerRuntime(this,  new JavascriptWorker(), {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT}))
             }
             if (isNode) {
                 //const NodeWorkerRuntime = require('./runtime/nodeWorkerRuntime')
-                if(options)
-                    this.runtimes.set(options.getLanguage(),new options.worker(this, {language : options.getLanguage()}))
+                if(options) {
+                    for(let option of options)
+                       this.runtimes.set(option.getLanguage(), new option.worker(this, {language: option.getLanguage()}))
+                }
                 if(!options || options.getLoadedLanguages() !== Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
                    this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this))
             }

@@ -160,6 +160,7 @@ class IdentityManager {
             }
             this.preferences = prefs
             await this.updateProfile()
+            this.eventManager.emit(Constants.EVENTS.PREFERENCES_UPDATED, this.preferences)
             return true
         }catch (e) {
             console.log('Error saving preferences : %O', e)
@@ -181,7 +182,6 @@ class IdentityManager {
                 preferences: this.preferences
             }
             await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile), {pin : true})
-            this.eventManager.emit(Constants.EVENTS.PROFILE_UPDATED, profile)
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)
         }

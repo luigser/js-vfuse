@@ -133,7 +133,7 @@ export default function RunningNotebookPage(props){
                             status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>
                         ]}
                         extra={[
-                            <Button key="1" type="info" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save in my private space</Button>,
+                            <Button key="1" type="primary" disabled={!vFuseNode} loading={saveWorkflowLoading} onClick={saveWorkflow}>Save in my private space</Button>,
                         ]}
                     >
                         <Layout.Content

@@ -29,10 +29,10 @@ export const useVFuse = () => {
                                 ]*/
                             }
                         },
-                        runtime: {
+                        runtimes: [{
                             worker : PythonWorker,
                             packages : []
-                        },
+                        }],
                         discoveryCallback: () => {},
                         connectionCallback: () => {},
                         getMessageFromProtocolCallback: () => {},
