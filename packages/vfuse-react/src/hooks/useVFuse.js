@@ -44,7 +44,10 @@ export const useVFuse = () => {
                 )
                 console.log({node})
 
-                gStore.set({ vFuseNode : node })
+                if(node.error)
+                    return {error: node.error}
+                else
+                   gStore.set({ vFuseNode : node })
             }
         }catch (e) {
             console.log(e)

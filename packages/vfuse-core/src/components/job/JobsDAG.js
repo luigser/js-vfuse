@@ -51,7 +51,7 @@ class JobsDAG {
             for(let dep of dependent_node.job.dependencies){
                 let dns = JSONJobDAG.nodes.filter(nd => nd.id === dep || (new RegExp(dep)).test(nd.label) || (new RegExp(dep).test(nd.group)))
                 for(let nx of dns) {
-                    if (nx.job.results.length === 0) isReady = false
+                    if (!nx.job.results || nx.job.results.length === 0) isReady = false
                 }
             }
             if(isReady && dependent_node.job.status !== Constants.JOB_STATUS.ENDLESS){

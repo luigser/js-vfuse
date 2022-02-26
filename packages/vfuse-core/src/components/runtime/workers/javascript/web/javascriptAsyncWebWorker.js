@@ -233,6 +233,7 @@ const worker_code = () => {
                     let F = new AsyncFunction('', job.code )
                     let start = performance.now()
                     let results = await(F())
+                    debugger
                     let executionTime = performance.now() - start
                     self.postMessage({
                         action: 'return',

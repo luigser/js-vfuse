@@ -17,9 +17,13 @@ function getPoints(interval){
 function estimatePi(data){
     if(!data) return 0
     let circle_points = 0, square_points = 0
-    for(let points of data){
-        square_points += points.square_points
-        circle_points += points.circle_points
+    for(let d of data){
+        for(let points of d){
+            if(point.square_points && point.circle_points){
+                square_points += points.square_points
+                circle_points += points.circle_points
+            }
+        }
     }
 
     pi = parseFloat((4 * circle_points) / square_points).toFixed(100)
@@ -27,10 +31,9 @@ function estimatePi(data){
     return pi
 }
 
-let interval = 10000
-let step = 1000
-for(let i = step; i <= interval; i+=step)
-    await VFuse.addJob(getPoints, [], step)
+let job_id = await VFuse.addJob(getPoints, [], 1000)
+await VFuse.setEndlessJob(job_id)
 
-await VFuse.addJob(estimatePi, ['getPoints'])
+job_id = await VFuse.addJob(estimatePi, ['getPoints'])
+await VFuse.setEndlessJob(job_id)
 
