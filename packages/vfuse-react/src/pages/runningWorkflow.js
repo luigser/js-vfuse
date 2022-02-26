@@ -30,9 +30,10 @@ export default function RunningWorkflowPage(props){
 
     const removeWorkflow = async (id) =>{
         let result = await vFuseNode.removeRunningWorkflow(id)
-        if(!result){
+        if(result && result.error){
             notification.error({
                 message : "Something went wrong",
+                description : result.error
             });
         }else{
             let workflows = await vFuseNode.getRunningWorkflows()

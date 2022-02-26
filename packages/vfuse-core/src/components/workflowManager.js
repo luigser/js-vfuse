@@ -715,10 +715,11 @@ class WorkflowManager{
             await this.contentManager.delete('/workflows/completed/' + id)
             let running_workflows = await this.contentManager.list('/workflows/running')
             this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
+            this.runningWorkflowsQueue.delete(id)
             return true
         }catch (e) {
             console.log('There was an error removing running workflow : %O', e)
-            return false
+            return {error : e.message}
         }
     }
 
