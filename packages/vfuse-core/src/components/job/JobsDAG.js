@@ -62,7 +62,7 @@ class JobsDAG {
     }
 
     static combineResults(node1, node2){
-        node1.job.data = ResultsUtils.combine(node1.job.data, node2.job.results)
+        node1.job.results = ResultsUtils.combine(node1.job.results, node2.job.results)
     }
 
     static getOutputNodes(JSONJobDAG){
