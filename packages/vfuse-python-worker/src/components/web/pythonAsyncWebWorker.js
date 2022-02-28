@@ -15,6 +15,7 @@ const worker_code = () => {
                     }
                 }
             })
+
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
@@ -22,7 +23,7 @@ const worker_code = () => {
                     params: JSON.stringify({
                         name: name,
                         func: code.toJs(),
-                        input: input && typeof(input) !== 'string' ? input.toJs() : input,
+                        input: input && typeof(input) !== 'string' && typeof(input) !== 'number' ? input.toJs() : input,
                         deps: deps.toJs(),
                         group: group && typeof(group) !== 'string' ? group.toJs() : group,
                         packages : self.packages.toJs()
@@ -252,7 +253,7 @@ const worker_code = () => {
         "    @staticmethod\n" +
         "    def execute(func, data = None):\n" +
         "        code = bytes(func.to_py().values())\n" +
-        "        if type(data) != str:\n" +
+        "        if type(data) != str and type(data) != int and type(data) != float:\n" +
         "            data = data.to_py()\n" +
         "        func_caller = cloudpickle.loads(code)\n" +
         "        return func_caller(data)\n"
@@ -338,7 +339,7 @@ const worker_code = () => {
                     self.postMessage(
                         {
                             action: 'return',
-                            results: results && typeof(results)!="string" ? convert(results.toJs()) : results,
+                            results: results && typeof(results)!="string" && typeof(results)!="number" ? convert(results.toJs()) : results,
                             executionTime : executionTime
                         });
                 } catch (err) {

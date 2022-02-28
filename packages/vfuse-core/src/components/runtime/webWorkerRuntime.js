@@ -247,7 +247,7 @@ class WebWorkerRuntime {
         let result = null
         try {
             const startTs = Date.now()
-            setTimeout(function () {
+            let timeout = setTimeout(function () {
                 if(!result) {
                     this.worker.terminate()
                     result = {
@@ -260,6 +260,7 @@ class WebWorkerRuntime {
                 }
             }.bind(this), Constants.TIMEOUTS.JOB_EXECUTION)
             result = await this.exec(job)
+            clearTimeout(timeout)
             const log = {start: startTs, end: Date.now(), cmd: job.code}
             this.history.push(log)
         }catch (e) {

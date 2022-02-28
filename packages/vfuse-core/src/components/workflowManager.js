@@ -663,7 +663,7 @@ class WorkflowManager{
             return new_vertex ? job : null
         }catch (e){
             console.log('Got some error during the workflow creation: %O', e)
-            return null
+            return {error : e.message}
         }
     }
 
@@ -673,7 +673,7 @@ class WorkflowManager{
             return result
         }catch (e){
             console.log('Got some error setting endless job: %O', e)
-            return null
+            return {error : e.message}
         }
     }
 
@@ -682,7 +682,7 @@ class WorkflowManager{
             return this.currentWorkflow.jobsDAG.setJobReturnType(job_id, type)
         }catch (e){
             console.log('Got some error setting job return type: %O', e)
-            return null
+            return {error : e.message}
         }
     }
 
@@ -691,7 +691,7 @@ class WorkflowManager{
             return this.currentWorkflow.jobsDAG.addJobToGroup(job_id, group)
         }catch (e){
             console.log('Got some error adding job to group: %O', e)
-            return null
+            return {error : e.message}
         }
     }
 

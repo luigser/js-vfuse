@@ -1,5 +1,5 @@
 [Unit]
-Description=VFuse Gateway Service
+Description=VFuse Bootstrap Service
 After=network.target
 StartLimitIntervalSec=0
 [Service]
@@ -7,7 +7,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=isis
-ExecStart=/bin/bash /usr/bin/node /home/isis/vfuse/js-vfuse/packages/vfuse-gateway/index.js
+ExecStart=/bin/bash /usr/bin/node /home/isis/vfuse/js-vfuse/packages/vfuse-bootstrap/index.js
 
 [Install]
 WantedBy=multi-user.target
