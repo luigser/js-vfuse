@@ -37,6 +37,7 @@ class JavascriptNodeWorker {
             saveOnNetwork : async (data) => await this.runtime.saveOnNetwork(data),
             getFromNetwork: async(cid) => await this.runtime.getFromNetwork(cid),
             setEndlessJob: async(job_id) => await this.runtime.setEndlessJob(job_id),
+            setJobReturnType: async(job_id, type) => await this.runtime.setJobReturnType(job_id, type),
             addJobToGroup: async(job_id, group) => await this.runtime.addJobToGroup(job_id, group),
             results : null
         }

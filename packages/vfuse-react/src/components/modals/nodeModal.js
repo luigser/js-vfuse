@@ -47,7 +47,7 @@ export default function NodeModal(props) {
                             typeof node.job.data === 'string' || typeof node.job.data === 'number' && <i>{node.job.data}</i>
                         }
                         {
-                            typeof node.job.data !== 'string' || typeof node.job.data !== 'number' && <ReactJson src={node.job.data} collapsed={true}/>
+                            typeof node.job.data !== 'string' && typeof node.job.data !== 'number' && <ReactJson src={node.job.data} collapsed={true}/>
                         }
                     </Descriptions.Item >
                     <Descriptions.Item label="Results" span={4}>

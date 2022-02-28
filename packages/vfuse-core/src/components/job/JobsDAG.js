@@ -17,27 +17,27 @@ class JobsDAGVertex{
 class JobsDAG {
 
     static getReadyNodes = (JSONJobDAG) => {
-        return JSONJobDAG.nodes.filter( n => n.job && (n.job.status === Constants.JOB_STATUS.READY || n.job.status === Constants.JOB_STATUS.ENDLESS))
+        return JSONJobDAG.nodes.filter( n => n.job && (n.job.status === Constants.JOB.STATUS.READY || n.job.status === Constants.JOB.STATUS.ENDLESS))
     }
 
     static setNodeState = (JSONJobDAG, node, state, data) => {
         if(data.results.error){
-            node.job.status = Constants.JOB_STATUS.ERROR
-            node.color = Utils.getColor(Constants.JOB_STATUS.ERROR)
+            node.job.status = Constants.JOB.STATUS.ERROR
+            node.color = Utils.getColor(Constants.JOB.STATUS.ERROR)
             node.job.results = data.results
             return
         }
         //Maybe a not useful control
-        if(state === Constants.JOB_STATUS.READY) return
+        if(state === Constants.JOB.STATUS.READY) return
 
         switch(state){
-            case Constants.JOB_STATUS.COMPLETED:
-                node.job.status = Constants.JOB_STATUS.COMPLETED
-                node.color = Utils.getColor(Constants.JOB_STATUS.COMPLETED)
+            case Constants.JOB.STATUS.COMPLETED:
+                node.job.status = Constants.JOB.STATUS.COMPLETED
+                node.color = Utils.getColor(Constants.JOB.STATUS.COMPLETED)
                 node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
                 node.job.executionTime = data.results.executionTime
                 break
-            case Constants.JOB_STATUS.ENDLESS:
+            case Constants.JOB.STATUS.ENDLESS:
                 node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
                 break
         }
@@ -54,9 +54,9 @@ class JobsDAG {
                     if (!nx.job.results || nx.job.results.length === 0) isReady = false
                 }
             }
-            if(isReady && dependent_node.job.status !== Constants.JOB_STATUS.ENDLESS){
-                dependent_node.job.status = Constants.JOB_STATUS.READY
-                dependent_node.color = Utils.getColor(Constants.JOB_STATUS.READY)
+            if(isReady && dependent_node.job.status !== Constants.JOB.STATUS.ENDLESS){
+                dependent_node.job.status = Constants.JOB.STATUS.READY
+                dependent_node.color = Utils.getColor(Constants.JOB.STATUS.READY)
             }
         }
     }
@@ -68,7 +68,7 @@ class JobsDAG {
     static getOutputNodes(JSONJobDAG){
         //get all nodes with no children
         let outputNodes = JSONJobDAG.nodes.filter(n => {
-            if(n.job && (n.job.status === Constants.JOB_STATUS.COMPLETED || n.job.status === Constants.JOB_STATUS.ENDLESS)){
+            if(n.job && (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ENDLESS)){
                 let edges = JSONJobDAG.edges.filter(e => e.from === n.id)
                 if(edges.length === 0)
                     return n
@@ -177,8 +177,8 @@ class JobsDAG {
             let new_job_vertex = new JobsDAGVertex({id: job.id, label: job.name, job: job, group : job.group})
             this.addVertex(new_job_vertex)
             if (!job.dependencies || (_.isArray(job.dependencies) && job.dependencies.length === 0)) {
-                new_job_vertex.job.status = Constants.JOB_STATUS.READY
-                new_job_vertex.job.initialStatus = Constants.JOB_STATUS.READY
+                new_job_vertex.job.status = Constants.JOB.STATUS.READY
+                new_job_vertex.job.initialStatus = Constants.JOB.STATUS.READY
                 this.addEdge(
                     this.root,
 
@@ -215,9 +215,9 @@ class JobsDAG {
         try{
             let vertex = this.vertices.get(job_id)
             if(vertex){
-                vertex.job.status = Constants.JOB_STATUS.ENDLESS
-                vertex.job.initialStatus = Constants.JOB_STATUS.ENDLESS
-                vertex.color = Utils.getColor(Constants.JOB_STATUS.ENDLESS)
+                vertex.job.status = Constants.JOB.STATUS.ENDLESS
+                vertex.job.initialStatus = Constants.JOB.STATUS.ENDLESS
+                vertex.color = Utils.getColor(Constants.JOB.STATUS.ENDLESS)
                 return vertex.job.id
             }else{
                 return null
@@ -226,6 +226,31 @@ class JobsDAG {
             console.log('Error during setting endless job : %O', e)
             return null
         }
+    }
+
+    setJobReturnType(job_id, type){
+        try{
+            let vertex = this.vertices.get(job_id)
+            if(vertex){
+                switch (type){
+                    case Constants.JOB.RETURN_TYPES.ARRAY:
+                        vertex.job.results = []
+                        break
+                    case Constants.JOB.RETURN_TYPES.INTEGER:
+                        vertex.job.results = 0
+                        break
+                    case Constants.JOB.RETURN_TYPES.OBJECT:
+                        vertex.job.results = {}
+                }
+                return vertex.job.id
+            }else{
+                return null
+            }
+        }catch (e) {
+            console.log('Error during setting job return type : %O', e)
+            return null
+        }
+
     }
 
     addJobToGroup(job_id, group){

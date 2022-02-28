@@ -5,24 +5,31 @@ const Constants = {
         GATEWAY   : "GATEWAY",//use as node gateway and http api,,
         PROACTIVE_GATEWAY: "PROACTIVE_GATEWAY", //be proactive and set gateway and api if configured
     },
-    JOB_STATUS : {
-        WAITING : 0,//due to dependencies
-        READY: 1,//no dependences and ready to be executed
-        COMPLETED: 2,//results are available
-        ERROR: 3,//something wrong during the execution
-        ENDLESS: 4,
-        COLORS:{
-            WAITING : '#F4B400',
-            READY: '#0F9D58',
-            COMPLETED: '#4285F4',
-            ERROR: '#DB4437',
-            ENDLESS : '#32586E'
+    JOB:{
+        TYPE:{
+            OUTPUT : 'OUTPUT',
+            EXECUTOR : 'EXECUTOR'
+            //STREAM?
         },
-    },
-    JOB_TYPE:{
-        OUTPUT : 'OUTPUT',
-        EXECUTOR : 'EXECUTOR'
-        //STREAM?
+        RETURN_TYPES:{
+            ARRAY: 'ARRAY',
+            INTEGER: 'INTEGER',
+            OBJECT : 'OBJECT'
+        },
+        STATUS:{
+            WAITING : 0,//due to dependencies
+            READY: 1,//no dependences and ready to be executed
+            COMPLETED: 2,//results are available
+            ERROR: 3,//something wrong during the execution
+            ENDLESS: 4,
+            COLORS:{
+                WAITING : '#F4B400',
+                READY: '#0F9D58',
+                COMPLETED: '#4285F4',
+                ERROR: '#DB4437',
+                ENDLESS : '#32586E'
+            },
+        }
     },
     WORKFLOW : {
         STATUS: {

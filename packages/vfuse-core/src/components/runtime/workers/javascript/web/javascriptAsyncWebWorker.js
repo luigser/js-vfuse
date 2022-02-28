@@ -1,5 +1,4 @@
 const worker_code = () => {
-
     const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
     const VFuse = {
@@ -165,7 +164,41 @@ const worker_code = () => {
 
             return promise
         },
+        setJobReturnType : (job_id, type) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'setJobReturnType')
+                            resolve(e.data.data.result)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
 
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'setJobReturnType',
+                    params: JSON.stringify({
+                        job_id : job_id,
+                        type: type
+                    })
+                }
+            })
+
+            return promise
+        },
+        Constants : {
+            JOB:{
+                RETURN_TYPES:{
+                    ARRAY: 'ARRAY',
+                    INTEGER: 'INTEGER',
+                    OBJECT : 'OBJECT'
+                }
+            }
+        }
     }
 
     const convert = (results) => {
@@ -233,7 +266,6 @@ const worker_code = () => {
                     let F = new AsyncFunction('', job.code )
                     let start = performance.now()
                     let results = await(F())
-                    debugger
                     let executionTime = performance.now() - start
                     self.postMessage({
                         action: 'return',

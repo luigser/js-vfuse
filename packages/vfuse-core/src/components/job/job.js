@@ -12,8 +12,8 @@ class Job{
 
     constructor(id, name, code, data = [], dependencies = [], group = '', language, packages = []) {
         this.id = id
-        this.status = Constants.JOB_STATUS.WAITING
-        this.initialStatus = Constants.JOB_STATUS.WAITING
+        this.status = Constants.JOB.STATUS.WAITING
+        this.initialStatus = Constants.JOB.STATUS.WAITING
         this.name = name
         this.code = code
         this.data = data
@@ -25,7 +25,7 @@ class Job{
         this.reward = 0
         this.executionTime = 0
         this.executorPeerId = null
-        this.type = Constants.JOB_TYPE.EXECUTOR
+        this.type = Constants.JOB.TYPE.EXECUTOR
     }
 }
 

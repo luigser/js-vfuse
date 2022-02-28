@@ -187,6 +187,26 @@ class WebWorkerRuntime {
                                     })
                                 }
                                 break
+                            case 'setJobReturnType':
+                                let sjrtResult = await this.runtimeManager.setJobReturnType(p.job_id, p.type)
+                                if(sjrtResult && !sjrtResult.error) {
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "setJobReturnType",
+                                            result: sjrtResult
+                                        }
+                                    })
+                                }else{
+                                    this.webworker.postMessage({
+                                        action: 'VFuse:runtime',
+                                        data: {
+                                            func: "setJobReturnType",
+                                            error : sjrtResult.error.toString()
+                                        }
+                                    })
+                                }
+                                break
                             case 'addJobToGroup':
                                 let atgResult = await this.runtimeManager.addJobToGroup(p.job_id, p.group)
                                 if(atgResult && !atgResult.error) {

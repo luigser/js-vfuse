@@ -24,20 +24,20 @@ const Miscellaneous = {
     getColor : (status) => {
         let color = '#838383'
         switch (status) {
-            case Constants.JOB_STATUS.WAITING:
-                color = Constants.JOB_STATUS.COLORS.WAITING
+            case Constants.JOB.STATUS.WAITING:
+                color = Constants.JOB.STATUS.COLORS.WAITING
                 break
-            case Constants.JOB_STATUS.COMPLETED:
-                color = Constants.JOB_STATUS.COLORS.COMPLETED
+            case Constants.JOB.STATUS.COMPLETED:
+                color = Constants.JOB.STATUS.COLORS.COMPLETED
                 break
-            case Constants.JOB_STATUS.ERROR:
-                color = Constants.JOB_STATUS.COLORS.ERROR
+            case Constants.JOB.STATUS.ERROR:
+                color = Constants.JOB.STATUS.COLORS.ERROR
                 break
-            case Constants.JOB_STATUS.READY:
-                color = Constants.JOB_STATUS.COLORS.READY
+            case Constants.JOB.STATUS.READY:
+                color = Constants.JOB.STATUS.COLORS.READY
                 break
-            case Constants.JOB_STATUS.ENDLESS:
-                color = Constants.JOB_STATUS.COLORS.ENDLESS
+            case Constants.JOB.STATUS.ENDLESS:
+                color = Constants.JOB.STATUS.COLORS.ENDLESS
                 break
         }
         return {

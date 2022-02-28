@@ -9,6 +9,7 @@
   "author": "Luigi Serra",
   "license": "MIT",
   "dependencies": {
-    "pyodide": "^0.18.2"
+    "pyodide": "^0.18.2",
+    "vfuse-core": "file:../../packages/vfuse-core"
   }
 }

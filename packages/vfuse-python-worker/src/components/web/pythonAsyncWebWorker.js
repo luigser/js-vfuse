@@ -165,16 +165,71 @@ const worker_code = () => {
 
             return promise
         },
+        setJobReturnType : (job_id, type) => {
+            const promise = new  Promise( (resolve, reject) => {
+                self.onmessage = (e) => {
+                    const {action} = e.data
+                    if (action === 'VFuse:runtime') {
+                        const {func} = e.data.data
+                        if(func === 'setJobReturnType')
+                            resolve(e.data.data.result)
+                        self.onmessage = onmessage
+                    }
+                }
+            })
 
+            self.postMessage({
+                action: 'VFuse:worker',
+                todo: {
+                    func: 'setJobReturnType',
+                    params: JSON.stringify({
+                        job_id : job_id,
+                        type: type
+                    })
+                }
+            })
+
+            return promise
+        },
     }
 
     /*"        #if type(result) != str:\n" +
     "        #    result = result.to_py()\n" +*/
 
+    self.PythonVFuseUtils =
+        "class Map(dict):\n" +
+        "    def __init__(self, *args, **kwargs):\n" +
+        "        super(Map, self).__init__(*args)\n" +
+        "        for arg in args:\n" +
+        "            if isinstance(arg, dict):\n" +
+        "                for k, v in arg.iteritems():\n" +
+        "                    self[k] = v\n" +
+        "    def __getattr__(self, attr):\n" +
+        "        return self.get(attr)\n" +
+        "    def __setattr__(self, key, value):\n" +
+        "        self.__setitem__(key, value)\n" +
+        "    def __setitem__(self, key, value):\n" +
+        "        super(Map, self).__setitem__(key, value)\n" +
+        "        self.__dict__.update({key: value})\n" +
+        "    def __delattr__(self, item):\n" +
+        "        self.__delitem__(item)\n" +
+        "    def __delitem__(self, key):\n" +
+        "        super(Map, self).__delitem__(key)\n" +
+        "        del self.__dict__[key]\n" +
+        "CONSTANTS = Map()\n" +
+        "JOB = Map()\n" +
+        "RETURN_TYPES = Map()\n" +
+        "RETURN_TYPES.INTEGER = 'INTEGER'\n" +
+        "RETURN_TYPES.ARRAY = 'ARRAY'\n" +
+        "RETURN_TYPES.OBJECT = 'OBJECT'\n" +
+        "JOB.RETURN_TYPES = RETURN_TYPES\n"+
+        "CONSTANTS.JOB = JOB\n"
+
     self.PythonVFuse = "from js import JSVFuse\n" +
         "import cloudpickle\n" +
         "import micropip\n" +
         "class VFuse:\n" +
+        "    Constants = CONSTANTS\n" +
         "    @staticmethod\n" +
         "    async def addJob(func, deps, input = None, group = None):\n" +
         "        func_source = cloudpickle.dumps(func)\n" +
@@ -244,6 +299,8 @@ const worker_code = () => {
                     });
                 break;
             case 'load':
+                await self.pyodide.loadPackagesFromImports(self.PythonVFuseUtils)
+                await self.pyodide.runPythonAsync(self.PythonVFuseUtils)
                 await self.pyodide.loadPackagesFromImports(self.PythonVFuse)
                 await self.pyodide.runPythonAsync(self.PythonVFuse)
                 self.postMessage({

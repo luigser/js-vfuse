@@ -82,6 +82,14 @@ class RuntimeManager{
         }
     }
 
+    async setJobReturnType(job_id, type){
+        try {
+            return this.workflowManager.setJobReturnType(job_id, type)
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
     async addJobToGroup(job_id, group){
         try {
             return this.workflowManager.addJobToGroup(job_id, group)

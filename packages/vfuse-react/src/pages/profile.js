@@ -40,8 +40,8 @@ export default function ProfilePage(props){
     const [signalServer, setSignalServer] = useState('/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star')
     const [delegateNode, setDelegateNode] = useState('')
     const [pinningServer, setPinningServer] = useState('/ip4/192.168.1.57/tcp/9094')
-    const [bootstraps, setBootstrap] = useState(['/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY'])
-    const [bootstrapsString, setBootstrapString] = useState('/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY')
+    const [bootstraps, setBootstrap] = useState(['/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWPLP1GD88WxZk4E4g9Fm6VdkZHLmyKZi4X4bczRNLbJuJ'])
+    const [bootstrapsString, setBootstrapString] = useState('/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWPLP1GD88WxZk4E4g9Fm6VdkZHLmyKZi4X4bczRNLbJuJ')
     const [savePreferencesLoading, setSavePreferencesLoading] = useState(false)
     const [savePreferencesDisabled, setSavePreferencesDisabled] = useState(!vFuseNode)
 

@@ -230,8 +230,8 @@ class WorkflowManager{
                             workflow = JSON.parse(workflow)
                             let nodes_to_publish = workflow.jobsDAG.nodes.filter(n => n.job &&
                                 (
-                                    (n.job.status === Constants.JOB_STATUS.COMPLETED || n.job.status === Constants.JOB_STATUS.ERROR || n.job.status === Constants.JOB_STATUS.ENDLESS) ||
-                                    (n.job.status === Constants.JOB_STATUS.READY && n.job.initialStatus === Constants.JOB_STATUS.WAITING)
+                                    (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ERROR || n.job.status === Constants.JOB.STATUS.ENDLESS) ||
+                                    (n.job.status === Constants.JOB.STATUS.READY && n.job.initialStatus === Constants.JOB.STATUS.WAITING)
                                 )
                             )
                             if(nodes_to_publish.length > 0) {
@@ -318,7 +318,7 @@ class WorkflowManager{
                 JobsDAG.setNodeState(
                     workflow_to_run.jobsDAG,
                     node,
-                    node.job.status === Constants.JOB_STATUS.ENDLESS ? Constants.JOB_STATUS.ENDLESS : Constants.JOB_STATUS.COMPLETED,
+                    node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
                     {results : results})
                 this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1);
                 await this.contentManager.sendOnTopic({
@@ -362,7 +362,7 @@ class WorkflowManager{
                 //check if workflow do not stand in the completed ones
                 let completed = await this.contentManager.get('/workflows/completed/' + workflow.id)
                 if(completed) return
-                let completed_nodes = workflow.jobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB_STATUS.COMPLETED || n.job.status === Constants.JOB_STATUS.ERROR))
+                let completed_nodes = workflow.jobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ERROR))
                 if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){// -1 to not consider the root
                     await this.contentManager.save('/workflows/completed/' + workflow.id, "completed")
                     await this.contentManager.sendOnTopic({
@@ -375,9 +375,9 @@ class WorkflowManager{
                 }else{
                     for(let result_node of data.nodes){
                         let local_job_node = workflow.jobsDAG.nodes.filter(nd => nd.id === result_node.id)[0]
-                        if( local_job_node.job.status !== Constants.JOB_STATUS.COMPLETED ||
-                            (local_job_node.job.status === Constants.JOB_STATUS.WAITING && result_node.job.status === Constants.JOB_STATUS.READY)){
-                            if(local_job_node.job.status === Constants.JOB_STATUS.ENDLESS)
+                        if( local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
+                            (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY)){
+                            if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS)
                                 JobsDAG.combineResults(result_node, local_job_node)
                             local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
@@ -400,10 +400,10 @@ class WorkflowManager{
                     for (let result_node of data.nodes) {
                         let local_job_node = running_workflow.jobsDAG.nodes.filter(nd => nd.id === result_node.id)[0]
                         if (this.jobsExecutionQueue.indexOf(result_node.job.id) < 0 &&
-                            (local_job_node.job.status !== Constants.JOB_STATUS.COMPLETED ||
-                                (local_job_node.job.status === Constants.JOB_STATUS.WAITING && result_node.job.status === Constants.JOB_STATUS.READY))) {
+                            (local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
+                                (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY))) {
                             local_job_node.color = result_node.color
-                            if(local_job_node.job.status === Constants.JOB_STATUS.ENDLESS)
+                            if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS)
                                 JobsDAG.combineResults(result_node, local_job_node)
                             local_job_node.job = result_node.job
                         }
@@ -486,7 +486,7 @@ class WorkflowManager{
                     for (let node of nodes) {
                         let results = await this.runJob(workflow.id, node.job)
                         if (results) {
-                            JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB_STATUS.COMPLETED, {results: results})
+                            JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB.STATUS.COMPLETED, {results: results})
                         }
                     }
                     nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
@@ -677,10 +677,18 @@ class WorkflowManager{
         }
     }
 
+    async setJobReturnType(job_id, type){
+        try{
+            return this.currentWorkflow.jobsDAG.setJobReturnType(job_id, type)
+        }catch (e){
+            console.log('Got some error setting job return type: %O', e)
+            return null
+        }
+    }
+
     async addJobToGroup(job_id, group){
         try{
-            let result = this.currentWorkflow.jobsDAG.addJobToGroup(job_id, group)
-            return result
+            return this.currentWorkflow.jobsDAG.addJobToGroup(job_id, group)
         }catch (e){
             console.log('Got some error adding job to group: %O', e)
             return null
