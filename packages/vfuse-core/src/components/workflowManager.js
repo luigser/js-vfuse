@@ -104,7 +104,7 @@ class WorkflowManager{
             }
             await this.loadRunningWorkflows()
 
-            this.eventManager.addListener(Constants.EVENTS.PREFERENCES_UPDATED, this.updateTimeoutsAndLimits)
+            this.eventManager.addListener(Constants.EVENTS.PREFERENCES_UPDATED, this.updateTimeoutsAndLimits.bind(this))
 
             let profile = this.identityManager.getCurrentProfile();
             this.executionCycleTimeout = profile.preferences.TIMEOUTS.EXECUTION_CYCLE * 1000
