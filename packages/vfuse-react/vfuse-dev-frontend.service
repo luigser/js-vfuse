@@ -7,7 +7,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=isis
-ExecStart=/bin/bash /home/isis/vfuse/js-vfuse/packages/vfuse-react PORT=80 HOST=0.0.0.0 npm run start
+ExecStart=PORT=80 HOST=0.0.0.0 /usr/bin/npm home/isis/vfuse/js-vfuse/packages/vfuse-react run start
 
 [Install]
 WantedBy=multi-user.target

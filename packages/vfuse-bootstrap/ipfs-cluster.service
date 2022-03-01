@@ -7,7 +7,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=isis
-ExecStart=/bin/bash /usr/bin/ipfs-cluster-service daemon
+ExecStart=/usr/bin/ipfs-cluster-service daemon
 
 [Install]
 WantedBy=multi-user.target
