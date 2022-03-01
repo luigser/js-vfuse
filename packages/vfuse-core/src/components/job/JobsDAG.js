@@ -181,7 +181,6 @@ class JobsDAG {
                 new_job_vertex.job.initialStatus = Constants.JOB.STATUS.READY
                 this.addEdge(
                     this.root,
-
                     new_job_vertex
                 )
             } else {

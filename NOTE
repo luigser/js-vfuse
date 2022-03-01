@@ -2,6 +2,9 @@ Nodejs version (it works for browser but nodejs)
 v12.16.3
 PASS TO v14
 
+/*to run dev server on port 80 */
+sudo PORT=80 HOST=0.0.0.0 npm run start
+
 /* RUN IPFS CLUSTER */
 ipfs-cluster-service --loglevel info,cluster:debug,pintracker:debug daemon
 
