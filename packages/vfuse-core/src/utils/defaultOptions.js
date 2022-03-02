@@ -44,7 +44,7 @@ module.exports = {
                         HashOnRead: false,
                         BloomFilterSize: 0
                     },
-                    Bootstrap: [/*'/ip4/127.0.0.1/tcp/4001/p2p/12D3KooWD9GpdKboHZ87s8FeVmaPqH5sCqpFvvB77TuCCtKVBdnE'*/],
+                    Bootstrap: options.ipfs && options.ipfs.config && options.ipfs.config.Bootstrap ? options.ipfs.config.Bootstrap : [],
                     Addresses: {
                         API: "/ip4/0.0.0.0/tcp/5001",
                         Swarm: [

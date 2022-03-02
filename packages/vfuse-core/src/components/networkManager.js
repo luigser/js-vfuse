@@ -243,8 +243,8 @@ class NetworkManager{
      * @param {NetworkManager} network
      */
     async stop(){
-        await this.ipfs.pubsub.unsubscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME)
-        await this.ipfs.pubsub.unsubscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY)
+        await this.ipfs.pubsub.unsubscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, null)
+        await this.ipfs.pubsub.unsubscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, null)
         await this.ipfs.stop()
     }
 
