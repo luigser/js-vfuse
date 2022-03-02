@@ -7,7 +7,7 @@ const main = async () => {
         bootstrapNode : true,
         SignalServer: true,
         HttpAPI: true,
-        IPFSGateway: true,
+        IPFSGateway: false,
         /*runtime: {
             language : VFuse.Constants.PROGRAMMING_LANGUAGE.PYTHON,
             worker : PythonWorker,

@@ -1,14 +1,13 @@
 [Unit]
 Description=VFuse Development Frontend Service
-After=network.target
+After=syslog.target network.target
 StartLimitIntervalSec=0
 [Service]
 Type=simple
 Restart=always
 RestartSec=1
-User=isis
-ExecStart=PORT=80 HOST=0.0.0.0 /usr/bin/npm home/isis/vfuse/js-vfuse/packages/vfuse-react run start
+User=root
+ExecStart=/usr/bin/bash /home/isis/vfuse/js-vfuse/packages/vfuse-react/start.sh
 
 [Install]
 WantedBy=multi-user.target
-

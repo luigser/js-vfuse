@@ -84,6 +84,7 @@ class VFuse {
             this.status = Constants.NODE_STATE.RUNNING
         }catch (e) {
             console.log('Error during VFuse node initialization: %O', e)
+            this.status = Constants.NODE_STATE.STOP
         }
     }
 

@@ -99,6 +99,7 @@ export default function ProfilePage(props){
             let node = await getNode(signalServer, bootstraps, pinningServer, delegateNode)
             if(node.error) {
                 setStatus(VFuse.Constants.NODE_STATE.STOP)
+                setStartLoading(false)
                 notification.error({
                     message : "Something went wrong",
                     description : node.error
