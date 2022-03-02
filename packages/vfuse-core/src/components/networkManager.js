@@ -692,7 +692,7 @@ class NetworkManager{
         try {
             //todo delete previous version
             let data_cid = await this.cluster.pin.add(cid,  { filter : 'all'})
-            return data_cid.cid['/']
+            return data_cid.cid ? data_cid.cid['/'] : data_cid.toString()
         }catch (e){
             console.log('Got some error during the data update: %O', e)
             return null

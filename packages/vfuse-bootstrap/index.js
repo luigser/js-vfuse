@@ -8,6 +8,13 @@ const main = async () => {
         SignalServer: true,
         HttpAPI: true,
         IPFSGateway: false,
+        /*ipfs:{
+            config:{
+                Addresses: {
+                    Swarm: ['/ip4/192.168.1.57/tcp/443/wss/p2p-circuit']
+                }
+            }
+        }*/
         /*runtime: {
             language : VFuse.Constants.PROGRAMMING_LANGUAGE.PYTHON,
             worker : PythonWorker,

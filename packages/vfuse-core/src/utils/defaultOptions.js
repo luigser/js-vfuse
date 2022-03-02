@@ -50,7 +50,7 @@ module.exports = {
                         Swarm: [
                             "/ip4/0.0.0.0/tcp/4001",
                             "/ip4/0.0.0.0/tcp/4003/ws",
-                            "/ip4/0.0.0.0/tcp/4002/wss",
+                            //"/ip4/0.0.0.0/tcp/4430/wss",
                             //'/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star'
                             //options.SignalServer ? options.SignalServer : '/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star/',
                             //'/ip4/0.0.0.0/tcp/2000/http/p2p-webrtc-direct'
@@ -133,8 +133,8 @@ module.exports = {
                         RepublishPeriod: "",*/
                         ResolveCacheSize: 128
                     },
-                   /* Swarm: {
-                        AddrFilters: null,
+                    Swarm: {
+                       /* AddrFilters: null,
                         ConnMgr: {
                             GracePeriod: "20s",
                             HighWater: 900,
@@ -143,14 +143,14 @@ module.exports = {
                         },
                         DisableBandwidthMetrics: false,
                         DisableNatPortMap: false,
-                        DisableRelay: false,
+                        DisableRelay: false,*/
                         EnableAutoRelay: true,
                         EnableRelayHop: false,
-                        /!* Transports: {
+                        /* Transports: {
                              Multiplexers: {},
                              Network: {},
                              Security: {}
-                         }*!/
+                         }*/
                     },
                     Discovery: {
                         MDNS: {
@@ -160,7 +160,7 @@ module.exports = {
                         webRTCStar: {
                             Enabled: true
                         }
-                    },*/
+                    },
                 }
             }
         },
@@ -184,6 +184,25 @@ module.exports = {
                             //'/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star',
                         ],*/
                         //Delegates: options.ipfs.config.Bootstrap
+                    },
+                    Swarm: {
+                       /* AddrFilters: null,
+                        ConnMgr: {
+                            GracePeriod: "20s",
+                            HighWater: 900,
+                            LowWater: 600,
+                            Type: "basic"
+                        },
+                        DisableBandwidthMetrics: false,
+                        DisableNatPortMap: false,
+                        DisableRelay: false,*/
+                        EnableAutoRelay: false,
+                        EnableRelayHop: true,
+                        /* Transports: {
+                             Multiplexers: {},
+                             Network: {},
+                             Security: {}
+                         }*/
                     },
                     /*Swarm: {
                         EnableRelayHop: true
