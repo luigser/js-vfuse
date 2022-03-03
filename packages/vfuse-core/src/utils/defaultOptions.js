@@ -50,7 +50,7 @@ module.exports = {
                         Swarm: [
                             "/ip4/0.0.0.0/tcp/4001",
                             "/ip4/0.0.0.0/tcp/4003/ws",
-                            //"/ip4/0.0.0.0/tcp/4430/wss",
+                            "/ip4/0.0.0.0/tcp/4002/wss",
                             //'/ip4/0.0.0.0/tcp/2000/ws/p2p-webrtc-star'
                             //options.SignalServer ? options.SignalServer : '/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star/',
                             //'/ip4/0.0.0.0/tcp/2000/http/p2p-webrtc-direct'
