@@ -16,34 +16,44 @@ import {highlight, languages} from "prismjs/components/prism-core";
 import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-funky.css'*/
 
-const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
+const javascriptCodeExample = "let input = await VFuse.getDataFromUrl(\"https://raw.githubusercontent.com/bwhite/dv_hadoop_tests/master/python-streaming/word_count/input/4300.txt\")\n" +
+    "\n" +
     "function map(data){\n" +
-    "   let tokens = []\n" +
-    "   data.split(/\\W+/).map(word => tokens.push({ word : word , count : 1 }))\n" +
-    "   return tokens\n" +
+    "    let mapped = new Map()\n" +
+    "    data.map(d => d.split(/\\W+/).map(word => mapped.set(word, mapped.has(word) ? mapped.get(word) + 1 : 1)))\n" +
+    "    return mapped\n" +
     "}\n" +
     "\n" +
     "function reduce(data){\n" +
-    "   let reduced = new Map()\n" +
-    "   data.map( entry => reduced.set(entry.word, reduced.has(entry.word) ? reduced.get(entry.word) + 1 : 1))\n" +
-    "   return reduced\n" +
+    "    let result = new Map()\n" +
+    "    for(let d of data)\n" +
+    "        result.set(d.key, result.has(d.key) ? result.get(d.key) + d.value : d.value)\n" +
+    "    return result\n" +
     "}\n" +
     "\n" +
-    "function combine(data){\n" +
-    "   let result = new Map()\n" +
-    "   for(let key of data.keys())\n" +
-    "      result.set(key, result.has(key) ? result.get(key) + 1 : 1)\n" +
-    "   return result\n" +
+    "function getMaxOccurenceWord(data){\n" +
+    "    let max = data[0]\n" +
+    "    for(let entry of data){\n" +
+    "        if(entry.value > max.value)\n" +
+    "            max = entry\n" +
+    "    }\n" +
+    "    return max\n" +
     "}\n" +
     "\n" +
-    "input = input.split(\"\\n\")\n" +
-    "let reduced_results = []\n" +
-    "for (let row in input){\n" +
-    "   let mapped = await VFuse.addJob(map, [], input[row])\n" +
-    "   let reduced = await VFuse.addJob(reduce, [mapped])\n" +
-    "   reduced_results.push(mapped)\n" +
+    "input = input.toString().split(\"\\n\")\n" +
+    "let chunck = Math.floor(input.length / 10), r = 0\n" +
+    "for (; r < input.length; r += chunck){\n" +
+    "    await VFuse.addJob(map, [], input.slice(r, r + chunck), 'map_group')\n" +
     "}\n" +
-    "let result = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine"
+    "\n" +
+    "let diff = input.length - r\n" +
+    "if( diff > 0){\n" +
+    "    await VFuse.addJob(map, [], input.slice(r, r + diff), 'map_group')\n" +
+    "}\n" +
+    "\n" +
+    "\n" +
+    "let combine_job_id = await VFuse.addJob(reduce, ['^map_'])//wait for all reduce results and call combine\n" +
+    "await VFuse.addJob(getMaxOccurenceWord, [combine_job_id])\n"
 
 const pythonCodeExample = `input = """I'm learning Python.
 I refer to TechBeamers.com tutorials.

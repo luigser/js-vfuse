@@ -41,6 +41,11 @@ class VFuse {
             if (isBrowser) {
                 await this.startManagers()
             } else if (isNode) {
+                if(this.options.proxy){
+                    const VFuseProxy = require('./proxy/proxy')
+                    this.proxy = new VFuseProxy(this.options.proxy)
+                }
+
                 //Start signal server
                 if (this.options.SignalServer) {
                     const WStarSignalingServer = require('libp2p-webrtc-star/src/sig-server')

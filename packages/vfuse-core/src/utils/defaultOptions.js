@@ -5,8 +5,24 @@ module.exports = {
 
     getGatewayOptions : (options) => {
         return lodash.merge({
+            proxy:{
+                bootstrap: {
+                    wsPort : 4003,
+                    wsProxyPort : 4002
+                },
+                pinning:{
+                    port: 9094,
+                    proxyPort : 9097
+                },
+                signal:{
+                    port: 2000,
+                    proxyPort : 2001
+                },
+                certs:{
+                    verify : false
+                }
+            },
             ipfsClusterApi: {},
-            bootstrapNodes: [],
             packages: [],
             ipfs: {
                 repo: 'vfuse-repo',//Repo,
