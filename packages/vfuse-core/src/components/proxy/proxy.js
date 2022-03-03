@@ -16,7 +16,7 @@ class VFuseProxy{
                 cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, 'certs','cert.pem'), 'utf8')
             },
             secure: props.certs.verify
-        }).listen(props.bootstrap.wsProxyPort);
+        }).listen(props.bootstrap.wsProxyPort, "0.0.0.0");
 
         this.signalWebRTCProxy = httpProxy.createProxyServer({
             target: {
@@ -29,7 +29,7 @@ class VFuseProxy{
                 cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, 'certs','cert.pem'), 'utf8')
             },
             secure: props.certs.verify
-        }).listen(props.signal.proxyPort);
+        }).listen(props.signal.proxyPort, "0.0.0.0");
 
         this.pinnerServerProxy = httpProxy.createProxyServer({
             target: {
@@ -41,7 +41,7 @@ class VFuseProxy{
                 cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, 'certs','cert.pem'), 'utf8')
             },
             secure: props.certs.verify
-        }).listen(props.pinning.proxyPort);
+        }).listen(props.pinning.proxyPort, "0.0.0.0");
     }
 }
 

@@ -5,7 +5,7 @@ module.exports = {
 
     getGatewayOptions : (options) => {
         return lodash.merge({
-            proxy:{
+            /*proxy:{
                 bootstrap: {
                     wsPort : 4003,
                     wsProxyPort : 4002
@@ -21,7 +21,7 @@ module.exports = {
                 certs:{
                     verify : false
                 }
-            },
+            },*/
             ipfsClusterApi: {},
             packages: [],
             ipfs: {
