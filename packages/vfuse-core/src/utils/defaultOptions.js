@@ -134,7 +134,7 @@ module.exports = {
                         ResolveCacheSize: 128
                     },
                     Swarm: {
-                       /* AddrFilters: null,
+                        AddrFilters: null,
                         ConnMgr: {
                             GracePeriod: "20s",
                             HighWater: 900,
@@ -143,9 +143,9 @@ module.exports = {
                         },
                         DisableBandwidthMetrics: false,
                         DisableNatPortMap: false,
-                        DisableRelay: false,*/
-                        EnableAutoRelay: true,
-                        EnableRelayHop: false,
+                        DisableRelay: false,
+                        EnableAutoRelay: false,
+                        EnableRelayHop: true,
                         /* Transports: {
                              Multiplexers: {},
                              Network: {},
@@ -186,26 +186,8 @@ module.exports = {
                         //Delegates: options.ipfs.config.Bootstrap
                     },
                     Swarm: {
-                       /* AddrFilters: null,
-                        ConnMgr: {
-                            GracePeriod: "20s",
-                            HighWater: 900,
-                            LowWater: 600,
-                            Type: "basic"
-                        },
-                        DisableBandwidthMetrics: false,
-                        DisableNatPortMap: false,
-                        DisableRelay: false,*/
-                        EnableAutoRelay: false,
-                        EnableRelayHop: true,
-                        /* Transports: {
-                             Multiplexers: {},
-                             Network: {},
-                             Security: {}
-                         }*/
-                    },
-                    /*Swarm: {
-                        EnableRelayHop: true
+                        EnableAutoRelay: true,
+                        EnableRelayHop: false,
                     },
                     Bootstrap: options.ipfs.config.Bootstrap,
                     Discovery: {
@@ -218,7 +200,7 @@ module.exports = {
                      },
                     pubsub:{
                         enabled : true
-                    }*/
+                    }
                 }
             },
             //libp2p: {addresses: {listen: ['/ip4/127.0.0.1/tcp/2000/ws/p2p-webrtc-star']}},

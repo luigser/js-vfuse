@@ -1,0 +1,16 @@
+CONFIGURE NGINX WITH SSL
+
+You need:
+
+- An SSL cert matching the /dns4 or /dns6 name
+- go-ipfs listening on /ip4/127.0.0.1/tcp/8081/ws
+    - 8081 is just an example
+    - note that it's /ws here, not /wss -- go-ipfs can't currently do SSL, see the next point
+- nginx
+    - configured with the SSL cert
+    - listening on port 443
+    - forwarding to 127.0.0.1:8081
+
+FOLLOW INSTRUCTIONS
+https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1
+
