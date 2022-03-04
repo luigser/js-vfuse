@@ -15,6 +15,18 @@ class VFuseProxy{
             secure: false
         }).listen(443, '0.0.0.0');
 
+        this.pinnerServerProxy = httpProxy.createServer({
+            target: {
+                host: 'localhost',
+                port: props.pinning.port,
+            },
+            ssl: {
+                key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
+                cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
+            },
+            secure: props.certs.verify
+        }).listen(props.pinning.proxyPort, "0.0.0.0");
+
         /*httpProxy.createServer({
             target: {
                 host: 'localhost',
@@ -63,18 +75,6 @@ class VFuseProxy{
             },
             secure: props.certs.verify
         }).listen(props.signal.proxyPort, "0.0.0.0");*/
-
-        /*this.pinnerServerProxy = httpProxy.createProxyServer({
-            target: {
-                host: 'localhost',
-                port: props.pinning.port,
-            },
-            ssl: {
-                key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
-                cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
-            },
-            secure: props.certs.verify
-        }).listen(props.pinning.proxyPort, "0.0.0.0");*/
     }
 }
 

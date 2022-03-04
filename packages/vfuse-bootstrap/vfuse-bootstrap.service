@@ -6,7 +6,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-User=isis
+User=root
 ExecStart=/usr/bin/bash /home/isis/vfuse/js-vfuse/packages/vfuse-bootstrap/start.sh
 
 [Install]
