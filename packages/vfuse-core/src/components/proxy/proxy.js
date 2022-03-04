@@ -15,7 +15,7 @@ class VFuseProxy{
             secure: false
         }).listen(443, '0.0.0.0');
 
-        httpProxy.createServer({
+        /*httpProxy.createServer({
             target: {
                 host: 'localhost',
                 port: props.bootstrap.wsPort,
@@ -27,7 +27,7 @@ class VFuseProxy{
             },
             secure: props.certs.verify
         }).listen(props.bootstrap.wsProxyPort, '0.0.0.0');
-        console.log("Proxy listening on wss://0.0.0.0:%s", props.bootstrap.wsProxyPort)
+        console.log("Proxy listening on wss://0.0.0.0:%s", props.bootstrap.wsProxyPort)*/
 
        /* const proxyServer = https.createServer({
             key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
