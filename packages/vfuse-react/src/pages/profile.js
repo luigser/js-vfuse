@@ -41,7 +41,7 @@ export default function ProfilePage(props){
     const [delegateNode, setDelegateNode] = useState('')
     const [pinningServer, setPinningServer] = useState(/*'/ip4/192.168.1.57/tcp/9094'*/)
     const [bootstraps, setBootstrap] = useState([/*'/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWPLP1GD88WxZk4E4g9Fm6VdkZHLmyKZi4X4bczRNLbJuJ'*/'/ip4/193.205.161.5/tcp/4003/ws/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww'])
-    const [bootstrapsString, setBootstrapString] = useState(/*'/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWPLP1GD88WxZk4E4g9Fm6VdkZHLmyKZi4X4bczRNLbJuJ*/'/ip4/193.205.161.5/tcp/4003/ws/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww')
+    const [bootstrapsString, setBootstrapString] = useState(/*'/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWPLP1GD88WxZk4E4g9Fm6VdkZHLmyKZi4X4bczRNLbJuJ*/'/ip4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww')
     const [savePreferencesLoading, setSavePreferencesLoading] = useState(false)
     const [savePreferencesDisabled, setSavePreferencesDisabled] = useState(!vFuseNode)
 

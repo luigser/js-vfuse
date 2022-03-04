@@ -3,7 +3,7 @@ const lodash = require('lodash')
 
 module.exports = {
 
-    getGatewayOptions : (options) => {
+    getBootstrapOptions : (options) => {
         return lodash.merge({
             /*proxy:{
                 bootstrap: {
@@ -160,7 +160,7 @@ module.exports = {
                         DisableBandwidthMetrics: false,
                         DisableNatPortMap: false,
                         DisableRelay: false,
-                        EnableAutoRelay: false,
+                        EnableAutoRelay: true,//false,
                         EnableRelayHop: true,
                         /* Transports: {
                              Multiplexers: {},
@@ -203,7 +203,7 @@ module.exports = {
                     },
                     Swarm: {
                         EnableAutoRelay: true,
-                        EnableRelayHop: false,
+                        EnableRelayHop: true,//false,
                     },
                     Bootstrap: options.ipfs.config.Bootstrap,
                     Discovery: {

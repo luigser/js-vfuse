@@ -183,7 +183,7 @@ class VFuse {
      */
     static async create (options = {}) {
         try {
-            let currentOptions = isBrowser ? DefaultOptions.getBrowserOptions(options) : DefaultOptions.getGatewayOptions(options)
+            let currentOptions = isBrowser ? DefaultOptions.getBrowserOptions(options) : DefaultOptions.getBootstrapOptions(options)
             const vfuse = new VFuse(currentOptions)
             await vfuse.start()
             await vfuse.networkManager.send("VFuse node is ready")
