@@ -39,6 +39,27 @@ class VFuse {
             this.status = Constants.NODE_STATE.INITIALIZING;
 
             if (isBrowser) {
+                /*this.logs = []
+                console=(function(oldCons){
+                    return {
+                        log: function(text, args){
+                            oldCons.log(text, args);
+                            this.logs.push(text)
+                            this.logs.push({method : 'result', data : this.logs/!*typeof text === 'object' ? JSON.stringify(text) :  text*!/})
+                            this.eventManager.emit(Constants.EVENTS.CONSOLE_MESSAGE, this.logs)
+                        }.bind(this),
+                        info: function (text) {
+                            oldCons.info(text);
+                        },
+                        warn: function (text) {
+                            oldCons.warn(text);
+                        },
+                        error: function (text) {
+                            oldCons.error(text);
+                        }
+                    };
+                }.bind(this)(window.console));
+                window.console = console;*/
                 await this.startManagers()
             } else if (isNode) {
                 if(this.options.proxy){
@@ -63,6 +84,7 @@ class VFuse {
                         await this.stop()
                         process.exit(0);
                     }.bind(this))
+
                 }
 
                 await this.startManagers()
@@ -83,7 +105,6 @@ class VFuse {
                         await this.networkManager.ipfs.repo.setApiAddr(this.httpApi._apiServers[0].info.ma)
                     }
                 }
-
             }
 
             this.status = Constants.NODE_STATE.RUNNING
