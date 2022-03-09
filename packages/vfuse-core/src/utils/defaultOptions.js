@@ -15,8 +15,8 @@ module.exports = {
                     proxyPort : 9097
                 },
                 signal:{
-                    port: 2000,
-                    proxyPort : 2001
+                    port: 2001,
+                    proxyPort : 2002
                 },
                 certs:{
                     verify : false

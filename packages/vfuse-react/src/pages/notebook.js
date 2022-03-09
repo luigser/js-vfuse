@@ -184,10 +184,10 @@ export default function NotebookPage(props){
         }
     }
 
-    const publishWorkflow = async () => {
+    const submitWorkflow = async () => {
         try {
             setPublishNetworkLoading(true)
-            let result = await vFuseNode.publishWorkflow(workflowId)
+            let result = await vFuseNode.submitWorkflow(workflowId)
             if(!result.error){
                 setIsPublished(true)
                 notification.info({
@@ -205,9 +205,9 @@ export default function NotebookPage(props){
         }
     }
 
-    const unpublishWorkflow = async () => {
+    const unsubmitWorkflow = async () => {
         setUnpublishNetworkLoading(true)
-        let result = await vFuseNode.unpublishWorkflow(workflowId)
+        let result = await vFuseNode.unsubmitWorkflow(workflowId)
         if(!result.error){
             setIsPublished(false)
             notification.info({
@@ -307,8 +307,8 @@ export default function NotebookPage(props){
                         extra={[
                             /*<Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,*/
                             <Button key="1" type="info" disabled={!vFuseNode || isPublished} loading={saveWorkflowLoading} onClick={saveWorkflow}>Build & Save</Button>,
-                            <Button key="2" type="primary" disabled={!vFuseNode && !workflowId || isPublished } loading={publishNetworkLoading} onClick={publishWorkflow}>Submit</Button>,
-                            <Button key="3" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={unpublishNetworkLoading} onClick={unpublishWorkflow}>Stop</Button>,
+                            <Button key="2" type="primary" disabled={!vFuseNode && !workflowId || isPublished } loading={publishNetworkLoading} onClick={submitWorkflow}>Submit</Button>,
+                            <Button key="3" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={unpublishNetworkLoading} onClick={unsubmitWorkflow}>Stop</Button>,
                             <><Divider type="vertical"/><Button disabled={!vFuseNode ||  isPublished} type="primary" key="4" loading={testLocallyLoading} onClick={testLocally}>Test Locally</Button></>,
                         ]}
                         //avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}

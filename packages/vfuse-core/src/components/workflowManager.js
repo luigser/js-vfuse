@@ -554,7 +554,7 @@ class WorkflowManager{
             this.workflows.splice(this.workflows.indexOf(this.getWorkflow(workflow_id)), 1);
             //TODO UNPINNING
             let filtered = this.publishedWorkflows.filter(pw => pw.workflow_id === workflow_id)
-            if(filtered.length === 0) await this.unpublishWorkflow(filtered[0])
+            if(filtered.length === 0) await this.unsubmitWorkflow(filtered[0])
             await this.contentManager.save('/workflows/completed/' + workflow_id, "completed")
             console.log('Workflow successfully removed')
             return true
@@ -564,7 +564,7 @@ class WorkflowManager{
         }
     }
 
-    async publishWorkflow(workflow_id){
+    async submitWorkflow(workflow_id){
         try{
             //let new_key = await this.contentManager.getKey(workflow_id)
             let cid = this.identityManager.getWorkflowCid(workflow_id)
@@ -588,7 +588,7 @@ class WorkflowManager{
         }
     }
 
-    async unpublishWorkflow(workflow_id){
+    async unsubmitWorkflow(workflow_id){
         try{
             let filtered = this.publishedWorkflows.filter(pw => pw.workflow_id === workflow_id)
             if(filtered.length === 1) {

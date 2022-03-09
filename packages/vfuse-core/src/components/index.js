@@ -72,7 +72,7 @@ class VFuse {
                     const WStarSignalingServer = require('libp2p-webrtc-star/src/sig-server')
                     this.webRtcStartServer = await WStarSignalingServer.start(
                         {
-                            port: 2000,
+                            port: 2001,
                             host: '0.0.0.0'
                         }
                     )
@@ -142,11 +142,11 @@ class VFuse {
         return await this.workflowManager.deleteWorkflow(workflow_id)
     }
 
-    async publishWorkflow(workflow_id){
-        return await this.workflowManager.publishWorkflow(workflow_id)
+    async submitWorkflow(workflow_id){
+        return await this.workflowManager.submitWorkflow(workflow_id)
     }
-    async unpublishWorkflow(workflow_id){
-        return await this.workflowManager.unpublishWorkflow(workflow_id)
+    async unsubmitWorkflow(workflow_id){
+        return await this.workflowManager.unsubmitWorkflow(workflow_id)
     }
 
     async getPublishedWorkflows(){
