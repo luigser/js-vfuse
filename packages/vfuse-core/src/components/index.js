@@ -76,7 +76,7 @@ class VFuse {
                             host: '0.0.0.0'
                         }
                     )
-                    console.log('RTC Signaling server Listening on:', this.webRtcStartServer.info.uri)
+                    console.log('WebRTC Signaling server Listening on:', this.webRtcStartServer.info.uri)
 
                     process.on('SIGINT', async function () {
                         await this.webRtcStartServer.stop()
