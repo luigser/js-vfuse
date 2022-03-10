@@ -18,6 +18,9 @@ export default function RunningWorkflowPage(props){
             let node = gStore.get("vFuseNode")
             if (node) {
                 setVFuseNode(node)
+                node.addListener(VFuse.Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, (workflows) => {
+                    setWorkflows(workflows)
+                })
                 let workflows = await vFuseNode.getRunningWorkflows()
                 setWorkflows(workflows)
                 setStatus(VFuse.Constants.NODE_STATE.RUNNING)

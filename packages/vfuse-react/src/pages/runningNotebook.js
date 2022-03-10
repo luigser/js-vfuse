@@ -2,65 +2,17 @@ import React, {useState, useEffect, useRef} from 'react';
 import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification, Select, Tabs, Divider} from "antd";
 import VFuse from "vfuse-core";
 import {gStore} from "../store";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faMagic} from "@fortawesome/free-solid-svg-icons";
-//import CodeEditor from "../components/CodeEditor/codeEditor";
 import VFuseCodeEditor from "../components/CodeEditor/vFuseCodeEditor";
 import DAGVis from "../components/DAGVis/DAGVis";
 import CTable from "../components/DataVisualization/CTable/CTable";
 import NodeModal from "../components/modals/nodeModal";
-
-/*
-//import Editor from "react-simple-code-editor";
-import {highlight, languages} from "prismjs/components/prism-core";
-import 'prismjs/components/prism-python';
-import 'prismjs/themes/prism-funky.css'*/
-
-const javascriptCodeExample = "let input = \"VERY_BIG_TEXT\"\n" +
-    "function map(data){\n" +
-    "   let tokens = []\n" +
-    "   data.split(/\\W+/).map(word => tokens.push({ word : word , count : 1 }))\n" +
-    "   return tokens\n" +
-    "}\n" +
-    "\n" +
-    "function reduce(data){\n" +
-    "   let reduced = new Map()\n" +
-    "   data.map( entry => reduced.set(entry.word, reduced.has(entry.word) ? reduced.get(entry.word) + 1 : 1))\n" +
-    "   return reduced\n" +
-    "}\n" +
-    "\n" +
-    "function combine(data){\n" +
-    "   let result = new Map()\n" +
-    "   for(let key of data.keys())\n" +
-    "      result.set(key, result.has(key) ? result.get(key) + 1 : 1)\n" +
-    "   return result\n" +
-    "}\n" +
-    "\n" +
-    "input = input.split(\"\\n\")\n" +
-    "let reduced_results = []\n" +
-    "for (let row in input){\n" +
-    "   let mapped = await VFuse.addJob(map, [], input[row])\n" +
-    "   let reduced = await VFuse.addJob(reduce, [mapped])\n" +
-    "   reduced_results.push(mapped)\n" +
-    "}\n" +
-    "let result = await VFuse.addJob(combine, ['reduce'])//wait for all reduce results and call combine"
-
-const pythonCodeExample = `input = """I'm learning Python.
-I refer to TechBeamers.com tutorials.
-It is the most popular site for Python programmers."""
-
-def map(data):
-    return data
-    
-for x in input.splitlines():
-   VFuse.addJob(map, [], x)`
 
 export default function RunningNotebookPage(props){
     const [vFuseNode, setVFuseNode] = useState(null)
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
     const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(false)
     const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : null)
-    const [code, setCode] = useState(javascriptCodeExample);
+    const [code, setCode] = useState('');
     const [language, setLanguage] = useState(VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
     const [name, setName] = useState(null)
     const [dag, setDag] = useState(null)
@@ -193,7 +145,7 @@ export default function RunningNotebookPage(props){
             </Row>
             <Row>
                 <Col span={24} style={{marginTop: "24px"}}>
-                    <Descriptions layout="vertical">
+                    <Descriptions layout="vertical" bordered>
                         <Descriptions.Item label="Workflow Info" span={4}>
                             <Row style={{margin: 16}}>
                                 <Col span={4}>
@@ -229,6 +181,7 @@ export default function RunningNotebookPage(props){
                     </Descriptions>
                 </Col>
             </Row>
+
             <Row>
                 <Tabs defaultActiveKey="1" style={{width: "100%"}}>
                     <Tabs.TabPane tab="Code Editor" key="1">

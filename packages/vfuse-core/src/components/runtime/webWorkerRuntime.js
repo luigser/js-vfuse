@@ -3,7 +3,7 @@
 const Constants = require ("../constants")
 
 class WebWorkerRuntime {
-    constructor(runtimeManager, worker , options, callback) {
+    constructor(runtimeManager, worker , options, eventManager) {
         this.count = 0
         this.language = options.language
         this.id =  this.getRandomBetween(0,1000)
@@ -12,8 +12,21 @@ class WebWorkerRuntime {
         this.packages = [worker.getDefaultPackages(), ... options && options.packages ? options.packages : []]
         this.worker   = worker
         this.webworker = worker.getWebWorker()
-        this.callback = callback
+        this.jobExecutionTimeout = Constants.TIMEOUTS.JOB_EXECUTION
         this.runtimeManager = runtimeManager
+        this.eventManager = eventManager
+
+        this.eventManager.on(Constants.EVENTS.PROFILE_STATUS, function(profile){
+            if(profile.status){
+                this.jobExecutionTimeout = profile.preferences.TIMEOUTS.JOB_EXECUTION
+            }
+        }.bind(this))
+
+        this.eventManager.on(Constants.EVENTS.PREFERENCES_UPDATED, function(preferences){
+            if(preferences){
+                this.jobExecutionTimeout = preferences.TIMEOUTS.JOB_EXECUTION
+            }
+        }.bind(this))
 
         // attach web worker callbacks
         this.worker.onerror = (e) => {
@@ -258,7 +271,7 @@ class WebWorkerRuntime {
                             }}
                     }
                 }
-            }.bind(this), Constants.TIMEOUTS.JOB_EXECUTION)
+            }.bind(this), this.jobExecutionTimeout)
             result = await this.exec(job)
             clearTimeout(timeout)
             const log = {start: startTs, end: Date.now(), cmd: job.code}

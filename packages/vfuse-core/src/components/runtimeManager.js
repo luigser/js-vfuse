@@ -4,8 +4,9 @@ const JavascriptWorker = require('./runtime/workers/javascript/javascriptWorker'
 const Constants = require('./constants')
 
 class RuntimeManager{
-    constructor(options, workflowManager) {
+    constructor(options, workflowManager, eventManager) {
         this.workflowManager = workflowManager
+        this.eventManager = eventManager
         this.runtimes = new Map()
         this.load(options)
     }
@@ -31,7 +32,12 @@ class RuntimeManager{
                     for(let option of options)
                        this.runtimes.set(option.worker.getLanguage(), new WebWorkerRuntime(this, new option.worker(), option))
                 }
-                this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, new WebWorkerRuntime(this,  new JavascriptWorker(), {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT}))
+                this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT,
+                    new WebWorkerRuntime(this,
+                        new JavascriptWorker(),
+                        {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT},
+                        this.eventManager
+                        ))
             }
             if (isNode) {
                 //const NodeWorkerRuntime = require('./runtime/nodeWorkerRuntime')

@@ -55,26 +55,38 @@ export default function ProfilePage(props){
         let ls_bootstraps = localStorage.getItem('bootstraps')
         let ls_pinningServerProtocol = localStorage.getItem('pinningServerProtocol')
         let ls_pinningServerHost = localStorage.getItem('pinningServerHost')
-        let ls_pinningServerPort = localStorage.getItem('pinningServerPort')
+        let ls_pinningServerPort = localStorage.getItem('c')
         let ls_delegateNode = localStorage.getItem('delegateNode')
 
         if(ls_signalServer){
             setSignalServer(ls_signalServer)
+        }else{
+            localStorage.setItem('signalServer', signalServer)
         }
 
         if(ls_bootstraps){
-            setBootstrap(ls_bootstraps)
-            setBootstrapString(ls_bootstraps.map(b => b + '\n'))
+            let bs = JSON.parse(ls_bootstraps)
+            setBootstrap(bs)
+            setBootstrapString(bs.map(b => b + '\n'))
+        }else{
+            localStorage.setItem('bootstraps', JSON.stringify(bootstraps))
         }
 
         if(ls_pinningServerProtocol && ls_pinningServerHost && ls_pinningServerPort){
             setPinningServerProtocol(ls_pinningServerProtocol)
             setPinningServerHost(ls_pinningServerHost)
             setPinningServerPort(ls_pinningServerPort)
+        }else{
+            localStorage.setItem('pinningServerProtocol', pinningServerProtocol)
+            localStorage.setItem('pinningServerHost', pinningServerHost)
+            localStorage.setItem('pinningServerHost', pinningServerHost)
         }
 
-        if(ls_delegateNode)
+        if(ls_delegateNode) {
             setDelegateNode(ls_delegateNode)
+        }else {
+            localStorage.setItem('delegateNode', delegateNode)
+        }
 
     }, [])
 
@@ -231,72 +243,78 @@ export default function ProfilePage(props){
     }
 
     const onPreferencesChange = (type, value) =>{
-        let prefs = {...preferences}
-        switch(type){
-            case 'TIMEOUTS.DISCOVERY':
-                setDiscoveryTimeout(value)
-                prefs.TIMEOUTS.DISCOVERY = value
-                break
-            case 'TIMEOUTS.WORKFLOWS_PUBLISHING':
-                setWorkflowPublishingTimeout(value)
-                prefs.TIMEOUTS.WORKFLOWS_PUBLISHING = value
-                break
-            case 'TIMEOUTS.RESULTS_PUBLISHING':
-                setResultsPublishingTimeout(value)
-                prefs.TIMEOUTS.RESULTS_PUBLISHING = value
-                break
-            case 'TIMEOUTS.EXECUTION_CYCLE':
-                setExecutionCycleTimeout(value)
-                prefs.TIMEOUTS.EXECUTION_CYCLE = value
-                break
-            case 'TIMEOUTS.JOB_EXECUTION':
-                setJobExecutionTimeout(value)
-                prefs.TIMEOUTS.JOB_EXECUTION = value
-                break
-            case 'LIMITS.MAX_CONCURRENT_JOBS':
-                setMaxConcurrentJobs(value)
-                prefs.LIMITS.MAX_CONCURRENT_JOBS = value
-                break
-            case 'ENDPOINTS.SIGNAL_SERVER':
-                localStorage.setItem('signalServer', value)
-                setSignalServer(value)
-                if(vFuseNode)
-                   prefs.ENDPOINTS.SIGNAL_SERVER = value
-                break
-            case 'ENDPOINTS.BOOTSTRAPS':
-                localStorage.setItem('bootstrap', value)
-                setBootstrapString(value)
-                setBootstrap(value.split('\n'))
-                if(vFuseNode)
-                   prefs.ENDPOINTS.BOOTSTRAPS = value.split('\n')
-                break
-            case 'ENDPOINTS.PINNING_SERVER.PROTOCOL':
-                localStorage.setItem('pinningServerProtocol', value)
-                setPinningServerProtocol(value)
-                if(vFuseNode)
-                   prefs.ENDPOINTS.PINNING_SERVER.PROTOCOL = value
-                break
-            case 'ENDPOINTS.PINNING_SERVER.HOST':
-                localStorage.setItem('pinningServerHost', value)
-                setPinningServerHost(value)
-                if(vFuseNode)
-                   prefs.ENDPOINTS.PINNING_SERVER.HOST = value
-                break
-            case 'ENDPOINTS.PINNING_SERVER.PORT':
-                localStorage.setItem('pinningServerPost', value)
-                setPinningServerPort(value)
-                if(vFuseNode)
-                   prefs.ENDPOINTS.PINNING_SERVER.PORT = value
-                break
-            case 'ENDPOINTS.DELEGATE_NODE':
-                localStorage.setItem('delegateNode', value)
-                setDelegateNode(value)
-                if(vFuseNode)
-                   prefs.ENDPOINTS.DELEGATE_NODE = value
-                break
+        try {
+            let prefs = {...preferences}
+            switch (type) {
+                case 'TIMEOUTS.DISCOVERY':
+                    setDiscoveryTimeout(value)
+                    prefs.TIMEOUTS.DISCOVERY = value
+                    break
+                case 'TIMEOUTS.WORKFLOWS_PUBLISHING':
+                    setWorkflowPublishingTimeout(value)
+                    prefs.TIMEOUTS.WORKFLOWS_PUBLISHING = value
+                    break
+                case 'TIMEOUTS.RESULTS_PUBLISHING':
+                    setResultsPublishingTimeout(value)
+                    prefs.TIMEOUTS.RESULTS_PUBLISHING = value
+                    break
+                case 'TIMEOUTS.EXECUTION_CYCLE':
+                    setExecutionCycleTimeout(value)
+                    prefs.TIMEOUTS.EXECUTION_CYCLE = value
+                    break
+                case 'TIMEOUTS.JOB_EXECUTION':
+                    setJobExecutionTimeout(value)
+                    prefs.TIMEOUTS.JOB_EXECUTION = value
+                    break
+                case 'LIMITS.MAX_CONCURRENT_JOBS':
+                    setMaxConcurrentJobs(value)
+                    prefs.LIMITS.MAX_CONCURRENT_JOBS = value
+                    break
+                case 'ENDPOINTS.SIGNAL_SERVER':
+                    localStorage.setItem('signalServer', value)
+                    setSignalServer(value)
+                    if (vFuseNode)
+                        prefs.ENDPOINTS.SIGNAL_SERVER = value
+                    break
+                case 'ENDPOINTS.BOOTSTRAPS':
+                    localStorage.setItem('bootstrap', JSON.stringify(value))
+                    setBootstrapString(value)
+                    setBootstrap(value.split('\n'))
+                    if (vFuseNode)
+                        prefs.ENDPOINTS.BOOTSTRAPS = value.split('\n')
+                    break
+                case 'ENDPOINTS.PINNING_SERVER.PROTOCOL':
+                    localStorage.setItem('pinningServerProtocol', value)
+                    setPinningServerProtocol(value)
+                    if (vFuseNode)
+                        prefs.ENDPOINTS.PINNING_SERVER.PROTOCOL = value
+                    break
+                case 'ENDPOINTS.PINNING_SERVER.HOST':
+                    localStorage.setItem('pinningServerHost', value)
+                    setPinningServerHost(value)
+                    if (vFuseNode)
+                        prefs.ENDPOINTS.PINNING_SERVER.HOST = value
+                    break
+                case 'ENDPOINTS.PINNING_SERVER.PORT':
+                    localStorage.setItem('pinningServerPost', value)
+                    setPinningServerPort(value)
+                    if (vFuseNode)
+                        prefs.ENDPOINTS.PINNING_SERVER.PORT = value
+                    break
+                case 'ENDPOINTS.DELEGATE_NODE':
+                    localStorage.setItem('delegateNode', value)
+                    setDelegateNode(value)
+                    if (vFuseNode)
+                        prefs.ENDPOINTS.DELEGATE_NODE = value
+                    break
+            }
+            calculateUsage()
+            setPreferences(prefs)
+        }catch (e) {
+            notification.error({
+                message: "It is not possible to save preferences\nPlease check provided values",
+            });
         }
-        calculateUsage()
-        setPreferences(prefs)
     }
 
     const savePreferences = async () => {

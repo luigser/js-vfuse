@@ -24,7 +24,7 @@ class WorkflowManager{
             this.contentManager = contentManager
             this.identityManager = identityManager
             this.eventManager = eventManager
-            this.runtimeManager = new RuntimeManager(options.runtimes, this)
+            this.runtimeManager = new RuntimeManager(options.runtimes, this, eventManager)
             this.workflowsQueue = []
             //todo MANAGE IT
             //this.eventManager.addListener('circuit_enabled', async function(){await this.start()}.bind(this))
@@ -278,7 +278,7 @@ class WorkflowManager{
         await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
         let workflow = JSON.parse(encoded_workflow)
         this.runningWorkflowsQueue.set(workflow.id, workflow)
-
+        this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
     }
 
     async handleRequestExecutionWorkflow(data){
