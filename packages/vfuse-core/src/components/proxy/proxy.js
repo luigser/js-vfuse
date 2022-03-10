@@ -30,7 +30,7 @@ class VFuseProxy{
             secure: props.certs.verify
         }).listen(props.pinning.proxyPort, "0.0.0.0");
         //WSS SWARM PROXY
-        /*httpProxy.createProxyServer({
+        httpProxy.createProxyServer({
             target: {
                 host: '127.0.0.1',
                 port: props.bootstrap.wsPort,
@@ -43,7 +43,7 @@ class VFuseProxy{
                 cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
             },
             secure: props.certs.verify
-        }).listen(props.bootstrap.wsProxyPort, '0.0.0.0');*/
+        }).listen(props.bootstrap.wsProxyPort, '0.0.0.0');
         //console.log("Proxy listening on wss://0.0.0.0:%s", props.bootstrap.wsProxyPort)
         //SIGNAL SERVER PROXY
         this.signalWebRTCProxy = httpProxy.createServer({

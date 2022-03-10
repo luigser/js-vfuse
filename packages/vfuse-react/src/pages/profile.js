@@ -37,16 +37,46 @@ export default function ProfilePage(props){
     const [maxConcurrentJobs, setMaxConcurrentJobs] = useState(0)
     const [jobExecutionTimeout, setJobExecutionTimeout] = useState(0)
     const [usage, setUsage] = useState(0)
-    const [signalServer, setSignalServer] = useState(''/*'/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star'*/)
+    const [signalServer, setSignalServer] = useState('/dns4/193.205.161.5/tcp/2002/wss/p2p-webrtc-star/')
     const [delegateNode, setDelegateNode] = useState('')
-    const [pinningServer, setPinningServer] = useState(/*'/ip4/192.168.1.57/tcp/9094'*/)
-    const [bootstraps, setBootstrap] = useState([/*'/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWPLP1GD88WxZk4E4g9Fm6VdkZHLmyKZi4X4bczRNLbJuJ'*/'/ip4/193.205.161.5/tcp/4003/ws/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww'])
-    const [bootstrapsString, setBootstrapString] = useState(/*'/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWPLP1GD88WxZk4E4g9Fm6VdkZHLmyKZi4X4bczRNLbJuJ*/'/ip4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww')
+    const [pinningServerProtocol, setPinningServerProtocol] = useState('https')
+    const [pinningServerHost, setPinningServerHost] = useState('193.205.161.5')
+    const [pinningServerPort, setPinningServerPort] = useState('9097')
+    const [bootstraps, setBootstrap] = useState(['/ip4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww'])
+    const [bootstrapsString, setBootstrapString] = useState('/ip4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww')
     const [savePreferencesLoading, setSavePreferencesLoading] = useState(false)
     const [savePreferencesDisabled, setSavePreferencesDisabled] = useState(!vFuseNode)
 
 
     const {getNode} = useVFuse()
+
+    useEffect( () => {
+        let ls_signalServer = localStorage.getItem('signalServer')
+        let ls_bootstraps = localStorage.getItem('bootstraps')
+        let ls_pinningServerProtocol = localStorage.getItem('pinningServerProtocol')
+        let ls_pinningServerHost = localStorage.getItem('pinningServerHost')
+        let ls_pinningServerPort = localStorage.getItem('pinningServerPort')
+        let ls_delegateNode = localStorage.getItem('delegateNode')
+
+        if(ls_signalServer){
+            setSignalServer(ls_signalServer)
+        }
+
+        if(ls_bootstraps){
+            setBootstrap(ls_bootstraps)
+            setBootstrapString(ls_bootstraps.map(b => b + '\n'))
+        }
+
+        if(ls_pinningServerProtocol && ls_pinningServerHost && ls_pinningServerPort){
+            setPinningServerProtocol(ls_pinningServerProtocol)
+            setPinningServerHost(ls_pinningServerHost)
+            setPinningServerPort(ls_pinningServerPort)
+        }
+
+        if(ls_delegateNode)
+            setDelegateNode(ls_delegateNode)
+
+    }, [])
 
     useEffect(() => {
         try {
@@ -67,7 +97,9 @@ export default function ProfilePage(props){
                 setSignalServer(profile.preferences.ENDPOINTS.SIGNAL_SERVER)
                 setBootstrap(profile.preferences.ENDPOINTS.BOOTSTRAPS)
                 setBootstrapString(profile.preferences.ENDPOINTS.BOOTSTRAPS.map(b => b + '\n'))
-                setPinningServer(profile.preferences.ENDPOINTS.PINNING_SERVER)
+                setPinningServerProtocol(profile.preferences.ENDPOINTS.PINNING_SERVER.PROTOCOL)
+                setPinningServerHost(profile.preferences.ENDPOINTS.PINNING_SERVER.HOST)
+                setPinningServerPort(profile.preferences.ENDPOINTS.PINNING_SERVER.PORT)
                 setDelegateNode(profile.preferences.ENDPOINTS.DELEGATE_NODE)
                 setStatus(VFuse.Constants.NODE_STATE.RUNNING)
                 calculateUsage()
@@ -96,6 +128,7 @@ export default function ProfilePage(props){
             setStartLoading(true)
             setStatus(VFuse.Constants.NODE_STATE.INITIALIZING)
 
+            let pinningServer = { protocol : pinningServerProtocol, host : pinningServerHost, port : pinningServerPort}
             let node = await getNode(signalServer, bootstraps, pinningServer, delegateNode)
             if(node.error) {
                 setStatus(VFuse.Constants.NODE_STATE.STOP)
@@ -124,7 +157,9 @@ export default function ProfilePage(props){
                     setSignalServer(data.profile.preferences.ENDPOINTS.SIGNAL_SERVER === '' ? signalServer : data.profile.preferences.ENDPOINTS.SIGNAL_SERVER)
                     setBootstrap(data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length === 0 ? bootstraps : data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length)
                     setBootstrapString(data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length === 0 ? bootstrapsString : data.profile.preferences.ENDPOINTS.BOOTSTRAPS.map(b => b + '\n'))
-                    setPinningServer(data.profile.preferences.ENDPOINTS.PINNING_SERVER === '' ? pinningServer : data.profile.preferences.ENDPOINTS.PINNING_SERVER)
+                    setPinningServerProtocol(data.profile.preferences.ENDPOINTS.PINNING_SERVER.PROTOCOL === '' ? pinningServerProtocol : data.profile.preferences.ENDPOINTS.PINNING_SERVER.PROTOCOL)
+                    setPinningServerHost(data.profile.preferences.ENDPOINTS.PINNING_SERVER.HOST === '' ? pinningServerProtocol : data.profile.preferences.ENDPOINTS.PINNING_SERVER.HOST)
+                    setPinningServerPort(data.profile.preferences.ENDPOINTS.PINNING_SERVER.PORT === '' ? pinningServerProtocol : data.profile.preferences.ENDPOINTS.PINNING_SERVER.PORT)
                     setDelegateNode(data.profile.preferences.ENDPOINTS.DELEGATE_NODE === '' ? delegateNode : data.profile.preferences.ENDPOINTS.DELEGATE_NODE)
                     setWorkflows(data.workflows)
                     setStartDisabled(true)
@@ -223,25 +258,41 @@ export default function ProfilePage(props){
                 prefs.LIMITS.MAX_CONCURRENT_JOBS = value
                 break
             case 'ENDPOINTS.SIGNAL_SERVER':
+                localStorage.setItem('signalServer', value)
                 setSignalServer(value)
                 if(vFuseNode)
                    prefs.ENDPOINTS.SIGNAL_SERVER = value
                 break
             case 'ENDPOINTS.BOOTSTRAPS':
+                localStorage.setItem('bootstrap', value)
                 setBootstrapString(value)
                 setBootstrap(value.split('\n'))
                 if(vFuseNode)
                    prefs.ENDPOINTS.BOOTSTRAPS = value.split('\n')
                 break
-            case 'ENDPOINTS.PINNING_SERVER':
-                setPinningServer(value)
+            case 'ENDPOINTS.PINNING_SERVER.PROTOCOL':
+                localStorage.setItem('pinningServerProtocol', value)
+                setPinningServerProtocol(value)
                 if(vFuseNode)
-                    prefs.ENDPOINTS.PINNING_SERVER = value
+                   prefs.ENDPOINTS.PINNING_SERVER.PROTOCOL = value
+                break
+            case 'ENDPOINTS.PINNING_SERVER.HOST':
+                localStorage.setItem('pinningServerHost', value)
+                setPinningServerHost(value)
+                if(vFuseNode)
+                   prefs.ENDPOINTS.PINNING_SERVER.HOST = value
+                break
+            case 'ENDPOINTS.PINNING_SERVER.PORT':
+                localStorage.setItem('pinningServerPost', value)
+                setPinningServerPort(value)
+                if(vFuseNode)
+                   prefs.ENDPOINTS.PINNING_SERVER.PORT = value
                 break
             case 'ENDPOINTS.DELEGATE_NODE':
+                localStorage.setItem('delegateNode', value)
                 setDelegateNode(value)
                 if(vFuseNode)
-                    prefs.ENDPOINTS.DELEGATE_NODE = value
+                   prefs.ENDPOINTS.DELEGATE_NODE = value
                 break
         }
         calculateUsage()
@@ -449,23 +500,45 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                             </Col>
                                                         </Row>
-                                                        <Row>
-                                                            <Col span={24}>
+                                                        <Row style={{marginTop: 12}}>
+                                                            <Col span={8}>
                                                                 <Row>
-                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>Pinning Server</Typography.Text>
+                                                                    <Typography.Text style={{marginBottom : 8, textAlign: 'center'}}>Pinning Server Protocol</Typography.Text>
                                                                 </Row>
                                                                 <Row>
                                                                     <Input
-                                                                        placeholder='/ip4/127.0.0.1/tcp/9094'
-                                                                        onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER',value.currentTarget.value)}
-                                                                        value={pinningServer} />
+                                                                        placeholder='https'
+                                                                        onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER.PROTOCOL',value.currentTarget.value)}
+                                                                        value={pinningServerProtocol} />
+                                                                </Row>
+                                                            </Col>
+                                                            <Col span={8}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 8, textAlign: 'center'}}>Pinning Server IP</Typography.Text>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Input
+                                                                        placeholder='193.205.161.5'
+                                                                        onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER.HOST',value.currentTarget.value)}
+                                                                        value={pinningServerHost} />
+                                                                </Row>
+                                                            </Col>
+                                                            <Col span={8}>
+                                                                <Row>
+                                                                    <Typography.Text style={{marginBottom : 8, textAlign: 'center'}}>Pinning Server Port</Typography.Text>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Input
+                                                                        placeholder='9097'
+                                                                        onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER.PORT',value.currentTarget.value)}
+                                                                        value={pinningServerPort} />
                                                                 </Row>
                                                             </Col>
                                                         </Row>
-                                                        <Row>
+                                                        <Row style={{marginTop: 12}}>
                                                             <Col span={24}>
                                                                 <Row>
-                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>Delegate Node</Typography.Text>
+                                                                    <Typography.Text style={{marginBottom : 8, textAlign: 'center'}}>Delegate Node</Typography.Text>
                                                                 </Row>
                                                                 <Row>
                                                                     <Input
@@ -475,10 +548,10 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                             </Col>
                                                         </Row>
-                                                        <Row style={{marginTop: 16}}>
+                                                        <Row style={{marginTop: 12}}>
                                                             <Col span={24}>
                                                                 <Row>
-                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>Bootstraps <b>(Separate bootstrap endpoints with newline. Remember to save preferences if you change this values)</b></Typography.Text>
+                                                                    <Typography.Text style={{marginBottom : 8, textAlign: 'center'}}>Bootstraps <b>(Separate bootstrap endpoints with newline. Remember to save preferences if you change this values)</b></Typography.Text>
                                                                 </Row>
                                                                 <Row>
                                                                     <Input.TextArea

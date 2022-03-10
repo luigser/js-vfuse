@@ -20,7 +20,11 @@ class IdentityManager {
             ENDPOINTS:{
                 SIGNAL_SERVER : '',
                 BOOTSTRAPS: [],
-                PINNING_SERVER : '',
+                PINNING_SERVER : {
+                    PROTOCOL : 'https',
+                    HOST : '193.205.161.5',
+                    PORT : '9097'
+                },
                 DELEGATE_NODE : ''
             },
             TIMEOUTS:{
