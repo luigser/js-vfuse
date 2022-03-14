@@ -618,9 +618,9 @@ class WorkflowManager{
             return await this.contentManager.getDataFromUrl(url, start, end, type)
         }catch (e) {}
     }
-    async saveOnNetwork(data){
+    async saveOnNetwork(data, json = false){
         try{
-            return await this.contentManager.saveOnIpfs(JSON.stringify(data))
+            return await this.contentManager.saveOnIpfs(json ? JSON.stringify(data) : data)
         }catch (e) {
             console.log('Got error during saving on network : %O', e)
             return e

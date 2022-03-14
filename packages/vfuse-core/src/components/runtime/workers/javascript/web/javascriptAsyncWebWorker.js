@@ -61,7 +61,7 @@ const worker_code = () => {
             return promise
         },
 
-        saveOnNetwork : (data) => {
+        saveOnNetwork : (data, json) => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
@@ -80,6 +80,7 @@ const worker_code = () => {
                     func: 'saveOnNetwork',
                     params: JSON.stringify({
                         data : data,
+                        json : json
                     })
                 }
             })
