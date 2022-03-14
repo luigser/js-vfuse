@@ -477,7 +477,7 @@ class WorkflowManager{
             let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
             let workflow = new Workflow(workflow_id._idB58String, 'Test Locally', code, language, new JobsDAG())
             let result = await this.checkWorkflow(workflow)
-            if(!result.error && (result.results && !result.results.error){
+            if(!result.error && (result.results && !result.results.error)){
                 workflow = this.currentWorkflow
                 workflow.jobsDAG = workflow.jobsDAG.toJSON()
                 let error = false
