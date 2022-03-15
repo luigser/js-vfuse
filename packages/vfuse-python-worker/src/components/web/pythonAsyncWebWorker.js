@@ -314,8 +314,8 @@ const worker_code = () => {
                     });
                 break;
             case 'load':
-                //await self.pyodide.loadPackagesFromImports(self.PythonVFuseUtils)
-                //await self.pyodide.runPythonAsync(self.PythonVFuseUtils)
+                await self.pyodide.loadPackagesFromImports(self.PythonVFuseUtils)
+                await self.pyodide.runPythonAsync(self.PythonVFuseUtils)
                 await self.pyodide.loadPackagesFromImports(self.PythonVFuse)
                 await self.pyodide.runPythonAsync(self.PythonVFuse)
                 self.postMessage({
