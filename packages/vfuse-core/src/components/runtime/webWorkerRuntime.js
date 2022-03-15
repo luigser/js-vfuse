@@ -16,9 +16,9 @@ class WebWorkerRuntime {
         this.runtimeManager = runtimeManager
         this.eventManager = eventManager
 
-        this.eventManager.on(Constants.EVENTS.PROFILE_STATUS, function(profile){
-            if(profile.status){
-                this.jobExecutionTimeout = profile.preferences.TIMEOUTS.JOB_EXECUTION
+        this.eventManager.on(Constants.EVENTS.PROFILE_STATUS, function(data){
+            if(data.profile.status){
+                this.jobExecutionTimeout = data.profile.preferences.TIMEOUTS.JOB_EXECUTION
             }
         }.bind(this))
 
