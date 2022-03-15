@@ -51,7 +51,12 @@ export default function NodeModal(props) {
                         }
                     </Descriptions.Item >
                     <Descriptions.Item label="Results" span={4}>
-                         <ReactJson src={node.job.results} collapsed={true} />
+                        {
+                            typeof node.job.results === 'string' || typeof node.job.results === 'number' && <i>{node.job.results}</i>
+                        }
+                        {
+                            typeof node.job.results !== 'string' && typeof node.job.results !== 'number' && <ReactJson src={node.job.results} collapsed={true}/>
+                        }
                     </Descriptions.Item >
                     <Descriptions.Item label="Executor PeerId" span={4}>
                         <i>{node.job.executorPeerId}</i>
