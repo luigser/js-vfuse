@@ -234,7 +234,7 @@ export default function NotebookPage(props){
     const handleChangeLanguage = (value) => setLanguage(value)
 
     const handleChangeFontSize = (value) => setFontSize(parseInt(value))
-    manageWorkflowsExecution
+
     const testLocally = async () => {
         setTestLocallyLoading(true)
         let workflow = await vFuseNode.testWorkflow(code, language)
