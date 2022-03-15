@@ -16,6 +16,19 @@ const worker_code = () => {
                 }
             })
 
+            let converted_input = input && typeof(input) !== 'string' && typeof(input) !== 'number' ? input.toJs() : input
+            if(Array.isArray(converted_input)){
+                converted_input.map((entry, i) => {
+                    if(Array.isArray(entry)){
+                        entry.map((ee,j) => {
+                            if(ArrayBuffer.isView(ee)) {
+                                converted_input[i][j] = Array.from(ee)
+                            }
+                        })
+                    }
+                })
+            }
+
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
@@ -23,7 +36,7 @@ const worker_code = () => {
                     params: JSON.stringify({
                         name: name,
                         func: code.toJs(),
-                        input: input && typeof(input) !== 'string' && typeof(input) !== 'number' ? input.toJs() : input,
+                        input: converted_input,
                         deps: deps.toJs(),
                         group: group && typeof(group) !== 'string' ? group.toJs() : group,
                         packages : self.packages.toJs()
