@@ -63,7 +63,7 @@ const worker_code = () => {
             return promise
         },
 
-        saveOnNetwork : (data) => {
+        saveOnNetwork : (data, json) => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data;
@@ -81,7 +81,8 @@ const worker_code = () => {
                 todo: {
                     func: 'saveOnNetwork',
                     params: JSON.stringify({
-                        data : typeof(data) !== 'string' ? data.toJs() : data
+                        data : typeof(data) !== 'string' ? data.toJs() : data,
+                        json: json
                     })
                 }
             })
@@ -239,8 +240,8 @@ const worker_code = () => {
         "    async def getDataFromUrl(url, start = None, end = None, type = None):\n" +
         "        return await JSVFuse.getDataFromUrl(url, start, end, type)\n" +
         "    @staticmethod\n" +
-        "    async def saveOnNetwork(data):\n" +
-        "        return await JSVFuse.saveOnNetwork(data)\n" +
+        "    async def saveOnNetwork(data, json = True):\n" +
+        "        return await JSVFuse.saveOnNetwork(data, json)\n" +
         "    @staticmethod\n" +
         "    async def getFromNetwork(cid):\n" +
         "        return await JSVFuse.getFromNetwork(cid)\n" +

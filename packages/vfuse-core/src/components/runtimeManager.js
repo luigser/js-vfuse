@@ -30,7 +30,7 @@ class RuntimeManager{
                 const WebWorkerRuntime = require('./runtime/webWorkerRuntime')
                 if(options) {
                     for(let option of options)
-                       this.runtimes.set(option.worker.getLanguage(), new WebWorkerRuntime(this, new option.worker(), option))
+                       this.runtimes.set(option.worker.getLanguage(), new WebWorkerRuntime(this, new option.worker(), option, this.eventManager))
                 }
                 this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT,
                     new WebWorkerRuntime(this,
@@ -43,10 +43,10 @@ class RuntimeManager{
                 //const NodeWorkerRuntime = require('./runtime/nodeWorkerRuntime')
                 if(options) {
                     for(let option of options)
-                       this.runtimes.set(option.getLanguage(), new option.worker(this, {language: option.getLanguage()}))
+                       this.runtimes.set(option.getLanguage(), new option.worker(this, {language: option.getLanguage()}), this.eventManager)
                 }
                 if(!options || options.getLoadedLanguages() !== Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
-                   this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this))
+                   this.runtimes.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this), this.eventManager)
             }
         }catch(e){
             console.log("Got some error during runtime manager creation %O", e)
