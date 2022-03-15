@@ -262,6 +262,7 @@ class WebWorkerRuntime {
             const startTs = Date.now()
             let timeout = setTimeout(function () {
                 if(!result) {
+                    clearTimeout(timeout)
                     this.worker.terminate()
                     result = {
                         action: 'return',
