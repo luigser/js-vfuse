@@ -40,11 +40,11 @@ def compare(data):
     # await VFuse.saveOnNetwork(data)
     print(data)
     i = 1
-    max = data[1]
+    max = data[i]
     while i < len(data):
-        if data[i+3] > max:
-            data[i+3]
-        i+=3
+        if data[i] > max:
+            data[i]
+        i += 3
     return max
 
 result = []
