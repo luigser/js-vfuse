@@ -520,7 +520,7 @@ class WorkflowManager{
                 isNew = true
             }
             let execution_result = await this.checkWorkflow(workflow)
-            if(execution_result.error){
+            if(execution_result.error || (execution_result.results && execution_result.results.error)){
                 return execution_result
             }else{
                 if(isNew) this.workflows.push(workflow)
