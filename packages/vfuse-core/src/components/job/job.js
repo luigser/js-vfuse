@@ -20,7 +20,7 @@ class Job{
         this.dependencies = dependencies
         this.group = group
         this.language = language
-        this.results = []
+        this.results = null//[]
         this.packages = packages
         this.reward = 0
         this.executionTime = 0

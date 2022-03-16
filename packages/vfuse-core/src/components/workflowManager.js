@@ -477,10 +477,13 @@ class WorkflowManager{
             let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
             let workflow = new Workflow(workflow_id._idB58String, 'Test Locally', code, language, new JobsDAG())
             let result = await this.checkWorkflow(workflow)
-            if(!result.error || (result.results && !result.results.error)){
+            if(result.error || (result.results && result.results.error)){
+                let error = result.error ? result.error : result.results.error
+                console.log(error)
+                return { error : error}
+            }else{
                 workflow = this.currentWorkflow
                 workflow.jobsDAG = workflow.jobsDAG.toJSON()
-                let error = false
                 let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
                 while(nodes.length > 0) {
                     for (let node of nodes) {
@@ -492,9 +495,6 @@ class WorkflowManager{
                     nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
                 }
                 return workflow
-            }else{
-                let error = result.error ? result.error : result.results.error
-                return { error : result.error}
             }
         }catch (e) {
 
