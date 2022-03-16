@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef} from 'react';
-import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification, Divider} from "antd";
+import React, {useState, useEffect} from 'react';
+import {PageHeader, Button, Tag, Col, Row, notification, Divider} from "antd";
 import VFuse from "vfuse-core";
 
 import {useVFuse} from "../hooks/useVFuse"
@@ -10,9 +10,6 @@ export default function WorkflowsPage(props){
     const [vFuseNode, setVFuseNode] = useState(gStore.get("vFuseNode"))
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
     const [workflows, setWorkflows] = useState([])
-    const [publishedWorkflows, setPublishedWorkflows] = useState([])
-
-    const {getNode} = useVFuse()
 
     useEffect(() => {
         const init = async() =>

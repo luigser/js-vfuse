@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import {Button, Col, Descriptions, Input, Layout, PageHeader, Row, Tag, Typography} from "antd";
+import {Col, Layout, PageHeader, Row, Tag} from "antd";
 import VFuse from "vfuse-core";
 import CTable from "../components/DataVisualization/CTable/CTable";
-import cloneDeep from 'lodash/cloneDeep';
 import {gStore} from "../store";
 
 export default function NetworkPage(props){

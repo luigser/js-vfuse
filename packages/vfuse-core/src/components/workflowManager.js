@@ -1,6 +1,6 @@
 'use strict'
 
-const {isBrowser} = require( "browser-or-node")
+//const {isBrowser} = require( "browser-or-node")
 
 const PeerId = require('peer-id')
 const log = require('debug')('vfuse:workflowManager')
@@ -9,7 +9,7 @@ const Workflow = require('./job/workflow')
 const Job = require('./job/job')
 const {JobsDAG} = require('./job/JobsDAG')
 const Constants = require('./constants')
-const Miscellaneous = require('../utils/miscellaneous')
+//const Miscellaneous = require('../utils/miscellaneous')
 const MathJs = require('mathjs')
 /*
 WorkflowManager is responsible for job management and execution

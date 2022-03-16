@@ -24,7 +24,8 @@ export default function ConsolePage(props){
     useEffect(() => {
         Hook(
             window.console,
-            (log) => setLogs((currLogs) => [...currLogs, log]),
+            (log) => {
+                setLogs((currLogs) => [...currLogs, log])},
             false
         )
         return () => Unhook(window.console)

@@ -1,10 +1,7 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {PageHeader, Button, Layout, Typography, Tag, Descriptions, Input, Col, Row, notification, Select, Tabs, Divider} from "antd";
 import VFuse from "vfuse-core";
 import {gStore} from "../store";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faMagic} from "@fortawesome/free-solid-svg-icons";
-//import CodeEditor from "../components/CodeEditor/codeEditor";
 import VFuseCodeEditor from "../components/CodeEditor/vFuseCodeEditor";
 import DAGVis from "../components/DAGVis/DAGVis";
 import CTable from "../components/DataVisualization/CTable/CTable";
@@ -103,16 +100,14 @@ await VFuse.addJob(getMaxWordOccurence, [reduce_job_id])
 export default function NotebookPage(props){
     const [vFuseNode, setVFuseNode] = useState(null)
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
-    const [runLocalLoading, setRunLocalLoading] = useState(false)
     const [publishNetworkLoading, setPublishNetworkLoading] = useState(false)
-    const [unpublishNetworkLoading, setUnpublishNetworkLoading] = useState(false)
+    const [stopNetworkLoading, setStopNetworkLoading] = useState(false)
     const [saveWorkflowLoading, setSaveWorkflowLoading] = useState(false)
     const [testLocallyLoading, setTestLocallyLoading] = useState(false)
     const [workflowId, setWorkflowId] = useState(props.workflowId ? props.workflowId : (props.location && props.location.params && props.location.params.workflowId) ? props.location.params.workflowId : null)
     const [code, setCode] = useState(javascriptCodeExample);
     const [language, setLanguage] = useState(VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
     const [name, setName] = useState(null)
-    const [profile, setProfile] = useState(null)
     const [dag, setDag] = useState(null)
     const [fontSize, setFontSize] = useState(14)
     const [isPublished, setIsPublished] = useState(false)
@@ -128,10 +123,8 @@ export default function NotebookPage(props){
             if (node) {
                 setVFuseNode(node)
                 setStatus(VFuse.Constants.NODE_STATE.RUNNING)
-                setRunLocalLoading(false)
                 setPublishNetworkLoading(false)
                 setSaveWorkflowLoading(false)
-                setProfile(node.getProfile())
                 node.addListener(VFuse.Constants.EVENTS.WORKFLOW_UPDATE, updateWorkflowCallback)
 
                 if (workflowId) {
@@ -206,7 +199,7 @@ export default function NotebookPage(props){
     }
 
     const unsubmitWorkflow = async () => {
-        setUnpublishNetworkLoading(true)
+        setStopNetworkLoading(true)
         let result = await vFuseNode.unsubmitWorkflow(workflowId)
         if(!result.error){
             setIsPublished(false)
@@ -220,7 +213,7 @@ export default function NotebookPage(props){
                 description : result.error.toString()
             });
         }
-        setUnpublishNetworkLoading(false)
+        setStopNetworkLoading(false)
     }
 
     const onChaneName = (e) => setName(e.target.value)
@@ -308,7 +301,7 @@ export default function NotebookPage(props){
                             /*<Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,*/
                             <Button key="1" type="info" disabled={!vFuseNode || isPublished} loading={saveWorkflowLoading} onClick={saveWorkflow}>Build & Save</Button>,
                             <Button key="2" type="primary" disabled={!vFuseNode && !workflowId || isPublished } loading={publishNetworkLoading} onClick={submitWorkflow}>Submit</Button>,
-                            <Button key="3" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={unpublishNetworkLoading} onClick={unsubmitWorkflow}>Stop</Button>,
+                            <Button key="3" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={stopNetworkLoading} onClick={unsubmitWorkflow}>Stop</Button>,
                             <><Divider type="vertical"/><Button disabled={!vFuseNode ||  isPublished} type="primary" key="4" loading={testLocallyLoading} onClick={testLocally}>Test Locally</Button></>,
                         ]}
                         //avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}

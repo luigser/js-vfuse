@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     PageHeader,
     Button,
@@ -23,7 +23,6 @@ export default function ProfilePage(props){
     const [vFuseNode, setVFuseNode] = useState(gStore.get("vFuseNode"))
     const [profile, setProfile] = useState(null)
     const [status, setStatus] = useState(VFuse.Constants.NODE_STATE.STOP)
-    const [profileId, setProfileId] = useState(null)
     const [startLoading, setStartLoading] = useState(false)
     const [stopLoading, setStopLoading] = useState(false)
     const [startDisabled, setStartDisabled] = useState(!!vFuseNode)
@@ -96,7 +95,6 @@ export default function ProfilePage(props){
                 let profile = vFuseNode.getProfile()
                 let workflows = vFuseNode.getWorkflows()
                 setProfile(profile)
-                setProfileId(profile?.id)
                 setWorkflows(workflows)
                 setPreferences(profile.preferences)
                 setDiscoveryTimeout(profile.preferences.TIMEOUTS.DISCOVERY)
@@ -131,10 +129,6 @@ export default function ProfilePage(props){
         }
     },[])
 
-    const onProfileIdChange = (e) =>{
-        setProfileId(e.nativeEvent.target.value)
-    }
-
     const onStartNode = async(mode) => {
         try {
             setStartLoading(true)
@@ -156,7 +150,6 @@ export default function ProfilePage(props){
 
             node.addListener(VFuse.Constants.EVENTS.NODE_STATUS, function(data){
                 if(data.status){
-                    setProfileId(data.profile.id)
                     setProfile(data.profile)
                     setPreferences(data.profile.preferences)
                     setDiscoveryTimeout(data.profile.preferences.TIMEOUTS.DISCOVERY)
