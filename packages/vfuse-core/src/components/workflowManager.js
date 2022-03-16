@@ -521,7 +521,7 @@ class WorkflowManager{
             }
             let execution_result = await this.checkWorkflow(workflow)
             if(execution_result.error || (execution_result.results && execution_result.results.error)){
-                let error = execution_result.error ? execution_result.error : v.results.error
+                let error = execution_result.error ? execution_result.error : execution_result.results.error
                 console.log(error)
                 return {error : error}
             }else{
