@@ -13,6 +13,7 @@ export default function ConsolePage(props){
         let node = gStore.get("vFuseNode")
         if(node){
             setStatus(node.status)
+            setLogs(node.getLogs())
             node.addListener(VFuse.Constants.EVENTS.CONSOLE_MESSAGE, logsCallback)
         }
     },[])
@@ -21,7 +22,7 @@ export default function ConsolePage(props){
         setLogs(logs)
     }
 
-    useEffect(() => {
+    /*useEffect(() => {
         Hook(
             window.console,
             (log) => {
@@ -29,7 +30,7 @@ export default function ConsolePage(props){
             false
         )
         return () => Unhook(window.console)
-    }, [])
+    }, [])*/
 
     return(
         <div>

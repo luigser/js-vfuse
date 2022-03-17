@@ -1,6 +1,6 @@
 'use strict'
 
-const log = require('debug')('vfuse:node')
+//const log = require('debug')('vfuse:node')
 const EventManager = require('./eventManager')
 const NetworkManager = require('./networkManager')
 const ContentManager = require('./contentManager')
@@ -8,6 +8,7 @@ const IdentityManager = require('./identityManager')
 const WorkflowManager = require('./workflowManager')
 const Constants = require('./constants')
 const DefaultOptions = require('../utils/defaultOptions')
+const Miscellaneous = require('../utils/miscellaneous')
 
 const  { isNode, isBrowser } = require("browser-or-node");
 
@@ -39,14 +40,19 @@ class VFuse {
             this.status = Constants.NODE_STATE.INITIALIZING;
 
             if (isBrowser) {
-                /*this.logs = []
+                this.logs = []
                 console=(function(oldCons){
                     return {
                         log: function(text, args){
-                            oldCons.log(text, args);
-                            this.logs.push(text)
-                            this.logs.push({method : 'result', data : this.logs/!*typeof text === 'object' ? JSON.stringify(text) :  text*!/})
-                            this.eventManager.emit(Constants.EVENTS.CONSOLE_MESSAGE, this.logs)
+                            let messages = [text]
+                            if(args ) {
+                                messages.push(args)
+                                oldCons.log(text, args);
+                            }else
+                                oldCons.log(text)
+                            let log = {method : 'info', data : messages}
+                            this.logs.push(log)
+                            this.eventManager.emit(Constants.EVENTS.CONSOLE_MESSAGE, log)
                         }.bind(this),
                         info: function (text) {
                             oldCons.info(text);
@@ -59,7 +65,7 @@ class VFuse {
                         }
                     };
                 }.bind(this)(window.console));
-                window.console = console;*/
+                window.console = console;
                 await this.startManagers()
             } else if (isNode) {
                 if(this.options.proxy){
@@ -112,6 +118,10 @@ class VFuse {
             console.log('Error during VFuse node initialization: %O', e)
             this.status = Constants.NODE_STATE.STOP
         }
+    }
+
+    getLogs(){
+        return this.logs
     }
 
     getConnectedPeers(){

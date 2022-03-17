@@ -60,6 +60,14 @@ const Miscellaneous = {
         let encoded = JSON.stringify(array)
         let chunks = Math.ceil(encoded.length / 1000000)
         return Miscellaneous.splitToChunks(array, (array.length - Math.floor(array.length / chunks)))
+    },
+
+    interpolateStringWithArgs : (string, args) =>  {
+        if(!args) return string
+        return [...args].reduce(
+            (p,c) => {
+                p.replace(/%s/,c)
+            }, string);
     }
 }
 
