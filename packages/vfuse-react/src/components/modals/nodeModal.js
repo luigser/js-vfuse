@@ -47,7 +47,10 @@ export default function NodeModal(props) {
                             typeof node.job.data === 'string' || typeof node.job.data === 'number' && <i>{node.job.data}</i>
                         }
                         {
-                            typeof node.job.data !== 'string' && typeof node.job.data !== 'number' && <ReactJson src={node.job.data} collapsed={true}/>
+                            typeof node.job.data !== 'string' && typeof node.job.data !== 'number' && !(node.job.data instanceof Map) && <ReactJson src={node.job.data} collapsed={true}/>
+                        }
+                        {
+                            (node.job.data instanceof Map) && <ReactJson src={Array.from(props.node.job.data, ([key, value]) => ({ key, value }))} collapsed={true}/>
                         }
                     </Descriptions.Item >
                     <Descriptions.Item label="Results" span={4}>
@@ -55,7 +58,10 @@ export default function NodeModal(props) {
                             typeof node.job.results === 'string' || typeof node.job.results === 'number' && <i>{node.job.results}</i>
                         }
                         {
-                            typeof node.job.results !== 'string' && typeof node.job.results !== 'number' && <ReactJson src={node.job.results} collapsed={true}/>
+                            typeof node.job.results !== 'string' && typeof node.job.results !== 'number' && !(node.job.results instanceof Map) && <ReactJson src={node.job.data} collapsed={true}/>
+                        }
+                        {
+                            (node.job.results instanceof Map) && <ReactJson src={Array.from(props.node.job.results, ([key, value]) => ({ key, value }))} collapsed={true}/>
                         }
                     </Descriptions.Item >
                     <Descriptions.Item label="Executor PeerId" span={4}>

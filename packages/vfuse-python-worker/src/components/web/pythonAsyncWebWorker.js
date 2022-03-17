@@ -353,7 +353,7 @@ const worker_code = () => {
                     self.postMessage(
                         {
                             action: 'return',
-                            results: results && typeof(results)!="string" && typeof(results)!="number" ? convert(results.toJs()) : results,
+                            results: results && typeof(results)!="string" && typeof(results)!="number" ? results.toJs() : results,
                             executionTime : executionTime
                         });
                 } catch (err) {

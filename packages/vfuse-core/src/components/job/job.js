@@ -10,7 +10,7 @@ class Job{
         ERROR: 3//something wrong during the execution
     }*/
 
-    constructor(id, name, code, data = [], dependencies = [], group = '', language, packages = []) {
+    constructor(id, name, code, data = null, dependencies = [], group = '', language, packages = []) {
         this.id = id
         this.status = Constants.JOB.STATUS.WAITING
         this.initialStatus = Constants.JOB.STATUS.WAITING

@@ -1,6 +1,6 @@
 import math
-#scikit-learn
-#tensorflow
+import numpy
+
 input = await VFuse.getDataFromUrl("https://raw.githubusercontent.com/bwhite/dv_hadoop_tests/master/python-streaming/word_count/input/4300.txt")
 
 def map(data):
@@ -8,38 +8,36 @@ def map(data):
     for row in data:
         for word in row.split(' '):
             if word in result:
-                result[word] = result[word] + 1
+                if word != '':
+                   result[word] = result[word] + 1
             else:
                 result[word] = 1
     return result
 
 def reduce(data):
     result = {}
-    for d in data:
-        if d['key'] in result:
-            result[d['key']] = result[d['key']] + d['value']
-        else:
-            result[d['key']] = d['value']
+    for map in data:
+        for key in map:
+            if key in result:
+                result[key] = result[key] + map[key]
+            else:
+                result[key] = map[key]
     return result
 
 def getMaxWordOccurence(data):
-    max = data[0]
-    for d in data:
-        if d['value'] > max['value']:
-            max = d
-    return max
+    #get first element
+    max = next(iter(data))
+    for key in data:
+        if data[key] > data[max]:
+            max = key
+    return {max : data[max]}
 
 input = input.splitlines()
-chunk = math.floor(len(input) / 10)
-i = 0
+input = numpy.array(input)
+input = numpy.array_split(input, 10)
+for chunk in input:
+   await VFuse.addJob(map, [], list(chunk), 'map')
 
-while i < len(input):
-    map_job_id = await VFuse.addJob(map, [], input[i:i + chunk], 'map')
-    i = i + chunk
 
-diff = len(input) - i
-if diff > 0:
-    map_job_id = await VFuse.addJob(map, [], input[i:i + diff], 'map')
-
-reduce_job_id = await VFuse.addJob(reduce,['map'])
+reduce_job_id = await VFuse.addJob(reduce,['map'], [])
 await VFuse.addJob(getMaxWordOccurence, [reduce_job_id])
