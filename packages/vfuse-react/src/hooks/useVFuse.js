@@ -21,7 +21,7 @@ export const useVFuse = () => {
                             Bootstrap : bootstraps ? bootstraps : []
                         }
                     },
-                    runtimes: [{
+                    workers: [{
                         worker : PythonWorker,
                         packages : []
                     }],

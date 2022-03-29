@@ -4,9 +4,10 @@ const vm = require('vm');
 const ResultsUtils = require('../../../../../utils/resultsUtils')
 
 class JavascriptNodeWorker {
-    constructor(runtime) {
+    constructor(runtime, eventManager) {
         this.vm = vm
         this.runtime = runtime
+        this.eventManagr = eventManager
     }
 
     async run(job){

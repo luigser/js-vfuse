@@ -24,7 +24,7 @@ class WorkflowManager{
             this.contentManager = contentManager
             this.identityManager = identityManager
             this.eventManager = eventManager
-            this.runtimeManager = new RuntimeManager(options.runtimes, this, eventManager)
+            this.runtimeManager = new RuntimeManager(options.workers, this, eventManager)
             this.workflowsQueue = []
             //todo MANAGE IT
             //this.eventManager.addListener('circuit_enabled', async function(){await this.start()}.bind(this))
