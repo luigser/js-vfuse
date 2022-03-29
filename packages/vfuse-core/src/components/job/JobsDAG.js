@@ -16,11 +16,18 @@ class JobsDAGVertex{
 
 class JobsDAG {
 
-    static getReadyNodes = (JSONJobDAG) => {
-        return JSONJobDAG.nodes.filter( n => n.job && (n.job.status === Constants.JOB.STATUS.READY || n.job.status === Constants.JOB.STATUS.ENDLESS))
-    }
+    static getReadyNodes = (JSONJobsDAG) =>  JSONJobsDAG.nodes.filter( n => n.job && (n.job.status === Constants.JOB.STATUS.READY || n.job.status === Constants.JOB.STATUS.ENDLESS))
 
-    static setNodeState = (JSONJobDAG, node, state, data) => {
+    static getNodesToUpdate = (JSONJobsDAG) => JSONJobsDAG.nodes.filter(n => n.job &&
+        (
+            (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ERROR || n.job.status === Constants.JOB.STATUS.ENDLESS) ||
+            (n.job.status === Constants.JOB.STATUS.READY && n.job.initialStatus === Constants.JOB.STATUS.WAITING)
+        )
+    )
+
+    static getCompletedNodes = (JSONJobsDAG) => JSONJobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ERROR || n.job.status === Constants.JOB.STATUS.ENDLESS))
+
+    static setNodeState = (JSONJobsDAG, node, state, data) => {
         if(data.results.error){
             node.job.status = Constants.JOB.STATUS.ERROR
             node.color = Utils.getColor(Constants.JOB.STATUS.ERROR)
@@ -42,14 +49,14 @@ class JobsDAG {
                 break
         }
 
-        let dependent_nodes = JSONJobDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0
+        let dependent_nodes = JSONJobsDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0
             || n.job.dependencies.filter( d => (new RegExp(d)).test(node.job.name) || new RegExp(d).test(node.job.group)).length > 0)
         )
         for(let dependent_node of dependent_nodes){
             dependent_node.job.data = ResultsUtils.combine(dependent_node.job.data, node.job.results)
             let isReady = true
             for(let dep of dependent_node.job.dependencies){
-                let dns = JSONJobDAG.nodes.filter(nd => nd.id === dep || (new RegExp(dep)).test(nd.label) || (new RegExp(dep).test(nd.group)))
+                let dns = JSONJobsDAG.nodes.filter(nd => nd.id === dep || (new RegExp(dep)).test(nd.label) || (new RegExp(dep).test(nd.group)))
                 for(let nx of dns) {
                     if (!nx.job.results || nx.job.results.length === 0) isReady = false
                 }
