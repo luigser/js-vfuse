@@ -25,7 +25,28 @@ class JobsDAG {
         )
     )
 
-    static getCompletedNodes = (JSONJobsDAG) => JSONJobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ERROR || n.job.status === Constants.JOB.STATUS.ENDLESS))
+    static getCompletedNodes = (JSONJobsDAG) => JSONJobsDAG.nodes.filter(n => n.job && (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ERROR /*|| n.job.status === Constants.JOB.STATUS.ENDLESS*/))
+
+    static getOutputNodes(JSONJobDAG){
+        //get all nodes with no children
+        let outputNodes = JSONJobDAG.nodes.filter(n => {
+            if(n.job && (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ENDLESS)){
+                let edges = JSONJobDAG.edges.filter(e => e.from === n.id)
+                if(edges.length === 0)
+                    return n
+            }
+        })
+        return outputNodes
+    }
+
+    static isRunningComplete(JSONJobsDAG){
+        let outputNodes = JSONJobsDAG.getOutputNodes(JSONJobsDAG)
+        for(let n of outputNodes){
+            if(!n.job.results || n.job.results.length === 0)
+                return false
+        }
+        return true
+    }
 
     static setNodeState = (JSONJobsDAG, node, state, data) => {
         if(data.results.error){
@@ -70,18 +91,6 @@ class JobsDAG {
 
     static combineResults(node1, node2){
         node1.job.results = ResultsUtils.combine(node1.job.results, node2.job.results)
-    }
-
-    static getOutputNodes(JSONJobDAG){
-        //get all nodes with no children
-        let outputNodes = JSONJobDAG.nodes.filter(n => {
-            if(n.job && (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ENDLESS)){
-                let edges = JSONJobDAG.edges.filter(e => e.from === n.id)
-                if(edges.length === 0)
-                    return n
-            }
-        })
-        return outputNodes
     }
 
     static compare(dag1, dag2){

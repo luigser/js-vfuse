@@ -52,7 +52,7 @@ class VFuse {
                                 oldCons.log(text)
                             let log = {method : 'info', data : messages}
                             this.logs.push(log)
-                            this.eventManager.emit(Constants.EVENTS.CONSOLE_MESSAGE, log)
+                            this.eventManager.emit(Constants.EVENTS.CONSOLE_MESSAGE, this.logs)
                         }.bind(this),
                         info: function (text) {
                             oldCons.info(text);

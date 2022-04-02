@@ -113,6 +113,7 @@ export default function NotebookPage(props){
     const [results, setResults] = useState([])
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentNode, setCurrentNode] = useState(null)
+    const [workflow, setWorkflow] = useState(null)
 
 
     useEffect(() => {
@@ -128,6 +129,7 @@ export default function NotebookPage(props){
 
                 if (workflowId) {
                     let workflow = await node.getWorkflow(workflowId)
+                    setWorkflow(workflow)
                     setName(workflow.name)
                     setCode(workflow.code)
                     setDag(workflow.jobsDAG)
@@ -147,6 +149,7 @@ export default function NotebookPage(props){
             setDag({nodes: [], edges: []})
             setDag(dag)
             setResults(vFuseNode.getWorkflowResults(workflowId))
+            setWorkflow(workflow)
         }
     }
 
@@ -182,9 +185,10 @@ export default function NotebookPage(props){
             let result = await vFuseNode.submitWorkflow(workflowId)
             if(!result.error){
                 setIsPublished(true)
+                setResults([])
                 notification.info({
                     message : "Info",
-                    description : 'Your workflow was successfully published'
+                    description : 'Your workflow was successfully submitted'
                 });
             }else{
                 notification.error({
@@ -204,7 +208,7 @@ export default function NotebookPage(props){
             setIsPublished(false)
             notification.info({
                 message : "Info",
-                description : 'Your workflow was successfully unpublished'
+                description : 'Your workflow was successfully stopped'
             });
         }else{
             notification.error({
@@ -348,6 +352,14 @@ export default function NotebookPage(props){
                                 </Col>
                                 <Col span={20}>
                                     <Input placeholder="Workflow title" onChange={onChaneName} value={name} />
+                                </Col>
+                            </Row>
+                            <Row style={{margin: 16}}>
+                                <Col span={4}>
+                                    <Typography.Text strong>Execution time : </Typography.Text>
+                                </Col>
+                                <Col span={20}>
+                                    {workflow && workflow.submittedAt && workflow.completedAt ? (workflow.completedAt - workflow.submittedAt) + " ms" : "Not submitted or execution still running" }
                                 </Col>
                             </Row>
                         </Descriptions.Item >

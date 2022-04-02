@@ -100,3 +100,6 @@ user: isis pwd: clgvittorio
 //TODO
  - Bug: perchè i nodi dei running workflow vengono rimpiazzati anche se sono terminati
  - Bug: perchè il timeout sull'esecuzione dei job non funziona e lancia un eccezione
+
+
+ - tempo di esecuzione del workflow

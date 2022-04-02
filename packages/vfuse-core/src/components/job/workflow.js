@@ -23,6 +23,8 @@ class Workflow{
         this.language = language
         this.jobsDAG = jobsDAG
         this.functions = []
+        this.submittedAt = null
+        this.completedAt = null
     }
 }
 module.exports = Workflow

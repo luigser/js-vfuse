@@ -164,7 +164,7 @@ class WorkflowManager{
                 if(published_workflow === 'my') continue
                 let encoded_workflow = await this.contentManager.get('/workflows/published/' + published_workflow)
                 let decoded_workflow = JSON.parse(encoded_workflow)
-                if(decoded_workflow.publishedAt > (Date.now() + (2 * 24 * 60 * 60 * 1000))){//2 days
+                if(decoded_workflow.submittedAt > (performance.now() + (3 * 24 * 60 * 60 * 1000))){//2 days
                     workflows_to_drop.push(decoded_workflow.wid)
                 }
             }
@@ -361,6 +361,7 @@ class WorkflowManager{
                 if(completed) return
                 let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                 if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){// -1 to not consider the root
+                    workflow.completedAt = Date.now()
                     await this.contentManager.save('/workflows/completed/' + workflow.id, "completed")
                     await this.contentManager.sendOnTopic({
                         action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,
@@ -368,7 +369,6 @@ class WorkflowManager{
                             wids: [workflow.id],
                         }
                     })
-                    return
                 }else{
                     for(let result_node of data.nodes){
                         let local_job_node = workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
@@ -507,6 +507,8 @@ class WorkflowManager{
                 workflow.name = name
                 workflow.code = code
                 workflow.language = language
+                workflow.submittedAt = null
+                workflow.completedAt = null
             }else {
                 //todo find a strategy to get a new workflow id
                 let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
@@ -567,7 +569,13 @@ class WorkflowManager{
             let cid = this.identityManager.getWorkflowCid(workflow_id)
             if(!cid)
                 return {error : 'The current workflow is not saved in your private space'}
-            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, publishedAt : Date.now()}
+
+            let submittedAt = Date.now()
+            let workflow = this.getWorkflow(workflow_id)
+            workflow.submittedAt = submittedAt
+            await this.updateWorkflow(workflow)
+
+            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt}
 
             let name //= await this.contentManager.publish(cid, new_key.name)//todo resolve
             await this.contentManager.save('/workflows/published/my/' + workflow_id + '.json', JSON.stringify(workflow_to_publish), {pin : true})
@@ -577,10 +585,10 @@ class WorkflowManager{
                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
                 payload: workflow_to_publish
             })
-            console.log('Workflow successfully published: %s', name)
+            console.log('Workflow successfully submitted: %s', name)
             return true
         }catch (e){
-            console.log('Got some error during the profile publishing: %O', e)
+            console.log('Got some error during the workflow submission: %O', e)
             return { error : e}
         }
     }

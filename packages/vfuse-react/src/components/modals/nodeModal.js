@@ -58,7 +58,7 @@ export default function NodeModal(props) {
                             typeof node.job.results === 'string' || typeof node.job.results === 'number' && <i>{node.job.results}</i>
                         }
                         {
-                            typeof node.job.results !== 'string' && typeof node.job.results !== 'number' && !(node.job.results instanceof Map) && <ReactJson src={node.job.data} collapsed={true}/>
+                            typeof node.job.results !== 'string' && typeof node.job.results !== 'number' && !(node.job.results instanceof Map) && <ReactJson src={node.job.results} collapsed={true}/>
                         }
                         {
                             (node.job.results instanceof Map) && <ReactJson src={Array.from(props.node.job.results, ([key, value]) => ({ key, value }))} collapsed={true}/>

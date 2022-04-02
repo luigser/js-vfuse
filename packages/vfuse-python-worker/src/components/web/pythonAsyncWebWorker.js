@@ -244,7 +244,7 @@ const worker_code = () => {
         "import cloudpickle\n" +
         "import micropip\n" +
         "class VFuse:\n" +
-        "    Constants = CONSTANTS\n" +
+        //"    Constants = CONSTANTS\n" +
         "    @staticmethod\n" +
         "    async def addJob(func, deps, input = None, group = None):\n" +
         "        func_source = cloudpickle.dumps(func)\n" +
@@ -314,8 +314,8 @@ const worker_code = () => {
                     });
                 break;
             case 'load':
-                await self.pyodide.loadPackagesFromImports(self.PythonVFuseUtils)
-                await self.pyodide.runPythonAsync(self.PythonVFuseUtils)
+                //await self.pyodide.loadPackagesFromImports(self.PythonVFuseUtils)
+                //await self.pyodide.runPythonAsync(self.PythonVFuseUtils)
                 await self.pyodide.loadPackagesFromImports(self.PythonVFuse)
                 await self.pyodide.runPythonAsync(self.PythonVFuse)
                 self.postMessage({

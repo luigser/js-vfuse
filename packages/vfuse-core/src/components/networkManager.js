@@ -319,7 +319,8 @@ class NetworkManager{
         try{
             if(message.from === this.peerId) return
             let data = JSON.parse(LZUTF8.decompress(message.data));
-            console.log('Got Message from %s : %O', message.from, data)
+            console.log('Got Message from %s', message.from)
+            console.log(data)
             switch(data.action){
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY:
                     this.connectedPeers.set(data.peer, data.peer)
@@ -387,7 +388,7 @@ class NetworkManager{
 
         // Listen for new connections to peers
         this.libp2p.connectionManager.on('peer:connect', async function(connection){
-            console.log('Connection established to:', connection.remotePeer.toB58String())
+            console.log('Connection established to: %s', connection.remotePeer.toB58String())
             if (this.connectedPeers.has(connection.remotePeer.toB58String())) return
             this.connectedPeers.set(connection.remotePeer.toB58String(), connection.remotePeer.toB58String())
             let peers = [...this.connectedPeers.keys()].map(function(p){ return {peer : p} })

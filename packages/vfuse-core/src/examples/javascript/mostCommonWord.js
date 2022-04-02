@@ -2,7 +2,10 @@ let input = await VFuse.getDataFromUrl("https://raw.githubusercontent.com/bwhite
 
 function map(data){
     let mapped = new Map()
-    data.map(d => d.split(/\W+/).map(word => mapped.set(word, mapped.has(word) ? mapped.get(word) + 1 : 1)))
+    data.map(d => d.split(/\W+/).map(word => {
+        if(word !== "")
+            mapped.set(word, mapped.has(word) ? mapped.get(word) + 1 : 1)
+    }))
     return mapped
 }
 
@@ -13,7 +16,7 @@ function reduce(data){
     return result
 }
 
-function getMaxOccurenceWord(data){
+function getMaxCommonWord(data){
     let max = data[0]
     for(let entry of data){
         if(entry.value > max.value)
@@ -22,17 +25,18 @@ function getMaxOccurenceWord(data){
     return max
 }
 
+
 input = input.toString().split("\n")
 let chunck = Math.floor(input.length / 10), r = 0
 for (; r < input.length; r += chunck){
-    await VFuse.addJob(map, [], input.slice(r, r + chunck), 'map')
+    await VFuse.addJob(map, [], input.slice(r, r + chunck), 'map_group')
 }
 
 let diff = input.length - r
 if( diff > 0){
-    await VFuse.addJob(map, [], input.slice(r, r + diff), 'map')
+    await VFuse.addJob(map, [], input.slice(r, r + diff), 'map_group')
 }
 
 
-let combine_job_id = await VFuse.addJob(reduce, ['map'])//wait for all reduce results and call combine
-await VFuse.addJob(getMaxOccurenceWord, [combine_job_id])
+let combine_job_id = await VFuse.addJob(reduce, ['^map_'])//wait for all reduce results and call combine
+await VFuse.addJob(getMaxCommonWord, [combine_job_id])
