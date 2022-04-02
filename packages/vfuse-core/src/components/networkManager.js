@@ -717,7 +717,8 @@ class NetworkManager{
                 if (isNode) {
                     const http = require('http')
                     http.get(url, (response) => {
-                        response.setHeader("Range", `bytes=${start}-${end}`);
+                        if(start && end)
+                           response.setHeader("Range", `bytes=${start}-${end}`);
                         let chunks_of_data = [];
 
                         response.on('data', (fragments) => {
@@ -734,10 +735,13 @@ class NetworkManager{
                         })
                     })
                 } else if (isBrowser) {
-                    fetch(url, {
-                        headers: {
+                    let headers = {}
+                    if(start && end)
+                        headers = {
                             'range': `bytes=${start}-${end}`,
-                        },
+                        }
+                    fetch(url, {
+                        headers: headers,
                         method: "GET"
                     })
                         .then(response => resolve(response.text()))
