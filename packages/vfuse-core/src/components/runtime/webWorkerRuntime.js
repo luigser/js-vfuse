@@ -142,7 +142,7 @@ class WebWorkerRuntime {
                                 break
                             case 'saveOnNetwork':
                                 let cid = await this.runtimeManager.saveOnNetwork(p.data, p.json)
-                                if(content && !content.error) {
+                                if(cid && !cid.error) {
                                     this.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
@@ -155,7 +155,7 @@ class WebWorkerRuntime {
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "saveOnNetwork",
-                                            error : content.error.toString()
+                                            error : cid.error.toString()
                                         }
                                     })
                                 }

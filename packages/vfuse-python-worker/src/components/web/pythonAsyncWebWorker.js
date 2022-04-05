@@ -336,6 +336,7 @@ const worker_code = () => {
                         });
                     });*/
                 break;
+
             case 'exec':
                 try {
                     self.pyodide.globals.function_to_run = job.code

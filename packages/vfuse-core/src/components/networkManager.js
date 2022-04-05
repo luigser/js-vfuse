@@ -567,14 +567,14 @@ class NetworkManager{
         try {
             //todo delete previous version
             let added_data = await this.add(data);
-            let added_to_cluster_data = await this.cluster.add(data);
+            let added_to_cluster_data = await this.cluster.add(Buffer.from(data));
             let pinning_result = await this.cluster.pin.add(added_data.cid.toString());
             //il cid(hash) del pin diventa accessibile attraverso /ipfs(gateway)?
             //se si utilizzare l'api file per pubblicare su ipns il cid pinnato
-            return pinning_result
+            return pinning_result.cid ? pinning_result.cid['/'] : pinning_result.toString()
         }catch (e){
             console.log('Got some error during the data adding and pinning: %O', e)
-            return null
+            return {error : e}
         }
 
     }
