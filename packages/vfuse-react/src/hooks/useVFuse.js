@@ -25,7 +25,7 @@ export const useVFuse = () => {
                         worker : PythonWorker,
                         packages : []
                     }],
-                    ipfsClusterApi : {host: '193.205.161.5', port: '9097', protocol: 'https'}, //pinningServer !== '' ? pinningServer : null,
+                    ipfsClusterApi : pinningServer ? pinningServer : null,//{host: '193.205.161.5', port: '9097', protocol: 'https'}, //pinningServer !== '' ? pinningServer : null,
                     ipfsClientOptions: delegateNode !== '' ? delegateNode : null
                 }
                 node = await VFuse.create(options)
