@@ -715,7 +715,8 @@ class NetworkManager{
         return new Promise((resolve, reject) => {
             try {
                 if (isNode) {
-                    const http = require('http')
+                    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+                    const http = require('https')
                     http.get(url, (response) => {
                         if(start !== undefined && end !== undefined)
                            response.setHeader("Range", `bytes=${start}-${end}`);
