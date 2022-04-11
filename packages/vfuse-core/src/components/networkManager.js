@@ -711,6 +711,7 @@ class NetworkManager{
         }
     }
 
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     getDataFromUrl(url, start, end, type){
         return new Promise((resolve, reject) => {
             try {
