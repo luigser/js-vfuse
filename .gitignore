@@ -12,3 +12,4 @@ package-lock.json
 /packages/vfuse-react/src/libs/synapse/
 /packages/vfuse-gateway/vfuse-repo/
 /packages/vfuse-bootstrap/vfuse-repo/
+/packages/browserInABox/node_modules/

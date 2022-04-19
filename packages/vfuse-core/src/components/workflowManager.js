@@ -515,6 +515,7 @@ class WorkflowManager{
                 workflow = new Workflow(workflow_id._idB58String, name, code, language, new JobsDAG())
                 isNew = true
             }
+            workflow.ownerId = this.identityManager.peerId
             let execution_result = await this.checkWorkflow(workflow)
             if(execution_result.error || (execution_result.results && execution_result.results.error)){
                 let error = execution_result.error ? execution_result.error : execution_result.results.error

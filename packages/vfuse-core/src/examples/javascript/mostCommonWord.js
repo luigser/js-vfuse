@@ -38,5 +38,5 @@ if( diff > 0){
 }
 
 
-let combine_job_id = await VFuse.addJob(reduce, ['^map_'])//wait for all reduce results and call combine
-await VFuse.addJob(getMaxCommonWord, [combine_job_id])
+let reduce_job_id = await VFuse.addJob(reduce, ['^map_'])
+await VFuse.addJob(getMaxCommonWord, [reduce_job_id])

@@ -339,7 +339,7 @@ export default function ProfilePage(props){
                             status === VFuse.Constants.NODE_STATE.RUNNING && <Tag color="green">Running</Tag>,
                         ]}
                         extra={[
-                            <Button key="3" type="primary" disabled={startDisabled} loading={startLoading} onClick={() => onStartNode("start")}>Start</Button>,
+                            <Button id="start_node" key="3" type="primary" disabled={startDisabled} loading={startLoading} onClick={() => onStartNode("start")}>Start</Button>,
                             <Button key="2" type="danger" disabled={stopDisabled} loading={stopLoading} onClick={onStop}>Stop</Button>
                         ]}
                     >

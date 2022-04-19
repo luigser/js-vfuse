@@ -43,7 +43,7 @@ export default function DAGVis(props) {
             font: {
                 //face: "Circular, Futura",
                 color: "#fff",
-                size: 15
+                size: 35//15 default, 35 wordcount
             },
             margin: {
                 top: 7,
@@ -54,7 +54,7 @@ export default function DAGVis(props) {
             mass: 0.3
         },
         edges: {
-            width: 2,
+            width: 3,
             font: { align: "bottom", strokeWidth: 3, strokeColor: "#ffffff" },
             color: {
                 color: "#cccccc",

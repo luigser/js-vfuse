@@ -1,0 +1,14 @@
+{
+  "name": "browserinabox",
+  "version": "1.0.0",
+  "description": "VFuse node in a CLI browser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Luigi Serra",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^13.5.2"
+  }
+}
