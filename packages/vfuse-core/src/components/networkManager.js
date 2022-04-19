@@ -747,7 +747,6 @@ class NetworkManager{
                         headers: headers,
                         method: "GET",
                         mode: "cors",
-                        rejectUnauthorized: false,
                     })
                         .then(response => resolve(response.text()))
                         .catch(error => reject({error: error}))
