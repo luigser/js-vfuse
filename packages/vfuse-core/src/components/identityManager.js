@@ -9,35 +9,36 @@ class IdentityManager {
      * @param {Object} networkManager
      * @param {Object} options
      */
-    constructor ( contentManager, eventManager, options) {
-        this.id = options.profileId ? options.profileId : null
-        this.peerId = options.peerId
+    constructor ( contentManager, eventManager, peerId , options) {
+        options = options.preferences
+        this.id = options && options.profileId ? options.profileId : peerId
+        this.peerId = peerId
         this.contentManager = contentManager
         this.eventManager = eventManager
         this.workflows = []
         this.rewards = 0.00
         this.preferences = {
             ENDPOINTS:{
-                SIGNAL_SERVER : '',
-                BOOTSTRAPS: [],
+                SIGNAL_SERVER : options && options.SIGNAL_SERVER ? options && options.SIGNAL_SERVER : '',
+                BOOTSTRAPS: options && options.BOOTSTRAPS ? options && options.BOOTSTRAPS : [],
                 PINNING_SERVER : {
-                    PROTOCOL : 'https',
-                    HOST : '193.205.161.5',
-                    PORT : '9097'
+                    PROTOCOL : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.PROTOCOL : 'https',
+                    HOST : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.HOST : '193.205.161.5',
+                    PORT : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.PORT : '9097'
                 },
                 DELEGATE_NODE : ''
             },
             TIMEOUTS:{
-                DISCOVERY : 15,
-                WORKFLOWS_PUBLISHING : 60,
-                JOBS_PUBLISHING : 15,
-                RESULTS_PUBLISHING: 120,
-                EXECUTION_CYCLE: 1,
-                JOB_EXECUTION : 300,
+                DISCOVERY : options && options.DISCOVERY ? options && options.DISCOVERY : 15,
+                WORKFLOWS_PUBLISHING : options && options.WORKFLOWS_PUBLISHING ? options && options.WORKFLOWS_PUBLISHING : 60,
+                JOBS_PUBLISHING : options && options.JOBS_PUBLISHING ? options && options.JOBS_PUBLISHING : 15,
+                RESULTS_PUBLISHING: options && options.RESULTS_PUBLISHING ? options && options.RESULTS_PUBLISHING : 120,
+                EXECUTION_CYCLE: options && options.EXECUTION_CYCLE ? options && options.EXECUTION_CYCLE : 1,
+                JOB_EXECUTION : options && options.JOB_EXECUTION ? options && options.JOB_EXECUTION : 300,
             },
             LIMITS: {
-                MAX_CONCURRENT_JOBS : 5,
-                MAX_MANAGED_WORKFLOW : 100,
+                MAX_CONCURRENT_JOBS : options && options.MAX_CONCURRENT_JOBS ? options && options.MAX_CONCURRENT_JOBS : 5,
+                MAX_MANAGED_WORKFLOW : options && options.MAX_MANAGED_WORKFLOW ? options && options.MAX_MANAGED_WORKFLOW : 100,
             },
             CONSTANTS:{
                 CPU_USAGE : 0.2,
