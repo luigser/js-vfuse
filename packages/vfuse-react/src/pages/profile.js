@@ -505,6 +505,7 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                                 <Row>
                                                                     <Input
+                                                                        id="singal_server"
                                                                         placeholder="/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star"
                                                                         onChange={(value) => onPreferencesChange('ENDPOINTS.SIGNAL_SERVER',value.currentTarget.value)}
                                                                         value={signalServer} />
@@ -518,6 +519,7 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                                 <Row>
                                                                     <Input
+                                                                        id="pinner_protocol"
                                                                         placeholder='https'
                                                                         onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER.PROTOCOL',value.currentTarget.value)}
                                                                         value={pinningServerProtocol} />
@@ -529,6 +531,7 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                                 <Row>
                                                                     <Input
+                                                                        id="pinner_host"
                                                                         placeholder='193.205.161.5'
                                                                         onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER.HOST',value.currentTarget.value)}
                                                                         value={pinningServerHost} />
@@ -540,6 +543,7 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                                 <Row>
                                                                     <Input
+                                                                        id="pinner_port"
                                                                         placeholder='9097'
                                                                         onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER.PORT',value.currentTarget.value)}
                                                                         value={pinningServerPort} />
@@ -566,10 +570,11 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                                 <Row>
                                                                     <Input.TextArea
+                                                                        id="bootstrap"
                                                                         style={{height : '20vh'}}
                                                                         onChange={(value) =>  onPreferencesChange('ENDPOINTS.BOOTSTRAPS',value.currentTarget.value)}
                                                                         value={bootstrapsString}
-                                                                        placeholder="/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY"s/>
+                                                                        placeholder="/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY"/>
                                                                 </Row>
                                                             </Col>
                                                         </Row>

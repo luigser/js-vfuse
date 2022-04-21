@@ -20,7 +20,7 @@
   "author": "Luigi Serra",
   "license": "MIT",
   "devDependencies": {
-    "aegir": "^33.2.0",
+    "aegir": "^37.0.14",
     "assert": "^2.0.0",
     "chai": "^4.3.4",
     "chai-http": "^4.3.0",
