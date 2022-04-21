@@ -505,7 +505,7 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                                 <Row>
                                                                     <Input
-                                                                        id="singal_server"
+                                                                        id="signal_server"
                                                                         placeholder="/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star"
                                                                         onChange={(value) => onPreferencesChange('ENDPOINTS.SIGNAL_SERVER',value.currentTarget.value)}
                                                                         value={signalServer} />
