@@ -16,7 +16,7 @@ class PythonWorker{
 
     getWebWorker(){
         //return new Worker("./components/web/pythonWebWorker.js")
-        const PythonWebWorkerScript = require('./components/web/pythonAsyncWebWorker')
+        const PythonWebWorkerScript = require('./components/web/pythonAsyncWebWorkerV20')
         return new Worker(PythonWebWorkerScript);
     }
 

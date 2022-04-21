@@ -116,3 +116,5 @@ user: isis pwd: clgvittorio
 
    - salvare le preferenze una volta inserita
    - running workflow si friza quando riceve un nuovo workflow
+
+- file di test di 1GB(1073741824) (64 job) ( chunks da 16.777.216)

@@ -1,6 +1,5 @@
 const worker_code = () => {
-    languagePluginUrl = 'https://cdn.jsdelivr.net/pyodide/v0.18.1/full/';
-    importScripts('https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js');
+    importScripts('https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js');
 
     const JSVFuse = {
         addJob: (code, name, deps, input, group) => {
@@ -103,7 +102,7 @@ const worker_code = () => {
         },
 
         getFromNetwork : (cid) => {
-            const promise = new  Promise( (resolve, reject) => {
+            const promise = new Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
@@ -128,7 +127,7 @@ const worker_code = () => {
             return promise
         },
         setEndlessJob : (job_id) => {
-            const promise = new  Promise( (resolve, reject) => {
+            const promise = new Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
@@ -154,7 +153,7 @@ const worker_code = () => {
         },
 
         addJobToGroup : (job_id, group) => {
-            const promise = new  Promise( (resolve, reject) => {
+            const promise = new Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
@@ -180,7 +179,7 @@ const worker_code = () => {
             return promise
         },
         setJobReturnType : (job_id, type) => {
-            const promise = new  Promise( (resolve, reject) => {
+            const promise = new Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
@@ -210,40 +209,10 @@ const worker_code = () => {
     /*"        #if type(result) != str:\n" +
     "        #    result = result.to_py()\n" +*/
 
-    self.PythonVFuseUtils =
-        "class Map(dict):\n" +
-        "    def __init__(self, *args, **kwargs):\n" +
-        "        super(Map, self).__init__(*args)\n" +
-        "        for arg in args:\n" +
-        "            if isinstance(arg, dict):\n" +
-        "                for k, v in arg.iteritems():\n" +
-        "                    self[k] = v\n" +
-        "    def __getattr__(self, attr):\n" +
-        "        return self.get(attr)\n" +
-        "    def __setattr__(self, key, value):\n" +
-        "        self.__setitem__(key, value)\n" +
-        "    def __setitem__(self, key, value):\n" +
-        "        super(Map, self).__setitem__(key, value)\n" +
-        "        self.__dict__.update({key: value})\n" +
-        "    def __delattr__(self, item):\n" +
-        "        self.__delitem__(item)\n" +
-        "    def __delitem__(self, key):\n" +
-        "        super(Map, self).__delitem__(key)\n" +
-        "        del self.__dict__[key]\n" +
-        "CONSTANTS = Map()\n" +
-        "JOB = Map()\n" +
-        "RETURN_TYPES = Map()\n" +
-        "RETURN_TYPES.INTEGER = 'INTEGER'\n" +
-        "RETURN_TYPES.ARRAY = 'ARRAY'\n" +
-        "RETURN_TYPES.OBJECT = 'OBJECT'\n" +
-        "JOB.RETURN_TYPES = RETURN_TYPES\n"+
-        "CONSTANTS.JOB = JOB\n"
-
     self.PythonVFuse = "from js import JSVFuse\n" +
         "import cloudpickle\n" +
         "import micropip\n" +
         "class VFuse:\n" +
-        //"    Constants = CONSTANTS\n" +
         "    @staticmethod\n" +
         "    async def addJob(func, deps, input = None, group = None):\n" +
         "        func_source = cloudpickle.dumps(func)\n" +
@@ -291,8 +260,11 @@ const worker_code = () => {
         switch (action) {
             case 'init':
                 globalThis.JSVFuse = JSVFuse
-                languagePluginLoader
-                    .then(async () => {
+                self.pyodide = await loadPyodide()
+                self.postMessage({
+                    action: 'initialized'
+                })
+                    /*.then(async () => {
                         try{
                             self.postMessage({
                                 action: 'initialized'
@@ -310,11 +282,9 @@ const worker_code = () => {
                             action: 'error',
                             results: err.message
                         });
-                    });
+                    });*/
                 break;
             case 'load':
-                //await self.pyodide.loadPackagesFromImports(self.PythonVFuseUtils)
-                //await self.pyodide.runPythonAsync(self.PythonVFuseUtils)
                 await self.pyodide.loadPackagesFromImports(self.PythonVFuse)
                 await self.pyodide.runPythonAsync(self.PythonVFuse)
                 self.postMessage({
@@ -338,8 +308,11 @@ const worker_code = () => {
 
             case 'exec':
                 try {
-                    self.pyodide.globals.function_to_run = job.code
-                    self.pyodide.globals.input = job.data
+                    /*self.pyodide.globals.function_to_run = job.code
+                    self.pyodide.globals.input = job.data*/
+                    debugger
+                    self.pyodide.globals.set('function_to_run',job.code)
+                    self.pyodide.globals.set('input', job.data)
                     if(job.inline) {//todo clear prev python code by calling init and load
                         await self.pyodide.loadPackagesFromImports(job.code)
                         self.packages = await self.pyodide.pyodide_py.find_imports(job.code)
