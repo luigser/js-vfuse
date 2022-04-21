@@ -7,7 +7,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
-ExecStart=/usr/bin/bash /home/isis/vfuse/js-vfuse/packages/vfuse-bootstrap/start.sh
+ExecStart=/usr/bin/bash /home/isis/js-vfuse/packages/vfuse-bootstrap/start.sh
 
 [Install]
 WantedBy=multi-user.target
