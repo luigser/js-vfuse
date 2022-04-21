@@ -308,9 +308,6 @@ const worker_code = () => {
 
             case 'exec':
                 try {
-                    /*self.pyodide.globals.function_to_run = job.code
-                    self.pyodide.globals.input = job.data*/
-                    debugger
                     self.pyodide.globals.set('function_to_run',job.code)
                     self.pyodide.globals.set('input', job.data)
                     if(job.inline) {//todo clear prev python code by calling init and load
