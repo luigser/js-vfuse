@@ -36,13 +36,13 @@ export default function ProfilePage(props){
     const [maxConcurrentJobs, setMaxConcurrentJobs] = useState(0)
     const [jobExecutionTimeout, setJobExecutionTimeout] = useState(0)
     const [usage, setUsage] = useState(0)
-    const [signalServer, setSignalServer] = useState('/dns4/193.205.161.5/tcp/2002/wss/p2p-webrtc-star/')
+    const [signalServer, setSignalServer] = useState('/dns4/172.16.15.178/tcp/2002/wss/p2p-webrtc-star/')
     const [delegateNode, setDelegateNode] = useState('')
     const [pinningServerProtocol, setPinningServerProtocol] = useState('https')
-    const [pinningServerHost, setPinningServerHost] = useState('193.205.161.5')
+    const [pinningServerHost, setPinningServerHost] = useState('172.16.15.178')
     const [pinningServerPort, setPinningServerPort] = useState('9097')
-    const [bootstraps, setBootstrap] = useState(['/ip4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww'])
-    const [bootstrapsString, setBootstrapString] = useState('/ip4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww')
+    const [bootstraps, setBootstrap] = useState(['/ip4/172.16.15.178/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww'])
+    const [bootstrapsString, setBootstrapString] = useState('/ip4/172.16.15.178/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww')
     const [savePreferencesLoading, setSavePreferencesLoading] = useState(false)
     const [savePreferencesDisabled, setSavePreferencesDisabled] = useState(!vFuseNode)
 
@@ -506,7 +506,7 @@ export default function ProfilePage(props){
                                                                 <Row>
                                                                     <Input
                                                                         id="signal_server"
-                                                                        placeholder="/ip4/172.16.15.178/tcp/2000/ws/p2p-webrtc-star"
+                                                                        placeholder="/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star"
                                                                         onChange={(value) => onPreferencesChange('ENDPOINTS.SIGNAL_SERVER',value.currentTarget.value)}
                                                                         value={signalServer} />
                                                                 </Row>
@@ -532,7 +532,7 @@ export default function ProfilePage(props){
                                                                 <Row>
                                                                     <Input
                                                                         id="pinner_host"
-                                                                        placeholder='172.16.15.178'
+                                                                        placeholder='193.205.161.5'
                                                                         onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER.HOST',value.currentTarget.value)}
                                                                         value={pinningServerHost} />
                                                                 </Row>
@@ -574,7 +574,7 @@ export default function ProfilePage(props){
                                                                         style={{height : '20vh'}}
                                                                         onChange={(value) =>  onPreferencesChange('ENDPOINTS.BOOTSTRAPS',value.currentTarget.value)}
                                                                         value={bootstrapsString}
-                                                                        placeholder="/ip4/172.16.15.178/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY"/>
+                                                                        placeholder="/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY"/>
                                                                 </Row>
                                                             </Col>
                                                         </Row>
