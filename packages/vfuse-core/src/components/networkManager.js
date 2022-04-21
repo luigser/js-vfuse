@@ -744,7 +744,7 @@ class NetworkManager{
                     fetch(url, {
                         headers: headers,
                         method: "GET",
-                        mode: "cors",
+                        //mode: "cors",
                     })
                         .then(response => resolve(response.text()))
                         .catch(error => reject({error: error}))
