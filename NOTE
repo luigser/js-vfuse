@@ -113,3 +113,6 @@ user: isis pwd: clgvittorio
    Usare metamask come wallet su rete di test. load and burn di token.
 
    si possono recuperare gli nft di un altro utente
+
+   - salvare le preferenze una volta inserita
+   - running workflow si friza quando riceve un nuovo workflow
