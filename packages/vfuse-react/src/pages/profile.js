@@ -506,7 +506,7 @@ export default function ProfilePage(props){
                                                                 <Row>
                                                                     <Input
                                                                         id="signal_server"
-                                                                        placeholder="/ip4/192.168.1.57/tcp/2000/ws/p2p-webrtc-star"
+                                                                        placeholder="/ip4/172.16.15.178/tcp/2000/ws/p2p-webrtc-star"
                                                                         onChange={(value) => onPreferencesChange('ENDPOINTS.SIGNAL_SERVER',value.currentTarget.value)}
                                                                         value={signalServer} />
                                                                 </Row>
@@ -532,7 +532,7 @@ export default function ProfilePage(props){
                                                                 <Row>
                                                                     <Input
                                                                         id="pinner_host"
-                                                                        placeholder='193.205.161.5'
+                                                                        placeholder='172.16.15.178'
                                                                         onChange={(value) => onPreferencesChange('ENDPOINTS.PINNING_SERVER.HOST',value.currentTarget.value)}
                                                                         value={pinningServerHost} />
                                                                 </Row>
@@ -574,7 +574,7 @@ export default function ProfilePage(props){
                                                                         style={{height : '20vh'}}
                                                                         onChange={(value) =>  onPreferencesChange('ENDPOINTS.BOOTSTRAPS',value.currentTarget.value)}
                                                                         value={bootstrapsString}
-                                                                        placeholder="/ip4/192.168.1.57/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY"/>
+                                                                        placeholder="/ip4/172.16.15.178/tcp/4003/ws/p2p/12D3KooWRKxogWN84v2d8zWUexowJ2v6iGQjkAL9qYXHuXrf9DLY"/>
                                                                 </Row>
                                                             </Col>
                                                         </Row>
