@@ -11,7 +11,7 @@ class IdentityManager {
      */
     constructor ( contentManager, eventManager, peerId , options) {
         options = options.preferences
-        this.id = options && options.profileId ? options.profileId : peerId
+        this.id = options && options.profileId ? options.profileId : null
         this.peerId = peerId
         this.contentManager = contentManager
         this.eventManager = eventManager
@@ -23,7 +23,7 @@ class IdentityManager {
                 BOOTSTRAPS: options && options.BOOTSTRAPS ? options && options.BOOTSTRAPS : [],
                 PINNING_SERVER : {
                     PROTOCOL : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.PROTOCOL : 'https',
-                    HOST : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.HOST : '193.205.161.5',
+                    HOST : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.HOST : '172.16.15.178',
                     PORT : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.PORT : '9097'
                 },
                 DELEGATE_NODE : ''
