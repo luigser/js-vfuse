@@ -311,11 +311,11 @@ const worker_code = () => {
                     self.pyodide.globals.set('function_to_run',job.code)
                     self.pyodide.globals.set('input', job.data)
                     if(job.inline) {//todo clear prev python code by calling init and load
-                        //await self.pyodide.loadPackagesFromImports(job.code)
-                        //self.packages = await self.pyodide.pyodide_py.find_imports(job.code)
+                        await self.pyodide.loadPackagesFromImports(job.code)
+                        self.packages = await self.pyodide.pyodide_py.find_imports(job.code)
                     }
                     else {
-                        self.pyodide.loadPackagesFromImports(job.packages)
+                        //self.pyodide.loadPackagesFromImports(job.packages)
                     }
                     let start = performance.now()
                     let results = await self.pyodide.runPythonAsync(!job.inline ?  `VFuse.execute(function_to_run, input)` : job.code)
