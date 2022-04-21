@@ -23,7 +23,7 @@ class IdentityManager {
                 BOOTSTRAPS: options && options.BOOTSTRAPS ? options && options.BOOTSTRAPS : [],
                 PINNING_SERVER : {
                     PROTOCOL : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.PROTOCOL : 'https',
-                    HOST : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.HOST : '172.16.15.178',
+                    HOST : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.HOST : '172.16.149.150',
                     PORT : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.PORT : '9097'
                 },
                 DELEGATE_NODE : ''
