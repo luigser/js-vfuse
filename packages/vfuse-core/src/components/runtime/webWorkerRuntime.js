@@ -1,6 +1,7 @@
 'use strict'
 
 const Constants = require ("../constants")
+const MathJs = require('mathjs')
 
 class WebWorkerRuntime {
     constructor(runtimeManager, worker , options, eventManager) {
@@ -18,18 +19,19 @@ class WebWorkerRuntime {
         this.eventManager = eventManager
         this.executionQueue = []
 
-        this.eventManager.on(Constants.EVENTS.PROFILE_STATUS, function(data){
-            if(data.profile.status){
-                this.jobExecutionTimeout = data.profile.preferences.TIMEOUTS.JOB_EXECUTION
-                this.maxJobsQueueLength = data.profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
-
+        this.eventManager.on(Constants.EVENTS.PROFILE_STATUS, async function(data){
+            if(data.status){
+                //this.jobExecutionTimeout = data.profile.preferences.TIMEOUTS.JOB_EXECUTION
+                //this.maxJobsQueueLength = data.profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
+                await this.createWorkersPool()
             }
         }.bind(this))
 
-        this.eventManager.on(Constants.EVENTS.PREFERENCES_UPDATED, function(preferences){
+        this.eventManager.on(Constants.EVENTS.PREFERENCES_UPDATED, async function(preferences){
             if(preferences){
                 this.jobExecutionTimeout = preferences.TIMEOUTS.JOB_EXECUTION
                 this.maxJobsQueueLength = preferences.LIMITS.MAX_CONCURRENT_JOBS
+                await this.createWorkersPool()
             }
         }.bind(this))
 
@@ -41,12 +43,54 @@ class WebWorkerRuntime {
         }
     }
 
+    async createWorkersPool(){
+        console.log("Initializing thread pool")
+        this.executionQueue = []
+        for(let i =0; i < this.maxJobsQueueLength; i++){
+            let worker = this.worker.getWebWorker()
+            this.executionQueue.push({ id : i, worker : worker, busy : false})
+            await this.initWorker(worker)
+            await this.loadWorker(worker)
+        }
+    }
+
     getRandomBetween(min, max) {
         return Math.random() * (max - min) + min
     }
 
     history() {
         return this.history.map((x) => x.cmd).join('\n')
+    }
+
+    initWorker(worker){
+        const promise = new Promise((resolve, reject) => {
+            worker.onmessage = (e) => {
+                const { action } = e.data
+                if (action === 'initialized') {
+                    resolve(this)
+                } else {
+                    reject(new Error('Runtime initialization failed'))
+                }
+            }
+        })
+        worker.postMessage({ action: 'init' })
+        return promise
+    }
+
+    loadWorker(worker) {
+        // preload packages
+        const promise = new Promise((resolve, reject) => {
+            worker.onmessage = (e) => {
+                const { action } = e.data
+                if (action === 'loaded') {
+                    resolve(this)
+                } else {
+                    reject(new Error('Package preloading failed'))
+                }
+            }
+        })
+        worker.postMessage({ action: 'load', packages: this.packages })
+        return promise
     }
 
     init() {
@@ -91,15 +135,12 @@ class WebWorkerRuntime {
         this.history.push(log)
     }
 
-    async exec(job) {
+    async exec(job, webworker) {
         //todo to fix
         //if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) this.webworker = this.worker.getWebWorker()
-        this.webworker = this.worker.getWebWorker()
-        await this.init()
-        await this.load()
 
         const promise = new Promise((resolve, reject) => {
-            this.webworker.addEventListener('message', async(e) => {
+            webworker.addEventListener('message', async(e) => {
                 const { action, results } = e.data
                 switch(action){
                     case 'return':
@@ -112,7 +153,7 @@ class WebWorkerRuntime {
                             case 'addJob':
                                 let job = await this.runtimeManager.addJob(p.name, p.func, p.deps,  p.input, p.group, p.packages)
                                 if(job) {
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "addJob",
@@ -120,7 +161,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "addJob",
@@ -132,7 +173,7 @@ class WebWorkerRuntime {
                             case 'getDataFromUrl':
                                 let content = await this.runtimeManager.getDataFromUrl(p.url, p.start, p.end, p.type)
                                 if(content && !content.error) {
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getDataFromUrl",
@@ -140,7 +181,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getDataFromUrl",
@@ -152,7 +193,7 @@ class WebWorkerRuntime {
                             case 'saveOnNetwork':
                                 let cid = await this.runtimeManager.saveOnNetwork(p.data, p.json)
                                 if(cid && !cid.error) {
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "saveOnNetwork",
@@ -160,7 +201,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "saveOnNetwork",
@@ -172,7 +213,7 @@ class WebWorkerRuntime {
                             case 'getFromNetwork':
                                 let data = await this.runtimeManager.getFromNetwork(p.cid)
                                 if(data && !data.error) {
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getFromNetwork",
@@ -180,7 +221,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getFromNetwork",
@@ -192,7 +233,7 @@ class WebWorkerRuntime {
                             case 'setEndlessJob':
                                 let sejResult = await this.runtimeManager.setEndlessJob(p.job_id)
                                 if(sejResult && !sejResult.error) {
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setEndlessJob",
@@ -200,7 +241,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setEndlessJob",
@@ -212,7 +253,7 @@ class WebWorkerRuntime {
                             case 'setJobReturnType':
                                 let sjrtResult = await this.runtimeManager.setJobReturnType(p.job_id, p.type)
                                 if(sjrtResult && !sjrtResult.error) {
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setJobReturnType",
@@ -220,7 +261,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setJobReturnType",
@@ -232,7 +273,7 @@ class WebWorkerRuntime {
                             case 'addJobToGroup':
                                 let atgResult = await this.runtimeManager.addJobToGroup(p.job_id, p.group)
                                 if(atgResult && !atgResult.error) {
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "addJobToGroup",
@@ -240,7 +281,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    this.webworker.postMessage({
+                                    webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "addJobToGroup",
@@ -258,7 +299,7 @@ class WebWorkerRuntime {
             })
         })
 
-        this.webworker.postMessage({
+        webworker.postMessage({
             action: 'exec',
             job: job,
         })
@@ -267,13 +308,19 @@ class WebWorkerRuntime {
 
     async run(job) {
         let result = null
+        let webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
+        while(webworker.busy)
+            webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
+        webworker.busy = true
         try {
             const startTs = Date.now()
             let timeout = setTimeout(function () {
                 if(!result) {
                     clearTimeout(timeout)
-                    if(this.worker.terminate)
-                        this.worker.terminate()
+                    if(webworker.terminate) {
+                        webworker.terminate()
+                        webworker.busy = false
+                    }
                     result = {
                         action: 'return',
                         results: {error: {
@@ -283,7 +330,8 @@ class WebWorkerRuntime {
                     }
                 }
             }.bind(this), this.jobExecutionTimeout)
-            result = await this.exec(job)
+            result = await this.exec(job, webworker.worker)
+            webworker.busy = false
             clearTimeout(timeout)
             const log = {start: startTs, end: Date.now(), cmd: job.code}
             this.history.push(log)

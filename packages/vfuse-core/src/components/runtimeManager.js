@@ -13,12 +13,12 @@ class RuntimeManager{
 
     async start(){
         try {
-            if (this.workers) {
+            /*if (this.workers) {
                 for(let key of this.workers.keys()){
                     await this.workers.get(key).init()
                     await this.workers.get(key).load()
                 }
-            }
+            }*/
         }catch(e){
             console.log("Got some error during runtime initialization %O", e)
         }
