@@ -18,9 +18,9 @@ def reduce(data):
     result = {}
     for d in data:
         if d['key'] in result:
-            result[d['key']] = result[d['key']] + d['key']
+            result[d['key']] = result[d['key']] + d['value']
         else:
-            result[d['key']] = d['key']
+            result[d['key']] = d['value']
     return result
 
 def getMaxWordOccurence(data):
@@ -28,7 +28,7 @@ def getMaxWordOccurence(data):
    for d in data:
        if d['value'] > max['value']:
            max = d
-   return d
+   return max
 
 input = input.splitlines()
 input = numpy.array(input)

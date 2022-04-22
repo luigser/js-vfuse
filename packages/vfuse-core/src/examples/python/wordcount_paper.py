@@ -3,9 +3,9 @@ async def map(data):
     url = data[0] + "wordcount" + str(data[1]) + ".txt"
     print(url)
     file = await pyfetch(url)
-    string = await file.string()
+    content = await file.string()
     result = {}
-    for w in string.split(' '):
+    for w in content.split(' '):
         if not w:
             continue
         elif w in result:
@@ -17,21 +17,19 @@ async def map(data):
 
 def reduce(data):
     result = {}
-    for map in data:
-        for key in map:
-            if key in result:
-                result[key] = result[key] + map[key]
-            else:
-                result[key] = map[key]
+    for d in data:
+        if d['key'] in result:
+            result[d['key']] = result[d['key']] + d['value']
+        else:
+            result[d['key']] = d['value']
     return result
 
 def getMaxWordOccurence(data):
-    #get first element
-    max = next(iter(data))
-    for key in data:
-        if data[key] > data[max]:
-            max = key
-    return {max : data[max]}
+   max = data[0]
+   for d in data:
+       if d['value'] > max['value']:
+           max = d
+   return max
 
 baseurl = "https://172.16.149.100/"
 
