@@ -32,6 +32,7 @@ def getMaxWordOccurence(data):
 
 input = input.splitlines()
 input = numpy.array(input)
+
 input = numpy.array_split(input, 1)
 for chunk in input:
    await VFuse.addJob(map, [], list(chunk), 'map')

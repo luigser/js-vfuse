@@ -263,7 +263,8 @@ class WebWorkerRuntime {
             let timeout = setTimeout(function () {
                 if(!result) {
                     clearTimeout(timeout)
-                    this.worker.terminate()
+                    if(this.worker.terminate)
+                        this.worker.terminate()
                     result = {
                         action: 'return',
                         results: {error: {

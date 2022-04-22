@@ -54,7 +54,7 @@ export default function ProfilePage(props){
         let ls_bootstraps = localStorage.getItem('bootstraps')
         let ls_pinningServerProtocol = localStorage.getItem('pinningServerProtocol')
         let ls_pinningServerHost = localStorage.getItem('pinningServerHost')
-        let ls_pinningServerPort = localStorage.getItem('c')
+        let ls_pinningServerPort = localStorage.getItem('pinningServerPort')
         let ls_delegateNode = localStorage.getItem('delegateNode')
 
         if(ls_signalServer){
