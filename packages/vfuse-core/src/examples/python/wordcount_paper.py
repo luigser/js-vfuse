@@ -12,7 +12,6 @@ async def map(data):
             result[w] = result[w] + 1
         else:
             result[w] = 1
-    print(result)
     return result
 
 def reduce(data):

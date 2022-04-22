@@ -13,18 +13,23 @@ class WebWorkerRuntime {
         this.worker   = worker
         this.webworker = worker.getWebWorker()
         this.jobExecutionTimeout = Constants.TIMEOUTS.JOB_EXECUTION
+        this.maxJobsQueueLength = Constants.LIMITS.MAX_CONCURRENT_JOBS
         this.runtimeManager = runtimeManager
         this.eventManager = eventManager
+        this.executionQueue = []
 
         this.eventManager.on(Constants.EVENTS.PROFILE_STATUS, function(data){
             if(data.profile.status){
                 this.jobExecutionTimeout = data.profile.preferences.TIMEOUTS.JOB_EXECUTION
+                this.maxJobsQueueLength = data.profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
+
             }
         }.bind(this))
 
         this.eventManager.on(Constants.EVENTS.PREFERENCES_UPDATED, function(preferences){
             if(preferences){
                 this.jobExecutionTimeout = preferences.TIMEOUTS.JOB_EXECUTION
+                this.maxJobsQueueLength = preferences.LIMITS.MAX_CONCURRENT_JOBS
             }
         }.bind(this))
 
@@ -86,9 +91,13 @@ class WebWorkerRuntime {
         this.history.push(log)
     }
 
-    exec(job) {
+    async exec(job) {
         //todo to fix
-        if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) this.webworker = this.worker.getWebWorker()
+        //if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) this.webworker = this.worker.getWebWorker()
+        this.webworker = this.worker.getWebWorker()
+        await this.init()
+        await this.load()
+
         const promise = new Promise((resolve, reject) => {
             this.webworker.addEventListener('message', async(e) => {
                 const { action, results } = e.data
