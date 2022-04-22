@@ -19,11 +19,13 @@ class WebWorkerRuntime {
         this.eventManager = eventManager
         this.executionQueue = []
 
+        this.createWorkersPool()
+
         this.eventManager.on(Constants.EVENTS.PROFILE_STATUS, async function(data){
             if(data.status){
                 //this.jobExecutionTimeout = data.profile.preferences.TIMEOUTS.JOB_EXECUTION
                 //this.maxJobsQueueLength = data.profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
-                await this.createWorkersPool()
+                //await this.createWorkersPool()
             }
         }.bind(this))
 
@@ -31,7 +33,7 @@ class WebWorkerRuntime {
             if(preferences){
                 this.jobExecutionTimeout = preferences.TIMEOUTS.JOB_EXECUTION
                 this.maxJobsQueueLength = preferences.LIMITS.MAX_CONCURRENT_JOBS
-                await this.createWorkersPool()
+                //await this.createWorkersPool()
             }
         }.bind(this))
 
