@@ -8,11 +8,12 @@ class RuntimeManager{
         this.workflowManager = workflowManager
         this.eventManager = eventManager
         this.workers = new Map()
-        this.load(options)
+        this.options = options
     }
 
     async start(){
         try {
+            await this.load(this.options)
             /*if (this.workers) {
                 for(let key of this.workers.keys()){
                     await this.workers.get(key).init()
@@ -24,20 +25,24 @@ class RuntimeManager{
         }
     }
 
-    load(options){
+    async load(options){
         try {
             if (isBrowser) {
                 const WebWorkerRuntime = require('./runtime/webWorkerRuntime')
                 if(options) {
-                    for(let option of options)
-                       this.workers.set(option.worker.getLanguage(), new WebWorkerRuntime(this, new option.worker(), option, this.eventManager))
+                    for(let option of options) {
+                        let runtime = new WebWorkerRuntime(this, new option.worker(), option, this.eventManager)
+                        await runtime.init()
+                        this.workers.set(option.worker.getLanguage(), runtime )
+                    }
                 }
-                this.workers.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT,
-                    new WebWorkerRuntime(this,
-                        new JavascriptWorker(),
-                        {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT},
-                        this.eventManager
-                        ))
+                let runtime = new WebWorkerRuntime(this,
+                    new JavascriptWorker(),
+                    {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT},
+                    this.eventManager
+                )
+                await runtime.init()
+                this.workers.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, runtime)
             }
             if (isNode) {
                 if(options) {
@@ -64,9 +69,9 @@ class RuntimeManager{
 
     async runLocalCode(code, language){
         let worker = this.workers.get(language)
-        if(language === Constants.PROGRAMMING_LANGUAGE.PYTHON) {
+        /*if(language === Constants.PROGRAMMING_LANGUAGE.PYTHON) {
             await worker.restart()
-        }
+        }*/
         return await worker.run({ code : code, inline : true, language: language})
     }
 

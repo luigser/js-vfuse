@@ -18,8 +18,7 @@ class WebWorkerRuntime {
         this.runtimeManager = runtimeManager
         this.eventManager = eventManager
         this.executionQueue = []
-
-        this.createWorkersPool()
+        this.selectionWorkerLock = false
 
         this.eventManager.on(Constants.EVENTS.PROFILE_STATUS, async function(data){
             if(data.status){
@@ -49,6 +48,7 @@ class WebWorkerRuntime {
         console.log("Initializing thread pool")
         this.executionQueue = []
         for(let i =0; i < this.maxJobsQueueLength; i++){
+            console.log("Initializing Thread " + i )
             let worker = this.worker.getWebWorker()
             this.executionQueue.push({ id : i, worker : worker, busy : false})
             await this.initWorker(worker)
@@ -71,7 +71,7 @@ class WebWorkerRuntime {
                 if (action === 'initialized') {
                     resolve(this)
                 } else {
-                    reject(new Error('Runtime initialization failed'))
+                    reject(new Error('Worker initialization failed'))
                 }
             }
         })
@@ -87,7 +87,7 @@ class WebWorkerRuntime {
                 if (action === 'loaded') {
                     resolve(this)
                 } else {
-                    reject(new Error('Package preloading failed'))
+                    reject(new Error('Worker loading failed'))
                 }
             }
         })
@@ -95,9 +95,9 @@ class WebWorkerRuntime {
         return promise
     }
 
-    init() {
+    async init() {
         // initialize Runtime
-        const promise = new Promise((resolve, reject) => {
+        /*const promise = new Promise((resolve, reject) => {
             this.webworker.onmessage = (e) => {
                 const { action } = e.data
                 if (action === 'initialized') {
@@ -108,7 +108,8 @@ class WebWorkerRuntime {
             }
         })
         this.webworker.postMessage({ action: 'init' })
-        return promise
+        return promise*/
+        await this.createWorkersPool()
     }
 
     load() {
@@ -142,10 +143,11 @@ class WebWorkerRuntime {
         //if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) this.webworker = this.worker.getWebWorker()
 
         const promise = new Promise((resolve, reject) => {
-            webworker.addEventListener('message', async(e) => {
+            webworker.onmessage = async(e) => {
                 const { action, results } = e.data
                 switch(action){
                     case 'return':
+                        webworker.onmessage = null
                         resolve({results: results, executionTime : e.data.executionTime} )
                         break
                     case 'VFuse:worker':
@@ -295,10 +297,11 @@ class WebWorkerRuntime {
                         }
                         break
                     case 'error':
+                        webworker.onmessage = null
                         reject(results)
                         break
                 }
-            })
+            }
         })
 
         webworker.postMessage({
@@ -308,19 +311,28 @@ class WebWorkerRuntime {
         return promise
     }
 
-    async run(job) {
-        let result = null
+    async selectWorker(){
+        while(this.selectionWorkerLock){}
+        this.selectionWorkerLock = true
         let webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
         while(webworker.busy)
             webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
         webworker.busy = true
+        this.selectionWorkerLock = false
+        return webworker
+    }
+
+
+    async run(job) {
+        let result = null
+        let webworker = await this.selectWorker()
         try {
             const startTs = Date.now()
             let timeout = setTimeout(function () {
                 if(!result) {
                     clearTimeout(timeout)
-                    if(webworker.terminate) {
-                        webworker.terminate()
+                    if(webworker.worker.terminate) {
+                        webworker.worker.terminate()
                         webworker.busy = false
                     }
                     result = {
