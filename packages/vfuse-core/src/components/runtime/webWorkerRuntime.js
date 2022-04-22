@@ -288,7 +288,7 @@ class WebWorkerRuntime {
             const log = {start: startTs, end: Date.now(), cmd: job.code}
             this.history.push(log)
         }catch (e) {
-            console.log('Error in web worker runtime : %O', e)
+            console.log('Error in web worker runtime : ' +  e.message)
 
         }
 
