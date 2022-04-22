@@ -13,16 +13,15 @@ const browserInABox = async () => {
         console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`)
     )
 
-    /*await page.evaluate(async ip => {
-        document.querySelector('#signal_server').value = `/dns4/${ip}/tcp/2002/wss/p2p-webrtc-star/`
-        document.querySelector('#pinner_host').value = ip
-        document.querySelector('#bootstrap').value = `/ip4/${ip}/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww`
-        document.querySelector('#start_node').click()
-    },IP);*/
-
-    await page.type('#signal_server', `/dns4/${IP}/tcp/2002/wss/p2p-webrtc-star/`)
-    await page.type('#pinner_host', IP)
-    await page.type('#bootstrap', `/ip4/${IP}/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww`)
+    let input = await page.$('#signal_server');
+    await input.click({ clickCount: 3 })
+    await input.type(`/dns4/${IP}/tcp/2002/wss/p2p-webrtc-star/`)
+    input = await page.$('#pinner_host');
+    await input.click({ clickCount: 3 })
+    await input.type(IP)
+    input = await page.$('#bootstrap');
+    await input.click({ clickCount: 3 })
+    await input.type(`/ip4/${IP}/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww`)
 
     let el = await page.waitForSelector('#start_node');
     await page.click(el._remoteObject.description);
