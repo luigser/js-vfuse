@@ -78,7 +78,7 @@ export default function ProfilePage(props){
         }else{
             localStorage.setItem('pinningServerProtocol', pinningServerProtocol)
             localStorage.setItem('pinningServerHost', pinningServerHost)
-            localStorage.setItem('pinningServerHost', pinningServerHost)
+            localStorage.setItem('pinningServerPort', pinningServerPort)
         }
 
         if(ls_delegateNode) {

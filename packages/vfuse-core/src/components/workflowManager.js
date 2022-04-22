@@ -701,7 +701,7 @@ class WorkflowManager{
         }
     }
 
-    async getRunningWorkflows(){
+    getRunningWorkflows(){
         try{
             return [...this.runningWorkflowsQueue.values()]
 

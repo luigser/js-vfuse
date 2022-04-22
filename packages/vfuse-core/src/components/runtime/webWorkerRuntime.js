@@ -50,7 +50,7 @@ class WebWorkerRuntime {
         for(let i =0; i < this.maxJobsQueueLength; i++){
             console.log("Initializing Thread " + i )
             let worker = this.worker.getWebWorker()
-            this.executionQueue.push({ id : i, worker : worker, busy : false})
+            this.executionQueue.push({ id : i, worker : worker, busy : false, initialized : true})
             await this.initWorker(worker)
             await this.loadWorker(worker)
         }
@@ -189,9 +189,10 @@ class WebWorkerRuntime {
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getDataFromUrl",
-                                            error : content.error.toString()
+                                            error : content && content.error ? content.error.toString() : 'Cannot fetch from given url'
                                         }
                                     })
+                                    resolve({results: {error : content && content.error ? content.error.toString() : 'Cannot fetch from given url'}} )
                                 }
                                 break
                             case 'saveOnNetwork':
@@ -212,6 +213,7 @@ class WebWorkerRuntime {
                                             error : cid.error.toString()
                                         }
                                     })
+                                    resolve({results: {error : cid.error.toString()}})
                                 }
                                 break
                             case 'getFromNetwork':
@@ -229,9 +231,10 @@ class WebWorkerRuntime {
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getFromNetwork",
-                                            error : content.error.toString()
+                                            error : data.error.toString()
                                         }
                                     })
+                                    resolve({results: {error : data.error.toString()}})
                                 }
                                 break
                             case 'setEndlessJob':
@@ -252,6 +255,7 @@ class WebWorkerRuntime {
                                             error : sejResult.error.toString()
                                         }
                                     })
+                                    resolve({results: {error : sejResult.error.toString()}})
                                 }
                                 break
                             case 'setJobReturnType':
@@ -272,6 +276,7 @@ class WebWorkerRuntime {
                                             error : sjrtResult.error.toString()
                                         }
                                     })
+                                    resolve({results: {error : sjrtResult.error.toString()}})
                                 }
                                 break
                             case 'addJobToGroup':
@@ -292,6 +297,7 @@ class WebWorkerRuntime {
                                             error : atgResult.error.toString()
                                         }
                                     })
+                                    resolve({results: {error : atgResult.error.toString()}})
                                 }
                                 break
                         }
@@ -317,6 +323,10 @@ class WebWorkerRuntime {
         let webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
         while(webworker.busy)
             webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
+        if(!webworker.initialized){
+            await this.initWorker(webworker.worker)
+            await this.loadWorker(webworker.worker)
+        }
         webworker.busy = true
         this.selectionWorkerLock = false
         return webworker

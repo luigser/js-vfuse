@@ -58,6 +58,11 @@ export default function RunningWorkflowPage(props){
             key: "language"
         },
         {
+            title : "Owner",
+            dataIndex: "owner",
+            key: "ownerId"
+        },
+        {
             title : "Action",
             dataIndex: "action",
             key: "action",

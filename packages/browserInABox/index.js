@@ -13,19 +13,16 @@ const browserInABox = async () => {
         console.log(`${message.type().substr(0, 3).toUpperCase()} ${message.text()}`)
     )
 
-    await page.evaluate(val =>
-            document.querySelector('#signal_server').value = val,
-        `/dns4/${IP}/tcp/2002/wss/p2p-webrtc-star/`
+    await page.evaluate(() =>
+        document.querySelector('#signal_server').value = `/dns4/${IP}/tcp/2002/wss/p2p-webrtc-star/`
     );
 
-    await page.evaluate(val =>
-            document.querySelector('#pinner_host').value = val,
-        IP
+    await page.evaluate(() =>
+        document.querySelector('#pinner_host').value = IP
     );
 
-    await page.evaluate(val =>
-            document.querySelector('#bootstrap').value = val,
-        `/ip4/${IP}/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww`
+    await page.evaluate(() =>
+        document.querySelector('#bootstrap').value = `/ip4/${IP}/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww`
     );
 
     let el = await page.waitForSelector('#start_node');
