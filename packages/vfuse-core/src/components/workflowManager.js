@@ -463,15 +463,20 @@ class WorkflowManager{
                     //running_workflow = JSON.parse(running_workflow)
                     for (let result_node of data.nodes) {
                         let local_job_node = running_workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
-                        if (!this.jobsExecutionQueue.find( j => j === result_node.job.id) &&
+                        if ((!this.jobsExecutionQueue.find( j => j === result_node.job.id)) &&
                             (local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
                                 (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY))) {
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            local_job_node.color = result_node.color
+                            /*local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
-                            JobsDAG.combineDependentNodesResults(result_node)
+                            JobsDAG.combineDependentNodesResults(local_job_node)*/
+                            JobsDAG.setNodeState(
+                                running_workflow.jobsDAG,
+                                local_job_node,
+                                local_job_node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
+                                {results : result_node.job.results})
                         }
                     }
                     await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
