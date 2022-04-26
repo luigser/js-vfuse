@@ -469,11 +469,7 @@ class WorkflowManager{
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            JobsDAG.setNodeState(
-                                running_workflow.jobsDAG,
-                                result_node,
-                                result_node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
-                                {results : result_node.job.results})
+                            JobsDAG.combineDependentNodeResults(result_node)
                             //local_job_node.color = result_node.color
                             //local_job_node.job = result_node.job
                         }
