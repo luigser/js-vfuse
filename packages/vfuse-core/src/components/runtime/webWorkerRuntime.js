@@ -12,27 +12,19 @@ class WebWorkerRuntime {
         this.value = null
         this.packages = [worker.getDefaultPackages(), ... options && options.packages ? options.packages : []]
         this.worker   = worker
-        this.webworker = worker.getWebWorker()
-        this.jobExecutionTimeout = Constants.TIMEOUTS.JOB_EXECUTION
-        this.maxJobsQueueLength = Constants.LIMITS.MAX_CONCURRENT_JOBS
+        //this.localWebworker = worker.getWebWorker()
+        this.jobExecutionTimeout = options.preferences.TIMEOUTS.JOB_EXECUTION
+        this.maxJobsQueueLength = options.preferences.LIMITS.MAX_CONCURRENT_JOBS
         this.runtimeManager = runtimeManager
         this.eventManager = eventManager
         this.executionQueue = []
         this.selectionWorkerLock = false
 
-        this.eventManager.on(Constants.EVENTS.PROFILE_STATUS, async function(data){
-            if(data.status){
-                //this.jobExecutionTimeout = data.profile.preferences.TIMEOUTS.JOB_EXECUTION
-                //this.maxJobsQueueLength = data.profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
-                //await this.createWorkersPool()
-            }
-        }.bind(this))
-
         this.eventManager.on(Constants.EVENTS.PREFERENCES_UPDATED, async function(preferences){
             if(preferences){
                 this.jobExecutionTimeout = preferences.TIMEOUTS.JOB_EXECUTION
                 this.maxJobsQueueLength = preferences.LIMITS.MAX_CONCURRENT_JOBS
-                //await this.createWorkersPool()
+                await this.createWorkersPool()
             }
         }.bind(this))
 
@@ -46,6 +38,8 @@ class WebWorkerRuntime {
 
     async createWorkersPool(){
         console.log("Initializing thread pool")
+        for(let entry of this.executionQueue)
+            entry.worker.terminate()
         this.executionQueue = []
         for(let i =0; i < this.maxJobsQueueLength; i++){
             console.log("Initializing Thread " + i )
@@ -112,10 +106,10 @@ class WebWorkerRuntime {
         await this.createWorkersPool()
     }
 
-    load() {
+    /*load() {
         // preload packages
         const promise = new Promise((resolve, reject) => {
-            this.webworker.onmessage = (e) => {
+            this.localWebworker.onmessage = (e) => {
                 const { action } = e.data
                 if (action === 'loaded') {
                     resolve(this)
@@ -124,19 +118,19 @@ class WebWorkerRuntime {
                 }
             }
         })
-        this.webworker.postMessage({ action: 'load', packages: this.packages })
+        this.localWebworker.postMessage({ action: 'load', packages: this.packages })
         return promise
     }
 
     async restart() {
         const startTs = Date.now()
-        this.webworker.terminate()
-        this.webworker = this.worker.getWebWorker()
+        this.localWebworker.terminate()
+        this.localWebworker = this.worker.getWebWorker()
         await this.init()
         await this.load()
         const log = { start: startTs, end: Date.now(), cmd: '$RESTART SESSION$' }
         this.history.push(log)
-    }
+    }*/
 
     async exec(job, webworker) {
         //todo to fix
@@ -341,10 +335,10 @@ class WebWorkerRuntime {
             let timeout = setTimeout(function () {
                 if(!result) {
                     clearTimeout(timeout)
-                    if(webworker.worker.terminate) {
+                    /*if(webworker.worker.terminate) {
                         webworker.worker.terminate()
                         webworker.busy = false
-                    }
+                    }*/
                     result = {
                         action: 'return',
                         results: {error: {

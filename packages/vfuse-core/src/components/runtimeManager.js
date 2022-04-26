@@ -9,10 +9,12 @@ class RuntimeManager{
         this.eventManager = eventManager
         this.workers = new Map()
         this.options = options
+        this.preferences
     }
 
-    async start(){
+    async start(preferences){
         try {
+            this.preferences = preferences
             await this.load(this.options)
             /*if (this.workers) {
                 for(let key of this.workers.keys()){
@@ -31,6 +33,7 @@ class RuntimeManager{
                 const WebWorkerRuntime = require('./runtime/webWorkerRuntime')
                 if(options) {
                     for(let option of options) {
+                        option.preferences = this.preferences
                         let runtime = new WebWorkerRuntime(this, new option.worker(), option, this.eventManager)
                         await runtime.init()
                         this.workers.set(option.worker.getLanguage(), runtime )
@@ -38,7 +41,7 @@ class RuntimeManager{
                 }
                 let runtime = new WebWorkerRuntime(this,
                     new JavascriptWorker(),
-                    {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT},
+                    {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, preferences : this.preferences},
                     this.eventManager
                 )
                 await runtime.init()
@@ -49,8 +52,7 @@ class RuntimeManager{
                     for(let option of options)
                        this.workers.set(option.getLanguage(), new option.worker(this, this.eventManager))
                 }
-                if(!options || options.getLoadedLanguages() !== Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
-                   this.workers.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this, this.eventManager))
+                this.workers.set(Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, (new JavascriptWorker()).getNodeWorker(this, this.eventManager))
             }
         }catch(e){
             console.log("Got some error during runtime manager creation %O", e)
@@ -66,6 +68,8 @@ class RuntimeManager{
         let worker = this.workers.get(job.language)
         return worker ? await worker.run(job) : { error : job.language + ' is not currently supported'}
     }
+
+
 
     async runLocalCode(code, language){
         let worker = this.workers.get(language)

@@ -5,7 +5,7 @@ const browserInABox = async () => {
     const browser = await puppeteer.launch({
         headless: true,
         ignoreHTTPSErrors: true,
-        args: ['--disable-dev-shm-usage']
+        args: ['--disable-dev-shm-usage', '--incognito']
     })
     const page = await browser.newPage()
     await page.goto(`https://${IP}/`)

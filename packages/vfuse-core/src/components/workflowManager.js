@@ -74,9 +74,9 @@ class WorkflowManager{
 
     async start(){
         try {
-            if (this.runtimeManager) {
+            /*if (this.runtimeManager) {
                 await this.runtimeManager.start()
-            }
+            }*/
         }catch (e) {
             console.log('Error during workflow manager starting: %O', e)
         }
@@ -112,8 +112,11 @@ class WorkflowManager{
             this.publishWorkflowsTimeout = profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING * 1000
             this.maxConcurrentJobs = profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
 
+            await this.runtimeManager.start(profile.preferences)
+
             //Start publish on topic
-            this.executionCycle()
+            this.startExecutionCycle()
+            //this.executionCycle()
             this.publishWorkflows()
             this.publishResults()
             //TODO fix
@@ -151,7 +154,7 @@ class WorkflowManager{
         clearInterval(this.publishResultsInterval)
         clearInterval(this.publishWorkflowsInterval)
 
-        this.executionCycle()
+        this.startExecutionCycle()
         this.publishWorkflows()
         this.publishResults()
     }
@@ -174,7 +177,7 @@ class WorkflowManager{
 
     }
 
-    executionCycle(){
+    startExecutionCycle(){
         this.executionCycleInterval = setInterval(async function(){
             await this.manageWorkflowsExecution()
         }.bind(this), this.executionCycleTimeout)
@@ -229,15 +232,17 @@ class WorkflowManager{
                         if(workflow) {
                             workflow = JSON.parse(workflow)
                             let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow.jobsDAG)
-                            if(nodes_to_publish.length > 0) {
-                                await this.contentManager.sendOnTopic({
-                                    action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
-                                    payload: {
-                                        wid: workflow.id,
-                                        nodes: nodes_to_publish
-                                    }
-                                })
-                            }
+                            //if(nodes_to_publish.length > 0) {
+                                for(let node of nodes_to_publish) {
+                                    await this.contentManager.sendOnTopic({
+                                        action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
+                                        payload: {
+                                            wid: workflow.id,
+                                            nodes: [node]//nodes_to_publish
+                                        }
+                                    })
+                                }
+                            //}
                         }
                     }
                     let completed_workflows = await this.contentManager.list('/workflows/completed')
@@ -294,6 +299,73 @@ class WorkflowManager{
         }
     }
 
+    isAllRunningWorkflowsNodesInExecutionQueue(){
+        for(let [wid, w] of this.runningWorkflowsQueue.entries()){
+            let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG)
+            for(let n of readyNodes){
+                if(!n.isInQueue)
+                    return false
+            }
+        }
+        return true
+    }
+    async fillExecutionQueue(){
+        let stop = false
+        while (this.jobsExecutionQueue.length < this.maxConcurrentJobs && !stop){
+            let running_workflows_keys = [ ...this.runningWorkflowsQueue.keys()]
+            let workflow_to_run_id = MathJs.pickRandom(running_workflows_keys, running_workflows_keys.map(w => 1 / running_workflows_keys.length))
+            //Select randomly a ready node from selected running workflow
+            let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
+            if(!workflow_to_run) return
+            let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG)
+            let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
+            if(!this.jobsExecutionQueue.find(e => e.node.id === node.id)) {
+                node.isInQueue = true
+                this.jobsExecutionQueue.push({node: node, wid: workflow_to_run.id})
+            }
+            stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
+        }
+    }
+    async updateRunningWorkflows(){
+        for(let running_workflow of this.runningWorkflowsQueue){
+            await this.contentManager.save('/workflows/running/' + running_workflow.id + '.json', JSON.stringify(running_workflow))
+        }
+    }
+
+    async executionCycle(){
+        try {
+            await this.fillExecutionQueue()
+            while(this.jobsExecutionQueue.length > 0) {
+                for (let entry of this.jobsExecutionQueue) {
+                    let results = await this.runtimeManager.runJob(entry.node.job)
+                    if (results) {
+                        let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
+                        entry.node.job.executorPeerId = this.identityManager.peerId
+                        JobsDAG.setNodeState(
+                            workflow_to_run.jobsDAG,
+                            entry.node,
+                            entry.node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
+                            {results: results})
+                        let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
+                        await this.contentManager.sendOnTopic({
+                            action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
+                            payload: {
+                                wid: workflow_to_run.id,
+                                nodes: nodes_to_publish
+                            }
+                        })
+                        this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)
+                        this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
+                        await this.fillExecutionQueue()
+                    }
+                }
+            }
+            await this.updateRunningWorkflows()
+        }catch(e){
+            console.log('Got error during workflows execution : ' + e.message)
+        }
+    }
+
     async manageWorkflowsExecution(){
         try {
             if(this.jobsExecutionQueue.length === this.maxConcurrentJobs) return
@@ -326,24 +398,17 @@ class WorkflowManager{
                 })
                 this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)
                 await this.contentManager.save('/workflows/running/' + workflow_to_run_id + '.json', JSON.stringify(workflow_to_run))
-                this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1);
-
+                //this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1)
+                this.jobsExecutionQueue = this.jobsExecutionQueue.filter( j => j !== node.job.id)
             }
         }catch (e) {
-            console.log('Got error during workflows execution : %O', e)
+            console.log('Got error during workflows execution : ' + e.message)
         }
     }
 
-    async runJob(wid, job) {
+    async runLocalJob(wid, job) {
         try {
-            let execution_results = null
-            let node_execution = this.jobsExecutionQueue.find(r => r === job.id)
-            if (!node_execution) { //TODO manage results replication
-                this.jobsExecutionQueue.push(job.id)
-                execution_results = await this.runtimeManager.runJob(job)
-                this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(job.id), 1);
-            }
-            return execution_results
+             return await this.runtimeManager.runJob(job)
         }catch (e) {
             console.log('Got error executing job : %O', e)
         }
@@ -374,8 +439,9 @@ class WorkflowManager{
                         let local_job_node = workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
                         if( local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
                             (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY)){
-                            if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS)
+                            if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
+                            }
                             local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
                         }else{//Already completed
@@ -395,12 +461,13 @@ class WorkflowManager{
                     //running_workflow = JSON.parse(running_workflow)
                     for (let result_node of data.nodes) {
                         let local_job_node = running_workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
-                        if (this.jobsExecutionQueue.indexOf(result_node.job.id) < 0 &&
+                        if (!this.jobsExecutionQueue.find( j => j === result_node.job.id) &&
                             (local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
                                 (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY))) {
-                            local_job_node.color = result_node.color
-                            if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS)
+                            if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
+                            }
+                            local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
                         }
                     }
@@ -482,7 +549,7 @@ class WorkflowManager{
                 let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
                 while(nodes.length > 0) {
                     for (let node of nodes) {
-                        let results = await this.runJob(workflow.id, node.job)
+                        let results = await this.runLocalJob(workflow.id, node.job)
                         if (results) {
                             JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB.STATUS.COMPLETED, {results: results})
                         }
