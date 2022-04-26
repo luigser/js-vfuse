@@ -62,7 +62,7 @@ class JobsDAG {
             case Constants.JOB.STATUS.COMPLETED:
                 node.job.status = Constants.JOB.STATUS.COMPLETED
                 node.color = Utils.getColor(Constants.JOB.STATUS.COMPLETED)
-                node.job.results = data.results.results//ResultsUtils.combine(node.job.results, data.results.results)
+                node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
                 node.job.executionTime = data.results.executionTime
                 break
             case Constants.JOB.STATUS.ENDLESS:

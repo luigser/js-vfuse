@@ -337,27 +337,29 @@ class WorkflowManager{
             await this.fillExecutionQueue()
             while(this.jobsExecutionQueue.length > 0) {
                 for (let entry of this.jobsExecutionQueue) {
-                    let results = await this.runtimeManager.runJob(entry.node.job)
-                    if (results) {
-                        let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
-                        entry.node.job.executorPeerId = this.identityManager.peerId
-                        JobsDAG.setNodeState(
-                            workflow_to_run.jobsDAG,
-                            entry.node,
-                            entry.node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
-                            {results: results})
-                        let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
-                        await this.contentManager.sendOnTopic({
-                            action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
-                            payload: {
-                                wid: workflow_to_run.id,
-                                nodes: nodes_to_publish
-                            }
-                        })
-                        this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)
-                        this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
-                        await this.fillExecutionQueue()
-                    }
+                    setTimeout(async function(){
+                        let results = await this.runtimeManager.runJob(entry.node.job)
+                        if (results) {
+                            let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
+                            entry.node.job.executorPeerId = this.identityManager.peerId
+                            JobsDAG.setNodeState(
+                                workflow_to_run.jobsDAG,
+                                entry.node,
+                                entry.node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
+                                {results: results})
+                            let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
+                            await this.contentManager.sendOnTopic({
+                                action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
+                                payload: {
+                                    wid: workflow_to_run.id,
+                                    nodes: nodes_to_publish
+                                }
+                            })
+                            this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)
+                            this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
+                            await this.fillExecutionQueue()
+                        }
+                    }.bind(this), 0)
                 }
             }
             await this.updateRunningWorkflows()
