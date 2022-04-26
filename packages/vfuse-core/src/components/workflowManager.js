@@ -469,8 +469,13 @@ class WorkflowManager{
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            local_job_node.color = result_node.color
-                            local_job_node.job = result_node.job
+                            JobsDAG.setNodeState(
+                                running_workflow.jobsDAG,
+                                result_node,
+                                result_node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
+                                {results : result_node.job.results})
+                            //local_job_node.color = result_node.color
+                            //local_job_node.job = result_node.job
                         }
                     }
                     await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
