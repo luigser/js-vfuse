@@ -93,7 +93,7 @@ class JobsDAG {
         node1.job.results = ResultsUtils.combine(node1.job.results, node2.job.results)
     }
 
-    static combineDependentNodeResults(node){
+    static combineDependentNodesResults(node){
         let dependent_nodes = JSONJobsDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0
             || n.job.dependencies.filter( d => (new RegExp(d)).test(node.job.name) || new RegExp(d).test(node.job.group)).length > 0)
         )
