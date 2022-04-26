@@ -49,40 +49,77 @@ class JobsDAG {
     }
 
     static setNodeState = (JSONJobsDAG, node, state, data) => {
-        if(data.results.error){
-            node.job.status = Constants.JOB.STATUS.ERROR
-            node.color = Utils.getColor(Constants.JOB.STATUS.ERROR)
-            node.job.results = data.results
-            return
-        }
-        //Maybe a not useful control
-        if(state === Constants.JOB.STATUS.READY) return
+        try {
+            if (data.results && data.results.error) {
+                node.job.status = Constants.JOB.STATUS.ERROR
+                node.color = Utils.getColor(Constants.JOB.STATUS.ERROR)
+                node.job.results = data.results
+                return
+            }
+            //Maybe a not useful control
+            if (state === Constants.JOB.STATUS.READY) return
 
-        switch(state){
-            case Constants.JOB.STATUS.COMPLETED:
-                node.job.status = Constants.JOB.STATUS.COMPLETED
-                node.color = Utils.getColor(Constants.JOB.STATUS.COMPLETED)
-                node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
-                node.job.executionTime = data.results.executionTime
-                break
-            case Constants.JOB.STATUS.ENDLESS:
-                node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
-                break
-        }
+            switch (state) {
+                case Constants.JOB.STATUS.COMPLETED:
+                    node.job.status = Constants.JOB.STATUS.COMPLETED
+                    node.color = Utils.getColor(Constants.JOB.STATUS.COMPLETED)
+                    node.job.results = data.results.results//ResultsUtils.combine(node.job.results, data.results.results)
+                    node.job.executionTime = data.results.executionTime
+                    break
+                case Constants.JOB.STATUS.ENDLESS:
+                    node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
+                    break
+            }
 
-        let dependent_nodes = JSONJobsDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0
-            || n.job.dependencies.filter( d => (new RegExp(d)).test(node.job.name) || new RegExp(d).test(node.job.group)).length > 0)
+            JobsDAG.updatesDependentNodes(JSONJobsDAG, node)
+
+            /*let dependent_nodes = JSONJobsDAG.nodes.filter(n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0
+                || n.job.dependencies.filter(d => (new RegExp(d)).test(node.job.name) || new RegExp(d).test(node.job.group)).length > 0)
+            )
+            for (let dependent_node of dependent_nodes) {
+                if (!dependent_node.job.resultsForJobs.find(r => r === node.job.id)) {
+                    dependent_node.job.data = ResultsUtils.combine(dependent_node.job.data, node.job.results)
+                    dependent_node.job.resultsForJobs.push(node.job.id)
+                }
+                let isReady = true
+                for (let dep of dependent_node.job.dependencies) {
+                    let dns = JSONJobsDAG.nodes.filter(nd => nd.id === dep || (new RegExp(dep)).test(nd.label) || (new RegExp(dep).test(nd.group)))
+                    for (let nx of dns) {
+                        if (!nx.job.results || nx.job.results.length === 0) isReady = false
+                    }
+                }
+                if (isReady && dependent_node.job.status !== Constants.JOB.STATUS.ENDLESS) {
+                    dependent_node.job.status = Constants.JOB.STATUS.READY
+                    dependent_node.color = Utils.getColor(Constants.JOB.STATUS.READY)
+                }
+            }*/
+        }catch (e) {
+            console.log("Boom : %O", e)
+        }
+    }
+
+    static setRunningNodeState(JSONJobsDAG, local_node, results_node){
+        local_node.job = results_node.job
+        JobsDAG.updatesDependentNodes(JSONJobsDAG, local_node)
+    }
+
+    static updatesDependentNodes(JSONJobsDAG, node){
+        let dependent_nodes = JSONJobsDAG.nodes.filter(n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0
+            || n.job.dependencies.filter(d => (new RegExp(d)).test(node.job.name) || new RegExp(d).test(node.job.group)).length > 0)
         )
-        for(let dependent_node of dependent_nodes){
-            dependent_node.job.data = ResultsUtils.combine(dependent_node.job.data, node.job.results)
+        for (let dependent_node of dependent_nodes) {
+            if (!dependent_node.job.resultsForJobs.find(r => r === node.job.id)) {
+                dependent_node.job.data = ResultsUtils.combine(dependent_node.job.data, node.job.results)
+                dependent_node.job.resultsForJobs.push(node.job.id)
+            }
             let isReady = true
-            for(let dep of dependent_node.job.dependencies){
+            for (let dep of dependent_node.job.dependencies) {
                 let dns = JSONJobsDAG.nodes.filter(nd => nd.id === dep || (new RegExp(dep)).test(nd.label) || (new RegExp(dep).test(nd.group)))
-                for(let nx of dns) {
+                for (let nx of dns) {
                     if (!nx.job.results || nx.job.results.length === 0) isReady = false
                 }
             }
-            if(isReady && dependent_node.job.status !== Constants.JOB.STATUS.ENDLESS){
+            if (isReady && dependent_node.job.status !== Constants.JOB.STATUS.ENDLESS) {
                 dependent_node.job.status = Constants.JOB.STATUS.READY
                 dependent_node.color = Utils.getColor(Constants.JOB.STATUS.READY)
             }

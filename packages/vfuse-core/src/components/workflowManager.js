@@ -226,24 +226,24 @@ class WorkflowManager{
         try{
             this.publishResultsInterval = setInterval(async function(){
                 try {
-                    let running_workflows = await this.contentManager.list('/workflows/running')
-                    for (let w in running_workflows){
-                        let workflow = await this.contentManager.get('/workflows/running/' + running_workflows[w])
-                        if(workflow) {
+                    //let running_workflows = await this.contentManager.list('/workflows/running')
+                    for (let workflow in this.runningWorkflowsQueue.values()/*running_workflows*/){
+                        //let workflow = await this.contentManager.get('/workflows/running/' + running_workflows[w])
+                        //if(workflow) {
                             workflow = JSON.parse(workflow)
                             let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow.jobsDAG)
-                            //if(nodes_to_publish.length > 0) {
+                            if(nodes_to_publish.length > 0) {
                                 for(let node of nodes_to_publish) {
                                     await this.contentManager.sendOnTopic({
                                         action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                         payload: {
                                             wid: workflow.id,
-                                            nodes: [node]//nodes_to_publish
+                                            nodes: nodes_to_publish
                                         }
                                     })
                                 }
-                            //}
-                        }
+                            }
+                        //}
                     }
                     let completed_workflows = await this.contentManager.list('/workflows/completed')
                     if (completed_workflows.length > 0){
@@ -472,11 +472,12 @@ class WorkflowManager{
                             /*local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
                             JobsDAG.combineDependentNodesResults(local_job_node)*/
-                            JobsDAG.setNodeState(
-                                running_workflow.jobsDAG,
-                                local_job_node,
-                                local_job_node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
-                                {results : result_node.job.results})
+                            else if(local_job_node.job.status !== result_node.job.status) {
+                                JobsDAG.setRunningNodeState(
+                                    running_workflow.jobsDAG,
+                                    local_job_node,
+                                    result_node)
+                            }
                         }
                     }
                     await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
@@ -484,7 +485,7 @@ class WorkflowManager{
                 }
             }
         }catch (e) {
-            //console.log('Error during results management : %O', e)
+            console.log('Error during results management : %O', e)
         }
     }
 
@@ -818,8 +819,13 @@ class WorkflowManager{
     }
 
     getRunningWorkflowResults(wid){
-        let workflow = this.runningWorkflowsQueue.get(wid)
-        return workflow ? JobsDAG.getOutputNodes(workflow.jobsDAG) : []
+        try {
+            let workflow = this.runningWorkflowsQueue.get(wid)
+            return workflow ? JobsDAG.getOutputNodes(workflow.jobsDAG) : []
+        }catch(e){
+            console.log('There was an error retrieving running workflow : %O', e)
+            return []
+        }
     }
 
 

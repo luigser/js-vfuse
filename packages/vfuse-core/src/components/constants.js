@@ -96,7 +96,7 @@ const Constants = {
         JOB_EXECUTION : 300000
     },
     LIMITS: {
-        MAX_CONCURRENT_JOBS : 3,
+        MAX_CONCURRENT_JOBS : 2,
         MAX_MANAGED_WORKFLOW : 100
     }
 }
