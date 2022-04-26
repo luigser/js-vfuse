@@ -277,7 +277,6 @@ class WorkflowManager{
         let encoded_workflow = await this.contentManager.getFromNetwork(data.cid)
         await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
         let workflow = JSON.parse(encoded_workflow)
-        workflow.lock  = false
         this.runningWorkflowsQueue.set(workflow.id, workflow)
         this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
     }
@@ -386,14 +385,11 @@ class WorkflowManager{
             let results = await this.runtimeManager.runJob(node.job)
             if(results){
                 node.job.executorPeerId = this.identityManager.peerId
-                while (workflow_to_run.lock){}
-                workflow_to_run.lock = true
                 JobsDAG.setNodeState(
                     workflow_to_run.jobsDAG,
                     node,
                     node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
                     {results : results})
-                workflow_to_run.lock = false
                 let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                 await this.contentManager.sendOnTopic({
                     action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
@@ -473,14 +469,11 @@ class WorkflowManager{
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            while (running_workflow.lock){}
-                            running_workflow.lock = true
                             JobsDAG.setNodeState(
                                 running_workflow.jobsDAG,
                                 result_node,
                                 result_node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
                                 {results : result_node.job.results})
-                            running_workflow.lock = false
                             //local_job_node.color = result_node.color
                             //local_job_node.job = result_node.job
                         }
