@@ -428,7 +428,7 @@ class WorkflowManager{
                 if(completed) return
                 let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                 if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){// -1 to not consider the root
-                    workflow.completedAt = Date.now()
+                    if(!workflow.completedAt) workflow.completedAt = Date.now()
                     await this.contentManager.save('/workflows/completed/' + workflow.id, "completed")
                     await this.contentManager.sendOnTopic({
                         action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,
