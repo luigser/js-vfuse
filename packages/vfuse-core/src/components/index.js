@@ -202,6 +202,10 @@ class VFuse {
         this.eventManager.addListener(event, callback)
     }
 
+    removeListener(event, callback){
+        this.eventManager.removeListener(event, callback)
+    }
+
     async stop(){
         console.log('Stopping VFuse node...')
         await this.networkManager.stop()

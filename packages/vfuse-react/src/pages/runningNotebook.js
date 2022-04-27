@@ -44,6 +44,11 @@ export default function RunningNotebookPage(props){
         }
 
         init()
+
+        return () => {
+            if(vFuseNode)
+                vFuseNode.removeListener(VFuse.Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, updateWorkflowCallback)
+        }
     },[])
 
     const updateWorkflowCallback = (workflow) => {
@@ -51,7 +56,6 @@ export default function RunningNotebookPage(props){
             let dag = workflow.jobsDAG
             setDag({nodes: [], edges: []})
             setDag(dag)
-            setResults(vFuseNode.getRunningWorkflowResults(workflowId))
         }
     }
 

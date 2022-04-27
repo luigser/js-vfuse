@@ -141,14 +141,18 @@ export default function NotebookPage(props){
         }
 
         init()
-    },[])
+
+        return () => {
+            if(vFuseNode)
+                vFuseNode.removeListener(VFuse.Constants.EVENTS.WORKFLOW_UPDATE, updateWorkflowCallback)
+        }
+    },[workflow])
 
     const updateWorkflowCallback = (workflow) => {
         if(workflow.id === workflowId) {
             let dag = workflow.jobsDAG
             setDag({nodes: [], edges: []})
             setDag(dag)
-            setResults(vFuseNode.getWorkflowResults(workflowId))
             setWorkflow(workflow)
         }
     }

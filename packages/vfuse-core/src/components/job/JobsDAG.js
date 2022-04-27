@@ -130,15 +130,6 @@ class JobsDAG {
         node1.job.results = ResultsUtils.combine(node1.job.results, node2.job.results)
     }
 
-    static combineDependentNodesResults(node){
-        let dependent_nodes = JSONJobsDAG.nodes.filter( n => n.job && (n.job.dependencies.indexOf(node.job.id) >= 0
-            || n.job.dependencies.filter( d => (new RegExp(d)).test(node.job.name) || new RegExp(d).test(node.job.group)).length > 0)
-        )
-        for(let dependent_node of dependent_nodes){
-            dependent_node.job.data = ResultsUtils.combine(dependent_node.job.data, node.job.results)
-        }
-    }
-
     static compare(dag1, dag2){
         let dag1_ready_nodes = JobsDAG.getReadyNodes(dag1)
         let dag2_ready_nodes = JobsDAG.getReadyNodes(dag2)
