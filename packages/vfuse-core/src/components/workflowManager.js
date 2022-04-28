@@ -258,11 +258,13 @@ class WorkflowManager{
     async updatePublishedWorkflowFiles(data){
         await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(data))
         let encoded_workflow = await this.contentManager.getFromNetwork(data.cid)
-        await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
         let workflow = JSON.parse(encoded_workflow)
-        this.runningWorkflowsQueue.set(workflow.id, workflow)
-        this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
-        this.executionCycle()
+        if(workflow){
+            await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
+            this.runningWorkflowsQueue.set(workflow.id, workflow)
+            this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
+            this.executionCycle()
+        }
     }
 
     async handleRequestExecutionWorkflow(data){
