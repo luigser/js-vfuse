@@ -117,8 +117,8 @@ class WorkflowManager{
             await this.runtimeManager.start(profile.preferences)
 
             //Start publish on topic
-            //this.startExecutionCycle()
-            this.executionCycle()
+            this.startExecutionCycle()
+            //this.executionCycle()
             this.publishWorkflows()
             this.publishResults()
             //TODO fix
@@ -265,7 +265,7 @@ class WorkflowManager{
             await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
             this.runningWorkflowsQueue.set(workflow.id, workflow)
             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
-            this.executionCycle()
+            //this.executionCycle()
         }
     }
 

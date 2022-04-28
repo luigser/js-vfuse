@@ -92,7 +92,7 @@ const Constants = {
         WORKFLOWS_PUBLISHING : 60000,
         JOBS_PUBLISHING : 15000,
         RESULTS_PUBLISHING: 120000,
-        EXECUTION_CYCLE: 1000,
+        EXECUTION_CYCLE: 10,
         JOB_EXECUTION : 300000
     },
     LIMITS: {
