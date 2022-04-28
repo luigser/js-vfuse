@@ -48,6 +48,8 @@ class WorkflowManager{
             this.publishResultsInterval = 0;
             this.publishWorkflowsInterval = 0;
 
+            this.executedJobs = []
+
             this.eventManager.addListener(Constants.EVENTS.PROFILE_STATUS, async function(){await this.startWorkspace()}.bind(this))
 
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
@@ -330,6 +332,10 @@ class WorkflowManager{
                         if (results) {
                             let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
                             entry.node.job.executorPeerId = this.identityManager.peerId
+                            console.log("****************EXECUTED JOB*********************")
+                            this.executedJobs.push(entry.node.job.id)
+                            console.log(this.executedJobs.length)
+                            console.log("****************END EXECUTED JOB*****************")
                             JobsDAG.setNodeState(
                                 workflow_to_run.jobsDAG,
                                 entry.node,
