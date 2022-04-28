@@ -154,6 +154,7 @@ export default function NotebookPage(props){
             setDag({nodes: [], edges: []})
             setDag(dag)
             setWorkflow(workflow)
+            setIsPublished(workflow.published)
         }
     }
 
@@ -250,7 +251,7 @@ export default function NotebookPage(props){
 
             notification.info({
                 message : "Info",
-                description : 'Local Run completed'
+                description : 'Local Run completed in ' + workflow.executionTime + ' ms'
             });
         }
     }

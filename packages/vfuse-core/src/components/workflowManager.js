@@ -11,6 +11,7 @@ const {JobsDAG} = require('./job/JobsDAG')
 const Constants = require('./constants')
 //const Miscellaneous = require('../utils/miscellaneous')
 const MathJs = require('mathjs')
+const lodash = require('lodash')
 /*
 WorkflowManager is responsible for job management and execution
  */
@@ -58,9 +59,10 @@ class WorkflowManager{
             /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
                 await this.handleWorflowsUnpublishing(data)
             }.bind(this))*/
-            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
+            /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
                 await this.manageResults(data)
-            }.bind(this))
+            }.bind(this))*/
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,this.manageResults.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, async function (data) {
                 await this.dropWorkflows(data)
             }.bind(this))
@@ -117,8 +119,8 @@ class WorkflowManager{
             await this.runtimeManager.start(profile.preferences)
 
             //Start publish on topic
-            this.startExecutionCycle()
-            //this.executionCycle()
+            //this.startExecutionCycle()
+            this.executionCycle()
             this.publishWorkflows()
             this.publishResults()
             //TODO fix
@@ -265,7 +267,7 @@ class WorkflowManager{
             await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
             this.runningWorkflowsQueue.set(workflow.id, workflow)
             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
-            //this.executionCycle()
+            this.executionCycle()
         }
     }
 
@@ -332,10 +334,10 @@ class WorkflowManager{
                         if (results) {
                             let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
                             entry.node.job.executorPeerId = this.identityManager.peerId
-                            console.log("****************EXECUTED JOB*********************")
+                            /*console.log("****************EXECUTED JOB*********************")
                             this.executedJobs.push(entry.node.job.id)
                             console.log(this.executedJobs.length)
-                            console.log("****************END EXECUTED JOB*****************")
+                            console.log("****************END EXECUTED JOB*****************")*/
                             JobsDAG.setNodeState(
                                 workflow_to_run.jobsDAG,
                                 entry.node,
@@ -405,7 +407,7 @@ class WorkflowManager{
                 this.jobsExecutionQueue = this.jobsExecutionQueue.filter( j => j !== node.job.id)
             }
         }catch (e) {
-            console.log('Got error during workflows execution : ' + e.message)
+            console.log('Got error during workflows execution : %O :',  e)
         }
     }
 
@@ -424,46 +426,57 @@ class WorkflowManager{
             if(workflow) {
                 //PRIVATE WORKFLOWS
                 //check if workflow do not stand in the completed ones
-                let completed = await this.contentManager.get('/workflows/completed/' + workflow.id)
-                if(completed) return
-                let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
-                if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){// -1 to not consider the root
-                    if(!workflow.completedAt) workflow.completedAt = Date.now()
-                    await this.contentManager.delete('/workflows/published/my/'  + workflow.id + '.json')
-                    this.publishedWorkflows.splice(this.publishedWorkflows.indexOf(workflow), 1);
-                    await this.contentManager.save('/workflows/completed/' + workflow.id, "completed")
-                    await this.contentManager.sendOnTopic({
-                        action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,
-                        payload: {
-                            wids: [workflow.id],
-                        }
-                    })
-                }else{
+                if(!workflow.completedAt){
                     for(let result_node of data.nodes){
                         let local_job_node = workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
                         if( local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
                             (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY)){
-                            if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
-                                JobsDAG.combineResults(result_node, local_job_node)
-                            }
                             local_job_node.color = result_node.color
                             local_job_node.job = result_node.job
                         }else{//Already completed
                             //Check results
                             if(local_job_node.job.results !== result_node.job.results){
-                                //Do something
+                                local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
+                            }
+                        }
+                    }
+                    let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
+                    if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
+                        workflow.completedAt = Date.now()
+                        await this.unsubmitWorkflow(workflow.id)
+                        await this.updateWorkflow(workflow)
+                    }
+                    this.updateWorkflow(workflow)
+                    this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
+                }
+
+               /* let completed = await this.contentManager.get('/workflows/completed/' + workflow.id)
+                if(completed) return
+                let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
+                if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){// -1 to not consider the root
+                    if(!workflow.completedAt) workflow.completedAt = Date.now()
+                    await this.unsubmitWorkflow(workflow.id)
+                }else{
+                    for(let result_node of data.nodes){
+                        let local_job_node = workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
+                        if( local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
+                            (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY)){
+                            local_job_node.color = result_node.color
+                            local_job_node.job = result_node.job
+                        }else{//Already completed
+                            //Check results
+                            if(local_job_node.job.results !== result_node.job.results){
+                                local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
                             }
                         }
                     }
                 }
-                await this.updateWorkflow(workflow)
-                this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
+                this.updateWorkflow(workflow)
+                this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)*/
             }else {
                 //RUNNING WORKFLOWS
-                //let running_workflow = await this.contentManager.get('/workflows/running/' + data.wid + '.json')
                 let running_workflow = this.runningWorkflowsQueue.get(data.wid)
                 if (running_workflow) {
-                    //running_workflow = JSON.parse(running_workflow)
                     for (let result_node of data.nodes) {
                         let local_job_node = running_workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
                         if ((!this.jobsExecutionQueue.find( j => j === result_node.job.id)) &&
@@ -472,9 +485,6 @@ class WorkflowManager{
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            /*local_job_node.color = result_node.color
-                            local_job_node.job = result_node.job
-                            JobsDAG.combineDependentNodesResults(local_job_node)*/
                             else if(local_job_node.job.status !== result_node.job.status) {
                                 JobsDAG.setRunningNodeState(
                                     running_workflow.jobsDAG,
@@ -483,7 +493,7 @@ class WorkflowManager{
                             }
                         }
                     }
-                    await this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
+                    this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
                 }
             }
@@ -548,6 +558,7 @@ class WorkflowManager{
 
     async testWorkflow(code, language){
         try{
+            let start = performance.now()
             let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
             let workflow = new Workflow(workflow_id._idB58String, 'Test Locally', code, language, new JobsDAG())
             let result = await this.checkWorkflow(workflow)
@@ -568,6 +579,7 @@ class WorkflowManager{
                     }
                     nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
                 }
+                workflow.executionTime = performance.now() - start
                 return workflow
             }
         }catch (e) {
@@ -619,8 +631,8 @@ class WorkflowManager{
 
     async updateWorkflow(workflow){
         try{
-            let workflow_cid = await this.contentManager.save('/workflows/private/' + workflow.id + '.json', JSON.stringify(workflow), {pin : true})
-            await this.identityManager.saveWorkflow(workflow.id, workflow_cid.toString())
+            let workflow_cid = await this.contentManager.save('/workflows/private/' + workflow.id + '.json', JSON.stringify(workflow), {pin : false})
+            //await this.identityManager.saveWorkflow(workflow.id, workflow_cid.toString())
         }catch (e) {
             log('Got some error during the workflow updating: %O', e)
         }
