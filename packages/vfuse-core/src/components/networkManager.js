@@ -319,8 +319,8 @@ class NetworkManager{
         try{
             if(message.from === this.peerId) return
             let data = JSON.parse(LZUTF8.decompress(message.data));
-            console.log('Got Message from %s', message.from)
-            console.log(data)
+            //console.log('Got Message from %s', message.from)
+            //console.log(data)
             switch(data.action){
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY:
                     this.connectedPeers.set(data.peer, data.peer)

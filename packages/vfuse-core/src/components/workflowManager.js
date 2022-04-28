@@ -382,6 +382,8 @@ class WorkflowManager{
                 node.job.executorPeerId = this.identityManager.peerId
                 console.log("****************EXECUTED JOB*********************")
                 this.executedJobs.push(node.job.id)
+                for(let j of this.executedJobs)
+                    console.log(j)
                 console.log(this.executedJobs.length)
                 console.log("****************END EXECUTED JOB*****************")
                 JobsDAG.setNodeState(
