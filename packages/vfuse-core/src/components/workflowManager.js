@@ -380,6 +380,10 @@ class WorkflowManager{
             let results = await this.runtimeManager.runJob(node.job)
             if(results){
                 node.job.executorPeerId = this.identityManager.peerId
+                console.log("****************EXECUTED JOB*********************")
+                this.executedJobs.push(node.job.id)
+                console.log(this.executedJobs.length)
+                console.log("****************END EXECUTED JOB*****************")
                 JobsDAG.setNodeState(
                     workflow_to_run.jobsDAG,
                     node,
