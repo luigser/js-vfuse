@@ -11,6 +11,7 @@ class JobsDAGVertex{
         this.job   = props.job
         this.group = props.group
         this.color = props.color
+        this.receivedResults = []
     }
 }
 

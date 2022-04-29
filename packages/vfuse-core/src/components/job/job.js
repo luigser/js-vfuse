@@ -28,7 +28,6 @@ class Job{
         this.executorPeerId = null
         this.type = Constants.JOB.TYPE.EXECUTOR
         this.warnings = []
-        this.receivedResults = []
     }
 }
 
