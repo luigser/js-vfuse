@@ -337,9 +337,11 @@ class WorkflowManager{
                                 entry.node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
                                 {results: results})
                             let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
+                            let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
                             await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
+                                    id : message_id,
                                     wid: workflow_to_run.id,
                                     nodes: nodes_to_publish
                                 }
@@ -684,10 +686,12 @@ class WorkflowManager{
         try{
             let workflow = this.publishedWorkflows.find(pw => pw.workflow_id === workflow_id)
             if(workflow) {
+                this.publishedWorkflows.splice(this.publishedWorkflows.indexOf(workflow), 1)
+                await this.contentManager.save('/workflows/completed/' + workflow_id, "completed", '')
                 await this.contentManager.delete('/workflows/published/my/'  + workflow_id + '.json')
-                this.publishedWorkflows.splice(this.publishedWorkflows.indexOf(workflow), 1);
-                await this.contentManager.save('/workflows/completed/' + workflow_id, "completed")
+                //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
                 await this.contentManager.sendOnTopic({
+                    //id : message_id,
                     action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,
                     payload: {
                         wids: [workflow_id],

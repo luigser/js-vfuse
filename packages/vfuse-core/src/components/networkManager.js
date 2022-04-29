@@ -318,10 +318,10 @@ class NetworkManager{
 
     async topicHandler(message){
         try{
-            if(this.receivedMessages.find(message.id))
+            /*if(this.receivedMessages.find(message.id))
                 return
             else
-                this.receivedMessages.push(message.id)
+                this.receivedMessages.push(message.id)*/
             if(message.from === this.peerId) return
             let data = JSON.parse(LZUTF8.decompress(message.data));
             //console.log('Got Message from %s', message.from)
@@ -369,7 +369,6 @@ class NetworkManager{
     }
 
     async send(data){
-        data.id = await PeerId.create({bits: 1024, keyType: 'RSA'})
         await this.libp2p.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, LZUTF8.compress(JSON.stringify(data)))
     }
 
@@ -628,7 +627,7 @@ class NetworkManager{
         try {
             return await this.api.files.rm(path, options)
         }catch (e) {
-            //console.log('Got some error during write: %O', e)
+            console.log('Got some error during write: %O', e)
         }
     }
 
