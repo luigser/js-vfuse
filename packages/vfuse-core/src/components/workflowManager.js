@@ -578,6 +578,7 @@ class WorkflowManager{
                     nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
                 }
                 workflow.executionTime = performance.now() - start
+                console.log("RUN LOCAL WORKFLOW : %s in %s ms", workflow_id, workflow.executionTime )
                 return workflow
             }
         }catch (e) {
