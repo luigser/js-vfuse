@@ -510,14 +510,19 @@ class WorkflowManager{
         try{
             if(!data.wids) return
             for(let wid of data.wids) {
-                await this.contentManager.delete('/workflows/running/' + wid + '.json')
-                await this.contentManager.delete('/workflows/published/' + wid + '.json')
-                //await this.contentManager.delete('/workflows/unpublished/' + wid + '.json')
-                await this.contentManager.delete('/workflows/completed/' + wid)
+                let current_workflow = await this.contentManager.get('/workflows/running/' + wid + '.json')
+                if(current_workflow)
+                   await this.contentManager.delete('/workflows/running/' + wid + '.json')
+                current_workflow = await this.contentManager.get('/workflows/published/' + wid + '.json')
+                if(current_workflow)
+                   await this.contentManager.delete('/workflows/published/' + wid + '.json')
+                current_workflow = await this.contentManager.get('/workflows/completed/' + wid)
+                if(current_workflow)
+                    await this.contentManager.delete('/workflows/completed/' + wid)
                 this.runningWorkflowsQueue.delete(wid)
             }
             let running_workflows = await this.contentManager.list('/workflows/running')
-            this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
+            //this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
         }catch (e) {
             //console.log('Error during dropping results : %O', e)
         }
