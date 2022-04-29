@@ -435,8 +435,8 @@ class WorkflowManager{
                                 local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
                             }
                         }
-                        if(local_job_node.receivedResults.indexOf(result_node.job.executorPeerId) === -1)
-                            local_job_node.receivedResults.push(result_node.job.executorPeerId)
+                        if(!local_job_node.job.receivedResults.find(result_node.job.executorPeerId))
+                            local_job_node.job.receivedResults.push(result_node.job.executorPeerId)
                     }
                     let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
