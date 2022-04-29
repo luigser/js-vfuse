@@ -521,7 +521,7 @@ class WorkflowManager{
                     await this.contentManager.delete('/workflows/completed/' + wid)
                 this.runningWorkflowsQueue.delete(wid)
             }
-            let running_workflows = await this.contentManager.list('/workflows/running')
+            //let running_workflows = await this.contentManager.list('/workflows/running')
             //this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
         }catch (e) {
             //console.log('Error during dropping results : %O', e)
