@@ -22,11 +22,11 @@ class WorkflowManager{
      */
     constructor(contentManager, identityManager, eventManager, options){
         try {
+
             this.contentManager = contentManager
             this.identityManager = identityManager
             this.eventManager = eventManager
             this.runtimeManager = new RuntimeManager(options.workers, this, eventManager)
-            this.workflowsQueue = []
             //todo MANAGE IT
             //this.eventManager.addListener('circuit_enabled', async function(){await this.start()}.bind(this))
 
@@ -37,7 +37,6 @@ class WorkflowManager{
             this.results = []
             this.workflowsQueue = []
             this.jobsExecutionQueue =  []
-            this.workflowsWeights = []
             this.runningWorkflowsQueue = new Map()
 
             this.executionCycleTimeout = 0;
@@ -52,21 +51,15 @@ class WorkflowManager{
             this.executedJobs = []
 
             this.eventManager.addListener(Constants.EVENTS.PROFILE_STATUS, async function(){await this.startWorkspace()}.bind(this))
-
-            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, async function (data) {
-                await this.handleRequestExecutionWorkflow(data)
-            }.bind(this))
-            /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
-                await this.handleWorflowsUnpublishing(data)
-            }.bind(this))*/
-            /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
-                await this.manageResults(data)
-            }.bind(this))*/
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, this.handleRequestExecutionWorkflow.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,this.manageResults.bind(this))
-            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED, async function (data) {
-                await this.dropWorkflows(data)
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,this.dropWorkflows.bind(this))
+            /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
+              await this.handleWorflowsUnpublishing(data)
+             }.bind(this))
+            this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE, async function (data) {
+                await this.manageResults(data)
             }.bind(this))
-            /*
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_REQUEST, async function (data) {
                 await this.executeJob(data)
             }.bind(this))
@@ -445,9 +438,11 @@ class WorkflowManager{
                         workflow.completedAt = Date.now()
                         await this.unsubmitWorkflow(workflow.id)
                         await this.updateWorkflow(workflow)
+                        this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
                     }
                     this.updateWorkflow(workflow)
-                    this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
+                    //Todo debounce with clear timeout to prevent browser freezing when user stands in the current private workflow page
+                    //this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
                 }
 
                /* let completed = await this.contentManager.get('/workflows/completed/' + workflow.id)
