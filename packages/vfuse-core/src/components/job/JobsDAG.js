@@ -188,7 +188,8 @@ class JobsDAG {
                 label: node.label,
                 color: color,
                 job: node.job,
-                group : node.group
+                group : node.group,
+                receivedResults : []
             })
         }
         for (let n of this.edges.get(node)) {

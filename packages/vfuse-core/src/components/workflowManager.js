@@ -435,7 +435,7 @@ class WorkflowManager{
                                 local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
                             }
                         }
-                        if(!local_job_node.receivedResults.find(result_node.job.executorPeerId))
+                        if(local_job_node.receivedResults.indexOf(result_node.job.executorPeerId) === -1)
                             local_job_node.receivedResults.push(result_node.job.executorPeerId)
                     }
                     let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
@@ -605,6 +605,7 @@ class WorkflowManager{
                 workflow.language = language
                 workflow.submittedAt = null
                 workflow.completedAt = null
+                workflow.numOfReceivedResults = 0
             }else {
                 //todo find a strategy to get a new workflow id
                 let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
