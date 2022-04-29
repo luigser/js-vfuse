@@ -32,7 +32,7 @@ export default function ProfilePage(props){
     const [discoveryTimeout, setDiscoveryTimeout] = useState(0)
     const [workflowPublishingTimeout, setWorkflowPublishingTimeout] = useState(0)
     const [resultsPublishingTimeout, setResultsPublishingTimeout] = useState(0)
-    const [executionCycleTimeout, setExecutionCycleTimeout] = useState(0)
+    const [maxManagedWorkflows, setMaxManagedWorkflows] = useState(0)
     const [maxConcurrentJobs, setMaxConcurrentJobs] = useState(0)
     const [jobExecutionTimeout, setJobExecutionTimeout] = useState(0)
     const [usage, setUsage] = useState(0)
@@ -100,7 +100,7 @@ export default function ProfilePage(props){
                 setDiscoveryTimeout(profile.preferences.TIMEOUTS.DISCOVERY)
                 setWorkflowPublishingTimeout(profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING)
                 setResultsPublishingTimeout(profile.preferences.TIMEOUTS.RESULTS_PUBLISHING)
-                setExecutionCycleTimeout(profile.preferences.TIMEOUTS.EXECUTION_CYCLE)
+                setMaxManagedWorkflows(profile.preferences.LIMITS.MAX_MANAGED_WORKFLOWS)
                 setMaxConcurrentJobs(profile.preferences.LIMITS.MAX_CONCURRENT_JOBS)
                 setUsage(profile.preferences.CONSTANTS.CPU_USAGE)
                 setJobExecutionTimeout(profile.preferences.TIMEOUTS.JOB_EXECUTION)
@@ -155,7 +155,7 @@ export default function ProfilePage(props){
                     setDiscoveryTimeout(data.profile.preferences.TIMEOUTS.DISCOVERY)
                     setWorkflowPublishingTimeout(data.profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING)
                     setResultsPublishingTimeout(data.profile.preferences.TIMEOUTS.RESULTS_PUBLISHING)
-                    setExecutionCycleTimeout(data.profile.preferences.TIMEOUTS.EXECUTION_CYCLE)
+                    setMaxManagedWorkflows(data.profile.preferences.LIMITS.MAX_MANAGED_WORKFLOWS)
                     setMaxConcurrentJobs(data.profile.preferences.LIMITS.MAX_CONCURRENT_JOBS)
                     setUsage(data.profile.preferences.CONSTANTS.CPU_USAGE)
                     setJobExecutionTimeout(data.profile.preferences.TIMEOUTS.JOB_EXECUTION)
@@ -227,7 +227,7 @@ export default function ProfilePage(props){
             (((discoveryTimeoutConstant - discoveryTimeout) * discoveryTimeoutWeight)) +
             (((workflowsPublishingTimeoutConstant - workflowPublishingTimeout) * workflowsPublishingTimeoutWeight)) +
             (((resultsPublishingTimeoutConstant - resultsPublishingTimeout) * resultsPublishingTimeoutWeight)) +
-            (((executionCycleTimeoutConstant - executionCycleTimeout) * executionCycleTimeoutWeight)) +
+            (((executionCycleTimeoutConstant - maxManagedWorkflows) * executionCycleTimeoutWeight)) +
             (((maxConcurrentJobs - maxConcurrentJobsConstant) * maxConcurrentJobsWeight))
         )
         if(usage <= 0) usage = 0
@@ -251,9 +251,9 @@ export default function ProfilePage(props){
                     setResultsPublishingTimeout(value)
                     prefs.TIMEOUTS.RESULTS_PUBLISHING = value
                     break
-                case 'TIMEOUTS.EXECUTION_CYCLE':
-                    setExecutionCycleTimeout(value)
-                    prefs.TIMEOUTS.EXECUTION_CYCLE = value
+                case 'LIMITS.MAX_MANAGED_WORKFLOWS':
+                    setMaxManagedWorkflows(value)
+                    prefs.LIMITS.MAX_MANAGED_WORKFLOWS = value
                     break
                 case 'TIMEOUTS.JOB_EXECUTION':
                     setJobExecutionTimeout(value)
@@ -423,19 +423,19 @@ export default function ProfilePage(props){
                                                             </Col>
                                                             <Col span={2}>
                                                                 <Row>
-                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{executionCycleTimeout}s</Typography.Text>
+                                                                    <Typography.Text style={{marginBottom : 16, textAlign: 'center'}}>{maxManagedWorkflows}</Typography.Text>
                                                                 </Row>
                                                                 <Row style={{height: "30vh"}}>
                                                                     <Slider vertical
-                                                                            max={10}
+                                                                            max={500}
                                                                             disabled={preferences === null}
                                                                             step={1}
-                                                                            value={executionCycleTimeout}
-                                                                            onChange={(value) => onPreferencesChange('TIMEOUTS.EXECUTION_CYCLE', value)}
+                                                                            value={maxManagedWorkflows}
+                                                                            onChange={(value) => onPreferencesChange('LIMITS.MAX_MANAGED_WORKFLOWS', value)}
                                                                     />
                                                                 </Row>
                                                                 <Row>
-                                                                    <Typography.Text style={{marginTop : 16}}>Execution Cycle</Typography.Text>
+                                                                    <Typography.Text style={{marginTop : 16}}>Max Managed Workflows</Typography.Text>
                                                                 </Row>
                                                             </Col>
                                                             <Col span={2}>

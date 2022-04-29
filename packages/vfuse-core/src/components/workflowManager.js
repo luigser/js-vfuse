@@ -35,18 +35,18 @@ class WorkflowManager{
             this.publishedWorkflows = []
 
             this.results = []
-            this.workflowsQueue = []
             this.jobsExecutionQueue =  []
             this.runningWorkflowsQueue = new Map()
 
-            this.executionCycleTimeout = 0;
-            this.publishResultsTimeout = 0;
-            this.publishWorkflowsTimeout = 0;
-            this.maxConcurrentJobs = 0;
+            this.executionCycleTimeout = 0
+            this.publishResultsTimeout = 0
+            this.publishWorkflowsTimeout = 0
+            this.maxConcurrentJobs = 0
+            this.maxManagedWorkflows = 0
 
-            this.executionCycleInterval = 0;
-            this.publishResultsInterval = 0;
-            this.publishWorkflowsInterval = 0;
+            this.executionCycleInterval = 0
+            this.publishResultsInterval = 0
+            this.publishWorkflowsInterval = 0
 
             this.executedJobs = []
 
@@ -108,6 +108,7 @@ class WorkflowManager{
             this.publishResultsTimeout = profile.preferences.TIMEOUTS.RESULTS_PUBLISHING * 1000
             this.publishWorkflowsTimeout = profile.preferences.TIMEOUTS.WORKFLOWS_PUBLISHING * 1000
             this.maxConcurrentJobs = profile.preferences.LIMITS.MAX_CONCURRENT_JOBS
+            this.maxManagedWorkflows = profile.preferences.LIMITS.MAX_MANAGED_WORKFLOWS
 
             await this.runtimeManager.start(profile.preferences)
 
@@ -266,8 +267,8 @@ class WorkflowManager{
 
     async handleRequestExecutionWorkflow(data){
         try{
+            if(this.runningWorkflowsQueue.size > this.maxManagedWorkflows) return
             let published_workflows = await this.contentManager.list('/workflows/published')
-            if(published_workflows.length > Constants.LIMITS.MAX_MANAGED_WORKFLOW) return;
             if(!data.workflow_id && !data.cid || this.getWorkflow(data.workflow_id)) return
             //check if received workflow is already in published dir
             let published_workflow = await this.contentManager.get('/workflows/published/' + data.workflow_id + '.json')

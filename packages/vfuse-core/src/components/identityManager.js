@@ -38,7 +38,7 @@ class IdentityManager {
             },
             LIMITS: {
                 MAX_CONCURRENT_JOBS : options && options.MAX_CONCURRENT_JOBS ? options && options.MAX_CONCURRENT_JOBS : 8,
-                MAX_MANAGED_WORKFLOW : options && options.MAX_MANAGED_WORKFLOW ? options && options.MAX_MANAGED_WORKFLOW : 100,
+                MAX_MANAGED_WORKFLOWS : options && options.MAX_MANAGED_WORKFLOWS ? options && options.MAX_MANAGED_WORKFLOWS : 100,
             },
             CONSTANTS:{
                 CPU_USAGE : 0.2,
