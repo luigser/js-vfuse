@@ -367,6 +367,14 @@ export default function NotebookPage(props){
                                     {workflow && workflow.submittedAt && workflow.completedAt ? (workflow.completedAt - workflow.submittedAt) + " ms" : "Not submitted or execution still running" }
                                 </Col>
                             </Row>
+                            <Row style={{margin: 16}}>
+                                <Col span={4}>
+                                    <Typography.Text strong>Number of results : </Typography.Text>
+                                </Col>
+                                <Col span={20}>
+                                    { workflow ? workflow.numOfReceivedResults : 0 }
+                                </Col>
+                            </Row>
                         </Descriptions.Item >
                         <Descriptions.Item span={1} label="Actions" >
                             <Select value={language} style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>

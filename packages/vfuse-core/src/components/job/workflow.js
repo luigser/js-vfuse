@@ -26,6 +26,7 @@ class Workflow{
         this.functions = []
         this.submittedAt = null
         this.completedAt = null
+        this.numOfReceivedResults = 0
     }
 }
 module.exports = Workflow
