@@ -615,10 +615,12 @@ class WorkflowManager{
             }
             workflow.jobsDAG = this.currentWorkflow.jobsDAG.toJSON ? this.currentWorkflow.jobsDAG.toJSON() : this.currentWorkflow.jobsDAG
             let workflow_cid = await this.contentManager.save('/workflows/private/' + workflow.id + '.json', JSON.stringify(workflow), {pin : true})
-            await this.contentManager.delete('/workflows/completed/' + workflow.id)
             //todo
             //the CID depends on if a pin cluster (first case) or regular net(second case) is used
             await this.identityManager.saveWorkflow(workflow.id, workflow_cid)
+            let completed_workflow = await this.contentManager.get('/workflows/completed/' + workflow.id)
+            if(completed_workflow)
+               await this.contentManager.delete('/workflows/completed/' + workflow.id)
             console.log('Workflow successfully saved: %O', workflow)
             return workflow
         }catch (e){
