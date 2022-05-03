@@ -41,8 +41,8 @@ export default function ProfilePage(props){
     const [pinningServerProtocol, setPinningServerProtocol] = useState('https')
     const [pinningServerHost, setPinningServerHost] = useState('193.205.161.5')
     const [pinningServerPort, setPinningServerPort] = useState('9097')
-    const [bootstraps, setBootstrap] = useState(['/ip4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww'])
-    const [bootstrapsString, setBootstrapString] = useState('/ip4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWFm8MiFfXCGyj1ZiJZevYcnFUiWcQqAmYQVEeJqckwkww')
+    const [bootstraps, setBootstrap] = useState(['/ip4/193.205.161.5/tcp/4002/wss/p2p/QmRaaUwTNfwgFZpeUy8qrZwrp2dY4kCKmmB5xEqvH3vtD1'])
+    const [bootstrapsString, setBootstrapString] = useState('/ip4/193.205.161.5/tcp/4002/wss/p2p/QmRaaUwTNfwgFZpeUy8qrZwrp2dY4kCKmmB5xEqvH3vtD1')
     const [savePreferencesLoading, setSavePreferencesLoading] = useState(false)
     const [savePreferencesDisabled, setSavePreferencesDisabled] = useState(!vFuseNode)
 
