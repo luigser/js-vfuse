@@ -118,3 +118,5 @@ user: isis pwd: clgvittorio
    - running workflow si friza quando riceve un nuovo workflow
 
 - file di test di 1GB(1073741824) (64 job) ( chunks da 16.777.216)
+
+5122-5822 193.205.161.5
