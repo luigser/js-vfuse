@@ -489,7 +489,7 @@ class WorkflowManager{
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            else if(local_job_node.job.status !== result_node.job.status) {ù
+                            else if(local_job_node.job.status !== result_node.job.status) {
 
 
                                 JobsDAG.setRunningNodeState(
