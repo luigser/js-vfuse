@@ -432,7 +432,8 @@ class WorkflowManager{
                         }else{//Already completed
                             //Check results
                             if(local_job_node.job.results !== result_node.job.results){
-                                local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
+                                //do something
+                                //local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
                             }
                         }
                         /*if(local_job_node.receivedResults.indexOf(result_node.job.executorPeerId) === -1)
@@ -490,8 +491,6 @@ class WorkflowManager{
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
                             else if(local_job_node.job.status !== result_node.job.status) {
-
-
                                 JobsDAG.setRunningNodeState(
                                     running_workflow.jobsDAG,
                                     local_job_node,
