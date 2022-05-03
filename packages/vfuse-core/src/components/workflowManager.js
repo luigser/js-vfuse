@@ -449,9 +449,9 @@ class WorkflowManager{
                         await this.updateWorkflow(workflow)
                         this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
                     }
-                    this.updateWorkflow(workflow)
+                    await this.updateWorkflow(workflow)
                     //Todo debounce with clear timeout to prevent browser freezing when user stands in the current private workflow page
-                    //this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
+                    this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
                 }
 
                /* let completed = await this.contentManager.get('/workflows/completed/' + workflow.id)
