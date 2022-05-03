@@ -446,11 +446,11 @@ class WorkflowManager{
                             if(node.job)
                                 workflow.numOfReceivedResults += node.receivedResults.length
                         }*/
-                        await this.unsubmitWorkflow(workflow.id)
-                        await this.updateWorkflow(workflow)
+                        this.unsubmitWorkflow(workflow.id)
+                        this.updateWorkflow(workflow)
                         this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
                     }
-                    await this.updateWorkflow(workflow)
+                    this.updateWorkflow(workflow)
                     //Todo debounce with clear timeout to prevent browser freezing when user stands in the current private workflow page
                     this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
                 }
