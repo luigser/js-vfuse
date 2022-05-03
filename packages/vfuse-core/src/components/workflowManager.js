@@ -267,7 +267,7 @@ class WorkflowManager{
 
     async handleRequestExecutionWorkflow(data){
         try{
-            if(this.runningWorkflowsQueue.size > this.maxManagedWorkflows) return
+            //if(this.runningWorkflowsQueue.size > this.maxManagedWorkflows) return
             let published_workflows = await this.contentManager.list('/workflows/published')
             if(!data.workflow_id && !data.cid || this.getWorkflow(data.workflow_id)) return
             //check if received workflow is already in published dir
