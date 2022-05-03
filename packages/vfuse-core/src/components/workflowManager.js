@@ -684,7 +684,10 @@ class WorkflowManager{
 
             let name //= await this.contentManager.publish(cid, new_key.name)//todo resolve
             await this.contentManager.save('/workflows/published/my/' + workflow_id + '.json', JSON.stringify(workflow_to_publish), {pin : true})
-            await this.contentManager.delete('/workflows/completed/' + workflow_id)
+
+            let current_workflow = await this.contentManager.get('/workflows/completed/' + workflow_id)
+            if(current_workflow)
+               await this.contentManager.delete('/workflows/completed/' + workflow_id)
             this.publishedWorkflows.push({workflow_id: workflow_id, ipns_name: name, cid: cid})
             await this.contentManager.sendOnTopic({
                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
