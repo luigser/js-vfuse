@@ -504,7 +504,7 @@ class WorkflowManager{
                 }
             }
         }catch (e) {
-            console.log('Error during results management : %O', e)
+            console.log('Error during results management : ' + e.message)
         }
     }
 
