@@ -25,6 +25,9 @@ module.exports = {
             ipfsClusterApi: {},
             packages: [],
             ipfs: {
+                preload: {
+                    enabled: false
+                },
                 repo: 'vfuse-repo',//Repo,
                 config: {
                     Datastore: {
@@ -188,6 +191,9 @@ module.exports = {
                 "/base16/\n" +
                 "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3",*/
             ipfs: {
+                preload: {
+                    enabled: false
+                },
                 repo: 'vfuse-browser-repo',
                 //pass: "01234567890123456789",
                 config: {
