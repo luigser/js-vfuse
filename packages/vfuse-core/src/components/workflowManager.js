@@ -580,7 +580,7 @@ class WorkflowManager{
             }else{
                 workflow = this.currentWorkflow
                 workflow.jobsDAG = workflow.jobsDAG.toJSON()
-                let start = performance.now()
+                let start = Date.now()//performance.now()
                 let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
                 while(nodes.length > 0) {
                     for (let node of nodes) {
@@ -589,11 +589,10 @@ class WorkflowManager{
                             JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB.STATUS.COMPLETED, {results: results})
                         }
                     }
-                    console.log(nodes.length)
-                    console.log(nodes)
+
                     nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
                 }
-                workflow.executionTime = performance.now() - start
+                workflow.executionTime = Date.now() - start
                 console.log("RUN LOCAL WORKFLOW : " +  workflow_id + " " + workflow.executionTime + " ms")
                 return workflow
             }
