@@ -434,11 +434,11 @@ class WorkflowManager{
                             //Check results
                             if(local_job_node.job.results !== result_node.job.results){
                                 //do something
-                                //local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
+                                local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
                             }
                         }
-                        /*if(local_job_node.receivedResults.indexOf(result_node.job.executorPeerId) === -1)
-                            local_job_node.receivedResults.push(result_node.job.executorPeerId)*/
+                        if(local_job_node.receivedResults.indexOf(result_node.job.executorPeerId) === -1)
+                            local_job_node.receivedResults.push(result_node.job.executorPeerId)
                     }
                     let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
@@ -570,7 +570,6 @@ class WorkflowManager{
 
     async testWorkflow(code, language){
         try{
-            let start = performance.now()
             let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
             let workflow = new Workflow(workflow_id._idB58String, 'Test Locally', code, language, new JobsDAG())
             let result = await this.checkWorkflow(workflow)
@@ -581,6 +580,7 @@ class WorkflowManager{
             }else{
                 workflow = this.currentWorkflow
                 workflow.jobsDAG = workflow.jobsDAG.toJSON()
+                let start = performance.now()
                 let nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
                 while(nodes.length > 0) {
                     for (let node of nodes) {
