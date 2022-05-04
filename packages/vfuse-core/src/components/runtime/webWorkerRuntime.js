@@ -323,7 +323,6 @@ class WebWorkerRuntime {
         }
         webworker.busy = true
         this.selectionWorkerLock = false*/
-
         let webworker = null
         for(let w of this.executionQueue){
             if(!w.busy){

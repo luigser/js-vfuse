@@ -320,6 +320,7 @@ class WorkflowManager{
     async executionCycle(){
         try {
             await this.fillExecutionQueue()
+            let deferred = 0
             for (let entry of this.jobsExecutionQueue) {
                 if(!entry.running) {
                     entry.running = true
@@ -353,7 +354,7 @@ class WorkflowManager{
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
                             await this.executionCycle()
                         }
-                    }.bind(this), 0)
+                    }.bind(this), (deferred++) + 5)
                 }
             }
             //await this.updateRunningWorkflows()
