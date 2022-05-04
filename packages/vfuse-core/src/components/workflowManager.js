@@ -338,14 +338,14 @@ class WorkflowManager{
                                 entry.node,
                                 entry.node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
                                 {results: results})
-                            //let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
+                            let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
                             await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
                                     //id : message_id,
                                     wid: workflow_to_run.id,
-                                    nodes: [entry.node]//nodes_to_publish
+                                    nodes: nodes_to_publish
                                 }
                             })
                             await this.contentManager.save('/workflows/running/' + entry.wid + '.json', JSON.stringify(workflow_to_run))
