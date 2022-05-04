@@ -710,7 +710,7 @@ class WorkflowManager{
             if(workflow) {
                 if(!workflow.completedAt) {
                     workflow.completedAt = Date.now()
-                    await this.unsubmitWorkflow(workflow.id)
+                    await this.saveWorkflow(workflow.id)
                 }
                 this.publishedWorkflows.splice(this.publishedWorkflows.indexOf(workflow), 1)
                 //await this.contentManager.save('/workflows/completed/' + workflow_id, "completed")
