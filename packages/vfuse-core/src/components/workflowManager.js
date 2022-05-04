@@ -589,6 +589,8 @@ class WorkflowManager{
                             JobsDAG.setNodeState(workflow.jobsDAG, node, Constants.JOB.STATUS.COMPLETED, {results: results})
                         }
                     }
+                    console.log(nodes.length)
+                    console.log(nodes)
                     nodes = JobsDAG.getReadyNodes(workflow.jobsDAG)
                 }
                 workflow.executionTime = performance.now() - start
