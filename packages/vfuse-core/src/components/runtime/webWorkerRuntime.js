@@ -315,8 +315,8 @@ class WebWorkerRuntime {
         while(this.selectionWorkerLock){}
         this.selectionWorkerLock = true
         let webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
-        while(webworker.busy)
-            webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
+        //while(webworker.busy)
+        //    webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
         if(!webworker.initialized){
             await this.initWorker(webworker.worker)
             await this.loadWorker(webworker.worker)
