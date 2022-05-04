@@ -236,8 +236,7 @@ class WorkflowManager{
                             })
                         }
                     }
-                    //let completed_workflows = await this.contentManager.list('/workflows/completed')
-                    let completed_workflows = this.workflows.filter(w => w.completedAt !== null)
+                    let completed_workflows = await this.contentManager.list('/workflows/completed')
                     if (completed_workflows.length > 0){
                         await this.contentManager.sendOnTopic({
                             action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,
@@ -709,12 +708,8 @@ class WorkflowManager{
         try{
             let workflow = this.publishedWorkflows.find(pw => pw.workflow_id === workflow_id)
             if(workflow) {
-                if(!workflow.completedAt) {
-                    workflow.completedAt = Date.now()
-                    await this.saveWorkflow(workflow.id)
-                }
                 this.publishedWorkflows.splice(this.publishedWorkflows.indexOf(workflow), 1)
-                //await this.contentManager.save('/workflows/completed/' + workflow_id, "completed")
+                await this.contentManager.save('/workflows/completed/' + workflow_id, "completed")
                 await this.contentManager.delete('/workflows/published/my/'  + workflow_id + '.json')
                 //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
                 await this.contentManager.sendOnTopic({
