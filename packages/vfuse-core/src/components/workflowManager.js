@@ -486,7 +486,7 @@ class WorkflowManager{
                     for (let result_node of data.nodes) {
                         let local_job_node = running_workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
                         if ((!this.jobsExecutionQueue.find( j => j === result_node.job.id)) &&
-                            !local_job_node.visited &&
+                            //!local_job_node.visited &&
                             (local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
                                 (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY))) {
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
