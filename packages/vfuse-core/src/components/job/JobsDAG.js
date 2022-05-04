@@ -101,6 +101,7 @@ class JobsDAG {
 
     static setRunningNodeState(JSONJobsDAG, local_node, results_node){
         local_node.job = results_node.job
+        local_node.visited = true
         JobsDAG.updatesDependentNodes(JSONJobsDAG, local_node)
     }
 
@@ -189,6 +190,7 @@ class JobsDAG {
                 color: color,
                 job: node.job,
                 group : node.group,
+                visited : false,
                 receivedResults : []
             })
         }

@@ -86,7 +86,7 @@ export default function DAGVis(props) {
         //width: "100%",
         groups: {
         },
-        clustering: {
+        /*clustering: {
             initialMaxNodes: 100,
             clusterThreshold:500,
             reduceToNodes:300,
@@ -105,7 +105,7 @@ export default function DAGVis(props) {
             maxNodeSizeIncrements: 600,
             activeAreaBoxSize: 100,
             clusterLevelDifference: 2
-        }
+        }*/
     }
 
     const highlightGroup = (node, active) => {

@@ -21,7 +21,8 @@ const toString = require('uint8arrays/to-string')
 const ipfsCluster = require('ipfs-cluster-api')
 const IpfsHttpClient = require("ipfs-http-client")
 const PeerId = require('peer-id')
-const LZUTF8 = require('lzutf8');
+const LZUTF8 = require('lzutf8')
+const fflate = require('fflate')
 
 const  { isNode, isBrowser } = require("browser-or-node");
 
@@ -323,7 +324,7 @@ class NetworkManager{
             else
                 this.receivedMessages.push(message.id)*/
             if(message.from === this.peerId) return
-            let data = JSON.parse(LZUTF8.decompress(message.data));
+            let data = JSON.parse(Buffer.from(fflate.unzlibSync(message.data)).toString())//JSON.parse(LZUTF8.decompress(message.data));
             //console.log('Got Message from %s', message.from)
             //console.log(data)
             switch(data.action){
@@ -369,7 +370,7 @@ class NetworkManager{
     }
 
     async send(data){
-        await this.libp2p.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, LZUTF8.compress(JSON.stringify(data)))
+        await this.libp2p.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, fflate.zlibSync((new TextEncoder().encode(JSON.stringify(data))), { level: 6 }))/*LZUTF8.compress(JSON.stringify(data))*/
     }
 
     getConnectedPeers(){
