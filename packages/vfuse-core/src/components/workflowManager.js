@@ -324,7 +324,7 @@ class WorkflowManager{
                 if(!entry.running) {
                     entry.running = true
                     setTimeout(async function () {
-                        console.log(`Executing ${entry.id} job`)
+                        console.log(`Executing ${entry.node.id} job`)
                         let results = await this.runtimeManager.runJob(entry.node.job)
                         if (results) {
                             let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
