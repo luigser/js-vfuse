@@ -361,6 +361,7 @@ class WebWorkerRuntime {
                 if(!result) {
                     clearTimeout(timeout)
                     if(worker.worker.terminate) {
+                        console.log(`Terminating worker ${worker.id}`)
                         worker.worker.terminate()
                         worker.running = false
                     }
