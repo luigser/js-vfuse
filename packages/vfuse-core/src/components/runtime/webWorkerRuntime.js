@@ -13,7 +13,7 @@ class WebWorkerRuntime {
         this.packages = [worker.getDefaultPackages(), ... options && options.packages ? options.packages : []]
         this.worker   = worker
         //this.localWebworker = worker.getWebWorker()
-        this.jobExecutionTimeout = options.preferences.TIMEOUTS.JOB_EXECUTION * 1000
+        this.jobExecutionTimeout = options.preferences.TIMEOUTS.JOB_EXECUTION
         this.maxJobsQueueLength = options.preferences.LIMITS.MAX_CONCURRENT_JOBS
         this.runtimeManager = runtimeManager
         this.eventManager = eventManager
@@ -22,7 +22,7 @@ class WebWorkerRuntime {
 
         this.eventManager.on(Constants.EVENTS.PREFERENCES_UPDATED, async function(preferences){
             if(preferences){
-                this.jobExecutionTimeout = preferences.TIMEOUTS.JOB_EXECUTION * 1000
+                this.jobExecutionTimeout = preferences.TIMEOUTS.JOB_EXECUTION
                 this.maxJobsQueueLength = preferences.LIMITS.MAX_CONCURRENT_JOBS
                 await this.createWorkersPool()
             }
@@ -146,7 +146,7 @@ class WebWorkerRuntime {
                 switch(action){
                     case 'running':
                         const {status} = e.data
-                        console.log(`Worker ${worker.id} : running ${status}`)
+                        //console.log(`Worker ${worker.id} : running ${status}`)
                         worker.running = status
                         break
                     case 'return':
@@ -336,7 +336,7 @@ class WebWorkerRuntime {
         let worker = null
         while(!worker) {
             worker = this.executionQueue.find(w => !w.running)
-            console.log(`Selected random worker ${worker.id} with running ${worker.running}`)
+            //console.log(`Selected random worker ${worker.id} with running ${worker.running}`)
         }
         worker.running = true
         return worker
@@ -354,16 +354,16 @@ class WebWorkerRuntime {
     async run(job) {
         let result = null
         let worker = await this.selectWorker()
-        console.log(`Selected worker ${worker.id}`)
+        //console.log(`Selected worker ${worker.id}`)
         try {
             const startTs = Date.now()
             let timeout = setTimeout(function () {
                 if(!result) {
                     clearTimeout(timeout)
                     if(worker.webworker.terminate) {
-                        /*console.log(`Terminating worker ${worker.id}`)
+                        console.log(`Terminating worker ${worker.id}`)
                         worker.webworker.terminate()
-                        worker.running = false*/
+                        worker.running = false
                     }
                     result = {
                         action: 'return',
@@ -373,7 +373,7 @@ class WebWorkerRuntime {
                             }}
                     }
                 }
-            }.bind(this), this.jobExecutionTimeout)
+            }.bind(this), this.jobExecutionTimeout * 1000)
             result = await this.exec(job, worker)
             clearTimeout(timeout)
             const log = {start: startTs, end: Date.now(), cmd: job.code}

@@ -324,7 +324,7 @@ class WorkflowManager{
                 if(!entry.running) {
                     entry.running = true
                     setTimeout(async function () {
-                        console.log(`Executing ${entry.node.id} job`)
+                        //console.log(`Executing ${entry.node.id} job`)
                         let results = await this.runtimeManager.runJob(entry.node.job)
                         if (results) {
                             let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
@@ -351,7 +351,7 @@ class WorkflowManager{
                             await this.contentManager.save('/workflows/running/' + entry.wid + '.json', JSON.stringify(workflow_to_run))
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
-                            console.log(`End execution ${entry.node.id} job`)
+                            //console.log(`End execution ${entry.node.id} job`)
                             await this.executionCycle()
                         }
                     }.bind(this), 0)

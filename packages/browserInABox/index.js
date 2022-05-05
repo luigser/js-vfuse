@@ -5,14 +5,15 @@ const browserInABox = async () => {
     const browser = await puppeteer.launch({
         headless: true,
         ignoreHTTPSErrors: true,
-        dumpio: true,
+        //dumpio: true,
         args: [
             '--disable-dev-shm-usage',
             '--incognito',
             "--full-memory-crash-report",
+            "--enable-precise-memory-info",
             "--unlimited-storage",
-            "--max_old_space_size=10240",
-            '--js-flags="--max-old-space-size=1024"'
+            "--max_old_space_size=131.072",
+            '--js-flags="--max-old-space-size=131.072"'//32768
         ]
     })
     const page = await browser.newPage()
