@@ -7,13 +7,14 @@ const browserInABox = async () => {
         ignoreHTTPSErrors: true,
         //dumpio: true,
         args: [
+            ' --no-sandbox',
             '--disable-dev-shm-usage',
             '--incognito',
             "--full-memory-crash-report",
             "--enable-precise-memory-info",
             "--unlimited-storage",
-            "--max_old_space_size=131.072",
-            '--js-flags="--max-old-space-size=131.072"'//32768
+            "--max_old_space_size=262.144",
+            '--js-flags="--max-old-space-size=262.144"'//32768
         ]
     })
     const page = await browser.newPage()

@@ -1,4 +1,5 @@
 const worker_code = () => {
+    self.running = false
     const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
     const VFuse = {
@@ -255,6 +256,11 @@ const worker_code = () => {
                 }
                 break
             case 'exec':
+                self.running = true
+                self.postMessage({
+                    action: 'running',
+                    status: self.running
+                })
                 try {
                     if(!job.inline){
                         if(typeof job.data !== 'string' && typeof job.data !== 'number') {
@@ -268,6 +274,11 @@ const worker_code = () => {
                     let start = performance.now()
                     let results = await(F())
                     let executionTime = performance.now() - start
+                    self.running = false
+                    self.postMessage({
+                        action: 'running',
+                        status: false
+                    })
                     self.postMessage({
                         action: 'return',
                         results : convert(results),
@@ -275,6 +286,12 @@ const worker_code = () => {
                     })
                 } catch (err) {
                     //console.log(err)
+
+                    self.running = false
+                    self.postMessage({
+                        action: 'running',
+                        status: false
+                    })
                     self.postMessage({
                         action: 'return',
                         results: {error: {
@@ -283,6 +300,12 @@ const worker_code = () => {
                         }}
                     })
                 }
+                break
+            case 'running':
+                self.postMessage({
+                    action: 'running',
+                    status: self.running
+                })
                 break
         }
     }

@@ -322,17 +322,6 @@ class WebWorkerRuntime {
     }
 
     async selectWorker(){
-       /* while(this.selectionWorkerLock){}
-        this.selectionWorkerLock = true
-        let webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
-        while(webworker.busy)
-            webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
-        if(!webworker.initialized){
-            await this.initWorker(webworker.worker)
-            await this.loadWorker(webworker.worker)
-        }
-        webworker.busy = true
-        this.selectionWorkerLock = false*/
         let worker = null
         while(!worker) {
             worker = this.executionQueue.find(w => !w.running)
@@ -340,14 +329,6 @@ class WebWorkerRuntime {
         }
         worker.running = true
         return worker
-
-      /*  let worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
-        while(worker.running) {
-            worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
-            console.log(`Selected random worker ${worker.id} with running ${worker.running}`)
-        }
-        worker.running = true
-        return worker*/
     }
 
 
