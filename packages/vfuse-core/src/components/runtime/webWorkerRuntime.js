@@ -146,7 +146,7 @@ class WebWorkerRuntime {
                 switch(action){
                     case 'running':
                         const {status} = e.data
-                        console.log(`${worker.id} : running ${status}`)
+                        console.log(`Worker ${worker.id} : running ${status}`)
                         worker.running = status
                         break
                     case 'return':
@@ -333,14 +333,21 @@ class WebWorkerRuntime {
         }
         webworker.busy = true
         this.selectionWorkerLock = false*/
-
-        let worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
-        while(worker.running) {
-            worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
-            console.log(`Selected random worker ${worker} with running ${worker.running}`)
+        let worker = null
+        while(!worker) {
+            worker = this.executionQueue.find(w => !w.running)
+            console.log(`Selected random worker ${worker.id} with running ${worker.running}`)
         }
         worker.running = true
         return worker
+
+      /*  let worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
+        while(worker.running) {
+            worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
+            console.log(`Selected random worker ${worker.id} with running ${worker.running}`)
+        }
+        worker.running = true
+        return worker*/
     }
 
 
