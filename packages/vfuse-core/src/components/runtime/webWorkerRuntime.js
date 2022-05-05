@@ -13,7 +13,7 @@ class WebWorkerRuntime {
         this.packages = [worker.getDefaultPackages(), ... options && options.packages ? options.packages : []]
         this.worker   = worker
         //this.localWebworker = worker.getWebWorker()
-        this.jobExecutionTimeout = options.preferences.TIMEOUTS.JOB_EXECUTION
+        this.jobExecutionTimeout = options.preferences.TIMEOUTS.JOB_EXECUTION * 1000
         this.maxJobsQueueLength = options.preferences.LIMITS.MAX_CONCURRENT_JOBS
         this.runtimeManager = runtimeManager
         this.eventManager = eventManager
@@ -22,7 +22,7 @@ class WebWorkerRuntime {
 
         this.eventManager.on(Constants.EVENTS.PREFERENCES_UPDATED, async function(preferences){
             if(preferences){
-                this.jobExecutionTimeout = preferences.TIMEOUTS.JOB_EXECUTION
+                this.jobExecutionTimeout = preferences.TIMEOUTS.JOB_EXECUTION * 1000
                 this.maxJobsQueueLength = preferences.LIMITS.MAX_CONCURRENT_JOBS
                 await this.createWorkersPool()
             }
@@ -361,9 +361,9 @@ class WebWorkerRuntime {
                 if(!result) {
                     clearTimeout(timeout)
                     if(worker.webworker.terminate) {
-                        console.log(`Terminating worker ${worker.id}`)
+                        /*console.log(`Terminating worker ${worker.id}`)
                         worker.webworker.terminate()
-                        worker.running = false
+                        worker.running = false*/
                     }
                     result = {
                         action: 'return',

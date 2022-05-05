@@ -5,7 +5,15 @@ const browserInABox = async () => {
     const browser = await puppeteer.launch({
         headless: true,
         ignoreHTTPSErrors: true,
-        args: ['--disable-dev-shm-usage', '--incognito']
+        dumpio: true,
+        args: [
+            '--disable-dev-shm-usage',
+            '--incognito',
+            "--full-memory-crash-report",
+            "--unlimited-storage",
+            "--max_old_space_size=10240",
+            '--js-flags="--max-old-space-size=1024"'
+        ]
     })
     const page = await browser.newPage()
     await page.goto(`https://${IP}/`)
