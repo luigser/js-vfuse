@@ -360,9 +360,9 @@ class WebWorkerRuntime {
             let timeout = setTimeout(function () {
                 if(!result) {
                     clearTimeout(timeout)
-                    if(worker.worker.terminate) {
+                    if(worker.webworker.terminate) {
                         console.log(`Terminating worker ${worker.id}`)
-                        worker.worker.terminate()
+                        worker.webworker.terminate()
                         worker.running = false
                     }
                     result = {
