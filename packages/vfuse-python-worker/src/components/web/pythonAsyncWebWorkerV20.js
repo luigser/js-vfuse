@@ -1,6 +1,8 @@
 const worker_code = () => {
     importScripts('https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js');
 
+    self.running = false
+
     const JSVFuse = {
         addJob: (code, name, deps, input, group) => {
             const promise = new Promise((resolve, reject) => {
@@ -304,8 +306,12 @@ const worker_code = () => {
                         });
                     });*/
                 break;
-
             case 'exec':
+                self.running = true
+                self.postMessage({
+                    action: 'running',
+                    status: self.running
+                })
                 try {
                     self.pyodide.globals.set('function_to_run',job.code)
                     self.pyodide.globals.set('input', job.data)
@@ -317,6 +323,11 @@ const worker_code = () => {
                     let start = performance.now()
                     let results = await self.pyodide.runPythonAsync(!job.inline ?  `VFuse.execute(function_to_run, input)` : job.code)
                     let executionTime = performance.now() - start
+                    self.running = false
+                    self.postMessage({
+                        action: 'running',
+                        status: false
+                    })
                     self.postMessage(
                         {
                             action: 'return',
@@ -324,6 +335,11 @@ const worker_code = () => {
                             executionTime : executionTime
                         });
                 } catch (err) {
+                    self.running = false
+                    self.postMessage({
+                        action: 'running',
+                        status: self.running
+                    })
                     self.postMessage({
                         action: 'return',
                         results: {
@@ -333,7 +349,13 @@ const worker_code = () => {
                             }}
                     });
                 }
-                break;
+                break
+            case 'running':
+                self.postMessage({
+                    action: 'running',
+                    status: self.running
+                })
+                break
         }
     }
 

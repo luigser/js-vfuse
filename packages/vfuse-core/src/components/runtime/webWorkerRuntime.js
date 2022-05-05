@@ -44,7 +44,12 @@ class WebWorkerRuntime {
         for(let i =0; i < this.maxJobsQueueLength; i++){
             console.log("Initializing Thread " + i )
             let worker = this.worker.getWebWorker()
-            this.executionQueue.push({ id : i, worker : worker, busy : false, initialized : true})
+            this.executionQueue.push({ id : i, webworker : worker, running : false, initialized : true,
+                runningCallback : (status) => {
+
+
+                }
+            })
             await this.initWorker(worker)
             await this.loadWorker(worker)
         }
@@ -132,16 +137,21 @@ class WebWorkerRuntime {
         this.history.push(log)
     }*/
 
-    async exec(job, webworker) {
+    async exec(job, worker, runningCallback) {
         //todo to fix
         //if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) this.webworker = this.worker.getWebWorker()
-
         const promise = new Promise((resolve, reject) => {
-            webworker.onmessage = async(e) => {
+            worker.webworker.onmessage = async(e) => {
                 const { action, results } = e.data
                 switch(action){
+                    case 'running':
+                        const {status} = e.data
+                        console.log(`${worker.id} : running ${status}`)
+                        worker.running = status
+                        break
                     case 'return':
-                        webworker.onmessage = null
+                        worker.running = false
+                        worker.webworker.onmessage = null
                         resolve({results: results, executionTime : e.data.executionTime} )
                         break
                     case 'VFuse:worker':
@@ -151,7 +161,7 @@ class WebWorkerRuntime {
                             case 'addJob':
                                 let job = await this.runtimeManager.addJob(p.name, p.func, p.deps,  p.input, p.group, p.packages)
                                 if(job) {
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "addJob",
@@ -159,7 +169,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "addJob",
@@ -171,7 +181,7 @@ class WebWorkerRuntime {
                             case 'getDataFromUrl':
                                 let content = await this.runtimeManager.getDataFromUrl(p.url, p.start, p.end, p.type)
                                 if(content && !content.error) {
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getDataFromUrl",
@@ -179,7 +189,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getDataFromUrl",
@@ -192,7 +202,7 @@ class WebWorkerRuntime {
                             case 'saveOnNetwork':
                                 let cid = await this.runtimeManager.saveOnNetwork(p.data, p.json)
                                 if(cid && !cid.error) {
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "saveOnNetwork",
@@ -200,7 +210,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "saveOnNetwork",
@@ -213,7 +223,7 @@ class WebWorkerRuntime {
                             case 'getFromNetwork':
                                 let data = await this.runtimeManager.getFromNetwork(p.cid)
                                 if(data && !data.error) {
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getFromNetwork",
@@ -221,7 +231,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "getFromNetwork",
@@ -234,7 +244,7 @@ class WebWorkerRuntime {
                             case 'setEndlessJob':
                                 let sejResult = await this.runtimeManager.setEndlessJob(p.job_id)
                                 if(sejResult && !sejResult.error) {
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setEndlessJob",
@@ -242,7 +252,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setEndlessJob",
@@ -255,7 +265,7 @@ class WebWorkerRuntime {
                             case 'setJobReturnType':
                                 let sjrtResult = await this.runtimeManager.setJobReturnType(p.job_id, p.type)
                                 if(sjrtResult && !sjrtResult.error) {
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setJobReturnType",
@@ -263,7 +273,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "setJobReturnType",
@@ -276,7 +286,7 @@ class WebWorkerRuntime {
                             case 'addJobToGroup':
                                 let atgResult = await this.runtimeManager.addJobToGroup(p.job_id, p.group)
                                 if(atgResult && !atgResult.error) {
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "addJobToGroup",
@@ -284,7 +294,7 @@ class WebWorkerRuntime {
                                         }
                                     })
                                 }else{
-                                    webworker.postMessage({
+                                    worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
                                             func: "addJobToGroup",
@@ -297,14 +307,14 @@ class WebWorkerRuntime {
                         }
                         break
                     case 'error':
-                        webworker.onmessage = null
+                        worker.webworker.onmessage = null
                         reject(results)
                         break
                 }
             }
         })
 
-        webworker.postMessage({
+        worker.webworker.postMessage({
             action: 'exec',
             job: job,
         })
@@ -312,7 +322,7 @@ class WebWorkerRuntime {
     }
 
     async selectWorker(){
-        /*while(this.selectionWorkerLock){}
+       /* while(this.selectionWorkerLock){}
         this.selectionWorkerLock = true
         let webworker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
         while(webworker.busy)
@@ -323,22 +333,21 @@ class WebWorkerRuntime {
         }
         webworker.busy = true
         this.selectionWorkerLock = false*/
-        let webworker = null
-        for(let w of this.executionQueue){
-            if(!w.busy){
-                w.busy = true
-                webworker = w
-                break
-            }
+
+        let worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
+        while(worker.running) {
+            worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
+            console.log(`Selected random worker ${worker} with running ${worker.running}`)
         }
-        return webworker
+        worker.running = true
+        return worker
     }
 
 
     async run(job) {
         let result = null
-        let webworker = await this.selectWorker()
-        console.log(`Selected worker ${webworker.id}`)
+        let worker = await this.selectWorker()
+        console.log(`Selected worker ${worker.id}`)
         try {
             const startTs = Date.now()
             let timeout = setTimeout(function () {
@@ -357,8 +366,7 @@ class WebWorkerRuntime {
                     }
                 }
             }.bind(this), this.jobExecutionTimeout)
-            result = await this.exec(job, webworker.worker)
-            webworker.busy = false
+            result = await this.exec(job, worker)
             clearTimeout(timeout)
             const log = {start: startTs, end: Date.now(), cmd: job.code}
             this.history.push(log)

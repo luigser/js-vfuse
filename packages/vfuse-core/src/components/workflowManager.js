@@ -320,7 +320,6 @@ class WorkflowManager{
     async executionCycle(){
         try {
             await this.fillExecutionQueue()
-            let deferred = 0
             for (let entry of this.jobsExecutionQueue) {
                 if(!entry.running) {
                     entry.running = true
@@ -352,9 +351,10 @@ class WorkflowManager{
                             await this.contentManager.save('/workflows/running/' + entry.wid + '.json', JSON.stringify(workflow_to_run))
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
+                            console.log(`End execution ${entry.node.id} job`)
                             await this.executionCycle()
                         }
-                    }.bind(this), (deferred++) + 5)
+                    }.bind(this), 0)
                 }
             }
             //await this.updateRunningWorkflows()
@@ -444,10 +444,10 @@ class WorkflowManager{
                     let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
                         workflow.completedAt = Date.now()
-                        /*for(let node of workflow.jobsDAG.nodes){
+                        for(let node of workflow.jobsDAG.nodes){
                             if(node.job)
                                 workflow.numOfReceivedResults += node.receivedResults.length
-                        }*/
+                        }
                         //await this.updateWorkflow(workflow)
                         await this.unsubmitWorkflow(workflow.id)
                         this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
