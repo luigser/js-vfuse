@@ -360,10 +360,10 @@ class WebWorkerRuntime {
             let timeout = setTimeout(function () {
                 if(!result) {
                     clearTimeout(timeout)
-                    /*if(webworker.worker.terminate) {
-                        webworker.worker.terminate()
-                        webworker.busy = false
-                    }*/
+                    if(worker.worker.terminate) {
+                        worker.worker.terminate()
+                        worker.running = false
+                    }
                     result = {
                         action: 'return',
                         results: {error: {
