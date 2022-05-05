@@ -438,16 +438,18 @@ class WorkflowManager{
                                 local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
                             }
                         }
-                        if(local_job_node.receivedResults.indexOf(result_node.job.executorPeerId) === -1)
+                        if(local_job_node.receivedResults.indexOf(result_node.job.executorPeerId) === -1) {
                             local_job_node.receivedResults.push(result_node.job.executorPeerId)
+                            workflow.numOfReceivedResults++
+                        }
                     }
                     let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
                         workflow.completedAt = Date.now()
-                        for(let node of workflow.jobsDAG.nodes){
+                        /*for(let node of workflow.jobsDAG.nodes){
                             if(node.job)
                                 workflow.numOfReceivedResults += node.receivedResults.length
-                        }
+                        }*/
                         //await this.updateWorkflow(workflow)
                         await this.unsubmitWorkflow(workflow.id)
                         this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
