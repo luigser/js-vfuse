@@ -284,7 +284,10 @@ class WorkflowManager{
         return true
     }
     async fillExecutionQueue(){
-        if(this.runningWorkflowsQueue.size === 0) return
+        if(this.runningWorkflowsQueue.size === 0) {
+            console.log('End workflows execution')
+            return
+        }
         let stop = false
         while (this.jobsExecutionQueue.length < this.maxConcurrentJobs && !stop){
             let running_workflows_keys = [ ...this.runningWorkflowsQueue.keys()]
