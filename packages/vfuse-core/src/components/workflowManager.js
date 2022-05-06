@@ -331,12 +331,8 @@ class WorkflowManager{
             }
             stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
         }
-        await this.contentManager.sendOnTopic({
-            action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
-            payload: {
-                selections: selectedJobs
-            }
-        })
+
+        return selectedJobs
     }
     async updateRunningWorkflows(){
         for(let running_workflow of this.runningWorkflowsQueue){
@@ -346,7 +342,7 @@ class WorkflowManager{
 
     async executionCycle(){
         try {
-            await this.fillExecutionQueue()
+            let selectedJobs = await this.fillExecutionQueue()
             for (let entry of this.jobsExecutionQueue) {
                 if(!entry.running) {
                     entry.running = true
@@ -386,7 +382,12 @@ class WorkflowManager{
                     }.bind(this), 0)
                 }
             }
-            //await this.updateRunningWorkflows()
+            await this.contentManager.sendOnTopic({
+                action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
+                payload: {
+                    selections: selectedJobs
+                }
+            })
         }catch(e){
             console.log('Got error during workflows execution : ' + e.message)
         }
