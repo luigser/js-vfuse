@@ -283,8 +283,8 @@ class WorkflowManager{
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
                     workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...entry.jobs]
-                    console.log("******REMOTE SELECTED JOBS*************")
-                    workflow.remoteSelectedJobs.map(j => console.log(j))
+                    /*console.log("******REMOTE SELECTED JOBS*************")
+                    workflow.remoteSelectedJobs.map(j => console.log(j))*/
                 }
             })
         }catch (e) {
