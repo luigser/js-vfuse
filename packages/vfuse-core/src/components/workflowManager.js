@@ -321,7 +321,7 @@ class WorkflowManager{
             let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG)
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
             if(node) {
-                if (this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j === node.id)) {
+                if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j === node.id)) {
                     this.numOfSelectedJobs++
                     node.isInQueue = true
                     this.jobsExecutionQueue.push({
