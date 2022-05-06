@@ -51,6 +51,8 @@ class WorkflowManager{
             this.executedJobs = []
             this.numOfSelectedJobs = 0
 
+            this.selectingJobLock = false
+
             this.eventManager.addListener(Constants.EVENTS.PROFILE_STATUS, async function(){await this.startWorkspace()}.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, this.handleRequestExecutionWorkflow.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,this.runningWorkflowJobsSelection.bind(this))
@@ -280,6 +282,7 @@ class WorkflowManager{
     async runningWorkflowJobsSelection(data){
         try{
             if(!data.selections) return
+            while(this.selectingJobLock){}
             data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
@@ -314,6 +317,7 @@ class WorkflowManager{
 
     async fillExecutionQueue(){
         if(this.runningWorkflowsQueue.size === 0) return
+        this.selectingJobLock = true
         let stop = false
         let selectedJobs = []
         while (this.jobsExecutionQueue.length < this.maxConcurrentJobs && !stop){
@@ -351,6 +355,7 @@ class WorkflowManager{
                 selections: selectedJobs
             }
         })
+        this.selectingJobLock = false
         console.log("****************SELECTED JOB*********************")
         console.log(this.numOfSelectedJobs)
     }
