@@ -284,7 +284,7 @@ class WorkflowManager{
                 if(workflow) {
                     workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...entry.jobs]
                     console.log("******REMOTE SELECTED JOBS*************")
-                    console.log(workflow.remoteSelectedJobs)
+                    workflow.remoteSelectedJobs.map(j => console.log(j))
                 }
             })
         }catch (e) {
