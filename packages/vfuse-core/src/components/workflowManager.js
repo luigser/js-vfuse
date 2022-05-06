@@ -282,7 +282,7 @@ class WorkflowManager{
             data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
-                    workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...entry.jobs]
+                    workflow.remoteSelectedJobs = [...new Set([...workflow.remoteSelectedJobs ,...entry.jobs])]
                     /*console.log("******REMOTE SELECTED JOBS*************")
                     workflow.remoteSelectedJobs.map(j => console.log(j))*/
                 }
@@ -331,7 +331,6 @@ class WorkflowManager{
             }
             stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
         }
-
         return selectedJobs
     }
     async updateRunningWorkflows(){
@@ -346,7 +345,6 @@ class WorkflowManager{
             for (let entry of this.jobsExecutionQueue) {
                 if(!entry.running) {
                     entry.running = true
-
                     setTimeout(async function () {
                         //console.log(`Executing ${entry.node.id} job`)
                         let results = await this.runtimeManager.runJob(entry.node.job)
@@ -382,12 +380,13 @@ class WorkflowManager{
                     }.bind(this), 0)
                 }
             }
-            await this.contentManager.sendOnTopic({
-                action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
-                payload: {
-                    selections: selectedJobs
-                }
-            })
+            if(selectedJobs)
+                await this.contentManager.sendOnTopic({
+                    action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
+                    payload: {
+                        selections: selectedJobs
+                    }
+                })
         }catch(e){
             console.log('Got error during workflows execution : ' + e.message)
         }
@@ -507,7 +506,7 @@ class WorkflowManager{
                             running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
-                    this.contentManager.save('/workflows/running/' + data.wid, JSON.stringify(running_workflow))
+                    this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
                 }
             }
