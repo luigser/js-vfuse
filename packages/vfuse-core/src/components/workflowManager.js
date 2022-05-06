@@ -486,30 +486,6 @@ class WorkflowManager{
                     //Todo debounce with clear timeout to prevent browser freezing when user stands in the current private workflow page
                     this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
                 }
-
-                /* let completed = await this.contentManager.get('/workflows/completed/' + workflow.id)
-                 if(completed) return
-                 let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
-                 if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1){// -1 to not consider the root
-                     if(!workflow.completedAt) workflow.completedAt = Date.now()
-                     await this.unsubmitWorkflow(workflow.id)
-                 }else{
-                     for(let result_node of data.nodes){
-                         let local_job_node = workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
-                         if( local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
-                             (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY)){
-                             local_job_node.color = result_node.color
-                             local_job_node.job = result_node.job
-                         }else{//Already completed
-                             //Check results
-                             if(local_job_node.job.results !== result_node.job.results){
-                                 local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
-                             }
-                         }
-                     }
-                 }
-                 this.updateWorkflow(workflow)
-                 this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)*/
             }else {
                 //RUNNING WORKFLOWS
                 let running_workflow = this.runningWorkflowsQueue.get(data.wid)
@@ -523,12 +499,11 @@ class WorkflowManager{
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            //else if(local_job_node.job.status !== result_node.job.status) {
-                                JobsDAG.setRunningNodeState(
-                                    running_workflow.jobsDAG,
-                                    local_job_node,
-                                    result_node)
-                            //}
+                            JobsDAG.setRunningNodeState(
+                                running_workflow.jobsDAG,
+                                local_job_node,
+                                result_node)
+                            running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
                     this.contentManager.save('/workflows/running/' + data.wid, JSON.stringify(running_workflow))
