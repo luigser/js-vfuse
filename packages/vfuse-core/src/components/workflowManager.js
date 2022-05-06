@@ -280,7 +280,8 @@ class WorkflowManager{
             if(!data.jobs) return
             data.jobs.map(j => {
                 let workflow = this.runningWorkflowsQueue.get(j.wid)
-                workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...j]
+                if(workflow)
+                   workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...j]
             })
         }catch (e) {
             console.log('Error during remote running workflow jobs selection : %O', e)
