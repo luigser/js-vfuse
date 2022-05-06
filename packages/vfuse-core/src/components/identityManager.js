@@ -11,7 +11,7 @@ class IdentityManager {
      */
     constructor ( contentManager, eventManager, peerId , options) {
         options = options.preferences
-        this.id = options && options.profileId ? options.profileId : null
+        this.id = peerId
         this.peerId = peerId
         this.contentManager = contentManager
         this.eventManager = eventManager
@@ -57,14 +57,13 @@ class IdentityManager {
     async getProfile(id) {
         try {
             //For IPFS FILE MFS usagel
-            let decoded_profile = await this.contentManager.get('/profiles/' + (!id ? this.id : id) + '.json')
-            if(decoded_profile){
-                let p = JSON.parse(decoded_profile)
-                this.assignProfile(p)
-                console.log('Profile loaded : %O', p)
+            let profile = await this.contentManager.get('/profiles/' + (!id ? this.id : id))
+            if(profile){
+                this.assignProfile(profile)
+                console.log('Profile loaded : %O', profile)
                 //console.log(this.workflows[0].id)
-                this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : true, profile : {...p, ...{id : this.id}}  })
-                return p
+                this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : true, profile : {...profile, ...{id : this.id}}  })
+                return profile
             }else{
                 this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : false })
                 return false
@@ -95,7 +94,7 @@ class IdentityManager {
         try{
             //try to check if profile for you peerId already exist
             //if yes do not create no one but get it
-            let profile = await this.contentManager.get('/profiles/' + this.peerId + '.json')
+            let profile = await this.contentManager.get('/profiles/' + this.peerId)
             if(!profile){
                 //Todo check if profile already exist, of yes remove and create from scratch
                 let new_profile = {
@@ -109,7 +108,7 @@ class IdentityManager {
                 await this.contentManager.makeDir('/workflows/running')
                 await this.contentManager.makeDir('/workflows/completed')
                 /*new TextEncoder().encode(JSON.stringify(new_profile))*/
-                await this.contentManager.save("/profiles/" + this.peerId + '.json', JSON.stringify(new_profile), {pin : true})
+                await this.contentManager.save("/profiles/" + this.peerId, new_profile)
                 this.id = this.peerId
                 this.rewards = 10.00
                 this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : true, profile : {...new_profile, ...{id : this.id}}  })
@@ -186,7 +185,7 @@ class IdentityManager {
                 rewards: this.rewards,
                 preferences: this.preferences
             }
-            await this.contentManager.save("/profiles/" + this.id + '.json', JSON.stringify(profile), {pin : true})
+            await this.contentManager.save("/profiles/" + this.id, profile)
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)
         }

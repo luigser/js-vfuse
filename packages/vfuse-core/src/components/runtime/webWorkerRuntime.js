@@ -39,7 +39,7 @@ class WebWorkerRuntime {
     async createWorkersPool(){
         console.log("Initializing thread pool")
         for(let entry of this.executionQueue)
-            entry.worker.terminate()
+            entry.webworker.terminate()
         this.executionQueue = []
         for(let i =0; i < this.maxJobsQueueLength; i++){
             console.log("Initializing Thread " + i )
@@ -323,6 +323,7 @@ class WebWorkerRuntime {
 
     async selectWorker(){
         let worker = null
+        //worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
         while(!worker) {
             worker = this.executionQueue.find(w => !w.running)
             //console.log(`Selected random worker ${worker.id} with running ${worker.running}`)

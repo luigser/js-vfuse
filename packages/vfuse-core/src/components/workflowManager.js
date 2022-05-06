@@ -84,8 +84,7 @@ class WorkflowManager{
             //this.publishedWorkflows = this.identityManager.publishedWorkflows
             let published_workflows = await this.contentManager.list('/workflows/published/my')
             for(let workflow of published_workflows) {
-                let encoded_workflow = await this.contentManager.get('/workflows/published/my/' + workflow)
-                let decoded_workflow = JSON.parse(encoded_workflow)
+                let decoded_workflow = await this.contentManager.get('/workflows/published/my/' + workflow)
                 this.publishedWorkflows.push(decoded_workflow)
             }
 
@@ -93,11 +92,9 @@ class WorkflowManager{
             let workflows = await this.contentManager.list('/workflows/private')
             for (let w in workflows){
                 let workflow = await this.contentManager.get('/workflows/private/' + workflows[w])
-                if(workflow) {
-                    workflow = JSON.parse(workflow)
-                    workflow.published = !!this.publishedWorkflows.find(wf => wf.workflow_id === workflow.id)
-                    this.workflows.push(workflow)
-                }
+                workflow.published = !!this.publishedWorkflows.find(wf => wf.workflow_id === workflow.id)
+                this.workflows.push(workflow)
+
             }
             await this.loadRunningWorkflows()
 
@@ -131,12 +128,9 @@ class WorkflowManager{
         try {
             let running_workflows = await this.contentManager.list('/workflows/running')
             for (let rw of running_workflows) {
-                let encoded_workflow = await this.contentManager.get('/workflows/running/' + rw)
-                if (!encoded_workflow) return
-                let workflow = JSON.parse(encoded_workflow)
+                let workflow = await this.contentManager.get('/workflows/running/' + rw)
                 this.runningWorkflowsQueue.set(workflow.id, workflow)
             }
-            this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
         }catch (e) {
             console.log('Error during loading running workflows : %O', e)
         }
@@ -163,10 +157,9 @@ class WorkflowManager{
             let published_workflows = await this.contentManager.list('/workflows/published')
             for(let published_workflow of published_workflows){
                 if(published_workflow === 'my') continue
-                let encoded_workflow = await this.contentManager.get('/workflows/published/' + published_workflow)
-                let decoded_workflow = JSON.parse(encoded_workflow)
-                if(decoded_workflow.submittedAt > (performance.now() + (3 * 24 * 60 * 60 * 1000))){//2 days
-                    workflows_to_drop.push(decoded_workflow.wid)
+                let workflow = await this.contentManager.get('/workflows/published/' + published_workflow)
+                if(workflow.submittedAt > (performance.now() + (3 * 24 * 60 * 60 * 1000))){//2 days
+                    workflows_to_drop.push(workflow.wid)
                 }
             }
             if(workflows_to_drop.length > 0)
@@ -186,8 +179,7 @@ class WorkflowManager{
             this.publishWorkflowsInterval = setInterval(async function(){
                 let my_published_workflows = await this.contentManager.list('/workflows/published/my')
                 for(let workflow of my_published_workflows) {
-                    let encoded_workflow = await this.contentManager.get('/workflows/published/my/' + workflow)
-                    let decoded_workflow = JSON.parse(encoded_workflow)
+                    let decoded_workflow = await this.contentManager.get('/workflows/published/my/' + workflow)
                     await this.contentManager.sendOnTopic({
                         action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
                         payload: decoded_workflow
@@ -197,8 +189,7 @@ class WorkflowManager{
                 let published_workflows = await this.contentManager.list('/workflows/published')
                 for(let workflow of published_workflows) {
                     if(workflow === 'my') continue
-                    let encoded_workflow = await this.contentManager.get('/workflows/published/' + workflow)
-                    let decoded_workflow = JSON.parse(encoded_workflow)
+                    let decoded_workflow = await this.contentManager.get('/workflows/published/' + workflow)
                     await this.contentManager.sendOnTopic({
                         action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
                         payload: decoded_workflow
@@ -254,11 +245,11 @@ class WorkflowManager{
     }
 
     async updatePublishedWorkflowFiles(data){
-        await this.contentManager.save('/workflows/published/' + data.workflow_id + '.json', JSON.stringify(data))
+        await this.contentManager.save('/workflows/published/' + data.workflow_id, data)
         let encoded_workflow = await this.contentManager.getFromNetwork(data.cid)
         let workflow = JSON.parse(encoded_workflow)
         if(workflow){
-            await this.contentManager.save('/workflows/running/' + data.workflow_id + '.json', encoded_workflow)
+            await this.contentManager.save('/workflows/running/' + data.workflow_id, workflow)
             this.runningWorkflowsQueue.set(workflow.id, workflow)
             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
             this.executionCycle()
@@ -267,16 +258,15 @@ class WorkflowManager{
 
     async handleRequestExecutionWorkflow(data){
         try{
-            //if(this.runningWorkflowsQueue.size > this.maxManagedWorkflows) return
+            if(this.runningWorkflowsQueue.size > this.maxManagedWorkflows) return
             let published_workflows = await this.contentManager.list('/workflows/published')
             if(!data.workflow_id && !data.cid || this.getWorkflow(data.workflow_id)) return
             //check if received workflow is already in published dir
-            let published_workflow = await this.contentManager.get('/workflows/published/' + data.workflow_id + '.json')
+            let published_workflow = await this.contentManager.get('/workflows/published/' + data.workflow_id)
             if(!published_workflow) {
                 await this.updatePublishedWorkflowFiles(data)
             }else{
-                let decoded = JSON.parse(published_workflow)
-                if(decoded.cid !== data.cid) await this.updatePublishedWorkflowFiles(data)
+                if(published_workflow.cid !== data.cid) await this.updatePublishedWorkflowFiles(data)
             }
         }catch (e) {
             console.log('Error during workflow execution : %O', e)
@@ -313,7 +303,7 @@ class WorkflowManager{
     }
     async updateRunningWorkflows(){
         for(let running_workflow of this.runningWorkflowsQueue){
-            await this.contentManager.save('/workflows/running/' + running_workflow.id + '.json', JSON.stringify(running_workflow))
+            await this.contentManager.save('/workflows/running/' + running_workflow.id, running_workflow)
         }
     }
 
@@ -329,10 +319,10 @@ class WorkflowManager{
                         if (results) {
                             let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
                             entry.node.job.executorPeerId = this.identityManager.peerId
-                            console.log("****************EXECUTED JOB*********************")
+                            /*console.log("****************EXECUTED JOB*********************")
                             this.executedJobs.push(entry.node.job.id)
-                            console.log(this.executedJobs.length)
-                            console.log("****************END EXECUTED JOB*****************")
+                            console.log(this.executedJobs)
+                            console.log("****************END EXECUTED JOB*****************")*/
                             JobsDAG.setNodeState(
                                 workflow_to_run.jobsDAG,
                                 entry.node,
@@ -348,7 +338,7 @@ class WorkflowManager{
                                     nodes: [entry.node]//nodes_to_publish
                                 }
                             })
-                            await this.contentManager.save('/workflows/running/' + entry.wid + '.json', JSON.stringify(workflow_to_run))
+                            await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
                             //console.log(`End execution ${entry.node.id} job`)
@@ -400,7 +390,7 @@ class WorkflowManager{
                     }
                 })
                 this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)
-                await this.contentManager.save('/workflows/running/' + workflow_to_run_id + '.json', JSON.stringify(workflow_to_run))
+                await this.contentManager.save('/workflows/running/' + workflow_to_run_id, workflow_to_run)
                 //this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1)
                 this.jobsExecutionQueue = this.jobsExecutionQueue.filter( j => j !== node.job.id)
             }
@@ -433,15 +423,15 @@ class WorkflowManager{
                             local_job_node.job = result_node.job
                         }else{//Already completed
                             //Check results
-                            if(local_job_node.job.results !== result_node.job.results){
+                            /*if(local_job_node.job.results !== result_node.job.results){
                                 //do something
                                 local_job_node.job.warnings.push({ message : "Detected some differences in results", results : result_node.job.results })
-                            }
+                            }*/
                         }
-                        if(local_job_node.receivedResults.indexOf(result_node.job.executorPeerId) === -1) {
+                        /*if(local_job_node.receivedResults.indexOf(result_node.job.executorPeerId) === -1) {
                             local_job_node.receivedResults.push(result_node.job.executorPeerId)
                             workflow.numOfReceivedResults++
-                        }
+                        }*/
                     }
                     let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
@@ -503,7 +493,7 @@ class WorkflowManager{
                             //}
                         }
                     }
-                    this.contentManager.save('/workflows/running/' + data.wid + '.json', JSON.stringify(running_workflow))
+                    this.contentManager.save('/workflows/running/' + data.wid, JSON.stringify(running_workflow))
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
                 }
             }
@@ -516,21 +506,13 @@ class WorkflowManager{
         try{
             if(!data.wids) return
             for(let wid of data.wids) {
-                let current_workflow = await this.contentManager.get('/workflows/running/' + wid + '.json')
-                if(current_workflow)
-                    await this.contentManager.delete('/workflows/running/' + wid + '.json')
-                current_workflow = await this.contentManager.get('/workflows/published/' + wid + '.json')
-                if(current_workflow)
-                    await this.contentManager.delete('/workflows/published/' + wid + '.json')
-                current_workflow = await this.contentManager.get('/workflows/completed/' + wid)
-                if(current_workflow)
-                    await this.contentManager.delete('/workflows/completed/' + wid)
+                await this.contentManager.delete('/workflows/running/' + wid)
+                await this.contentManager.delete('/workflows/published/' + wid)
+                await this.contentManager.delete('/workflows/completed/' + wid)
                 this.runningWorkflowsQueue.delete(wid)
             }
-            //let running_workflows = await this.contentManager.list('/workflows/running')
-            //this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
         }catch (e) {
-            //console.log('Error during dropping results : %O', e)
+            console.log('Error during dropping results : %O', e)
         }
     }
 
@@ -634,13 +616,14 @@ class WorkflowManager{
                 if(isNew) this.workflows.push(workflow)
             }
             workflow.jobsDAG = this.currentWorkflow.jobsDAG.toJSON ? this.currentWorkflow.jobsDAG.toJSON() : this.currentWorkflow.jobsDAG
-            let workflow_cid = await this.contentManager.save('/workflows/private/' + workflow.id + '.json', JSON.stringify(workflow), {pin : true})
+            await this.contentManager.save('/workflows/private/' + workflow.id, workflow)
+
+            /*let workflow_cid = await this.contentManager.save('/workflows/private/' + workflow.id + '.json', JSON.stringify(workflow), {pin : true})
             //todo
             //the CID depends on if a pin cluster (first case) or regular net(second case) is used
-            await this.identityManager.saveWorkflow(workflow.id, workflow_cid)
-            let completed_workflow = await this.contentManager.get('/workflows/completed/' + workflow.id)
-            if(completed_workflow)
-                await this.contentManager.delete('/workflows/completed/' + workflow.id)
+            await this.identityManager.saveWorkflow(workflow.id, workflow_cid)*/
+
+            await this.contentManager.delete('/workflows/completed/' + workflow.id)
             console.log('Workflow successfully saved: %O', workflow)
             return workflow
         }catch (e){
@@ -651,7 +634,7 @@ class WorkflowManager{
 
     async updateWorkflow(workflow){
         try{
-            let workflow_cid = await this.contentManager.save('/workflows/private/' + workflow.id + '.json', JSON.stringify(workflow), {pin : false})
+            let workflow_cid = await this.contentManager.save('/workflows/private/' + workflow.id, workflow, {pin : false})
             //await this.identityManager.saveWorkflow(workflow.id, workflow_cid.toString())
         }catch (e) {
             log('Got some error during the workflow updating: %O', e)
@@ -660,7 +643,7 @@ class WorkflowManager{
 
     async deleteWorkflow(workflow_id){
         try{
-            await this.contentManager.delete('/workflows/private/'  + workflow_id + '.json')
+            await this.contentManager.delete('/workflows/private/'  + workflow_id)
             await this.identityManager.deleteWorkflow(workflow_id)
             this.workflows.splice(this.workflows.indexOf(this.getWorkflow(workflow_id)), 1);
             //TODO UNPINNING
@@ -677,6 +660,24 @@ class WorkflowManager{
 
     async submitWorkflow(workflow_id){
         try{
+            let submittedAt = Date.now()
+            let workflow = this.getWorkflow(workflow_id)
+            workflow.submittedAt = submittedAt
+            await this.updateWorkflow(workflow)
+            let cid = await this.contentManager.save('/workflows/private/' + workflow_id, workflow, {pin : true, net: true})
+
+            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt}
+            await this.contentManager.save('/workflows/published/my/' + workflow_id , workflow_to_publish)
+            await this.contentManager.delete('/workflows/completed/' + workflow_id)
+
+            this.publishedWorkflows.push({workflow_id: workflow_id, ipns_name: name, cid: cid})
+            await this.contentManager.sendOnTopic({
+                action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
+                payload: workflow_to_publish
+            })
+            console.log('Workflow successfully submitted: %s', name)
+
+            /*
             //let new_key = await this.contentManager.getKey(workflow_id)
             let cid = this.identityManager.getWorkflowCid(workflow_id)
             if(!cid)
@@ -700,7 +701,7 @@ class WorkflowManager{
                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
                 payload: workflow_to_publish
             })
-            console.log('Workflow successfully submitted: %s', name)
+            console.log('Workflow successfully submitted: %s', name)*/
             return true
         }catch (e){
             console.log('Got some error during the workflow submission: %O', e)
@@ -714,7 +715,7 @@ class WorkflowManager{
             if(workflow) {
                 this.publishedWorkflows.splice(this.publishedWorkflows.indexOf(workflow), 1)
                 await this.contentManager.save('/workflows/completed/' + workflow_id, "completed")
-                await this.contentManager.delete('/workflows/published/my/'  + workflow_id + '.json')
+                await this.contentManager.delete('/workflows/published/my/'  + workflow_id)
                 //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
                 await this.contentManager.sendOnTopic({
                     //id : message_id,
@@ -829,7 +830,7 @@ class WorkflowManager{
 
     async getRunningWorkflow(id){
         try{
-            let encoded_workflow = await this.contentManager.get('/workflows/running/' + id + '.json')
+            let encoded_workflow = await this.contentManager.get('/workflows/running/' + id)
             if(!encoded_workflow) return null
             return JSON.parse(encoded_workflow)
         }catch (e) {
@@ -840,8 +841,8 @@ class WorkflowManager{
 
     async removeRunningWorkflow(id){
         try{
-            await this.contentManager.delete('/workflows/running/' + id + '.json')
-            await this.contentManager.delete('/workflows/published/' + id + '.json')
+            await this.contentManager.delete('/workflows/running/' + id )
+            await this.contentManager.delete('/workflows/published/' + id)
             await this.contentManager.delete('/workflows/completed/' + id)
             let running_workflows = await this.contentManager.list('/workflows/running')
             this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)

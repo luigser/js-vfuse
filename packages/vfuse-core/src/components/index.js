@@ -24,7 +24,7 @@ class VFuse {
     async startManagers(){
         this.eventManager = new EventManager()
         this.networkManager = new NetworkManager(this.options, this.eventManager)
-        this.contentManager = new ContentManager(this.networkManager, this.eventManager)
+        this.contentManager = new ContentManager(this.networkManager, this.eventManager, this.options)
         await this.networkManager.start()
         this.identityManager = new IdentityManager(this.contentManager, this.eventManager, this.networkManager.peerId, this.options)
         this.workflowManager = new WorkflowManager(this.contentManager, this.identityManager, this.eventManager, this.options)
