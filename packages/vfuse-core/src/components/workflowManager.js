@@ -284,7 +284,7 @@ class WorkflowManager{
                    workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...j]
             })
         }catch (e) {
-            console.log('Error during remote running workflow jobs selection : %O', e)
+            console.log('Error during remote running workflow jobs selection : ' + e.message)
         }
     }
 
