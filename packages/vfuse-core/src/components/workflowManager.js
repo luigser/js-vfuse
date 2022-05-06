@@ -283,6 +283,10 @@ class WorkflowManager{
             data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
+                    for(let job of entry.jobs){
+                        if(workflow.remoteSelectedJobs.find(j => j === job))
+                            entry.jobs = entry.jobs.filter(j => j !== job)
+                    }
                     workflow.remoteSelectedJobs = [...new Set([...workflow.remoteSelectedJobs ,...entry.jobs])]
                     /*console.log("******REMOTE SELECTED JOBS*************")
                     workflow.remoteSelectedJobs.map(j => console.log(j))*/
