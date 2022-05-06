@@ -293,9 +293,16 @@ class WorkflowManager{
     }
 
     isAllRunningWorkflowsNodesInExecutionQueue(){
-        for(let [wid, w] of this.runningWorkflowsQueue.entries()){
+        /*for(let [wid, w] of this.runningWorkflowsQueue.entries()){
             if(!w.allJobsInQueue)
                 return false
+        }*/
+        for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
+            let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG)
+            for (let n of readyNodes) {
+                if (!n.isInQueue)
+                    return false
+            }
         }
         return true
     }
@@ -314,6 +321,7 @@ class WorkflowManager{
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
             if(node) {
                 if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j.id === node.id)) {
+                    node.isInQueue = true
                     this.jobsExecutionQueue.push({
                         node: node,
                         wid: workflow_to_run.id,
@@ -331,7 +339,12 @@ class WorkflowManager{
             }
             stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
         }
-        return selectedJobs
+        await this.contentManager.sendOnTopic({
+            action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
+            payload: {
+                selections: selectedJobs
+            }
+        })
     }
     async updateRunningWorkflows(){
         for(let running_workflow of this.runningWorkflowsQueue){
@@ -341,7 +354,7 @@ class WorkflowManager{
 
     async executionCycle(){
         try {
-            let selectedJobs = await this.fillExecutionQueue()
+            await this.fillExecutionQueue()
             for (let entry of this.jobsExecutionQueue) {
                 if(!entry.running) {
                     entry.running = true
@@ -380,13 +393,7 @@ class WorkflowManager{
                     }.bind(this), 0)
                 }
             }
-            if(selectedJobs)
-                await this.contentManager.sendOnTopic({
-                    action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
-                    payload: {
-                        selections: selectedJobs
-                    }
-                })
+
         }catch(e){
             console.log('Got error during workflows execution : ' + e.message)
         }
