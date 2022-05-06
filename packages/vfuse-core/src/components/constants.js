@@ -48,7 +48,8 @@ const Constants = {
                     EXECUTION_REQUEST : 'workflow_execution_request',
                     EXECUTION_RESPONSE : 'workflow_execution_response',
                     STOP_EXECUTION : 'workflow_stop_execution',
-                    UNPUBLISH : 'workflow_unpublish'
+                    UNPUBLISH : 'workflow_unpublish',
+                    SELECTED_RUNNING_WORKFLOW_JOBS : 'SELECTED_RUNNING_WORKFLOW_JOBS'
                 },
                 JOB:{
                     EXECUTION_REQUEST: 'job_execution_request',
