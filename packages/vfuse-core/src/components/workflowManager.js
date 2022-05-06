@@ -251,6 +251,7 @@ class WorkflowManager{
         let workflow = JSON.parse(encoded_workflow)
         if(workflow){
             workflow.remoteSelectedJobs = []
+            workflow.allJobsInQueue = false
             await this.contentManager.save('/workflows/running/' + data.workflow_id, workflow)
             this.runningWorkflowsQueue.set(workflow.id, workflow)
             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
@@ -277,11 +278,11 @@ class WorkflowManager{
 
     async runningWorkflowJobsSelection(data){
         try{
-            if(!data.jobs) return
-            data.jobs.map(j => {
-                let workflow = this.runningWorkflowsQueue.get(j.wid)
+            if(!data) return
+            data.map(entry => {
+                let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow)
-                   workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...j]
+                   workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...entry.jobs]
             })
         }catch (e) {
             console.log('Error during remote running workflow jobs selection : ' + e.message)
@@ -290,17 +291,16 @@ class WorkflowManager{
 
     isAllRunningWorkflowsNodesInExecutionQueue(){
         for(let [wid, w] of this.runningWorkflowsQueue.entries()){
-            let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG)
-            for(let n of readyNodes){
-                if(!n.isInQueue)
-                    return false
-            }
+            if(!w.allJobsInQueue)
+                return false
         }
         return true
     }
+
     async fillExecutionQueue(){
         if(this.runningWorkflowsQueue.size === 0) return
         let stop = false
+        let selectedJobs = []
         while (this.jobsExecutionQueue.length < this.maxConcurrentJobs && !stop){
             let running_workflows_keys = [ ...this.runningWorkflowsQueue.keys()]
             let workflow_to_run_id = MathJs.pickRandom(running_workflows_keys, running_workflows_keys.map(w => 1 / running_workflows_keys.length))
@@ -309,16 +309,29 @@ class WorkflowManager{
             if(!workflow_to_run) return
             let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG)
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
-            if(!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j.id === node.id)) {
-                node.isInQueue = true
-                this.jobsExecutionQueue.push({node: node, wid: workflow_to_run.id, running : false, timestamp : Date.now()})
+            if(node) {
+                if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j.id === node.id)) {
+                    this.jobsExecutionQueue.push({
+                        node: node,
+                        wid: workflow_to_run.id,
+                        running: false,
+                        timestamp: Date.now()
+                    })
+                    let sjentry = selectedJobs.find(entry => entry.wid === workflow_to_run.id)
+                    if(!sjentry)
+                        selectedJobs.push({wid: workflow_to_run.id, jobs: [node.id]})
+                    else
+                        sjentry.jobs.push(node.id)
+                }
+            }else{
+                workflow_to_run.allJobsInQueue = true
             }
             stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
         }
         await this.contentManager.sendOnTopic({
             action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
             payload: {
-                jobs: this.jobsExecutionQueue
+                jobs: selectedJobs
             }
         })
     }
