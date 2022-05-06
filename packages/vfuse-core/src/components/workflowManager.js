@@ -284,10 +284,7 @@ class WorkflowManager{
         return true
     }
     async fillExecutionQueue(){
-        if(this.runningWorkflowsQueue.size === 0) {
-            console.log('End workflows execution')
-            return
-        }
+        if(this.runningWorkflowsQueue.size === 0) return
         let stop = false
         while (this.jobsExecutionQueue.length < this.maxConcurrentJobs && !stop){
             let running_workflows_keys = [ ...this.runningWorkflowsQueue.keys()]
@@ -322,10 +319,10 @@ class WorkflowManager{
                         if (results) {
                             let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
                             entry.node.job.executorPeerId = this.identityManager.peerId
-                            /*console.log("****************EXECUTED JOB*********************")
+                            console.log("****************EXECUTED JOB*********************")
                             this.executedJobs.push(entry.node.job.id)
                             console.log(this.executedJobs)
-                            console.log("****************END EXECUTED JOB*****************")*/
+                            console.log("****************END EXECUTED JOB*****************")
                             JobsDAG.setNodeState(
                                 workflow_to_run.jobsDAG,
                                 entry.node,
@@ -443,7 +440,6 @@ class WorkflowManager{
                             if(node.job)
                                 workflow.numOfReceivedResults += node.receivedResults.length
                         }*/
-                        //await this.updateWorkflow(workflow)
                         await this.unsubmitWorkflow(workflow.id)
                         this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
                     }
