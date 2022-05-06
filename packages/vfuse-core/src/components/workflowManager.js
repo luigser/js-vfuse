@@ -281,8 +281,11 @@ class WorkflowManager{
             if(!data.selections) return
             data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
-                if(workflow)
-                   workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...entry.jobs]
+                if(workflow) {
+                    workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...entry.jobs]
+                    console.log("******REMOTE SELECTED JOBS*************")
+                    console.log(workflow.remoteSelectedJobs)
+                }
             })
         }catch (e) {
             console.log('Error during remote running workflow jobs selection : ' + e.message)
@@ -354,10 +357,10 @@ class WorkflowManager{
                         if (results) {
                             let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
                             entry.node.job.executorPeerId = this.identityManager.peerId
-                            console.log("****************EXECUTED JOB*********************")
                             this.executedJobs.push(entry.node.job.id)
-                            console.log(this.executedJobs.length)
+                            console.log("****************EXECUTED JOB*********************")
                             this.executedJobs.map( j => console.log(j))
+                            console.log(this.executedJobs.length)
                             console.log("****************END EXECUTED JOB*****************")
                             JobsDAG.setNodeState(
                                 workflow_to_run.jobsDAG,
