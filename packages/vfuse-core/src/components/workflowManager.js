@@ -278,8 +278,8 @@ class WorkflowManager{
 
     async runningWorkflowJobsSelection(data){
         try{
-            if(!data) return
-            data.map(entry => {
+            if(!data.selections) return
+            data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow)
                    workflow.remoteSelectedJobs = [...workflow.remoteSelectedJobs, ...entry.jobs]
@@ -331,7 +331,7 @@ class WorkflowManager{
         await this.contentManager.sendOnTopic({
             action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
             payload: {
-                jobs: selectedJobs
+                selections: selectedJobs
             }
         })
     }
