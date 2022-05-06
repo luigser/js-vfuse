@@ -284,7 +284,7 @@ class WorkflowManager{
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
                     for(let job of entry.jobs){
-                        if(workflow.remoteSelectedJobs.find(j => j === job))
+                        if(this.jobsExecutionQueue.find(j => j.node.id === job))
                             entry.jobs = entry.jobs.filter(j => j !== job)
                     }
                     workflow.remoteSelectedJobs = [...new Set([...workflow.remoteSelectedJobs ,...entry.jobs])]
