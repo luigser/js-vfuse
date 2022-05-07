@@ -155,17 +155,25 @@ class ContentManager{
 
     ls_set_compressed(key, value){
         return new Promise( (resolve, reject) => {
-            ldb.set(key, fflate.zlibSync((new TextEncoder().encode(JSON.stringify(value))), {level: 6}), function(){
-                resolve(true)
-            });
+            try {
+                ldb.set(key, fflate.zlibSync((new TextEncoder().encode(JSON.stringify(value))), {level: 6}), function () {
+                    resolve(true)
+                });
+            }catch (e) {
+                reject(false)
+            }
         })
     }
 
     ls_get_compressed(key){
         return new Promise( (resolve, reject) => {
-            ldb.get(key, function(value){
-                resolve(JSON.parse(Buffer.from(fflate.unzlibSync(value)).toString()))
-            });
+            try {
+                ldb.get(key, function (value) {
+                    resolve(!value ? null : JSON.parse(Buffer.from(fflate.unzlibSync(value)).toString()))
+                });
+            }catch (e) {
+                reject(null)
+            }
         })
     }
 
@@ -180,10 +188,11 @@ class ContentManager{
     async ls_list(key){
         //get json array of keys for files
         try {
-            return await this.ls_get_compressed(key)
+            let list = await this.ls_get_compressed(key)
+            return list === null ? [] : list
         }catch (e) {
             console.log('Error listing data in local storage : %O', e)
-            return Promise.reject([])
+            return []
         }
     }
 
