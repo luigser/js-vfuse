@@ -390,7 +390,7 @@ class WorkflowManager{
                                     nodes: nodes_to_publish// [entry.node]
                                 }
                             })
-                            await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
+                            //await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
                             //console.log(`End execution ${entry.node.id} job`)

@@ -2,6 +2,7 @@ const {isBrowser} = require("browser-or-node");
 const { CID } = require('multiformats/cid')
 //const { base64 } = require("multiformats/bases/base64")
 const ldb = isBrowser ? require("localdata") : null
+const fflate = require('fflate')
 
 class ContentManager{
     constructor(networkManager, eventManager, options){
