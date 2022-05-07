@@ -487,6 +487,7 @@ class WorkflowManager{
         try{
             if(!data.wids) return
             for(let wid of data.wids) {
+                console.log(`Workflow ${wid} ands execution`)
                 await this.contentManager.delete('/workflows/running/' + wid)
                 await this.contentManager.delete('/workflows/published/' + wid)
                 await this.contentManager.delete('/workflows/completed/' + wid)
