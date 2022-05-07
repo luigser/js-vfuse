@@ -358,11 +358,8 @@ class WorkflowManager{
         this.selectingJobLock = false
         console.log("****************SELECTED JOB*********************")
         console.log(this.numOfSelectedJobs)
-    }
-    async updateRunningWorkflows(){
-        for(let running_workflow of this.runningWorkflowsQueue){
-            await this.contentManager.save('/workflows/running/' + running_workflow.id, running_workflow)
-        }
+        for(let j of this.jobsExecutionQueue)
+            console.log(j)
     }
 
     async executionCycle(){
