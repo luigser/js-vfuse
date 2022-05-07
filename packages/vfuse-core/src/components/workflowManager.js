@@ -282,7 +282,7 @@ class WorkflowManager{
     async runningWorkflowJobsSelection(data){
         try{
             if(!data.selections) return
-            //while(this.selectingJobLock){}
+            while(this.selectingJobLock){}
             data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
@@ -325,7 +325,7 @@ class WorkflowManager{
             //console.log(`Ready nodes : ${nodes.length} - Selected : ${node.id}`)
             if(node) {
                 if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j === node.id)) {
-                    console.log(`Put in queue : ${node.id}`)
+                    //console.log(`Put in queue : ${node.id}`)
                     this.executedJobs.push(node.id)
                     node.isInQueue = true
                     this.jobsExecutionQueue.push({
@@ -505,12 +505,10 @@ class WorkflowManager{
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            local_job_node.color = result_node.color
-                            local_job_node.job = result_node.job
-                            /*JobsDAG.setRunningNodeState(
+                            JobsDAG.setRunningNodeState(
                                 running_workflow.jobsDAG,
                                 local_job_node,
-                                result_node)*/
+                                result_node)
                             running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
