@@ -324,7 +324,7 @@ class WorkflowManager{
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
             console.log(`Ready nodes : ${nodes.length} - Selected : ${node.id}`)
             console.log("EXECUTION QUEUE")
-            this.jobsExecutionQueue.map(j => console.log(j))
+            this.jobsExecutionQueue.map(j => console.log(j.node.id))
             console.log("REMOTE SELECTION")
             workflow_to_run.remoteSelectedJobs.map(j => console.log(j))
             this.jobsExecutionQueue.map(j => console.log(j))
