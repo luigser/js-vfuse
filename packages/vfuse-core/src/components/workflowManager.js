@@ -301,17 +301,11 @@ class WorkflowManager{
     }
 
     isAllRunningWorkflowsNodesInExecutionQueue(){
-        for(let [wid, w] of this.runningWorkflowsQueue.entries()){
-            if(!w.allJobsInQueue)
+        for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
+            let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG)
+            if(readyNodes.find(rn => !rn.isInQueue))
                 return false
         }
-        /*for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
-            let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG)
-            for (let n of readyNodes) {
-                if (!n.isInQueue)
-                    return false
-            }
-        }*/
         return true
     }
 
@@ -346,8 +340,6 @@ class WorkflowManager{
                     else
                         sjentry.jobs.push(node.id)
                 }
-            }else{
-                workflow_to_run.allJobsInQueue = true
             }
             stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
         }

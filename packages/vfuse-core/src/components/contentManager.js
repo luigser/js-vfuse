@@ -153,97 +153,80 @@ class ContentManager{
 
     //local storage
 
-    ls_list(key){
+    ls_set_compressed(key, value){
+        return new Promise( (resolve, reject) => {
+            ldb.set(key, fflate.zlibSync((new TextEncoder().encode(JSON.stringify(value))), {level: 6}), function(){
+                resolve(true)
+            });
+        })
+    }
+
+    ls_get_compressed(key){
+        return new Promise( (resolve, reject) => {
+            ldb.get(key, function(value){
+                resolve(JSON.parse(Buffer.from(fflate.unzlibSync(value)).toString()))
+            });
+        })
+    }
+
+    async_ls_delete(key){
+        return new Promise( (resolve, reject) => {
+            ldb.delete(key, function () {
+                resolve(true)
+            });
+        })
+    }
+
+    async ls_list(key){
         //get json array of keys for files
         try {
-            return new Promise( (resolve, reject) => {
-                ldb.get(key, function (list) {
-                    resolve(!list ? [] : JSON.parse(list))
-                });
-            })
-            /*let list = localStorage.getItem(key)
-            return !list ? [] : JSON.parse(list)*/
+            return await this.ls_get_compressed(key)
         }catch (e) {
             console.log('Error listing data in local storage : %O', e)
             return Promise.reject([])
         }
     }
 
-    ls_save(key, value){
+    async ls_save(key, value){
         //get something like /workflows/published/my/workflow.json as key
         try {
-            return new Promise( (resolve, reject) => {
-                let key_parts = key.split('/')
-                let file_key = key_parts[key_parts.length - 1]
-                let dir_key = key.replace(`/${file_key}`, '')
-                ldb.get(dir_key, function (current_dir_content) {
-                    current_dir_content = !current_dir_content ? [] : JSON.parse(current_dir_content)
-                    if(!current_dir_content.includes(file_key))
-                        current_dir_content.push(file_key)
-                    ldb.set(dir_key, JSON.stringify(current_dir_content), function(){
-                        ldb.set(key, JSON.stringify(value), function(){
-                            resolve(true)
-                        });
-                    });
-                });
-            })
-            /*let key_parts = key.split('/')
+            let key_parts = key.split('/')
             let file_key = key_parts[key_parts.length - 1]
             let dir_key = key.replace(`/${file_key}`, '')
-            let current_dir_content = localStorage.getItem(dir_key)
-            current_dir_content = !current_dir_content ? [] : JSON.parse(current_dir_content)
+            let current_dir_content = await this.ls_get_compressed(dir_key)
+            current_dir_content = !current_dir_content ? [] : current_dir_content
             if(!current_dir_content.includes(file_key))
                 current_dir_content.push(file_key)
-            localStorage.setItem(dir_key, JSON.stringify(current_dir_content))
-            localStorage.setItem(key, JSON.stringify(value))
-            return true*/
+            await this.ls_set_compressed(dir_key, current_dir_content)
+            await this.ls_set_compressed(key, value)
+            return true
         }catch (e) {
             console.log('Error saving data in local storage : %O', e)
             return Promise.reject(false)
         }
     }
 
-    ls_get(key){
+    async ls_get(key){
         try {
-            return new Promise( (resolve, reject) => {
-                ldb.get(key, function (value) {
-                    resolve(JSON.parse(value))
-                });
-            })
-            //return JSON.parse(localStorage.getItem(key))
+            return await this.ls_get_compressed(key)
         }catch (e) {
             console.log('Error getting data in local storage : %O', e)
             return Promise.reject(null)
         }
     }
 
-    ls_delete(key) {
+    async ls_delete(key) {
         try {
-            return new Promise( (resolve, reject) => {
-                let key_parts = key.split('/')
-                let file_key = key_parts[key_parts.length - 1]
-                let dir_key = key.replace(`/${file_key}`, '')
-                ldb.get(dir_key, function (current_dir_content) {
-                    current_dir_content = !current_dir_content ? [] : JSON.parse(current_dir_content)
-                    if(current_dir_content.includes(file_key))
-                        current_dir_content = current_dir_content.filter( c => c !== file_key)
-                    ldb.set(dir_key, JSON.stringify(current_dir_content), function(){
-                        ldb.delete(key, function(){
-                            resolve(true)
-                        });
-                    });
-                });
-            })
-            /*let key_parts = key.split('/')
+            let key_parts = key.split('/')
             let file_key = key_parts[key_parts.length - 1]
             let dir_key = key.replace(`/${file_key}`, '')
-            let current_dir_content = localStorage.getItem(dir_key)
-            current_dir_content = !current_dir_content ? [] : JSON.parse(current_dir_content)
+            let current_dir_content = await this.ls_get_compressed(dir_key)
+            current_dir_content = !current_dir_content ? [] : current_dir_content
             if(current_dir_content.includes(file_key))
                 current_dir_content = current_dir_content.filter( c => c !== file_key)
-            localStorage.setItem(dir_key, JSON.stringify(current_dir_content))
-            localStorage.removeItem(key)
-            return true*/
+            await this.ls_set_compressed(dir_key, current_dir_content)
+            await this.async_ls_delete(key)
+            return true
         } catch (e) {
             console.log('Error getting data in local storage : %O', e)
             return Promise.reject(false)
@@ -257,8 +240,6 @@ class ContentManager{
                     resolve(true)
                 });
             })
-            /*localStorage.setItem(key, JSON.stringify([]))
-            return true*/
         } catch (e) {
             console.log('Error getting data in local storage : %O', e)
             return Promise.reject(false)
