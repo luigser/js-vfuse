@@ -358,6 +358,7 @@ class WorkflowManager{
         this.selectingJobLock = false
         console.log(`Selected jobs for running : ${this.executedJobs.length}`)
         this.executedJobs.map(j => console.log(j))
+        console.log("\n\n\n\n\n")
     }
 
     async executionCycle(){

@@ -4,7 +4,7 @@ const worker_code = () => {
 
     const VFuse = {
         addJob : (func, deps, input, group) => {
-           const promise = new  Promise( (resolve, reject) => {
+           const promise = new Promise( (resolve, reject) => {
                self.onmessage = (e) => {
                    const {action} = e.data
                    if (action === 'VFuse:runtime') {

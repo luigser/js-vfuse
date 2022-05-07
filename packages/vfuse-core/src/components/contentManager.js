@@ -1,5 +1,6 @@
 const { CID } = require('multiformats/cid')
 const { base64 } = require("multiformats/bases/base64")
+const ldb = require("localdata")
 
 class ContentManager{
     constructor(networkManager, eventManager, options){
@@ -20,7 +21,7 @@ class ContentManager{
     async save(path, content, options){
         try{
             if((this.options && this.options.localStorage) && (!options || (options && !options.net) )){
-                return Promise.resolve(this.ls_save(path, content))
+                return this.ls_save(path, content)
             }
             let cid = await this.networkManager.writeFile(path, JSON.stringify(content), {...{create : true, parents: true, mode: parseInt('0775', 8), truncate: true, cidVersion: 1}, ...options})
             if(options && options.pin){
@@ -36,7 +37,7 @@ class ContentManager{
     async get(path, options){
         try{
             if((this.options && this.options.localStorage) && (!options || (options && !options.net) )){
-                return Promise.resolve(this.ls_get(path))
+                return this.ls_get(path)
             }
             return JSON.parse(await this.networkManager.readFile(path, options))
         }catch(e){
@@ -58,7 +59,7 @@ class ContentManager{
     async list(path, options){
         try{
             if((this.options && this.options.localStorage) && (!options || (options && !options.net) )){
-                return Promise.resolve(this.ls_list(path))
+                return this.ls_list(path)
             }
             return await this.networkManager.list(path)
         }catch(e){
@@ -80,7 +81,7 @@ class ContentManager{
     async delete(path, options){
         try{
             if((this.options && this.options.localStorage) && (!options || (options && !options.net) )){
-                return Promise.resolve(this.ls_delete(path))
+                return this.ls_delete(path)
             }
             return await this.networkManager.deleteFile(path, options)
         }catch(e){
@@ -153,18 +154,38 @@ class ContentManager{
     ls_list(key){
         //get json array of keys for files
         try {
-            let list = localStorage.getItem(key)
-            return !list ? [] : JSON.parse(list)
+            return new Promise( (resolve, reject) => {
+                ldb.get(key, function (list) {
+                    resolve(!list ? [] : JSON.parse(list))
+                });
+            })
+            /*let list = localStorage.getItem(key)
+            return !list ? [] : JSON.parse(list)*/
         }catch (e) {
             console.log('Error listing data in local storage : %O', e)
-            return []
+            return Promise.reject([])
         }
     }
 
     ls_save(key, value){
         //get something like /workflows/published/my/workflow.json as key
         try {
-            let key_parts = key.split('/')
+            return new Promise( (resolve, reject) => {
+                let key_parts = key.split('/')
+                let file_key = key_parts[key_parts.length - 1]
+                let dir_key = key.replace(`/${file_key}`, '')
+                ldb.get(dir_key, function (current_dir_content) {
+                    current_dir_content = !current_dir_content ? [] : JSON.parse(current_dir_content)
+                    if(!current_dir_content.includes(file_key))
+                        current_dir_content.push(file_key)
+                    ldb.set(dir_key, JSON.stringify(current_dir_content), function(){
+                        ldb.set(key, JSON.stringify(value), function(){
+                            resolve(true)
+                        });
+                    });
+                });
+            })
+            /*let key_parts = key.split('/')
             let file_key = key_parts[key_parts.length - 1]
             let dir_key = key.replace(`/${file_key}`, '')
             let current_dir_content = localStorage.getItem(dir_key)
@@ -173,26 +194,45 @@ class ContentManager{
                 current_dir_content.push(file_key)
             localStorage.setItem(dir_key, JSON.stringify(current_dir_content))
             localStorage.setItem(key, JSON.stringify(value))
-            return true
+            return true*/
         }catch (e) {
             console.log('Error saving data in local storage : %O', e)
-            return false
+            return Promise.reject(false)
         }
     }
 
     ls_get(key){
         try {
+            return new Promise( (resolve, reject) => {
+                ldb.get(key, function (value) {
+                    resolve(JSON.parse(value))
+                });
+            })
             //return JSON.parse(localStorage.getItem(key))
-            return JSON.parse(localStorage.getItem(key))
         }catch (e) {
             console.log('Error getting data in local storage : %O', e)
-            return null
+            return Promise.reject(null)
         }
     }
 
     ls_delete(key) {
         try {
-            let key_parts = key.split('/')
+            return new Promise( (resolve, reject) => {
+                let key_parts = key.split('/')
+                let file_key = key_parts[key_parts.length - 1]
+                let dir_key = key.replace(`/${file_key}`, '')
+                ldb.get(dir_key, function (current_dir_content) {
+                    current_dir_content = !current_dir_content ? [] : JSON.parse(current_dir_content)
+                    if(current_dir_content.includes(file_key))
+                        current_dir_content = current_dir_content.filter( c => c !== file_key)
+                    ldb.set(dir_key, JSON.stringify(current_dir_content), function(){
+                        ldb.delete(key, function(){
+                            resolve(true)
+                        });
+                    });
+                });
+            })
+            /*let key_parts = key.split('/')
             let file_key = key_parts[key_parts.length - 1]
             let dir_key = key.replace(`/${file_key}`, '')
             let current_dir_content = localStorage.getItem(dir_key)
@@ -201,20 +241,25 @@ class ContentManager{
                 current_dir_content = current_dir_content.filter( c => c !== file_key)
             localStorage.setItem(dir_key, JSON.stringify(current_dir_content))
             localStorage.removeItem(key)
-            return true
+            return true*/
         } catch (e) {
             console.log('Error getting data in local storage : %O', e)
-            return false
+            return Promise.reject(false)
         }
     }
 
     ls_makeDir(key){
         try {
-            localStorage.setItem(key, JSON.stringify([]))
-            return true
+            return new Promise( (resolve, reject) => {
+                ldb.set(key, JSON.stringify([]) ,function () {
+                    resolve(true)
+                });
+            })
+            /*localStorage.setItem(key, JSON.stringify([]))
+            return true*/
         } catch (e) {
             console.log('Error getting data in local storage : %O', e)
-            return false
+            return Promise.reject(false)
         }
 
     }
