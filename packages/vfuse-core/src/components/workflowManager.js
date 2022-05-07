@@ -381,7 +381,7 @@ class WorkflowManager{
                             let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
                             this.numOfSelectedJobs++
-                            console.log(`${this.numOfSelectedJobs}) Sending results fo job ${entry.node.id}`)
+                            console.log(`${this.numOfSelectedJobs}) SEND ... results fo job ${entry.node.id}`)
                             await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
@@ -390,7 +390,8 @@ class WorkflowManager{
                                     nodes: nodes_to_publish// [entry.node]
                                 }
                             })
-                            //await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
+                            console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)
+                            await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
                             //console.log(`End execution ${entry.node.id} job`)
@@ -521,7 +522,7 @@ class WorkflowManager{
                             running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
-                    //this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
+                    this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
                 }
             }
