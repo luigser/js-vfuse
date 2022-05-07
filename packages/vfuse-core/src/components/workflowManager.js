@@ -521,7 +521,7 @@ class WorkflowManager{
                             running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
-                    this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
+                    //this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
                 }
             }
