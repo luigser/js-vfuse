@@ -510,10 +510,12 @@ class WorkflowManager{
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            JobsDAG.setRunningNodeState(
+                            local_job_node.color = result_node.color
+                            local_job_node.job = result_node.job
+                            /*JobsDAG.setRunningNodeState(
                                 running_workflow.jobsDAG,
                                 local_job_node,
-                                result_node)
+                                result_node)*/
                             running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
