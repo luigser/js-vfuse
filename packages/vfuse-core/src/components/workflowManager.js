@@ -327,6 +327,7 @@ class WorkflowManager{
             let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
             if(!workflow_to_run) return
             let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG)
+            console.log(`Ready nodes : ${nodes.length}`)
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
             if(node) {
                 if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j === node.id)) {
@@ -357,8 +358,7 @@ class WorkflowManager{
         })
         this.selectingJobLock = false
         console.log(`Selected jobs for running : ${this.executedJobs.length}`)
-        this.executedJobs.map(j => console.log(j))
-        console.log("\n\n\n\n\n")
+        //this.executedJobs.map(j => console.log(j))
     }
 
     async executionCycle(){
@@ -381,7 +381,6 @@ class WorkflowManager{
                             let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
                             this.numOfSelectedJobs++
-                            console.log(`${this.numOfSelectedJobs}) SEND ... results fo job ${entry.node.id}`)
                             await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
