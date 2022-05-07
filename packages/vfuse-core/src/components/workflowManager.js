@@ -380,6 +380,8 @@ class WorkflowManager{
                                 {results: results})
                             let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
+                            this.numOfSelectedJobs++
+                            console.log(`${this.numOfSelectedJobs}) Sending results fo job ${entry.node.id}`)
                             await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
