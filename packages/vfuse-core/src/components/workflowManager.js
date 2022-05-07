@@ -327,10 +327,11 @@ class WorkflowManager{
             let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
             if(!workflow_to_run) return
             let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG)
-            console.log(`Ready nodes : ${nodes.length}`)
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
+            console.log(`Ready nodes : ${nodes.length} - Selected : ${node.id}`)
             if(node) {
                 if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j === node.id)) {
+                    console.log(`Put in queue : ${node.id}`)
                     this.executedJobs.push(node.id)
                     node.isInQueue = true
                     this.jobsExecutionQueue.push({
@@ -380,7 +381,6 @@ class WorkflowManager{
                                 {results: results})
                             let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
-                            this.numOfSelectedJobs++
                             await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
@@ -393,6 +393,7 @@ class WorkflowManager{
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
                             //console.log(`End execution ${entry.node.id} job`)
+                            this.numOfSelectedJobs++
                             console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)
                             await this.executionCycle()
                         }
