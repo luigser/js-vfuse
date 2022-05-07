@@ -194,7 +194,7 @@ module.exports = {
                 "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3",*/
             computation : true,
             localStorage : true,
-            maintainRunningState : false,
+            maintainRunningState : true,
             ipfs: {
                 preload: {
                     enabled: false
