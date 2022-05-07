@@ -390,11 +390,11 @@ class WorkflowManager{
                                     nodes: nodes_to_publish// [entry.node]
                                 }
                             })
-                            console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)
                             await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
                             //console.log(`End execution ${entry.node.id} job`)
+                            console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)
                             await this.executionCycle()
                         }
                     }.bind(this), 0)
