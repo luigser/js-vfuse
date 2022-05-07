@@ -23,6 +23,7 @@ class WorkflowManager{
     constructor(contentManager, identityManager, eventManager, options){
         try {
 
+            this.options = options
             this.contentManager = contentManager
             this.identityManager = identityManager
             this.eventManager = eventManager
@@ -113,9 +114,9 @@ class WorkflowManager{
 
             await this.runtimeManager.start(profile.preferences)
 
-            //Start publish on topic
-            //this.startExecutionCycle()
-            this.executionCycle()
+            if(this.options.computation) {
+                this.executionCycle()
+            }
             this.publishWorkflows()
             this.publishResults()
             //TODO fix
@@ -170,12 +171,6 @@ class WorkflowManager{
                 await this.dropWorkflows({wids : workflows_to_drop})
         }.bind(this),5 * 60 * 1000)
 
-    }
-
-    startExecutionCycle(){
-        this.executionCycleInterval = setInterval(async function(){
-            await this.manageWorkflowsExecution()
-        }.bind(this), this.executionCycleTimeout)
     }
 
     publishWorkflows(){
@@ -258,7 +253,9 @@ class WorkflowManager{
             await this.contentManager.save('/workflows/running/' + data.workflow_id, workflow)
             this.runningWorkflowsQueue.set(workflow.id, workflow)
             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
-            this.executionCycle()
+            if(this.options.computation) {
+                this.executionCycle()
+            }
         }
     }
 
@@ -390,7 +387,8 @@ class WorkflowManager{
                                     nodes: nodes_to_publish// [entry.node]
                                 }
                             })
-                            await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
+                            if(this.options.maintainRunningState)
+                               await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
                             //console.log(`End execution ${entry.node.id} job`)
@@ -404,52 +402,6 @@ class WorkflowManager{
 
         }catch(e){
             console.log('Got error during workflows execution : ' + e.message)
-        }
-    }
-
-    async manageWorkflowsExecution(){
-        try {
-            if(this.jobsExecutionQueue.length === this.maxConcurrentJobs) return
-            //Select randomly a running workflow
-            let running_workflows_keys = [ ...this.runningWorkflowsQueue.keys()]
-            let workflow_to_run_id = MathJs.pickRandom(running_workflows_keys, running_workflows_keys.map(w => 1 / running_workflows_keys.length))
-            //Select randomly a ready node from selected running workflow
-            let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
-            if(!workflow_to_run) return
-            let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG)
-            let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
-            //if(!node || this.jobsExecutionQueue.filter(r => r === node.job.id).length > 0) return
-            if(!node || this.jobsExecutionQueue.find(r => r === node.job.id)) return
-            this.jobsExecutionQueue.push(node.job.id)
-            let results = await this.runtimeManager.runJob(node.job)
-            if(results){
-                node.job.executorPeerId = this.identityManager.peerId
-                console.log("****************EXECUTED JOB*********************")
-                this.executedJobs.push(node.job.id)
-                for(let j of this.executedJobs)
-                    console.log(j)
-                console.log(this.executedJobs.length)
-                console.log("****************END EXECUTED JOB*****************")
-                JobsDAG.setNodeState(
-                    workflow_to_run.jobsDAG,
-                    node,
-                    node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
-                    {results : results})
-                let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
-                await this.contentManager.sendOnTopic({
-                    action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
-                    payload: {
-                        wid: workflow_to_run.id,
-                        nodes: nodes_to_publish
-                    }
-                })
-                this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)
-                await this.contentManager.save('/workflows/running/' + workflow_to_run_id, workflow_to_run)
-                //this.jobsExecutionQueue.splice(this.jobsExecutionQueue.indexOf(node.job.id), 1)
-                this.jobsExecutionQueue = this.jobsExecutionQueue.filter( j => j !== node.job.id)
-            }
-        }catch (e) {
-            console.log('Got error during workflows execution : %O :',  e)
         }
     }
 
@@ -521,7 +473,8 @@ class WorkflowManager{
                             //running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
-                    this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
+                    if(this.options.maintainRunningState)
+                       this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
                 }
             }
