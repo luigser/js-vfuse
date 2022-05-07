@@ -303,8 +303,10 @@ class WorkflowManager{
     isAllRunningWorkflowsNodesInExecutionQueue(){
         for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
             let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG)
-            if(readyNodes.find(rn => !rn.isInQueue))
-                return false
+            for(let rn of readyNodes){
+                if(!rn.isInQueue && w.remoteSelectedJobs.find(j => j === rn.id))
+                    return false
+            }
         }
         return true
     }
@@ -516,7 +518,7 @@ class WorkflowManager{
                                 running_workflow.jobsDAG,
                                 local_job_node,
                                 result_node)
-                            running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
+                            //running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
                     this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
