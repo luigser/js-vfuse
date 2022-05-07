@@ -301,17 +301,17 @@ class WorkflowManager{
     }
 
     isAllRunningWorkflowsNodesInExecutionQueue(){
-        /*for(let [wid, w] of this.runningWorkflowsQueue.entries()){
+        for(let [wid, w] of this.runningWorkflowsQueue.entries()){
             if(!w.allJobsInQueue)
                 return false
-        }*/
-        for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
+        }
+        /*for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
             let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG)
             for (let n of readyNodes) {
                 if (!n.isInQueue)
                     return false
             }
-        }
+        }*/
         return true
     }
 
@@ -330,7 +330,7 @@ class WorkflowManager{
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
             if(node) {
                 if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j === node.id)) {
-                    this.numOfSelectedJobs++
+                    this.executedJobs.push(node.id)
                     node.isInQueue = true
                     this.jobsExecutionQueue.push({
                         node: node,
@@ -356,10 +356,8 @@ class WorkflowManager{
             }
         })
         this.selectingJobLock = false
-        console.log("****************SELECTED JOB*********************")
-        console.log(this.numOfSelectedJobs)
-        for(let j of this.jobsExecutionQueue)
-            console.log(j)
+        console.log(`Selected jobs for running : ${this.executedJobs.length}`)
+        this.executedJobs.map(j => console.log(j))
     }
 
     async executionCycle(){
@@ -379,14 +377,14 @@ class WorkflowManager{
                                 entry.node,
                                 entry.node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
                                 {results: results})
-                            //let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
+                            let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
                             await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
                                     //id : message_id,
                                     wid: workflow_to_run.id,
-                                    nodes: [entry.node]//nodes_to_publish
+                                    nodes: nodes_to_publish// [entry.node]
                                 }
                             })
                             await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
