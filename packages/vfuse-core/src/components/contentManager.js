@@ -1,6 +1,7 @@
+const {isBrowser} = require("browser-or-node");
 const { CID } = require('multiformats/cid')
-const { base64 } = require("multiformats/bases/base64")
-const ldb = require("localdata")
+//const { base64 } = require("multiformats/bases/base64")
+const ldb = isBrowser ? require("localdata") : null
 
 class ContentManager{
     constructor(networkManager, eventManager, options){
