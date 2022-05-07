@@ -23,7 +23,7 @@ class ContentManager{
     async save(path, content, options){
         try{
             if((this.options && this.options.localStorage) && (!options || (options && !options.net) )){
-                return Promise.resolve(this.ls_save(path, content))
+                return await this.ls_save(path, content)
             }
             let cid = await this.networkManager.writeFile(path, JSON.stringify(content), {...{create : true, parents: true, mode: parseInt('0775', 8), truncate: true, cidVersion: 1}, ...options})
             if(options && options.pin){
@@ -39,7 +39,7 @@ class ContentManager{
     async get(path, options){
         try{
             if((this.options && this.options.localStorage) && (!options || (options && !options.net) )){
-                return Promise.resolve(this.ls_get(path))
+                return await this.ls_get(path)
             }
             return JSON.parse(await this.networkManager.readFile(path, options))
         }catch(e){
@@ -61,7 +61,7 @@ class ContentManager{
     async list(path, options){
         try{
             if((this.options && this.options.localStorage) && (!options || (options && !options.net) )){
-                return Promise.resolve(this.ls_list(path))
+                return await this.ls_list(path)
             }
             return await this.networkManager.list(path)
         }catch(e){
@@ -83,7 +83,7 @@ class ContentManager{
     async delete(path, options){
         try{
             if((this.options && this.options.localStorage) && (!options || (options && !options.net) )){
-                return Promise.resolve(this.ls_delete(path))
+                return await this.ls_delete(path)
             }
             return await this.networkManager.deleteFile(path, options)
         }catch(e){
