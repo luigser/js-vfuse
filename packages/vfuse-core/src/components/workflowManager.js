@@ -286,10 +286,10 @@ class WorkflowManager{
             data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
-                    for(let job of entry.jobs){
+                    /*for(let job of entry.jobs){
                         if(this.jobsExecutionQueue.find(j => j.node.id === job))
                             entry.jobs = entry.jobs.filter(j => j !== job)
-                    }
+                    }*/
                     workflow.remoteSelectedJobs = [...new Set([...workflow.remoteSelectedJobs ,...entry.jobs])]
                     /*console.log("******REMOTE SELECTED JOBS*************")
                     workflow.remoteSelectedJobs.map(j => console.log(j))*/
@@ -304,7 +304,7 @@ class WorkflowManager{
         for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
             let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG)
             for(let rn of readyNodes){
-                if(!rn.isInQueue && w.remoteSelectedJobs.find(j => j === rn.id))
+                if(!rn.isInQueue && !w.remoteSelectedJobs.find(j => j === rn.id))
                     return false
             }
         }
