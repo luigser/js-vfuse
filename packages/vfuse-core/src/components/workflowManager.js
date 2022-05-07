@@ -282,7 +282,7 @@ class WorkflowManager{
     async runningWorkflowJobsSelection(data){
         try{
             if(!data.selections) return
-            while(this.selectingJobLock){}
+            //while(this.selectingJobLock){}
             data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
@@ -322,7 +322,7 @@ class WorkflowManager{
             if(!workflow_to_run) return
             let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG)
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
-            console.log(`Ready nodes : ${nodes.length} - Selected : ${node.id}`)
+            //console.log(`Ready nodes : ${nodes.length} - Selected : ${node.id}`)
             if(node) {
                 if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j === node.id)) {
                     console.log(`Put in queue : ${node.id}`)
@@ -385,8 +385,8 @@ class WorkflowManager{
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
                             //console.log(`End execution ${entry.node.id} job`)
-                            this.numOfSelectedJobs++
-                            console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)
+                            /*this.numOfSelectedJobs++
+                            console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)*/
                             await this.executionCycle()
                         }
                     }.bind(this), 0)
