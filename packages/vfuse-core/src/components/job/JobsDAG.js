@@ -12,6 +12,7 @@ class JobsDAGVertex{
         this.group = props.group
         this.color = props.color
         this.receivedResults = []
+        this.progressive = 0
     }
 }
 
@@ -190,7 +191,8 @@ class JobsDAG {
                 job: node.job,
                 group : node.group,
                 visited : false,
-                receivedResults : []
+                receivedResults : [],
+                progressive : node.progressive
             })
         }
         for (let n of this.edges.get(node)) {
@@ -230,7 +232,7 @@ class JobsDAG {
 
     addJob(job){
         try {
-            let new_job_vertex = new JobsDAGVertex({id: job.id, label: job.name, job: job, group : job.group})
+            let new_job_vertex = new JobsDAGVertex({id: job.id, label: job.name, job: job, group : job.group, progressive : this.vertices.size})
             this.addVertex(new_job_vertex)
             if (!job.dependencies || (_.isArray(job.dependencies) && job.dependencies.length === 0)) {
                 new_job_vertex.job.status = Constants.JOB.STATUS.READY
