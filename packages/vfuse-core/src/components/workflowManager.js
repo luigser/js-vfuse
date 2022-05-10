@@ -331,8 +331,8 @@ class WorkflowManager{
             console.log("********************************************")
             workflow_to_run.remoteSelectedJobs.map(j => console.log(j))
             this.jobsExecutionQueue.map(j => console.log(j))*/
-            console.log(node.progressive)
             if(node) {
+                console.log(node.progressive)
                 if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j === node.id)) {
                     //console.log(`Put in queue : ${node.id}`)
                     this.executedJobs.push(node.id)

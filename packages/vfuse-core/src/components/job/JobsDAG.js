@@ -12,7 +12,7 @@ class JobsDAGVertex{
         this.group = props.group
         this.color = props.color
         this.receivedResults = []
-        this.progressive = 0
+        this.progressive = props.progressive
     }
 }
 
