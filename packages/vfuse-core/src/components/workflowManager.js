@@ -319,7 +319,7 @@ class WorkflowManager{
             //Select randomly a ready node from selected running workflow
             let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
             if(!workflow_to_run) return
-            let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG)
+            let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
             let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
            /* console.log("********************************************")
             console.log(`Ready nodes : ${nodes.length} - Selected : ${node.id}`)
