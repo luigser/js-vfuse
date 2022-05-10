@@ -359,7 +359,7 @@ class WorkflowManager{
             }
         })
         this.selectingJobLock = false
-        console.log(`Selected jobs for running : ${this.executedJobs.length}`)
+        //console.log(`Selected jobs for running : ${this.executedJobs.length}`)
         //this.executedJobs.map(j => console.log(j))
     }
 
@@ -491,6 +491,7 @@ class WorkflowManager{
             if(!data.wids) return
             for(let wid of data.wids) {
                 console.log(`Workflow ${wid} ands execution`)
+                console.log(`Selected jobs for running : ${this.executedJobs.length}`)
                 await this.contentManager.delete('/workflows/running/' + wid)
                 await this.contentManager.delete('/workflows/published/' + wid)
                 await this.contentManager.delete('/workflows/completed/' + wid)
