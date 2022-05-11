@@ -336,27 +336,23 @@ class WorkflowManager{
             if(!workflow_to_run) return
             //First level of scheduling
             if(workflow_to_run.suggestedScheduling) {
-                let node = workflow_to_run.jobsDAG.nodes.find(n => n.id === workflow_to_run.suggestedScheduling.jobs[0].id)
-                if (node.job.status !== Constants.JOB.STATUS.COMPLETED && node.job.status === Constants.JOB.STATUS.READY) {
+                /*let node = workflow_to_run.jobsDAG.nodes.find(n => n.id === workflow_to_run.suggestedScheduling.jobs[0].id
+                    && n.job.status !== Constants.JOB.STATUS.COMPLETED && n.job.status === Constants.JOB.STATUS.READY)
+                if (node) {
                     console.log(`Selected node ${node.id}`)
                     workflow_to_run.suggestedScheduling.jobs = workflow_to_run.suggestedScheduling.jobs.filter(n => n.id !== node.id)
                     this.addJobToQueue(workflow_to_run.id, node)
-                }
-                /*let nodes = scheduling.jobs.map(node => {
-                    let wnode = workflow_to_run.jobsDAG.nodes.find(n => n.id === node.id)
-                    if(wnode.job.status !== Constants.JOB.STATUS.COMPLETED)
-                        return wnode
+                }*/
+                let nodes = workflow_to_run.suggestedScheduling.jobs.map(node => {
+                    return workflow_to_run.jobsDAG.nodes.find(n => n.id === node.id
+                        && n.job.status === Constants.JOB.STATUS.READY
+                        && n.job.status !== Constants.JOB.STATUS.COMPLETED)
                 })
                 if(nodes.length > 0){
-                    nodes = nodes.filter(n => n.job.status === Constants.JOB.STATUS.READY)
-                    if(nodes.length > 0) {
-                        console.log(`Selected node ${nodes[0].id}`)
-                        scheduling.jobs = scheduling.jobs.filter(n => n.id !== nodes[0].id)
-                        this.addJobToQueue(workflow_to_run.id, nodes[0])
-                    }
-                }else{
-                    stop = true
-                }*/
+                    console.log(`Selected node ${nodes[0].id}`)
+                    workflow_to_run.suggestedScheduling.jobs = workflow_to_run.suggestedScheduling.jobs.filter(n => n.id !== nodes[0].id)
+                    this.addJobToQueue(workflow_to_run.id, nodes[0])
+                }
             }else{
                 let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
                 let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
