@@ -666,14 +666,14 @@ class WorkflowManager{
             let cid = await this.contentManager.save('/workflows/private/' + workflow_id, workflow, {pin : true, net: true})
 
             let suggestedScheduling =[]
-            let chunk = Math.floor((workflow.jobsDAG.nodes.length - 1) / this.peers.length)
-            let r = (workflow.jobsDAG.nodes.length - 1) % this.peers.length
+            let nodes = workflow.jobsDAG.nodes.filter(n => n.id !== 'root')
+            let chunk = Math.floor(nodes.length / this.peers.length)
+            let r = nodes.length % this.peers.length
             let start = 0
             for(let rank = 0; rank < this.peers.length; rank++){
-                console.log(`Scheduling for peer: ${this.peers[rank]}`)
-                let nodes = workflow.jobsDAG.nodes.filter(n => n.id !== 'root')
+                console.log(`Scheduling for peer: ${this.peers[rank].peer}`)
                 let scheduling =  {
-                    peer : this.peers[rank],
+                    peer : this.peers[rank].peer,
                     jobs : rank < r
                         ? nodes.slice(rank * (chunk + 1), start + chunk + 1)
                         : nodes.slice(rank * chunk + r, start + chunk)
