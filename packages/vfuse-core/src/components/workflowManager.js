@@ -346,7 +346,8 @@ class WorkflowManager{
                    if(nodes.length > 0){
                        console.log(`Selected node ${nodes[0].id}`)
                        scheduling.jobs = scheduling.jobs.filter(n => n.id !== nodes[0].id )
-                       this.addJobToQueue(workflow_to_run.id, nodes[0])
+                       let node = workflow_to_run.jobsDAG.nodes.find(n => n.id === nodes[0].id)
+                       this.addJobToQueue(workflow_to_run.id, node)
                    }else{
                        stop = true
                    }
