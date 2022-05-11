@@ -678,7 +678,7 @@ class WorkflowManager{
                         ? nodes.slice(rank * (chunk + 1), start + chunk + 1)
                         : nodes.slice(rank * chunk + r, start + chunk)
                 }
-                scheduling.jobs.map(n => console.log(n.job.progressive))
+                scheduling.jobs.map(n => console.log(n.progressive))
                 console.log("******************************************")
                 suggestedScheduling.push(scheduling)
             }
