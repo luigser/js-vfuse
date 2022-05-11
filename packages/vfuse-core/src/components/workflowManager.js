@@ -340,9 +340,7 @@ class WorkflowManager{
             if(!workflow_to_run) return
             //First level of scheduling
             if(workflow_to_run.suggestedScheduling){
-                let scheduling = workflow_to_run.suggestedScheduling.filter(s => s.peer === this.identityManager.peerId)
-                console.log(scheduling.peer)
-                console.log(scheduling.jobs)
+                let scheduling = workflow_to_run.suggestedScheduling.find(s => s.peer === this.identityManager.peerId)
                 if(scheduling){
                    let nodes = scheduling.jobs.filter(n => n.job.status !== Constants.JOB.STATUS.COMPLETED)
                    if(nodes.length > 0){
