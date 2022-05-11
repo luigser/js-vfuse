@@ -301,7 +301,7 @@ class WorkflowManager{
     isAllRunningWorkflowsNodesInExecutionQueue(){
         for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
             let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG).filter(n => !n.isInQueue).filter(n => !w.remoteSelectedJobs.find(j => j === n.id))
-            if(readyNodes.length > 0)
+            if(readyNodes.length > 0 || w.suggestedScheduling.find(s => s.jobs.length > 0))
                 return false
             /*for(let rn of readyNodes){
                 if(!rn.isInQueue && !w.remoteSelectedJobs.find(j => j === rn.id))
@@ -341,15 +341,11 @@ class WorkflowManager{
             //First level of scheduling
             let scheduling = workflow_to_run.suggestedScheduling ? workflow_to_run.suggestedScheduling.find(s => s.peer === this.identityManager.peerId) : null
             if(scheduling) {
-                if(scheduling.jobs.length > 0) {
-                    let node = workflow_to_run.jobsDAG.nodes.find(n => n.id === scheduling.jobs[0].id)
-                    if (node.job.status !== Constants.JOB.STATUS.COMPLETED && node.job.status === Constants.JOB.STATUS.READY) {
-                        console.log(`Selected node ${node.id}`)
-                        scheduling.jobs = scheduling.jobs.filter(n => n.id !== node.id)
-                        this.addJobToQueue(workflow_to_run.id, node)
-                    }
-                }else{
-                    stop = true
+                let node = workflow_to_run.jobsDAG.nodes.find(n => n.id === scheduling.jobs[0].id)
+                if (node.job.status !== Constants.JOB.STATUS.COMPLETED && node.job.status === Constants.JOB.STATUS.READY) {
+                    console.log(`Selected node ${node.id}`)
+                    scheduling.jobs = scheduling.jobs.filter(n => n.id !== node.id)
+                    this.addJobToQueue(workflow_to_run.id, node)
                 }
                 /*let nodes = scheduling.jobs.map(node => {
                     let wnode = workflow_to_run.jobsDAG.nodes.find(n => n.id === node.id)
@@ -373,8 +369,9 @@ class WorkflowManager{
                     console.log(node.progressive)
                     this.addJobToQueue(workflow_to_run.id, node)
                 }
-                stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
+                //stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
             }
+            stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
         }
         await this.contentManager.sendOnTopic({
             action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
