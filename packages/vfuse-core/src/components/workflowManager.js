@@ -348,6 +348,7 @@ class WorkflowManager{
                         && n.job.status === Constants.JOB.STATUS.READY
                         && n.job.status !== Constants.JOB.STATUS.COMPLETED)
                 })
+                nodes.map(n => console.log(n.id))
                 if(nodes.length > 0){
                     console.log(`Selected node ${nodes[0].id}`)
                     workflow_to_run.suggestedScheduling.jobs = workflow_to_run.suggestedScheduling.jobs.filter(n => n.id !== nodes[0].id)
