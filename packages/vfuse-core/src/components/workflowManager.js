@@ -349,10 +349,9 @@ class WorkflowManager{
                    })
                    if(nodes.length > 0){
                        nodes = nodes.filter(n => n.job.status === Constants.JOB.STATUS.READY)
-                       if(nodes.length > 0){
-                           scheduling.jobs = scheduling.jobs.filter(n => n.id !== nodes[0].id )
-                           this.addJobToQueue(workflow_to_run.id, nodes[0])
-                       }
+                       console.log(`Selected node ${nodes[0].id}`)
+                       scheduling.jobs = scheduling.jobs.filter(n => n.id !== nodes[0].id )
+                       this.addJobToQueue(workflow_to_run.id, nodes[0])
                    }else{
                        stop = true
                    }
