@@ -484,7 +484,9 @@ class WorkflowManager{
                     if(this.options.maintainRunningState)
                        this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
-                    this.executionCycle()
+                    if(this.options.computation && running_workflow.jobsDAG.nodes.find(n => n.job.status === Constants.JOB.STATUS.READY && n.job.initialStatus === Constants.JOB.STATUS.WAITING)) {
+                        this.executionCycle()
+                    }
                 }
             }
         }catch (e) {
