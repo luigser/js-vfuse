@@ -343,11 +343,19 @@ class WorkflowManager{
                     workflow_to_run.suggestedScheduling.jobs = workflow_to_run.suggestedScheduling.jobs.filter(n => n.id !== node.id)
                     this.addJobToQueue(workflow_to_run.id, node)
                 }*/
-                let nodes = workflow_to_run.suggestedScheduling.jobs.map(node => {
+                let nodes = []/*workflow_to_run.suggestedScheduling.jobs.map(node => {
                     return workflow_to_run.jobsDAG.nodes.find(n => n.id === node.id
                         && n.job.status === Constants.JOB.STATUS.READY
                         && n.job.status !== Constants.JOB.STATUS.COMPLETED)
-                })
+                })*/
+                for(let node of workflow_to_run.suggestedScheduling.jobs){
+                    let n = workflow_to_run.jobsDAG.nodes.find(n => n.id === node.id
+                        && n.job.status === Constants.JOB.STATUS.READY
+                        && n.job.status !== Constants.JOB.STATUS.COMPLETED)
+                    if(n)
+                        nodes.push(n)
+                }
+
                 console.log("NODES")
                 nodes.map(n => console.log(n.id))
                 if(nodes.length > 0){
