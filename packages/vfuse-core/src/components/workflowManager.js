@@ -500,6 +500,7 @@ class WorkflowManager{
                     }
                     if(this.options.maintainRunningState)
                        this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
+                    this.executionCycle()
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
                 }
             }
