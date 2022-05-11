@@ -326,7 +326,7 @@ class WebWorkerRuntime {
         //worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
         while(!worker) {
             worker = this.executionQueue.find(w => !w.running)
-            console.log(`Selected worker ${worker.id} with running ${worker.running}`)
+            //console.log(`Selected worker ${worker.id} with running ${worker.running}`)
         }
         worker.running = true
         return worker
