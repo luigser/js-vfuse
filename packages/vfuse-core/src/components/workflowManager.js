@@ -254,7 +254,7 @@ class WorkflowManager{
         let workflow = JSON.parse(encoded_workflow)
         if(workflow){
             workflow.remoteSelectedJobs = []
-            workflow.suggestedScheduling = data.suggestedScheduling
+            workflow.suggestedScheduling = data.suggestedScheduling.find(s => s.peer === this.identityManager.peerId)
             await this.contentManager.save('/workflows/running/' + data.workflow_id, workflow)
             this.runningWorkflowsQueue.set(workflow.id, workflow)
             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
@@ -301,12 +301,8 @@ class WorkflowManager{
     isAllRunningWorkflowsNodesInExecutionQueue(){
         for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
             let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG).filter(n => !n.isInQueue).filter(n => !w.remoteSelectedJobs.find(j => j === n.id))
-            if(readyNodes.length > 0 || w.suggestedScheduling.find(s => s.jobs.length > 0))
+            if(readyNodes.length > 0 || (w.suggestedScheduling && w.suggestedScheduling.jobs.length > 0))
                 return false
-            /*for(let rn of readyNodes){
-                if(!rn.isInQueue && !w.remoteSelectedJobs.find(j => j === rn.id))
-                    return false
-            }*/
         }
         return true
     }
@@ -339,12 +335,11 @@ class WorkflowManager{
             let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
             if(!workflow_to_run) return
             //First level of scheduling
-            let scheduling = workflow_to_run.suggestedScheduling ? workflow_to_run.suggestedScheduling.find(s => s.peer === this.identityManager.peerId) : null
-            if(scheduling) {
-                let node = workflow_to_run.jobsDAG.nodes.find(n => n.id === scheduling.jobs[0].id)
+            if(workflow_to_run.suggestedScheduling) {
+                let node = workflow_to_run.jobsDAG.nodes.find(n => n.id === workflow_to_run.suggestedScheduling.jobs[0].id)
                 if (node.job.status !== Constants.JOB.STATUS.COMPLETED && node.job.status === Constants.JOB.STATUS.READY) {
                     console.log(`Selected node ${node.id}`)
-                    scheduling.jobs = scheduling.jobs.filter(n => n.id !== node.id)
+                    workflow_to_run.suggestedScheduling.jobs = workflow_to_run.suggestedScheduling.jobs.filter(n => n.id !== node.id)
                     this.addJobToQueue(workflow_to_run.id, node)
                 }
                 /*let nodes = scheduling.jobs.map(node => {
