@@ -669,14 +669,14 @@ class WorkflowManager{
             let nodes = workflow.jobsDAG.nodes.filter(n => n.id !== 'root')
             let chunk = Math.floor(nodes.length / this.peers.length)
             let r = nodes.length % this.peers.length
-            let start = 0
+            let start = 0, end = 0
             for(let rank = 0; rank < this.peers.length; rank++){
+                start = rank < r ? rank * (chunk + 1) : rank * chunk + r
+                end = rank < r ? start + chunk + 1 : start + chunk
                 console.log(`Scheduling for peer: ${this.peers[rank].peer}`)
                 let scheduling =  {
                     peer : this.peers[rank].peer,
-                    jobs : rank < r
-                        ? nodes.slice(rank * (chunk + 1), start + chunk + 1)
-                        : nodes.slice(rank * chunk + r, start + chunk)
+                    jobs : nodes.slice(start, end)
                 }
                 scheduling.jobs.map(n => console.log(n.progressive))
                 console.log("******************************************")
