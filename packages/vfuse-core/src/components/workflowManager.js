@@ -339,36 +339,36 @@ class WorkflowManager{
             let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
             if(!workflow_to_run) return
             //First level of scheduling
-            if(workflow_to_run.suggestedScheduling){
-                let scheduling = workflow_to_run.suggestedScheduling.find(s => s.peer === this.identityManager.peerId)
-                if(scheduling){
-                   let nodes = scheduling.jobs.map(node => {
-                       let wnode = workflow_to_run.jobsDAG.nodes.find(n => n.id === node.id)
-                       if(wnode.job.status !== Constants.JOB.STATUS.COMPLETED)
-                           return wnode
-                   })
-                   if(nodes.length > 0){
-                       nodes = nodes.filter(n => n.job.status === Constants.JOB.STATUS.READY)
-                       if(nodes.length > 0) {
-                           console.log(`Selected node ${nodes[0].id}`)
-                           scheduling.jobs = scheduling.jobs.filter(n => n.id !== nodes[0].id)
-                           this.addJobToQueue(workflow_to_run.id, nodes[0])
-                       }
-                   }else{
-                       stop = true
-                   }
+            let scheduling = workflow_to_run.suggestedScheduling ? workflow_to_run.suggestedScheduling.find(s => s.peer === this.identityManager.peerId) : null
+            if(scheduling) {
+                if(scheduling.jobs.length > 0) {
+                    let node = workflow_to_run.jobsDAG.nodes.find(n => n.id === workflow_to_run.suggestedScheduling.jobs[0].id)
+                    if (node.job.status !== Constants.JOB.STATUS.COMPLETED && node.job.status === Constants.JOB.STATUS.READY) {
+                        console.log(`Selected node ${node.id}`)
+                        scheduling.jobs = scheduling.jobs.filter(n => n.id !== node.id)
+                        this.addJobToQueue(workflow_to_run.id, node)
+                    }
+                }else{
+                    stop = true
                 }
+                /*let nodes = scheduling.jobs.map(node => {
+                    let wnode = workflow_to_run.jobsDAG.nodes.find(n => n.id === node.id)
+                    if(wnode.job.status !== Constants.JOB.STATUS.COMPLETED)
+                        return wnode
+                })
+                if(nodes.length > 0){
+                    nodes = nodes.filter(n => n.job.status === Constants.JOB.STATUS.READY)
+                    if(nodes.length > 0) {
+                        console.log(`Selected node ${nodes[0].id}`)
+                        scheduling.jobs = scheduling.jobs.filter(n => n.id !== nodes[0].id)
+                        this.addJobToQueue(workflow_to_run.id, nodes[0])
+                    }
+                }else{
+                    stop = true
+                }*/
             }else{
                 let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
                 let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
-                /* console.log("********************************************")
-                 console.log(`Ready nodes : ${nodes.length} - Selected : ${node.id}`)
-                 console.log("EXECUTION QUEUE")
-                 this.jobsExecutionQueue.map(j => console.log(j.node.id))
-                 console.log("REMOTE SELECTION")
-                 console.log("********************************************")
-                 workflow_to_run.remoteSelectedJobs.map(j => console.log(j))
-                 this.jobsExecutionQueue.map(j => console.log(j))*/
                 if(node) {
                     console.log(node.progressive)
                     this.addJobToQueue(workflow_to_run.id, node)
@@ -502,8 +502,8 @@ class WorkflowManager{
                     }
                     if(this.options.maintainRunningState)
                        this.contentManager.save('/workflows/running/' + data.wid, running_workflow)
-                    this.executionCycle()
                     this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, running_workflow)
+                    this.executionCycle()
                 }
             }
         }catch (e) {
