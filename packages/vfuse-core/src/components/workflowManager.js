@@ -51,14 +51,19 @@ class WorkflowManager{
 
             this.executedJobs = []
             this.numOfSelectedJobs = 0
+            this.selectedJobs = []
 
             this.selectingJobLock = false
+            this.peers = []
 
             this.eventManager.addListener(Constants.EVENTS.PROFILE_STATUS, async function(){await this.startWorkspace()}.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, this.handleRequestExecutionWorkflow.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,this.runningWorkflowJobsSelection.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,this.manageResults.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.RESULTS.RECEIVED,this.dropWorkflows.bind(this))
+            this.eventManager.addListener(Constants.EVENTS.NETWORK_DISCOVERY_PEERS, function (peers) {
+                this.peers = peers
+            }.bind(this))
             /*this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.UNPUBLISH, async function (data) {
               await this.handleWorflowsUnpublishing(data)
              }.bind(this))
@@ -249,7 +254,7 @@ class WorkflowManager{
         let workflow = JSON.parse(encoded_workflow)
         if(workflow){
             workflow.remoteSelectedJobs = []
-            workflow.allJobsInQueue = false
+            workflow.suggestedScheduling = data.suggestedScheduling
             await this.contentManager.save('/workflows/running/' + data.workflow_id, workflow)
             this.runningWorkflowsQueue.set(workflow.id, workflow)
             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
@@ -262,7 +267,7 @@ class WorkflowManager{
     async handleRequestExecutionWorkflow(data){
         try{
             if(this.runningWorkflowsQueue.size > this.maxManagedWorkflows) return
-            let published_workflows = await this.contentManager.list('/workflows/published')
+            //let published_workflows = await this.contentManager.list('/workflows/published')
             if(!data.workflow_id && !data.cid || this.getWorkflow(data.workflow_id)) return
             //check if received workflow is already in published dir
             let published_workflow = await this.contentManager.get('/workflows/published/' + data.workflow_id)
@@ -283,10 +288,6 @@ class WorkflowManager{
             data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
-                    /*for(let job of entry.jobs){
-                        if(this.jobsExecutionQueue.find(j => j.node.id === job))
-                            entry.jobs = entry.jobs.filter(j => j !== job)
-                    }*/
                     workflow.remoteSelectedJobs = [...new Set([...workflow.remoteSelectedJobs ,...entry.jobs])]
                     /*console.log("******REMOTE SELECTED JOBS*************")
                     workflow.remoteSelectedJobs.map(j => console.log(j))*/
@@ -310,52 +311,64 @@ class WorkflowManager{
         return true
     }
 
+    addJobToQueue(wid, node){
+        this.executedJobs.push(node.id)
+        node.isInQueue = true
+        this.jobsExecutionQueue.push({
+            node: node,
+            wid: wid,
+            running: false,
+            timestamp: Date.now()
+        })
+        let sjentry = this.selectedJobs.find(entry => entry.wid === wid)
+        if(!sjentry)
+            this.selectedJobs.push({wid: wid, jobs: [node.id]})
+        else
+            sjentry.jobs.push(node.id)
+    }
+
     async fillExecutionQueue(){
         if(this.runningWorkflowsQueue.size === 0) return
         this.selectingJobLock = true
         let stop = false
-        let selectedJobs = []
+        this.selectedJobs = []
         while (this.jobsExecutionQueue.length < this.maxConcurrentJobs && !stop){
             let running_workflows_keys = [ ...this.runningWorkflowsQueue.keys()]
             let workflow_to_run_id = MathJs.pickRandom(running_workflows_keys, running_workflows_keys.map(w => 1 / running_workflows_keys.length))
             //Select randomly a ready node from selected running workflow
             let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
             if(!workflow_to_run) return
-            let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
-            let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
-           /* console.log("********************************************")
-            console.log(`Ready nodes : ${nodes.length} - Selected : ${node.id}`)
-            console.log("EXECUTION QUEUE")
-            this.jobsExecutionQueue.map(j => console.log(j.node.id))
-            console.log("REMOTE SELECTION")
-            console.log("********************************************")
-            workflow_to_run.remoteSelectedJobs.map(j => console.log(j))
-            this.jobsExecutionQueue.map(j => console.log(j))*/
-            if(node) {
-                console.log(node.progressive)
-                if (!this.jobsExecutionQueue.find(e => e.node.id === node.id) && !workflow_to_run.remoteSelectedJobs.find(j => j === node.id)) {
-                    //console.log(`Put in queue : ${node.id}`)
-                    this.executedJobs.push(node.id)
-                    node.isInQueue = true
-                    this.jobsExecutionQueue.push({
-                        node: node,
-                        wid: workflow_to_run.id,
-                        running: false,
-                        timestamp: Date.now()
-                    })
-                    let sjentry = selectedJobs.find(entry => entry.wid === workflow_to_run.id)
-                    if(!sjentry)
-                        selectedJobs.push({wid: workflow_to_run.id, jobs: [node.id]})
-                    else
-                        sjentry.jobs.push(node.id)
+            //First level of scheduling
+            if(workflow_to_run.suggestedScheduling){
+                let scheduling = workflow_to_run.suggestedScheduling.filter(s => s.peer === this.identityManager.peerId)
+                if(scheduling){
+                   for(let node of scheduling.jobs){
+                       this.addJobToQueue(workflow_to_run.id, node)
+                   }
+                   stop = true
                 }
+            }else{
+                let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
+                let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
+                /* console.log("********************************************")
+                 console.log(`Ready nodes : ${nodes.length} - Selected : ${node.id}`)
+                 console.log("EXECUTION QUEUE")
+                 this.jobsExecutionQueue.map(j => console.log(j.node.id))
+                 console.log("REMOTE SELECTION")
+                 console.log("********************************************")
+                 workflow_to_run.remoteSelectedJobs.map(j => console.log(j))
+                 this.jobsExecutionQueue.map(j => console.log(j))*/
+                if(node) {
+                    console.log(node.progressive)
+                    this.addJobToQueue(workflow_to_run.id, node)
+                }
+                stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
             }
-            stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
         }
         await this.contentManager.sendOnTopic({
             action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
             payload: {
-                selections: selectedJobs
+                selections: this.selectedJobs
             }
         })
         this.selectingJobLock = false
@@ -652,7 +665,24 @@ class WorkflowManager{
             await this.updateWorkflow(workflow)
             let cid = await this.contentManager.save('/workflows/private/' + workflow_id, workflow, {pin : true, net: true})
 
-            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt}
+            let suggestedScheduling =[]
+            let chunk = Math.floor((workflow.jobsDAG.nodes.length - 1) / this.peers.length)
+            let r = (workflow.jobsDAG.nodes.length - 1) % this.peers.length
+            let start = 0
+            for(let rank = 0; rank < this.peers.length; rank++){
+                console.log(`Scheduling for peer: ${this.peers[rank]}`)
+                let nodes = workflow.jobsDAG.nodes.filter(n => n.id !== 'root')
+                let scheduling =  {
+                    peer : this.peers[rank],
+                    jobs : rank < r
+                        ? nodes.slice(rank * (chunk + 1), start + chunk + 1)
+                        : nodes.slice(rank * chunk + r, start + chunk)
+                }
+                scheduling.jobs.map(n => console.log(n.job.progressive))
+                console.log("******************************************")
+                suggestedScheduling.push(scheduling)
+            }
+            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt, suggestedScheduling : suggestedScheduling}
             await this.contentManager.save('/workflows/published/my/' + workflow_id , workflow_to_publish)
             await this.contentManager.delete('/workflows/completed/' + workflow_id)
 
