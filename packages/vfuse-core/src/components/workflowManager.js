@@ -342,10 +342,14 @@ class WorkflowManager{
             if(workflow_to_run.suggestedScheduling){
                 let scheduling = workflow_to_run.suggestedScheduling.filter(s => s.peer === this.identityManager.peerId)
                 if(scheduling){
-                   for(let node of scheduling.jobs){
-                       this.addJobToQueue(workflow_to_run.id, node)
+                   let nodes = scheduling.jobs.filter(n => n.job.status !== Constants.JOB.STATUS.COMPLETED)
+                   if(nodes.length > 0){
+                       console.log(`Selected node ${nodes[0].id}`)
+                       scheduling.jobs = scheduling.jobs.filter(n => n.id !== nodes[0].id )
+                       this.addJobToQueue(workflow_to_run.id, nodes[0])
+                   }else{
+                       stop = true
                    }
-                   stop = true
                 }
             }else{
                 let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
