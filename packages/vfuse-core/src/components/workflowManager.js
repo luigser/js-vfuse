@@ -342,7 +342,7 @@ class WorkflowManager{
             if(workflow_to_run.suggestedScheduling){
                 let scheduling = workflow_to_run.suggestedScheduling.find(s => s.peer === this.identityManager.peerId)
                 if(scheduling){
-                   let nodes = scheduling.jobs.filter(node => {
+                   let nodes = scheduling.jobs.map(node => {
                        let wnode = workflow_to_run.jobsDAG.nodes.find(n => n.id === node.id)
                        if(wnode.job.status !== Constants.JOB.STATUS.COMPLETED)
                            return wnode
