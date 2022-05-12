@@ -256,11 +256,13 @@ class WorkflowManager{
         let workflow = JSON.parse(encoded_workflow)
         if(workflow){
             workflow.remoteSelectedJobs = []
-            workflow.suggestedScheduling = data.suggestedScheduling.find(s => s.peer === this.identityManager.peerId)
-            let nodes = []
-            for(let node of workflow.suggestedScheduling.jobs)
-                nodes.push(workflow.jobsDAG.nodes.find(n => n.id === node.id))
-            workflow.suggestedScheduling.jobs = nodes
+            if(workflow.suggestedScheduling) {
+                workflow.suggestedScheduling = data.suggestedScheduling.find(s => s.peer === this.identityManager.peerId)
+                let nodes = []
+                for (let node of workflow.suggestedScheduling.jobs)
+                    nodes.push(workflow.jobsDAG.nodes.find(n => n.id === node.id))
+                workflow.suggestedScheduling.jobs = nodes
+            }
             await this.contentManager.save('/workflows/running/' + data.workflow_id, workflow)
             this.runningWorkflowsQueue.set(workflow.id, workflow)
             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
@@ -398,7 +400,7 @@ class WorkflowManager{
                                 payload: {
                                     //id : message_id,
                                     wid: workflow_to_run.id,
-                                    nodes: [entry.node] //nodes_to_publish
+                                    nodes: [entry.node] //nodes_to_publish Error during workflow execution
                                 }
                             })
                             if(this.options.maintainRunningState)
@@ -677,7 +679,7 @@ class WorkflowManager{
             let cid = await this.contentManager.save('/workflows/private/' + workflow_id, workflow, {pin : true, net: true})
 
             let suggestedScheduling =[]
-            /*let nodes = workflow.jobsDAG.nodes.filter(n => n.id !== 'root')
+            let nodes = workflow.jobsDAG.nodes.filter(n => n.id !== 'root')
             let chunk = Math.floor(nodes.length / this.peers.length)
             let r = nodes.length % this.peers.length
             let start = 0, end = 0
@@ -692,8 +694,8 @@ class WorkflowManager{
                 scheduling.jobs.map(n => console.log(n.progressive))
                 console.log("******************************************")
                 suggestedScheduling.push(scheduling)
-            }*/
-            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt, suggestedScheduling : suggestedScheduling}
+            }
+            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt/*, suggestedScheduling : suggestedScheduling*/}
             await this.contentManager.save('/workflows/published/my/' + workflow_id , workflow_to_publish)
             await this.contentManager.delete('/workflows/completed/' + workflow_id)
 
