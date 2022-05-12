@@ -305,7 +305,7 @@ class WorkflowManager{
     isAllRunningWorkflowsNodesInExecutionQueue(){
         for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
             let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG).filter(n => !n.isInQueue).filter(n => !w.remoteSelectedJobs.find(j => j === n.id))
-            if(readyNodes.length > 0 || (w.suggestedScheduling && w.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY && n.job.status !== Constants.JOB.STATUS.COMPLETED).length > 0))
+            if(readyNodes.length > 0 || (w.suggestedScheduling && w.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY).length > 0))
                 return false
         }
         return true
@@ -340,7 +340,8 @@ class WorkflowManager{
             if(!workflow_to_run) return
             //First level of scheduling
             if(workflow_to_run.suggestedScheduling) {
-                let nodes = workflow_to_run.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY && n.job.status !== Constants.JOB.STATUS.COMPLETED)
+                let nodes = workflow_to_run.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY)
+                console.log("Selecting jobs from suggested scheduling")
                 if(nodes.length > 0){
                     console.log(`Selected node ${nodes[0].id}`)
                     workflow_to_run.suggestedScheduling.jobs = workflow_to_run.suggestedScheduling.jobs.filter(n => n.id !== nodes[0].id)
