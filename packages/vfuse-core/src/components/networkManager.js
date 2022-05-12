@@ -325,7 +325,7 @@ class NetworkManager{
                 this.receivedMessages.push(message.id)*/
             if(message.from === this.peerId) return
             let data = JSON.parse(Buffer.from(fflate.unzlibSync(message.data)).toString())//JSON.parse(LZUTF8.decompress(message.data));
-            //console.log(`Got Message from ${message.from} - ${data.action}`)
+            console.log(`Got Message from ${message.from} - ${data.action} - ${data.id}`)
             //console.log(data)
             switch(data.action){
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY:
@@ -374,6 +374,7 @@ class NetworkManager{
 
     async send(data){
         try {
+            data.id = await PeerId.create({bits: 1024, keyType: 'RSA'})
             data = fflate.zlibSync((new TextEncoder().encode(JSON.stringify(data))), {level: 6})
             //console.log(`Sending ${data.length} bytes`)
             await this.libp2p.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, data)/*LZUTF8.compress(JSON.stringify(data))*/
