@@ -428,9 +428,10 @@ class WorkflowManager{
     }
 
     async manageResults(data){
+        console.log("Maronn e llllllll'arc :" + data.nodes.length)
         try{
             if(!data.wid && !data.nodes) return
-            let start = performance.now()
+            let start = Date.now()
             let workflow = this.getWorkflow(data.wid)
             if(workflow) {
                 //PRIVATE WORKFLOWS
@@ -458,6 +459,7 @@ class WorkflowManager{
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
                         workflow.completedAt = Date.now()
                         console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
+                        this.totAsseblyResustsTime = 0
                         /*for(let node of workflow.jobsDAG.nodes){
                             if(node.job)
                                 workflow.numOfReceivedResults += node.receivedResults.length
@@ -500,7 +502,7 @@ class WorkflowManager{
                     }
                 }
             }
-            this.totAsseblyResustsTime += (performance.now() - start)
+            this.totAsseblyResustsTime += (Date.now() - start)
         }catch (e) {
             console.log('Error during results management : ' + e.message)
         }
@@ -513,6 +515,7 @@ class WorkflowManager{
                 console.log(`Workflow ${wid} ands execution`)
                 console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
                 console.log(`Selected jobs for running : ${this.executedJobs.length}`)
+                this.totAsseblyResustsTime = 0
                 await this.contentManager.delete('/workflows/running/' + wid)
                 await this.contentManager.delete('/workflows/published/' + wid)
                 await this.contentManager.delete('/workflows/completed/' + wid)
