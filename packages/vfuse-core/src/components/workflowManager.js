@@ -695,7 +695,7 @@ class WorkflowManager{
                 console.log("******************************************")
                 suggestedScheduling.push(scheduling)
             }
-            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt/*, suggestedScheduling : suggestedScheduling*/}
+            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt, suggestedScheduling : suggestedScheduling}
             await this.contentManager.save('/workflows/published/my/' + workflow_id , workflow_to_publish)
             await this.contentManager.delete('/workflows/completed/' + workflow_id)
 
