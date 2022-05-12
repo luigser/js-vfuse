@@ -256,7 +256,7 @@ class WorkflowManager{
         let workflow = JSON.parse(encoded_workflow)
         if(workflow){
             workflow.remoteSelectedJobs = []
-            if(workflow.suggestedScheduling) {
+            if(data.suggestedScheduling) {
                 workflow.suggestedScheduling = data.suggestedScheduling.find(s => s.peer === this.identityManager.peerId)
                 let nodes = []
                 for (let node of workflow.suggestedScheduling.jobs)
