@@ -391,14 +391,14 @@ class WorkflowManager{
                                 entry.node,
                                 entry.node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
                                 {results: results})
-                            let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
+                            //let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
                             await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
                                     //id : message_id,
                                     wid: workflow_to_run.id,
-                                    nodes: nodes_to_publish// [entry.node]
+                                    nodes: [entry.node] //nodes_to_publish
                                 }
                             })
                             if(this.options.maintainRunningState)
@@ -484,13 +484,13 @@ class WorkflowManager{
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            local_job_node.color = result_node.color
-                            local_job_node.job = result_node.job
+                            /*local_job_node.color = result_node.color
+                            local_job_node.job = result_node.job*/
 
-                            /*JobsDAG.setRunningNodeState(
+                            JobsDAG.setRunningNodeState(
                                 running_workflow.jobsDAG,
                                 local_job_node,
-                                result_node)*/
+                                result_node)
                             //running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
