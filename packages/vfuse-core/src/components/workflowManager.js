@@ -305,7 +305,10 @@ class WorkflowManager{
     isAllRunningWorkflowsNodesInExecutionQueue(){
         for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
             let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG).filter(n => !n.isInQueue).filter(n => !w.remoteSelectedJobs.find(j => j === n.id))
-            if(readyNodes.length > 0 || (w.suggestedScheduling && w.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY).length > 0))
+            let suggestedNodes = w.suggestedScheduling && w.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY)
+            if(suggestedNodes && suggestedNodes.length === 0) {
+                return true
+            }else if(readyNodes.length > 0)
                 return false
         }
         return true
