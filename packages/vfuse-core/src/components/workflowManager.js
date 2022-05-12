@@ -56,6 +56,8 @@ class WorkflowManager{
             this.selectingJobLock = false
             this.peers = []
 
+            this.totAsseblyResustsTime = 0
+
             this.eventManager.addListener(Constants.EVENTS.PROFILE_STATUS, async function(){await this.startWorkspace()}.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, this.handleRequestExecutionWorkflow.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,this.runningWorkflowJobsSelection.bind(this))
@@ -428,6 +430,7 @@ class WorkflowManager{
     async manageResults(data){
         try{
             if(!data.wid && !data.nodes) return
+            let start = performance.now()
             let workflow = this.getWorkflow(data.wid)
             if(workflow) {
                 //PRIVATE WORKFLOWS
@@ -454,6 +457,7 @@ class WorkflowManager{
                     let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
                         workflow.completedAt = Date.now()
+                        console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
                         /*for(let node of workflow.jobsDAG.nodes){
                             if(node.job)
                                 workflow.numOfReceivedResults += node.receivedResults.length
@@ -496,6 +500,7 @@ class WorkflowManager{
                     }
                 }
             }
+            this.totAsseblyResustsTime += (performance.now() - start)
         }catch (e) {
             console.log('Error during results management : ' + e.message)
         }
@@ -506,6 +511,7 @@ class WorkflowManager{
             if(!data.wids) return
             for(let wid of data.wids) {
                 console.log(`Workflow ${wid} ands execution`)
+                console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
                 console.log(`Selected jobs for running : ${this.executedJobs.length}`)
                 await this.contentManager.delete('/workflows/running/' + wid)
                 await this.contentManager.delete('/workflows/published/' + wid)
