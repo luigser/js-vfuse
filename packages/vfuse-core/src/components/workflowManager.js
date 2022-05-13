@@ -269,6 +269,7 @@ class WorkflowManager{
             if(this.options.computation) {
                 this.executionCycle()
             }
+            console.log(`Starting workflow ${workflow.id}`)
         }
     }
 
@@ -348,9 +349,9 @@ class WorkflowManager{
             //First level of scheduling
             if(workflow_to_run.suggestedScheduling) {
                 let nodes = workflow_to_run.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY)
-                console.log("Selecting jobs from suggested scheduling")
+                //console.log("Selecting jobs from suggested scheduling")
                 if(nodes.length > 0){
-                    console.log(`Selected node ${nodes[0].id}`)
+                    //console.log(`Selected node ${nodes[0].id}`)
                     workflow_to_run.suggestedScheduling.jobs = workflow_to_run.suggestedScheduling.jobs.filter(n => n.id !== nodes[0].id)
                     this.addJobToQueue(workflow_to_run.id, nodes[0])
                 }
@@ -358,7 +359,7 @@ class WorkflowManager{
                 let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
                 let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
                 if(node) {
-                    console.log(node.progressive)
+                    //console.log(node.progressive)
                     this.addJobToQueue(workflow_to_run.id, node)
                 }
                 //stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
@@ -430,10 +431,10 @@ class WorkflowManager{
     }
 
     async manageResults(data){
-        console.log("Maronn e llllllll'arc :" + data.nodes.length)
+        //console.log("Received results  :" + data.nodes.length)
         try{
             if(!data.wid && !data.nodes) return
-            let start = Date.now()
+            //let start = Date.now()
             let workflow = this.getWorkflow(data.wid)
             if(workflow) {
                 //PRIVATE WORKFLOWS
@@ -460,7 +461,7 @@ class WorkflowManager{
                     let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
                         workflow.completedAt = Date.now()
-                        console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
+                        //console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
                         this.totAsseblyResustsTime = 0
                         /*for(let node of workflow.jobsDAG.nodes){
                             if(node.job)
@@ -504,7 +505,7 @@ class WorkflowManager{
                     }
                 }
             }
-            this.totAsseblyResustsTime += (Date.now() - start)
+            //this.totAsseblyResustsTime += (Date.now() - start)
         }catch (e) {
             console.log('Error during results management : ' + e.message)
         }
