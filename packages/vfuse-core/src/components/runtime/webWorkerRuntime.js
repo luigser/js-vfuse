@@ -46,8 +46,6 @@ class WebWorkerRuntime {
             let worker = this.worker.getWebWorker()
             this.executionQueue.push({ id : i, webworker : worker, running : false, initialized : true,
                 runningCallback : (status) => {
-
-
                 }
             })
             await this.initWorker(worker)
