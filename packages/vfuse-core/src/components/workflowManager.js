@@ -462,13 +462,16 @@ class WorkflowManager{
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
                         workflow.completedAt = Date.now()
                         //console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
-                        this.totAsseblyResustsTime = 0
+                        //this.totAsseblyResustsTime = 0
                         /*for(let node of workflow.jobsDAG.nodes){
                             if(node.job)
                                 workflow.numOfReceivedResults += node.receivedResults.length
                         }*/
                         await this.unsubmitWorkflow(workflow.id)
                         this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
+
+                        let max_job_execution_time = JobsDAG.getMaxJobExecutionTime(workflow.jobsDAG)
+                        console.log(`Max job execution time : ${max_job_execution_time} ms`)
                     }
                     await this.updateWorkflow(workflow)
                     //Todo debounce with clear timeout to prevent browser freezing when user stands in the current private workflow page
@@ -515,14 +518,19 @@ class WorkflowManager{
         try{
             if(!data.wids) return
             for(let wid of data.wids) {
-                console.log(`Workflow ${wid} ands execution`)
-                console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
-                console.log(`Selected jobs for running : ${this.executedJobs.length}`)
-                this.totAsseblyResustsTime = 0
-                await this.contentManager.delete('/workflows/running/' + wid)
-                await this.contentManager.delete('/workflows/published/' + wid)
-                await this.contentManager.delete('/workflows/completed/' + wid)
-                this.runningWorkflowsQueue.delete(wid)
+                let workflow = this.runningWorkflowsQueue.get(wid)
+                if(workflow) {
+                    this.totAsseblyResustsTime = 0
+                    await this.contentManager.delete('/workflows/running/' + wid)
+                    await this.contentManager.delete('/workflows/published/' + wid)
+                    await this.contentManager.delete('/workflows/completed/' + wid)
+                    this.runningWorkflowsQueue.delete(wid)
+                    console.log(`Workflow ${wid} ands execution`)
+                    console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
+                    console.log(`Selected jobs for running : ${this.executedJobs.length}`)
+                    let max_job_execution_time = JobsDAG.getMaxJobExecutionTime(workflow.jobsDAG)
+                    console.log(`Max job execution time : ${max_job_execution_time} ms`)
+                }
             }
         }catch (e) {
             console.log('Error during dropping results : %O', e)
