@@ -146,11 +146,13 @@ class WebWorkerRuntime {
                         const {status} = e.data
                         //console.log(`Worker ${worker.id} : running ${status}`)
                         worker.running = status
+                        console.log(`Worker ${worker.id} is free`)
                         break
                     case 'return':
                         worker.running = false
                         worker.webworker.onmessage = null
                         resolve({results: results, executionTime : e.data.executionTime} )
+                        console.log(`Worker ${worker.id} end execution`)
                         break
                     case 'VFuse:worker':
                         const {func, params} = e.data.todo
