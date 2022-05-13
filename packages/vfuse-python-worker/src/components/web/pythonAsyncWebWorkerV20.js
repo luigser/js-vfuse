@@ -324,16 +324,16 @@ const worker_code = () => {
                     let results = await self.pyodide.runPythonAsync(!job.inline ?  `VFuse.execute(function_to_run, input)` : job.code)
                     let executionTime = performance.now() - start
                     self.running = false
-                    self.postMessage({
-                        action: 'running',
-                        status: false
-                    })
                     self.postMessage(
                         {
                             action: 'return',
                             results: results && typeof(results)!="string" && typeof(results)!="number" ? convert(results.toJs()) : results,
                             executionTime : executionTime
                         });
+                    self.postMessage({
+                        action: 'running',
+                        status: false
+                    })
                     self.pyodide.globals.delete('function_to_run')
                     self.pyodide.globals.delete('input')
                 } catch (err) {
