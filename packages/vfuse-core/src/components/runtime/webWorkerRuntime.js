@@ -360,10 +360,9 @@ class WebWorkerRuntime {
             clearTimeout(timeout)
             //const log = {start: startTs, end: Date.now(), cmd: job.code}
             //this.history.push(log)
-            console.log(`Worker ${worker.id} executed ${worker.numOfExecutedJobs} jobs ${job.name} in ${job.executionTime} ms`)
+            console.log(`Worker ${worker.id} executed ${worker.numOfExecutedJobs} jobs ${job.name} in ${result.executionTime} ms`)
         }catch (e) {
             console.log('Error in web worker runtime : ' +  e.message)
-
         }
 
         return result
