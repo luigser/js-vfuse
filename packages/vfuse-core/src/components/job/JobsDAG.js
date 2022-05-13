@@ -45,7 +45,7 @@ class JobsDAG {
         let max_job_execution_time = 0
         for(let node of JSONJobsDAG.nodes){
             if(node.job){
-                if(node.j.executionTime > max_job_execution_time){
+                if(node.job.executionTime > max_job_execution_time){
                     max_job_execution_time = node.job.executionTime
                 }
             }
