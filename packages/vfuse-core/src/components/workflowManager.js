@@ -57,6 +57,7 @@ class WorkflowManager{
             this.peers = []
 
             this.totAsseblyResustsTime = 0
+            this.maxJobExecitionTime = 0
 
             this.eventManager.addListener(Constants.EVENTS.PROFILE_STATUS, async function(){await this.startWorkspace()}.bind(this))
             this.eventManager.addListener(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST, this.handleRequestExecutionWorkflow.bind(this))
@@ -412,6 +413,9 @@ class WorkflowManager{
                             /*this.numOfSelectedJobs++
                             console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)*/
                             await this.executionCycle()
+
+                            if(entry.node.job.executionTime > this.maxJobExecitionTime)
+                                this.maxJobExecitionTime = entry.node.job.executionTime
                         }
                     }.bind(this), 0)
                 }
@@ -528,8 +532,7 @@ class WorkflowManager{
                     console.log(`Workflow ${wid} ands execution`)
                     console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
                     console.log(`Selected jobs for running : ${this.executedJobs.length}`)
-                    let max_job_execution_time = JobsDAG.getMaxJobExecutionTime(workflow.jobsDAG)
-                    console.log(`Max job execution time : ${max_job_execution_time} ms`)
+                    console.log(`Max job execution time : ${this.maxJobExecitionTime} ms`)
                 }
             }
         }catch (e) {
