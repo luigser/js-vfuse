@@ -327,7 +327,6 @@ class WebWorkerRuntime {
         }
         worker.numOfExecutedJobs = worker.numOfExecutedJobs + 1
         worker.running = true
-        console.log(`Worker ${worker.id} executed ${worker.numOfExecutedJobs} jobs`)
         return worker
     }
 
@@ -339,27 +338,29 @@ class WebWorkerRuntime {
             const startTs = Date.now()
             let worker = await this.selectWorker()
             let timeout = setTimeout(function () {
-                if(!result) {
+                if (!result) {
                     clearTimeout(timeout)
-                    if(worker.webworker.terminate) {
+                    if (worker.webworker.terminate) {
                         console.log(`Terminating worker ${worker.id}`)
                         worker.webworker.terminate()
                         worker.running = false
                     }
                     result = {
                         action: 'return',
-                        results: {error: {
-                                message : "Current job exceed the execution timeout",
-                                code : job.code
-                            }}
+                        results: {
+                            error: {
+                                message: "Current job exceed the execution timeout",
+                                code: job.code
+                            }
+                        }
                     }
                 }
             }.bind(this), this.jobExecutionTimeout * 1000)
             result = await this.exec(job, worker)
             clearTimeout(timeout)
-            const log = {start: startTs, end: Date.now(), cmd: job.code}
-            //console.log(`End execution job : ${job.name}`)
-            this.history.push(log)
+            //const log = {start: startTs, end: Date.now(), cmd: job.code}
+            //this.history.push(log)
+            console.log(`Worker ${worker.id} executed ${worker.numOfExecutedJobs} jobs ${job.name}`)
         }catch (e) {
             console.log('Error in web worker runtime : ' +  e.message)
 
