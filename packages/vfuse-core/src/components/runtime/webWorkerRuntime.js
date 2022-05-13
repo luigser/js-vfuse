@@ -358,7 +358,7 @@ class WebWorkerRuntime {
             result = await this.exec(job, worker)
             clearTimeout(timeout)
             const log = {start: startTs, end: Date.now(), cmd: job.code}
-            console.log(`End execution job : ${job.name}`)
+            //console.log(`End execution job : ${job.name}`)
             this.history.push(log)
         }catch (e) {
             console.log('Error in web worker runtime : ' +  e.message)
