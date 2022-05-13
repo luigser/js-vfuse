@@ -146,12 +146,12 @@ class WebWorkerRuntime {
                         const {status} = e.data
                         //console.log(`Worker ${worker.id} : running ${status}`)
                         worker.running = status
-                        console.log(`Worker ${worker.id} is free`)
+                        console.log(`Worker ${worker.id} running : ${status}`)
                         break
                     case 'return':
+                        resolve({results: results, executionTime : e.data.executionTime} )
                         worker.running = false
                         worker.webworker.onmessage = null
-                        resolve({results: results, executionTime : e.data.executionTime} )
                         console.log(`Worker ${worker.id} end execution`)
                         break
                     case 'VFuse:worker':
@@ -335,10 +335,10 @@ class WebWorkerRuntime {
 
     async run(job) {
         let result = null
-        let worker = await this.selectWorker()
         //console.log(`Selected worker ${worker.id}`)
         try {
             const startTs = Date.now()
+            let worker = await this.selectWorker()
             let timeout = setTimeout(function () {
                 if(!result) {
                     clearTimeout(timeout)
@@ -359,6 +359,7 @@ class WebWorkerRuntime {
             result = await this.exec(job, worker)
             clearTimeout(timeout)
             const log = {start: startTs, end: Date.now(), cmd: job.code}
+            console.log(`End execution job : ${job.name}`)
             this.history.push(log)
         }catch (e) {
             console.log('Error in web worker runtime : ' +  e.message)

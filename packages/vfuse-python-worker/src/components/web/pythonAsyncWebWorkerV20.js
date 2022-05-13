@@ -308,10 +308,10 @@ const worker_code = () => {
                 break;
             case 'exec':
                 self.running = true
-                self.postMessage({
+               /* self.postMessage({
                     action: 'running',
                     status: self.running
-                })
+                })*/
                 try {
                     self.pyodide.globals.set('function_to_run',job.code)
                     self.pyodide.globals.set('input', job.data)
@@ -336,6 +336,7 @@ const worker_code = () => {
                     })*/
                     self.pyodide.globals.delete('function_to_run')
                     self.pyodide.globals.delete('input')
+                    self.running = false
                 } catch (err) {
                     /*self.running = false
                     self.postMessage({
