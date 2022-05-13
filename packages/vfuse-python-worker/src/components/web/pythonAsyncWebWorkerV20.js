@@ -334,6 +334,8 @@ const worker_code = () => {
                             results: results && typeof(results)!="string" && typeof(results)!="number" ? convert(results.toJs()) : results,
                             executionTime : executionTime
                         });
+                    self.pyodide.globals.delete('function_to_run')
+                    self.pyodide.globals.delete('input')
                 } catch (err) {
                     self.running = false
                     self.postMessage({
