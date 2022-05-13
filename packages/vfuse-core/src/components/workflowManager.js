@@ -698,13 +698,13 @@ class WorkflowManager{
             for(let rank = 0; rank < this.peers.length; rank++){
                 start = rank < r ? rank * (chunk + 1) : rank * chunk + r
                 end = rank < r ? start + chunk + 1 : start + chunk
-                console.log(`Scheduling for peer: ${this.peers[rank].peer}`)
+                //console.log(`Scheduling for peer: ${this.peers[rank].peer}`)
                 let scheduling =  {
                     peer : this.peers[rank].peer,
                     jobs : nodes.slice(start, end)
                 }
-                scheduling.jobs.map(n => console.log(n.progressive))
-                console.log("******************************************")
+                /*scheduling.jobs.map(n => console.log(n.progressive))
+                console.log("******************************************")*/
                 suggestedScheduling.push(scheduling)
             }
             let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt, /*suggestedScheduling : suggestedScheduling*/}

@@ -44,10 +44,7 @@ class WebWorkerRuntime {
         for(let i =0; i < this.maxJobsQueueLength; i++){
             console.log("Initializing Thread " + i )
             let worker = this.worker.getWebWorker()
-            this.executionQueue.push({ id : i, webworker : worker, running : false, initialized : true,
-                runningCallback : (status) => {
-                }
-            })
+            this.executionQueue.push({ id : i, webworker : worker, running : false, initialized : true, numOfExecutedJobs : 0})
             await this.initWorker(worker)
             await this.loadWorker(worker)
         }
@@ -146,13 +143,13 @@ class WebWorkerRuntime {
                         const {status} = e.data
                         //console.log(`Worker ${worker.id} : running ${status}`)
                         worker.running = status
-                        console.log(`Worker ${worker.id} running : ${status}`)
+                        //console.log(`Worker ${worker.id} running : ${status}`)
                         break
                     case 'return':
                         resolve({results: results, executionTime : e.data.executionTime} )
                         worker.running = false
                         worker.webworker.onmessage = null
-                        console.log(`Worker ${worker.id} end execution`)
+                        //console.log(`Worker ${worker.id} end execution`)
                         break
                     case 'VFuse:worker':
                         const {func, params} = e.data.todo
@@ -326,9 +323,11 @@ class WebWorkerRuntime {
         //worker = MathJs.pickRandom(this.executionQueue, 1 / this.maxJobsQueueLength)[0]
         while(!worker) {
             worker = this.executionQueue.find(w => !w.running)
-            console.log(`Selected worker ${worker.id} with running ${worker.running}`)
+            //console.log(`Selected worker ${worker.id} with running ${worker.running}`)
         }
+        worker.numOfExecutedJobs = worker.numOfExecutedJobs + 1
         worker.running = true
+        console.log(`Worker ${worker.id} executed ${worker.numOfExecutedJobs} jobs`)
         return worker
     }
 

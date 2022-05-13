@@ -274,24 +274,25 @@ const worker_code = () => {
                     let start = performance.now()
                     let results = await(F())
                     let executionTime = performance.now() - start
-                    self.running = false
-                    self.postMessage({
+
+                   /* self.postMessage({
                         action: 'running',
                         status: false
-                    })
+                    })*/
                     self.postMessage({
                         action: 'return',
                         results : convert(results),
                         executionTime : executionTime
                     })
+                    self.running = false
                 } catch (err) {
                     //console.log(err)
 
                     self.running = false
-                    self.postMessage({
+                    /*self.postMessage({
                         action: 'running',
                         status: false
-                    })
+                    })*/
                     self.postMessage({
                         action: 'return',
                         results: {error: {
