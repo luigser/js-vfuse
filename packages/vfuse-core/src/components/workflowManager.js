@@ -326,11 +326,13 @@ class WorkflowManager{
             running: false,
             timestamp: Date.now()
         })
-        let sjentry = this.selectedJobs.find(entry => entry.wid === wid)
-        if(!sjentry)
-            this.selectedJobs.push({wid: wid, jobs: [node.id]})
-        else
-            sjentry.jobs.push(node.id)
+        if(is_balanced_scheduling) {
+            let sjentry = this.selectedJobs.find(entry => entry.wid === wid)
+            if (!sjentry)
+                this.selectedJobs.push({wid: wid, jobs: [node.id]})
+            else
+                sjentry.jobs.push(node.id)
+        }
     }
 
     async fillExecutionQueue(){
@@ -342,7 +344,6 @@ class WorkflowManager{
             let workflow_to_run_id = MathJs.pickRandom(running_workflows_keys, running_workflows_keys.map(w => 1 / running_workflows_keys.length))
             //Select randomly a ready node from selected running workflow
             let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
-            if(!workflow_to_run) return
             //First level of scheduling
             if(workflow_to_run.suggestedScheduling) {
                 let nodes = workflow_to_run.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY)
