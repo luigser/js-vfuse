@@ -531,7 +531,7 @@ class WorkflowManager{
                     await this.contentManager.delete('/workflows/completed/' + wid)
                     this.runningWorkflowsQueue.delete(wid)
                     console.log(`Workflow ${wid} ands execution`)
-                    console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
+                    //console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
                     console.log(`Selected jobs for running : ${this.executedJobs.length}`)
                     console.log(`Max job execution time : ${this.maxJobExecitionTime} ms`)
                 }
