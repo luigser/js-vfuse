@@ -501,6 +501,7 @@ class WorkflowManager{
                                 running_workflow.jobsDAG,
                                 local_job_node,
                                 result_node)
+
                             //running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
