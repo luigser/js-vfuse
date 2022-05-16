@@ -114,6 +114,7 @@ export default function NotebookPage(props){
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [currentNode, setCurrentNode] = useState(null)
     const [workflow, setWorkflow] = useState(null)
+    const [scheduling, setScheduling] = useState(VFuse.Constants.WORKFLOW.SCHEDULING.BALANCED)
 
 
     useEffect(() => {
@@ -135,6 +136,7 @@ export default function NotebookPage(props){
                     setDag(workflow.jobsDAG)
                     setLanguage(workflow.language)
                     setIsPublished(workflow.published)
+                    setScheduling(workflow.scheduling)
                     setResults(node.getWorkflowResults(workflowId))
                 }
             }
@@ -166,7 +168,7 @@ export default function NotebookPage(props){
             });
         }else{
             setSaveWorkflowLoading(true)
-            let workflow = await vFuseNode.saveWorkflow(workflowId, name, code, language)
+            let workflow = await vFuseNode.saveWorkflow(workflowId, name, code, language, scheduling)
             if(workflow.error){
                 notification.error({
                     message : "Something went wrong",
@@ -255,6 +257,8 @@ export default function NotebookPage(props){
             });
         }
     }
+
+    const onSchedulingChange = (value) => setScheduling(value)
 
     const columns = [
         {
@@ -345,7 +349,7 @@ export default function NotebookPage(props){
                         <Descriptions.Item label="Workflow Info" span={4}>
                             <Row style={{margin: 16}}>
                                 <Col span={4}>
-                                    <Typography.Text strong>Workflow Id : </Typography.Text>
+                                    <Typography.Text strong>ID : </Typography.Text>
                                 </Col>
                                 <Col span={20}>
                                     {workflowId}
@@ -353,10 +357,28 @@ export default function NotebookPage(props){
                             </Row>
                             <Row style={{margin: 16}}>
                                 <Col span={4}>
-                                    <Typography.Text strong>Workflow Title : </Typography.Text>
+                                    <Typography.Text strong>Title : </Typography.Text>
                                 </Col>
                                 <Col span={20}>
                                     <Input placeholder="Workflow title" onChange={onChaneName} value={name} />
+                                </Col>
+                            </Row>
+                            <Row style={{margin: 16}}>
+                                <Col span={4}>
+                                    <Typography.Text strong>Scheduling : </Typography.Text>
+                                </Col>
+                                <Col span={20}>
+                                    <Select
+                                        style={{width: '100%'}}
+                                        value={scheduling}
+                                        showSearch
+                                        placeholder="Select workflow scheduling"
+                                        onChange={onSchedulingChange}
+                                    >
+                                        <Select.Option value={VFuse.Constants.WORKFLOW.SCHEDULING.BALANCED}>{VFuse.Constants.WORKFLOW.SCHEDULING.BALANCED}</Select.Option>
+                                        <Select.Option value={VFuse.Constants.WORKFLOW.SCHEDULING.SUGGESTED}>{VFuse.Constants.WORKFLOW.SCHEDULING.SUGGESTED}</Select.Option>
+                                        <Select.Option value={VFuse.Constants.WORKFLOW.SCHEDULING.AUTO}>{VFuse.Constants.WORKFLOW.SCHEDULING.AUTO}</Select.Option>
+                                    </Select>
                                 </Col>
                             </Row>
                             <Row style={{margin: 16}}>
@@ -367,14 +389,14 @@ export default function NotebookPage(props){
                                     {workflow && workflow.submittedAt && workflow.completedAt ? (workflow.completedAt - workflow.submittedAt) + " ms" : "Not submitted or execution still running" }
                                 </Col>
                             </Row>
-                            <Row style={{margin: 16}}>
+                            {/*<Row style={{margin: 16}}>
                                 <Col span={4}>
                                     <Typography.Text strong>Number of results : </Typography.Text>
                                 </Col>
                                 <Col span={20}>
                                     { workflow ? workflow.numOfReceivedResults : 0 }
                                 </Col>
-                            </Row>
+                            </Row>*/}
                         </Descriptions.Item >
                         <Descriptions.Item span={1} label="Actions" >
                             <Select value={language} style={{ width: 120, float: "right" }} onChange={handleChangeLanguage}>

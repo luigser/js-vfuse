@@ -36,7 +36,11 @@ const Constants = {
             IDLE: 0,
             RUNNING: 1,
             COMPLETED: 2
-
+        },
+        SCHEDULING: {
+            AUTO : 'AUTO',
+            BALANCED : 'BALANCED',
+            SUGGESTED: 'SUGGESTED'
         }
     },
     TOPICS: {

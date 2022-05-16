@@ -294,13 +294,10 @@ class WorkflowManager{
     async runningWorkflowJobsSelection(data){
         try{
             if(!data.selections) return
-            //while(this.selectingJobLock){}
             data.selections.map(entry => {
                 let workflow = this.runningWorkflowsQueue.get(entry.wid)
                 if(workflow) {
                     workflow.remoteSelectedJobs = [...new Set([...workflow.remoteSelectedJobs ,...entry.jobs])]
-                    /*console.log("******REMOTE SELECTED JOBS*************")
-                    workflow.remoteSelectedJobs.map(j => console.log(j))*/
                 }
             })
         }catch (e) {
@@ -312,15 +309,15 @@ class WorkflowManager{
         for(let [wid, w] of this.runningWorkflowsQueue.entries()) {
             let readyNodes = JobsDAG.getReadyNodes(w.jobsDAG).filter(n => !n.isInQueue).filter(n => !w.remoteSelectedJobs.find(j => j === n.id))
             let suggestedNodes = w.suggestedScheduling && w.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY)
-            if(suggestedNodes && suggestedNodes.length === 0) {
-                return true
+            if(suggestedNodes && suggestedNodes.length > 0) {
+                return false
             }else if(readyNodes.length > 0)
                 return false
         }
         return true
     }
 
-    addJobToQueue(wid, node){
+    addJobToQueue(wid, node, is_balanced_scheduling = true){
         this.executedJobs.push(node.id)
         node.isInQueue = true
         this.jobsExecutionQueue.push({
@@ -338,7 +335,6 @@ class WorkflowManager{
 
     async fillExecutionQueue(){
         if(this.runningWorkflowsQueue.size === 0) return
-        this.selectingJobLock = true
         let stop = false
         this.selectedJobs = []
         while (this.jobsExecutionQueue.length < this.maxConcurrentJobs && !stop){
@@ -354,28 +350,26 @@ class WorkflowManager{
                 if(nodes.length > 0){
                     //console.log(`Selected node ${nodes[0].id}`)
                     workflow_to_run.suggestedScheduling.jobs = workflow_to_run.suggestedScheduling.jobs.filter(n => n.id !== nodes[0].id)
-                    this.addJobToQueue(workflow_to_run.id, nodes[0])
+                    this.addJobToQueue(workflow_to_run.id, nodes[0], false)
                 }
             }else{
                 let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
                 let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
                 if(node) {
                     //console.log(node.progressive)
-                    this.addJobToQueue(workflow_to_run.id, node)
+                    this.addJobToQueue(workflow_to_run.id, node, workflow_to_run.scheduling === Constants.WORKFLOW.SCHEDULING.BALANCED)
                 }
-                //stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
             }
             stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
         }
-        await this.contentManager.sendOnTopic({
-            action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
-            payload: {
-                selections: this.selectedJobs
-            }
-        })
-        this.selectingJobLock = false
-        //console.log(`Selected jobs for running : ${this.executedJobs.length}`)
-        //this.executedJobs.map(j => console.log(j))
+        if(this.selectedJobs.length > 0) {
+            await this.contentManager.sendOnTopic({
+                action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.SELECTED_RUNNING_WORKFLOW_JOBS,
+                payload: {
+                    selections: this.selectedJobs
+                }
+            })
+        }
     }
 
     async executionCycle(){
@@ -438,7 +432,6 @@ class WorkflowManager{
         //console.log("Received results  :" + data.nodes.length)
         try{
             if(!data.wid && !data.nodes) return
-            //let start = Date.now()
             let workflow = this.getWorkflow(data.wid)
             if(workflow) {
                 //PRIVATE WORKFLOWS
@@ -465,8 +458,6 @@ class WorkflowManager{
                     let completed_nodes = JobsDAG.getCompletedNodes(workflow.jobsDAG)
                     if(completed_nodes.length === workflow.jobsDAG.nodes.length - 1) {// -1 to not consider the root
                         workflow.completedAt = Date.now()
-                        //console.log(`Assembly results time : ${this.totAsseblyResustsTime}`)
-                        //this.totAsseblyResustsTime = 0
                         /*for(let node of workflow.jobsDAG.nodes){
                             if(node.job)
                                 workflow.numOfReceivedResults += node.receivedResults.length
@@ -488,21 +479,16 @@ class WorkflowManager{
                     for (let result_node of data.nodes) {
                         let local_job_node = running_workflow.jobsDAG.nodes.find(nd => nd.id === result_node.id)
                         if ((!this.jobsExecutionQueue.find( j => j === result_node.job.id)) &&
-                            //!local_job_node.visited &&
                             (local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
                                 (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY))) {
                             if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
-                            /*local_job_node.color = result_node.color
-                            local_job_node.job = result_node.job*/
 
                             JobsDAG.setRunningNodeState(
                                 running_workflow.jobsDAG,
                                 local_job_node,
                                 result_node)
-
-                            //running_workflow.remoteSelectedJobs = running_workflow.remoteSelectedJobs.filter(e => e !== result_node.id)
                         }
                     }
                     if(this.options.maintainRunningState)
@@ -513,7 +499,6 @@ class WorkflowManager{
                     }
                 }
             }
-            //this.totAsseblyResustsTime += (Date.now() - start)
         }catch (e) {
             console.log('Error during results management : ' + e.message)
         }
@@ -614,7 +599,7 @@ class WorkflowManager{
 
     }
 
-    async saveWorkflow(id, name, code, language){
+    async saveWorkflow(id, name, code, language, scheduling = Constants.WORKFLOW.SCHEDULING.BALANCED){
         try{
             let isNew = false
             let workflow = this.workflows.find(w => w.id === id)
@@ -625,10 +610,11 @@ class WorkflowManager{
                 workflow.submittedAt = null
                 workflow.completedAt = null
                 workflow.numOfReceivedResults = 0
+                workflow.scheduling = scheduling
             }else {
                 //todo find a strategy to get a new workflow id
                 let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
-                workflow = new Workflow(workflow_id._idB58String, name, code, language, new JobsDAG())
+                workflow = new Workflow(workflow_id._idB58String, name, code, language, new JobsDAG(), scheduling)
                 isNew = true
             }
             workflow.ownerId = this.identityManager.peerId
@@ -690,60 +676,36 @@ class WorkflowManager{
             workflow.submittedAt = submittedAt
             await this.updateWorkflow(workflow)
             let cid = await this.contentManager.save('/workflows/private/' + workflow_id, workflow, {pin : true, net: true})
-
-            let suggestedScheduling =[]
-            let nodes = workflow.jobsDAG.nodes.filter(n => n.id !== 'root')
-            let chunk = Math.floor(nodes.length / this.peers.length)
-            let r = nodes.length % this.peers.length
-            let start = 0, end = 0
-            for(let rank = 0; rank < this.peers.length; rank++){
-                start = rank < r ? rank * (chunk + 1) : rank * chunk + r
-                end = rank < r ? start + chunk + 1 : start + chunk
-                //console.log(`Scheduling for peer: ${this.peers[rank].peer}`)
-                let scheduling =  {
-                    peer : this.peers[rank].peer,
-                    jobs : nodes.slice(start, end)
+            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt}
+            if(workflow.scheduling === Constants.WORKFLOW.SCHEDULING.SUGGESTED) {
+                let suggestedScheduling =[]
+                let nodes = workflow.jobsDAG.nodes.filter(n => n.id !== 'root')
+                let chunk = Math.floor(nodes.length / this.peers.length)
+                let r = nodes.length % this.peers.length
+                let start = 0, end = 0
+                for (let rank = 0; rank < this.peers.length; rank++) {
+                    start = rank < r ? rank * (chunk + 1) : rank * chunk + r
+                    end = rank < r ? start + chunk + 1 : start + chunk
+                    //console.log(`Scheduling for peer: ${this.peers[rank].peer}`)
+                    let scheduling = {
+                        peer: this.peers[rank].peer,
+                        jobs: nodes.slice(start, end)
+                    }
+                    /*scheduling.jobs.map(n => console.log(n.progressive))
+                    console.log("******************************************")*/
+                    suggestedScheduling.push(scheduling)
                 }
-                /*scheduling.jobs.map(n => console.log(n.progressive))
-                console.log("******************************************")*/
-                suggestedScheduling.push(scheduling)
+                workflow_to_publish.suggestedScheduling = suggestedScheduling
             }
-            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt, /*suggestedScheduling : suggestedScheduling*/}
             await this.contentManager.save('/workflows/published/my/' + workflow_id , workflow_to_publish)
             await this.contentManager.delete('/workflows/completed/' + workflow_id)
-
+            let name //= await this.contentManager.publish(cid, new_key.name)//todo resolve
             this.publishedWorkflows.push({workflow_id: workflow_id, ipns_name: name, cid: cid})
             await this.contentManager.sendOnTopic({
                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
                 payload: workflow_to_publish
             })
             console.log('Workflow successfully submitted: %s', name)
-
-            /*
-            //let new_key = await this.contentManager.getKey(workflow_id)
-            let cid = this.identityManager.getWorkflowCid(workflow_id)
-            if(!cid)
-                return {error : 'The current workflow is not saved in your private space'}
-
-            let submittedAt = Date.now()
-            let workflow = this.getWorkflow(workflow_id)
-            workflow.submittedAt = submittedAt
-            await this.updateWorkflow(workflow)
-
-            let workflow_to_publish = {workflow_id : workflow_id, cid : cid, submittedAt : submittedAt}
-
-            let name //= await this.contentManager.publish(cid, new_key.name)//todo resolve
-            await this.contentManager.save('/workflows/published/my/' + workflow_id + '.json', JSON.stringify(workflow_to_publish), {pin : true})
-
-            let current_workflow = await this.contentManager.get('/workflows/completed/' + workflow_id)
-            if(current_workflow)
-                await this.contentManager.delete('/workflows/completed/' + workflow_id)
-            this.publishedWorkflows.push({workflow_id: workflow_id, ipns_name: name, cid: cid})
-            await this.contentManager.sendOnTopic({
-                action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.WORKFLOW.EXECUTION_REQUEST,
-                payload: workflow_to_publish
-            })
-            console.log('Workflow successfully submitted: %s', name)*/
             return true
         }catch (e){
             console.log('Got some error during the workflow submission: %O', e)

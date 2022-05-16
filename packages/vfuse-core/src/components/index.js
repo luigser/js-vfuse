@@ -143,8 +143,8 @@ class VFuse {
         return await this.workflowManager.getWorkflow(id)
     }
 
-    async saveWorkflow(name, id, code, language){
-       return await this.workflowManager.saveWorkflow(name, id, code, language)
+    async saveWorkflow(name, id, code, language, scheduling){
+       return await this.workflowManager.saveWorkflow(name, id, code, language, scheduling)
     }
 
     async deleteWorkflow(workflow_id){
