@@ -213,6 +213,10 @@ module.exports = {
                         //Delegates: options.ipfs.config.Bootstrap
                     },
                     Swarm: {
+                        "ConnMgr": {
+                            LowWater: 256,
+                            HighWater: 512,
+                        },
                         EnableAutoRelay: true,
                         EnableRelayHop: true,//false,
                     },
@@ -225,7 +229,7 @@ module.exports = {
                              Enabled: true
                          }
                      },
-                    pubsub:{
+                    Pubsub:{
                         enabled : true
                     }
                 }
