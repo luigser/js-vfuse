@@ -377,7 +377,7 @@ class NetworkManager{
             /*let id =  await PeerId.create({bits: 1024, keyType: 'RSA'})
             data.id = id._idB58String*/
             data = fflate.zlibSync((new TextEncoder().encode(JSON.stringify(data))), {level: 6})
-            console.log(`Sending ${data.length} bytes`)
+            //console.log(`Sending ${data.length} bytes`)
             await this.libp2p.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, data)/*LZUTF8.compress(JSON.stringify(data))*/
         }catch(e){
             console.log("Got some error during message sending on VFuse channel : " + e.message)

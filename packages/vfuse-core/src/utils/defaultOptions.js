@@ -85,9 +85,9 @@ module.exports = {
                         IPNS: "/ipns",
                         FuseAllowOther: false
                     },
-                    /*Routing: {
+                    Routing: {
                         Type: "dht"
-                    },*/
+                    },
                     /*Protocols: [
                         "/ipfs/bitswap",
                         "/ipfs/bitswap/1.0.0",
@@ -157,10 +157,10 @@ module.exports = {
                     Swarm: {
                         AddrFilters: null,
                         ConnMgr: {
-                            GracePeriod: "20s",
+                            /*GracePeriod: "20s",*/
                             HighWater: 900,
                             LowWater: 600,
-                            Type: "basic"
+                            /*Type: "basic"*/
                         },
                         DisableBandwidthMetrics: false,
                         DisableNatPortMap: false,
@@ -213,7 +213,7 @@ module.exports = {
                         //Delegates: options.ipfs.config.Bootstrap
                     },
                     Swarm: {
-                        "ConnMgr": {
+                        ConnMgr: {
                             LowWater: 256,
                             HighWater: 512,
                         },

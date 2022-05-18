@@ -41,8 +41,8 @@ export default function ProfilePage(props){
     const [pinningServerProtocol, setPinningServerProtocol] = useState('https')
     const [pinningServerHost, setPinningServerHost] = useState('172.16.149.150')
     const [pinningServerPort, setPinningServerPort] = useState('9097')
-    const [bootstraps, setBootstrap] = useState(['/ip4/172.16.149.150/tcp/4002/wss/p2p/QmRaaUwTNfwgFZpeUy8qrZwrp2dY4kCKmmB5xEqvH3vtD1'])
-    const [bootstrapsString, setBootstrapString] = useState('/ip4/172.16.149.150/tcp/4002/wss/p2p/QmRaaUwTNfwgFZpeUy8qrZwrp2dY4kCKmmB5xEqvH3vtD1')
+    const [bootstraps, setBootstraps] = useState(['/dns4/172.16.149.150/tcp/4002/wss/p2p/QmRaaUwTNfwgFZpeUy8qrZwrp2dY4kCKmmB5xEqvH3vtD1'])
+    const [bootstrapsString, setBootstrapString] = useState('/dns4/172.16.149.150/tcp/4002/wss/p2p/QmRaaUwTNfwgFZpeUy8qrZwrp2dY4kCKmmB5xEqvH3vtD1')
     const [savePreferencesLoading, setSavePreferencesLoading] = useState(false)
     const [savePreferencesDisabled, setSavePreferencesDisabled] = useState(!vFuseNode)
 
@@ -65,7 +65,7 @@ export default function ProfilePage(props){
 
         if(ls_bootstraps){
             let bs = JSON.parse(ls_bootstraps)
-            setBootstrap(bs)
+            setBootstraps(bs)
             setBootstrapString(bs.map(b => b + '\n'))
         }else{
             localStorage.setItem('bootstraps', JSON.stringify(bootstraps))
@@ -105,7 +105,7 @@ export default function ProfilePage(props){
                 setUsage(profile.preferences.CONSTANTS.CPU_USAGE)
                 setJobExecutionTimeout(profile.preferences.TIMEOUTS.JOB_EXECUTION)
                 setSignalServer(profile.preferences.ENDPOINTS.SIGNAL_SERVER)
-                setBootstrap(profile.preferences.ENDPOINTS.BOOTSTRAPS)
+                setBootstraps(profile.preferences.ENDPOINTS.BOOTSTRAPS)
                 setBootstrapString(profile.preferences.ENDPOINTS.BOOTSTRAPS.map(b => b + '\n'))
                 setPinningServerProtocol(profile.preferences.ENDPOINTS.PINNING_SERVER.PROTOCOL)
                 setPinningServerHost(profile.preferences.ENDPOINTS.PINNING_SERVER.HOST)
@@ -160,7 +160,7 @@ export default function ProfilePage(props){
                     setUsage(data.profile.preferences.CONSTANTS.CPU_USAGE)
                     setJobExecutionTimeout(data.profile.preferences.TIMEOUTS.JOB_EXECUTION)
                     setSignalServer(data.profile.preferences.ENDPOINTS.SIGNAL_SERVER === '' ? signalServer : data.profile.preferences.ENDPOINTS.SIGNAL_SERVER)
-                    setBootstrap(data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length === 0 ? bootstraps : data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length)
+                    setBootstraps(data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length === 0 ? bootstraps : data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length)
                     setBootstrapString(data.profile.preferences.ENDPOINTS.BOOTSTRAPS.length === 0 ? bootstrapsString : data.profile.preferences.ENDPOINTS.BOOTSTRAPS.map(b => b + '\n'))
                     setPinningServerProtocol(data.profile.preferences.ENDPOINTS.PINNING_SERVER.PROTOCOL === '' ? pinningServerProtocol : data.profile.preferences.ENDPOINTS.PINNING_SERVER.PROTOCOL)
                     setPinningServerHost(data.profile.preferences.ENDPOINTS.PINNING_SERVER.HOST === '' ? pinningServerProtocol : data.profile.preferences.ENDPOINTS.PINNING_SERVER.HOST)
@@ -270,9 +270,10 @@ export default function ProfilePage(props){
                         prefs.ENDPOINTS.SIGNAL_SERVER = value
                     break
                 case 'ENDPOINTS.BOOTSTRAPS':
-                    localStorage.setItem('bootstrap', JSON.stringify(value))
                     setBootstrapString(value)
-                    setBootstrap(value.split('\n'))
+                    let bts = value.split('\n')
+                    setBootstraps(value.split(bts))
+                    localStorage.setItem('bootstraps', JSON.stringify(bts))
                     if (vFuseNode)
                         prefs.ENDPOINTS.BOOTSTRAPS = value.split('\n')
                     break
