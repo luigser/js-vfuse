@@ -394,14 +394,15 @@ class WorkflowManager{
                                 {results: results})
                             //let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
-                            await this.contentManager.sendOnTopic({
+                            //CARMINE
+                            /*  await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
                                     //id : message_id,
                                     wid: workflow_to_run.id,
                                     nodes: [entry.node] //nodes_to_publish Error during workflow execution
                                 }
-                            })
+                            })*/
                             if(this.options.maintainRunningState)
                                await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
