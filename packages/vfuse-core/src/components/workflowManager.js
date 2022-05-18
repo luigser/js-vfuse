@@ -126,7 +126,8 @@ class WorkflowManager{
                 this.executionCycle()
             }
             this.publishWorkflows()
-            this.publishResults()
+            //CARMINE
+            //this.publishResults()
             //TODO fix
             //this.dropExpiredWorkflows()
 
@@ -161,7 +162,8 @@ class WorkflowManager{
 
         this.executionCycle()
         this.publishWorkflows()
-        this.publishResults()
+        //CARMINE
+        //this.publishResults()
     }
 
     dropExpiredWorkflows(){
