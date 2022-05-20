@@ -410,7 +410,7 @@ class WorkflowManager{
                             /*this.numOfSelectedJobs++
                             console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)*/
                             await this.executionCycle()
-
+                            console.log(`time for single job is ${entry.node.job.executionTime}`)
                             if(entry.node.job.executionTime > this.maxJobExecitionTime)
                                 this.maxJobExecitionTime = entry.node.job.executionTime
                         }
