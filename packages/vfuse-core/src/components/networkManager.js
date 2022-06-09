@@ -201,7 +201,7 @@ class NetworkManager{
         }*/
 
         //if(isBrowser){
-            const filters = require('libp2p-websockets/src/filters')
+            /*const filters = require('libp2p-websockets/src/filters')
             const transportKey = WebSockets.prototype[Symbol.toStringTag]
             opt.libp2p = {
                 modules: {
@@ -218,7 +218,7 @@ class NetworkManager{
                     }
                 },
                 ...opt.libp2p
-            }
+            }*/
         //}
 
         let node = await IPFS.create(opt)
