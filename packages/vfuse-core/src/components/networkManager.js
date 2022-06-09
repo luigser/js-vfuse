@@ -275,7 +275,7 @@ class NetworkManager{
         if (addr.from === me) {
             return;
         }
-        console.log('Get Anoounce from %s', addr.from)
+        //console.log('Get Anoounce from %s', addr.from)
         if (addr === "keep-alive") {
             return;
         }
