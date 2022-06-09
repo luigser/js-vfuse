@@ -389,8 +389,8 @@ class NetworkManager{
     }
 
     isBootstrap(peerId){
-       for(let i = 0; i < this.ipfsOptions.config.Bootstrap.length; i++){
-           let saddr = this.ipfsOptions.config.Bootstrap[i].split('/')
+       for(let i = 0; i < this.ipfsOptions.Bootstrap.length; i++){
+           let saddr = this.ipfsOptions.Bootstrap[i].split('/')
            if(saddr[saddr.length - 1] === peerId)
                return true
        }
