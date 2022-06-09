@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Col, Layout, PageHeader, Row, Tag} from "antd";
+import {Col, Layout, PageHeader, Row, Tag, Typography} from "antd";
 import VFuse from "vfuse-core";
 import CTable from "../components/DataVisualization/CTable/CTable";
 import {gStore} from "../store";
@@ -57,6 +57,14 @@ export default function NetworkPage(props){
                         >
                         </Layout.Content>
                     </PageHeader>
+                </Col>
+            </Row>
+            <Row>
+                <Col span={4}>
+                    <Typography.Text strong>Number of connected peers : </Typography.Text>
+                </Col>
+                <Col span={20}>
+                    {peers.length}
                 </Col>
             </Row>
             <Row>

@@ -325,7 +325,7 @@ class NetworkManager{
                 this.receivedMessages.push(message.id)*/
             if(message.from === this.peerId) return
             let data = JSON.parse(Buffer.from(fflate.unzlibSync(message.data)).toString())//JSON.parse(LZUTF8.decompress(message.data));
-            //console.log(`Got Message from ${message.from} - ${data.action} - ${data.id}`)
+            console.log(`Got Message from ${message.from} - ${data.action} - ${data.id}`)
             //console.log(data)
             switch(data.action){
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY:

@@ -126,6 +126,7 @@ class WorkflowManager{
                 this.executionCycle()
             }
             this.publishWorkflows()
+            
             this.publishResults()
             //TODO fix
             //this.dropExpiredWorkflows()
@@ -392,6 +393,7 @@ class WorkflowManager{
                                 {results: results})
                             //let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
+                            
                             await this.contentManager.sendOnTopic({
                                 action: Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.JOB.EXECUTION_RESPONSE,
                                 payload: {
@@ -408,7 +410,7 @@ class WorkflowManager{
                             /*this.numOfSelectedJobs++
                             console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)*/
                             await this.executionCycle()
-
+                            console.log(`time for single job is ${entry.node.job.executionTime}`)
                             if(entry.node.job.executionTime > this.maxJobExecitionTime)
                                 this.maxJobExecitionTime = entry.node.job.executionTime
                         }
