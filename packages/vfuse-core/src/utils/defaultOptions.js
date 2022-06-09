@@ -31,7 +31,7 @@ module.exports = {
                     enabled: false
                 },
                 repo: 'vfuse-repo',//Repo,
-                config: {
+                //config: {
                     Datastore: {
                         StorageMax: "30GB",
                         StorageGCWatermark: 90,
@@ -173,6 +173,9 @@ module.exports = {
                              Security: {}
                          }*/
                     },
+                    Pubsub:{
+                        enabled : true
+                    },
                     Discovery: {
                         MDNS: {
                             Enabled: true,
@@ -183,7 +186,7 @@ module.exports = {
                         }
                     },
                 }
-            }
+            //}
         },
         options)
     },
