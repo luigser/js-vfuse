@@ -25,7 +25,7 @@ const browserInABox = async () => {
 
     let input = await page.$('#signal_server');
     await input.click({ clickCount: 3 })
-    //await input.type(`/dns4/${IP}/tcp/2002/wss/p2p-webrtc-star/`)
+    await input.type(`/dns4/${IP}/tcp/2002/wss/p2p-webrtc-star/`)
     await input.type(``)
     input = await page.$('#pinner_host');
     await input.click({ clickCount: 3 })

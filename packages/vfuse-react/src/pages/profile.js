@@ -36,7 +36,7 @@ export default function ProfilePage(props){
     const [maxConcurrentJobs, setMaxConcurrentJobs] = useState(0)
     const [jobExecutionTimeout, setJobExecutionTimeout] = useState(0)
     const [usage, setUsage] = useState(0)
-    const [signalServer, setSignalServer] = useState('/dns4/172.16.149.150/tcp/2002/wss/p2p-webrtc-star/')
+    const [signalServer, setSignalServer] = useState(''/*'/dns4/172.16.149.150/tcp/2002/wss/p2p-webrtc-star/'*/)
     const [delegateNode, setDelegateNode] = useState('')
     const [pinningServerProtocol, setPinningServerProtocol] = useState('https')
     const [pinningServerHost, setPinningServerHost] = useState('172.16.149.150')

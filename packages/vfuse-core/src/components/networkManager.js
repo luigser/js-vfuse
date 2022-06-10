@@ -234,10 +234,10 @@ class NetworkManager{
 
         await this.initTopicsChannel()
         this.hookEvents()
-        //this.announce()
+        this.announce()
 
         this.httpClient = this.ipfsClientOptions ? IpfsHttpClient.create(this.ipfsClientOptions) : null
-        this.cluster = this.ipfsClusterApi ? ipfsCluster(this.ipfsClusterApi) : this.ipfs
+        this.cluster = isBrowser && this.ipfsClusterApi ? ipfsCluster(this.ipfsClusterApi) : this.ipfs
         this.api = isBrowser && this.httpClient ?  this.httpClient : this.ipfs
     }
 
@@ -275,7 +275,7 @@ class NetworkManager{
         if (addr.from === me) {
             return;
         }
-        //console.log('Get Anoounce from %s', addr.from)
+        console.log('Get Anoounce from %s', addr.from)
         if (addr === "keep-alive") {
             return;
         }
