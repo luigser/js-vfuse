@@ -86,9 +86,9 @@ module.exports = {
                         IPNS: "/ipns",
                         FuseAllowOther: false
                     },
-                    Routing: {
+                    /*Routing: {
                         Type: "dht"
-                    },
+                    },*/
                     /*Protocols: [
                         "/ipfs/bitswap",
                         "/ipfs/bitswap/1.0.0",
