@@ -10,7 +10,7 @@ const main = async () => {
         IPFSGateway: false,
         ipfs:{
             config: {
-                Bootstrap: ['/ip4/193.205.161.5/tcp/4003/ws/p2p/12D3KooWS8x3JoxZazS8K1zDQGKGFoWQ1JX5u7enEPAeTM84YiDY']
+                Bootstrap: ['/ip4/193.205.161.5/tcp/4001/ipfs/12D3KooWS8x3JoxZazS8K1zDQGKGFoWQ1JX5u7enEPAeTM84YiDY']
             }
         },
         /*ipfs:{
