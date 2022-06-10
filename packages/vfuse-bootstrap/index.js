@@ -12,7 +12,7 @@ const main = async () => {
             config: {
                 Bootstrap: ['/ip4/193.205.161.5/tcp/4003/ws/p2p/12D3KooWS8x3JoxZazS8K1zDQGKGFoWQ1JX5u7enEPAeTM84YiDY']
             }
-        }
+        },
         /*ipfs:{
             config:{
                 Addresses: {
@@ -25,9 +25,9 @@ const main = async () => {
             worker : PythonWorker,
             packages : []
         },*/
-       /* swarmKey: "/key/swarm/psk/1.0.0/\n" +
+       swarmKey: "/key/swarm/psk/1.0.0/\n" +
             "/base16/\n" +
-            "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3"*/
+            "0c3dff9473e177f3098be363ac2e554a0deadbd27a79ee1c0534946d1bb990b3"
     })
 }
 
