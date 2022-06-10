@@ -32,7 +32,7 @@ class VFuseProxy{
         //WSS SWARM PROXY
         httpProxy.createProxyServer({
             target: {
-                host: '127.0.0.1',
+                host: 'localhost',
                 port: props.bootstrap.wsPort,
             },
             //target: 'http://127.0.0.1:4003/',
