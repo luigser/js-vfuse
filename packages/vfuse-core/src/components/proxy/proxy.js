@@ -2,7 +2,7 @@ const httpProxy = require('http-proxy')
 const fs = require('fs')
 const path = require('path')
 const https = require('https');
-const { WebSocketServer } = require('ws').Server
+//const { WebSocketServer } = require('ws').Server
 
 class VFuseProxy{
     constructor(props) {
@@ -35,7 +35,7 @@ class VFuseProxy{
                 host: 'localhost',
                 port: props.bootstrap.wsPort,
             },*/
-            target: 'http://127.0.0.1:4003/',
+            target: 'http://localhost:4003/',
             ws : true,
             ssl: {
                 key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),

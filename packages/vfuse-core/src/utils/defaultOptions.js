@@ -176,8 +176,8 @@ module.exports = {
                     },
                     Pubsub:{
                         enabled : true,
-                        DisableSigning: true,
-                        Router: ""
+                        /*DisableSigning: true,
+                        Router: ""*/
                     },
                     Discovery: {
                         MDNS: {
