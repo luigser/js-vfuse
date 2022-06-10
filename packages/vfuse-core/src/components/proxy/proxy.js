@@ -30,12 +30,12 @@ class VFuseProxy{
             secure: props.certs.verify
         }).listen(props.pinning.proxyPort, "0.0.0.0");
         //WSS SWARM PROXY
-        let wssproxy = httpProxy.createServer({
-            target: {
+        httpProxy.createServer({
+            /*target: {
                 host: 'localhost',
                 port: props.bootstrap.wsPort,
-            },
-            //target: 'http://127.0.0.1:4003/',
+            },*/
+            target: 'http://127.0.0.1:4003/',
             ws : true,
             ssl: {
                 key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
