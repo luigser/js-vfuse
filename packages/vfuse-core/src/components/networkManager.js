@@ -263,6 +263,7 @@ class NetworkManager{
             /*if(isNode && this.isBootstrapNode)
                await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, "peer-alive")
             await this.send({ action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, peer : this.peerId })*/
+            console.log("sending announce")
             await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, "peer-alive")
         }.bind(this), Constants.TIMEOUTS.DISCOVERY);
     }
