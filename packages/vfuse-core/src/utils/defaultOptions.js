@@ -86,9 +86,9 @@ module.exports = {
                         IPNS: "/ipns",
                         FuseAllowOther: false
                     },
-                    /*Routing: {
+                    Routing: {
                         Type: "dht"
-                    },*/
+                    },
                     /*Protocols: [
                         "/ipfs/bitswap",
                         "/ipfs/bitswap/1.0.0",
@@ -167,7 +167,7 @@ module.exports = {
                         DisableNatPortMap: false,
                         DisableRelay: false,
                         EnableAutoRelay: true,//false,
-                        EnableRelayHop: true,
+                        EnableRelayHop: false,
                         /* Transports: {
                              Multiplexers: {},
                              Network: {},
