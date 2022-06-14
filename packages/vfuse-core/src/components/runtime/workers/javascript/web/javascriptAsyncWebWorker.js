@@ -257,10 +257,10 @@ const worker_code = () => {
                 break
             case 'exec':
                 self.running = true
-                self.postMessage({
+                /*self.postMessage({
                     action: 'running',
                     status: self.running
-                })
+                })*/
                 try {
                     if(!job.inline){
                         if(typeof job.data !== 'string' && typeof job.data !== 'number') {
@@ -286,7 +286,7 @@ const worker_code = () => {
                     })
                     self.running = false
                 } catch (err) {
-                    //console.log(err)
+                    console.log(err)
 
                     self.running = false
                     /*self.postMessage({

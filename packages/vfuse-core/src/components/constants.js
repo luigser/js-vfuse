@@ -98,10 +98,10 @@ const Constants = {
         JOBS_PUBLISHING : 15000,
         RESULTS_PUBLISHING: 120000,
         EXECUTION_CYCLE: 10,
-        JOB_EXECUTION : 300000
+        JOB_EXECUTION : 20
     },
     LIMITS: {
-        MAX_CONCURRENT_JOBS : 4,
+        MAX_CONCURRENT_JOBS : 8,
         MAX_MANAGED_WORKFLOWS : 100
     }
 }

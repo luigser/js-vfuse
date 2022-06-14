@@ -25,14 +25,16 @@ const browserInABox = async () => {
 
     let input = await page.$('#signal_server');
     await input.click({ clickCount: 3 })
-    await input.type(`/dns4/${IP}/tcp/2002/wss/p2p-webrtc-star/`)
+    //await input.type(`/dns4/${IP}/tcp/2002/wss/p2p-webrtc-star/`)
     await input.type(``)
     input = await page.$('#pinner_host');
     await input.click({ clickCount: 3 })
     await input.type(IP)
-    input = await page.$('#bootstrap');
+
+    /*input = await page.$('#bootstrap');
     await input.click({ clickCount: 3 })
-    await input.type(`/ip4/${IP}/tcp/4002/wss/p2p/12D3KooWS8x3JoxZazS8K1zDQGKGFoWQ1JX5u7enEPAeTM84YiDY`)
+    await page.keyboard.press('Backspace');
+    await input.type(`/ip4/${IP}/tcp/4002/wss/p2p/12D3KooWBFJGaj82urm2UzQhvsAxeKRWLS54FwH9xcaPcMf9HcuH\n`)*/
 
     let el = await page.waitForSelector('#start_node');
     await page.click(el._remoteObject.description);

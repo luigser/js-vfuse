@@ -166,7 +166,7 @@ module.exports = {
                         DisableBandwidthMetrics: false,
                         DisableNatPortMap: false,
                         DisableRelay: false,
-                        EnableAutoRelay: true,//false,
+                        EnableAutoRelay: false,
                         EnableRelayHop: false,
                         /* Transports: {
                              Multiplexers: {},
@@ -224,7 +224,7 @@ module.exports = {
                             HighWater: 512,
                         },
                         EnableAutoRelay: true,
-                        EnableRelayHop: true,//false,
+                        EnableRelayHop: false,
                     },
                     Bootstrap: options.ipfs.config.Bootstrap,
                     Discovery: {

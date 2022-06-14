@@ -234,7 +234,7 @@ class NetworkManager{
 
         await this.initTopicsChannel()
         this.hookEvents()
-        this.announce()
+        //this.announce()
 
         this.httpClient = this.ipfsClientOptions ? IpfsHttpClient.create(this.ipfsClientOptions) : null
         this.cluster = isBrowser && this.ipfsClusterApi ? ipfsCluster(this.ipfsClusterApi) : this.ipfs

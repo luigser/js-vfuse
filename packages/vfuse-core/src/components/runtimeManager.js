@@ -9,7 +9,7 @@ class RuntimeManager{
         this.eventManager = eventManager
         this.workers = new Map()
         this.options = options
-        this.preferences
+        this.preferences = null
     }
 
     async start(preferences){

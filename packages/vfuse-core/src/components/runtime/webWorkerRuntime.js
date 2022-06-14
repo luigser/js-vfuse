@@ -147,8 +147,8 @@ class WebWorkerRuntime {
                         break
                     case 'return':
                         resolve({results: results, executionTime : e.data.executionTime} )
-                        worker.running = false
                         worker.webworker.onmessage = null
+                        worker.running = false
                         //console.log(`Worker ${worker.id} end execution`)
                         break
                     case 'VFuse:worker':
@@ -360,7 +360,7 @@ class WebWorkerRuntime {
             clearTimeout(timeout)
             //const log = {start: startTs, end: Date.now(), cmd: job.code}
             //this.history.push(log)
-            console.log(`Worker ${worker.id} executed ${worker.numOfExecutedJobs} jobs ${job.name} in ${result.executionTime} ms`)
+            console.log(`Worker ${worker.id} executed ${worker.numOfExecutedJobs} jobs ${job.name}. Last job execution time ${result.executionTime} ms`)
         }catch (e) {
             console.log('Error in web worker runtime : ' +  e.message)
         }

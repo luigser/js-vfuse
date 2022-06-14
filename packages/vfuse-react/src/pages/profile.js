@@ -39,10 +39,10 @@ export default function ProfilePage(props){
     const [signalServer, setSignalServer] = useState(''/*'/dns4/172.16.149.150/tcp/2002/wss/p2p-webrtc-star/'*/)
     const [delegateNode, setDelegateNode] = useState('')
     const [pinningServerProtocol, setPinningServerProtocol] = useState('https')
-    const [pinningServerHost, setPinningServerHost] = useState('172.16.149.150')
+    const [pinningServerHost, setPinningServerHost] = useState('193.205.161.5')
     const [pinningServerPort, setPinningServerPort] = useState('9097')
-    const [bootstraps, setBootstraps] = useState(['/dns4/172.16.149.150/tcp/4002/wss/p2p/12D3KooWS8x3JoxZazS8K1zDQGKGFoWQ1JX5u7enEPAeTM84YiDY'])
-    const [bootstrapsString, setBootstrapString] = useState('/dns4/172.16.149.150/tcp/4002/wss/p2p/12D3KooWS8x3JoxZazS8K1zDQGKGFoWQ1JX5u7enEPAeTM84YiDY')
+    const [bootstraps, setBootstraps] = useState(['/dns4/localhost/tcp/4002/wss/p2p/12D3KooWBFJGaj82urm2UzQhvsAxeKRWLS54FwH9xcaPcMf9HcuH'])
+    const [bootstrapsString, setBootstrapString] = useState('/dns4/localhost/tcp/4002/wss/p2p/12D3KooWBFJGaj82urm2UzQhvsAxeKRWLS54FwH9xcaPcMf9HcuH')
     const [savePreferencesLoading, setSavePreferencesLoading] = useState(false)
     const [savePreferencesDisabled, setSavePreferencesDisabled] = useState(!vFuseNode)
 
