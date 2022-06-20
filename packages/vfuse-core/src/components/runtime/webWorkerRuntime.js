@@ -18,7 +18,6 @@ class WebWorkerRuntime {
         this.runtimeManager = runtimeManager
         this.eventManager = eventManager
         this.executionQueue = []
-        this.selectionWorkerLock = false
 
         this.eventManager.on(Constants.EVENTS.PREFERENCES_UPDATED, async function(preferences){
             if(preferences){
@@ -133,8 +132,7 @@ class WebWorkerRuntime {
     }*/
 
     async exec(job, worker, runningCallback) {
-        //todo to fix
-        //if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) this.webworker = this.worker.getWebWorker()
+        if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) worker.webworker = this.worker.getWebWorker()
         const promise = new Promise((resolve, reject) => {
             worker.webworker.onmessage = async(e) => {
                 const { action, results } = e.data
@@ -315,6 +313,7 @@ class WebWorkerRuntime {
             action: 'exec',
             job: job,
         })
+        worker.running = true
         return promise
     }
 
@@ -326,16 +325,14 @@ class WebWorkerRuntime {
             //console.log(`Selected worker ${worker.id} with running ${worker.running}`)
         }
         worker.numOfExecutedJobs = worker.numOfExecutedJobs + 1
-        worker.running = true
+
         return worker
     }
 
 
     async run(job) {
         let result = null
-        //console.log(`Selected worker ${worker.id}`)
         try {
-            const startTs = Date.now()
             let worker = await this.selectWorker()
             let timeout = setTimeout(function () {
                 if (!result) {

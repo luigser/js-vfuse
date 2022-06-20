@@ -3,6 +3,8 @@ const { CID } = require('multiformats/cid')
 //const { base64 } = require("multiformats/bases/base64")
 const ldb = isBrowser ? require("localdata") : null
 const fflate = require('fflate')
+const fs = isBrowser ? null : require('fs');
+const path = isBrowser ? null : require('path')
 
 class ContentManager{
     constructor(networkManager, eventManager, options){
@@ -110,7 +112,13 @@ class ContentManager{
 
     async makeDir(path, options){
         try{
-            await this.networkManager.makeDir(path, options ? options : { parents : true, mode: parseInt('0775', 8) })
+            if((this.options && this.options.localStorage) && (!options || (options && !options.net) )) {
+                if(!isBrowser){
+                    fs.mkdirSync(path.join(__dirname, path), {recursive : true})
+                }
+            }else {
+                await this.networkManager.makeDir(path, options ? options : {parents: true, mode: parseInt('0775', 8)})
+            }
         }catch (e) {
             console.log('Error during directory creation : % O', e)
         }
@@ -188,7 +196,12 @@ class ContentManager{
     async ls_list(key){
         //get json array of keys for files
         try {
-            let list = await this.ls_get_compressed(key)
+            let list = []
+            if(isBrowser) {
+                list = await this.ls_get_compressed(key)
+            }else{
+                fs.readdirSync(path.join(__dirname,key)).forEach(file => list.push(file));
+            }
             return list === null ? [] : list
         }catch (e) {
             console.log('Error listing data in local storage : %O', e)
@@ -199,15 +212,19 @@ class ContentManager{
     async ls_save(key, value){
         //get something like /workflows/published/my/workflow.json as key
         try {
-            let key_parts = key.split('/')
-            let file_key = key_parts[key_parts.length - 1]
-            let dir_key = key.replace(`/${file_key}`, '')
-            let current_dir_content = await this.ls_get_compressed(dir_key)
-            current_dir_content = !current_dir_content ? [] : current_dir_content
-            if(!current_dir_content.includes(file_key))
-                current_dir_content.push(file_key)
-            await this.ls_set_compressed(dir_key, current_dir_content)
-            await this.ls_set_compressed(key, value)
+            if(isBrowser) {
+                let key_parts = key.split('/')
+                let file_key = key_parts[key_parts.length - 1]
+                let dir_key = key.replace(`/${file_key}`, '')
+                let current_dir_content = await this.ls_get_compressed(dir_key)
+                current_dir_content = !current_dir_content ? [] : current_dir_content
+                if (!current_dir_content.includes(file_key))
+                    current_dir_content.push(file_key)
+                await this.ls_set_compressed(dir_key, current_dir_content)
+                await this.ls_set_compressed(key, value)
+            }else{
+                fs.writeFileSync(path.join(__dirname, key), fflate.zlibSync((new TextEncoder().encode(JSON.stringify(value))), {level: 6}), {recursive  : true});
+            }
             return true
         }catch (e) {
             console.log('Error saving data in local storage : %O', e)
@@ -217,7 +234,11 @@ class ContentManager{
 
     async ls_get(key){
         try {
-            return await this.ls_get_compressed(key)
+            if(isBrowser) {
+                return await this.ls_get_compressed(key)
+            }else{
+                return JSON.parse(Buffer.from(fflate.unzlibSync(fs.readFileSync(path.join(__dirname, key), 'utf-8'))).toString())
+            }
         }catch (e) {
             console.log('Error getting data in local storage : %O', e)
             return Promise.reject(null)
@@ -226,15 +247,19 @@ class ContentManager{
 
     async ls_delete(key) {
         try {
-            let key_parts = key.split('/')
-            let file_key = key_parts[key_parts.length - 1]
-            let dir_key = key.replace(`/${file_key}`, '')
-            let current_dir_content = await this.ls_get_compressed(dir_key)
-            current_dir_content = !current_dir_content ? [] : current_dir_content
-            if(current_dir_content.includes(file_key))
-                current_dir_content = current_dir_content.filter( c => c !== file_key)
-            await this.ls_set_compressed(dir_key, current_dir_content)
-            await this.async_ls_delete(key)
+            if(isBrowser) {
+                let key_parts = key.split('/')
+                let file_key = key_parts[key_parts.length - 1]
+                let dir_key = key.replace(`/${file_key}`, '')
+                let current_dir_content = await this.ls_get_compressed(dir_key)
+                current_dir_content = !current_dir_content ? [] : current_dir_content
+                if (current_dir_content.includes(file_key))
+                    current_dir_content = current_dir_content.filter(c => c !== file_key)
+                await this.ls_set_compressed(dir_key, current_dir_content)
+                await this.async_ls_delete(key)
+            }else{
+                fs.unlinkSync(path.join(__dirname, key));
+            }
             return true
         } catch (e) {
             console.log('Error getting data in local storage : %O', e)

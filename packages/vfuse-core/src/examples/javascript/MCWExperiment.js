@@ -22,7 +22,7 @@ function reduce(data){
 }
 
 for(let i = 0; i < 64; i++){
-    VFuse.addJob(map, [], null)
+    await VFuse.addJob(map, [], null)
 }
 
 await VFuse.addJob(reduce, ['^map'])//wait for all reduce results and call combine

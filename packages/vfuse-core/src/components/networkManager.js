@@ -728,12 +728,17 @@ class NetworkManager{
         }
     }
 
-    getDataFromUrl(url, start, end, type){
+    getDataFromUrl(url, start, end){
         return new Promise((resolve, reject) => {
             try {
                 if (isNode) {
-                    const http = require('https')
-                    http.get(url, (response) => {
+                    const http = require('http'), https     = require('https')
+                    let client = http;
+
+                    if (url.toString().indexOf("https") === 0) {
+                        client = https;
+                    }
+                    client.get(url, (response) => {
                         if(start !== undefined && end !== undefined)
                            response.setHeader("Range", `bytes=${start}-${end}`);
                         let chunks_of_data = [];
@@ -744,7 +749,7 @@ class NetworkManager{
 
                         response.on('end', () => {
                             let response_body = Buffer.concat(chunks_of_data);
-                            resolve(response_body.toString())
+                            resolve(response_body.toString('utf-8'))
                         })
 
                         response.on('error', (error) => {

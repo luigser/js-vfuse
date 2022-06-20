@@ -262,18 +262,21 @@ const worker_code = () => {
                     status: self.running
                 })*/
                 try {
+                    let input
                     if(!job.inline){
                         if(typeof job.data !== 'string' && typeof job.data !== 'number') {
-                            let input = JSON.stringify(job.data, escape)
+                            input = JSON.stringify(job.data, escape)
                             job.code += `\nlet input = JSON.parse(\`${input}\`)\nreturn ${job.name}(input)`//backticks
                         }else{
                             job.code +=  typeof job.data !== 'number' ? `\nreturn ${job.name}(\`${job.data}\`)` :  `\nreturn ${job.name}(${job.data})`
                         }
                     }
                     let F = new AsyncFunction('', job.code )
+                    //console.log('Run job')
                     let start = performance.now()
                     let results = await(F())
                     let executionTime = performance.now() - start
+                    //console.log('End job')
 
                    /* self.postMessage({
                         action: 'running',
@@ -284,6 +287,8 @@ const worker_code = () => {
                         results : convert(results),
                         executionTime : executionTime
                     })
+                    input = null
+                    results = null
                     self.running = false
                 } catch (err) {
                     console.log(err)

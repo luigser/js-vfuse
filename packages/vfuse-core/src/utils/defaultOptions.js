@@ -5,7 +5,6 @@ module.exports = {
 
     getBootstrapOptions : (options) => {
         return lodash.merge({
-            computation : false,
             maintainRunningState : true,
             proxy:{
                 bootstrap: {
@@ -27,9 +26,9 @@ module.exports = {
             ipfsClusterApi: {},
             packages: [],
             ipfs: {
-                /*preload: {
+                preload: {
                     enabled: false
-                },*/
+                },
                 repo: 'vfuse-repo',//Repo,
                 config: {
                     Datastore: {
@@ -202,9 +201,9 @@ module.exports = {
             localStorage : true,
             maintainRunningState : true,
             ipfs: {
-               /* preload: {
+                preload: {
                     enabled: false
-                },*/
+                },
                 repo: 'vfuse-browser-repo',
                 //pass: "01234567890123456789",
                 config: {

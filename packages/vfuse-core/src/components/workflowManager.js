@@ -159,8 +159,8 @@ class WorkflowManager{
         clearInterval(this.executionCycleInterval)
         clearInterval(this.publishResultsInterval)
         clearInterval(this.publishWorkflowsInterval)
-
-        this.executionCycle()
+        if(this.options.computation)
+           this.executionCycle()
         this.publishWorkflows()
         this.publishResults()
     }
@@ -256,9 +256,9 @@ class WorkflowManager{
         await this.contentManager.save('/workflows/published/' + data.workflow_id, data)
         let encoded_workflow = await this.contentManager.getFromNetwork(data.cid)
         let workflow = JSON.parse(encoded_workflow)
-        if(workflow){
+        if(workflow) {
             workflow.remoteSelectedJobs = []
-            if(data.suggestedScheduling) {
+            if (data.suggestedScheduling) {
                 workflow.suggestedScheduling = data.suggestedScheduling.find(s => s.peer === this.identityManager.peerId)
                 let nodes = []
                 for (let node of workflow.suggestedScheduling.jobs)
@@ -270,8 +270,8 @@ class WorkflowManager{
             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOWS_UPDATE, this.getRunningWorkflows())
             if(this.options.computation) {
                 this.executionCycle()
+                console.log(`Starting workflow ${workflow.id}`)
             }
-            console.log(`Starting workflow ${workflow.id}`)
         }
     }
 
@@ -358,7 +358,6 @@ class WorkflowManager{
                 let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
                 let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
                 if(node) {
-                    //console.log(node.progressive)
                     this.addJobToQueue(workflow_to_run.id, node, workflow_to_run.scheduling === Constants.WORKFLOW.SCHEDULING.BALANCED)
                 }
             }
@@ -377,11 +376,12 @@ class WorkflowManager{
     async executionCycle(){
         try {
             await this.fillExecutionQueue()
+            let delay = 0
             for (let entry of this.jobsExecutionQueue) {
                 if(!entry.running) {
                     entry.running = true
                     setTimeout(async function () {
-                        //console.log(`Executing ${entry.node.id} job`)
+                        console.log(`Executing ${entry.node.id} job`)
                         let results = await this.runtimeManager.runJob(entry.node.job)
                         if (results) {
                             let workflow_to_run = this.runningWorkflowsQueue.get(entry.wid)
@@ -406,7 +406,7 @@ class WorkflowManager{
                                await this.contentManager.save('/workflows/running/' + entry.wid, workflow_to_run)
                             this.eventManager.emit(Constants.EVENTS.RUNNING_WORKFLOW_UPDATE, workflow_to_run)//?? find a better strategy
                             this.jobsExecutionQueue = this.jobsExecutionQueue.filter(e => e.node.id !== entry.node.id)
-                            //console.log(`End execution ${entry.node.id} job`)
+                            //console.log(`End execution ${entry.node.id} job in ${entry.node.job.executionTime}`)
                             /*this.numOfSelectedJobs++
                             console.log(`${this.numOfSelectedJobs}) SENT --> results fo job ${entry.node.id}`)*/
                             await this.executionCycle()
@@ -414,7 +414,7 @@ class WorkflowManager{
                             if(entry.node.job.executionTime > this.maxJobExecitionTime)
                                 this.maxJobExecitionTime = entry.node.job.executionTime
                         }
-                    }.bind(this), 0)
+                    }.bind(this), /*(delay++) * 100*/0)
                 }
             }
 
@@ -852,7 +852,7 @@ class WorkflowManager{
             await this.contentManager.delete('/workflows/published/' + id)
             await this.contentManager.delete('/workflows/completed/' + id)
             let running_workflows = await this.contentManager.list('/workflows/running')
-            this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
+            //this.workflowsWeights = running_workflows.map(w => 1 / running_workflows.length)
             this.runningWorkflowsQueue.delete(id)
             return true
         }catch (e) {

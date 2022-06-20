@@ -13,6 +13,8 @@ export const useVFuse = () => {
             node = gStore.get("vFuseNode")
             if (!node) {
                 let options =  {
+                    localStorage: true,
+                    computation: true,
                     ipfs:{
                         config: {
                             Addresses : {

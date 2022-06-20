@@ -236,7 +236,7 @@ const worker_code = () => {
         "    @staticmethod\n" +
         "    def execute(func, data = None):\n" +
         "        code = bytes(func.to_py().values())\n" +
-        "        if type(data) != str and type(data) != int and type(data) != float:\n" +
+        "        if data != None and type(data) != str and type(data) != int and type(data) != float:\n" +
         "            data = data.to_py()\n" +
         "        func_caller = cloudpickle.loads(code)\n" +
         "        return func_caller(data)\n"
