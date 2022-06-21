@@ -1,3 +1,4 @@
+'use strict';
 class JavascriptWorker{
 
     constructor() {
@@ -9,9 +10,12 @@ class JavascriptWorker{
         return new Worker(JavascriptWebWorkerScript);
     }
 
-    getNodeWorker(runtime){
-        const JavascriptNodeWorker = require('./node/javascriptNodeWorker')
-        return new JavascriptNodeWorker(runtime)
+    getNodeWorker(workerData){
+        const {isBrowser} = require("browser-or-node");
+        const path = require('path')
+        let lib = isBrowser ? '' : 'worker_threads'
+        const {Worker} = require(lib)
+        return new Worker(path.join(__dirname, './node/javascriptNodeWorkerThread'), workerData)
     }
 
     getDefaultPackages(){

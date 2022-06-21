@@ -732,7 +732,7 @@ class NetworkManager{
         return new Promise((resolve, reject) => {
             try {
                 if (isNode) {
-                    const http = require('http'), https     = require('https')
+                    const http = require('http'), https = require('https')
                     let client = http;
 
                     if (url.toString().indexOf("https") === 0) {

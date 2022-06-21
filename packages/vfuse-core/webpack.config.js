@@ -21,7 +21,8 @@ module.exports = () => {
                 "zlib": require.resolve("browserify-zlib"),
                 "http": require.resolve("stream-http"),
                 "crypto": require.resolve("crypto-browserify"),
-                "https": require.resolve("https-browserify")
+                "https": require.resolve("https-browserify"),
+                "worker_threads" : "empty"
             }
         },
         module: {

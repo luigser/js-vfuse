@@ -53,7 +53,7 @@ class RuntimeManager{
                     for(let option of options)
                        this.workers.set(option.getLanguage(), new option.worker(this, this.eventManager))
                 }*/
-                const NodeWorkerRuntime = require("./runtime/nodeWorkerRuntime");
+                const NodeWorkerRuntime = require("./runtime/nodeWorkerThreadRuntime");
                 let runtime = new NodeWorkerRuntime(this,
                     new JavascriptWorker(),
                     {language : Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT, preferences : this.preferences},
