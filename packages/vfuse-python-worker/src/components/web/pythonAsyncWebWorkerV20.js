@@ -47,9 +47,9 @@ const worker_code = () => {
             return promise
         },
 
-        getDataFromUrl: (url, start, end, type) => {
+        getDataFromUrl: (url, start, end) => {
             const promise = new Promise((resolve, reject) => {
-                self.onmessage = (e) => {
+               /* self.onmessage = (e) => {
                     const {action} = e.data;
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
@@ -57,10 +57,26 @@ const worker_code = () => {
                             resolve(e.data.data.content)
                         self.onmessage = onmessage
                     }
+                }*/
+                let headers = {}
+                if(start !== undefined && end !== undefined) {
+                    headers = {
+                        'range': `bytes=${start}-${end}`,
+                    }
                 }
+                fetch(url, {
+                    headers: headers,
+                    method: "GET",
+                    mode: "cors",
+                })
+                    .then(response => {
+                        //console.log(`getDataFromUrl time : ${performance.now() - s} ms`)
+                        resolve(response.text())
+                    })
+                    .catch(error => reject({error: error}))
             })
 
-            self.postMessage({
+            /*self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
                     func: 'getDataFromUrl',
@@ -71,7 +87,7 @@ const worker_code = () => {
                         type: type
                     })
                 }
-            })
+            })*/
 
             return promise
         },

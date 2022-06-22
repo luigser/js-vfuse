@@ -1,5 +1,4 @@
 const worker_code = () => {
-    self.running = false
     const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
     const VFuse = {
@@ -34,19 +33,37 @@ const worker_code = () => {
         },
 
         getDataFromUrl : (url, start, end, type) => {
+            //const s = performance.now()
             const promise = new  Promise( (resolve, reject) => {
-                self.onmessage = (e) => {
+                /*self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
                         if(func === 'getDataFromUrl')
                             resolve(e.data.data.content)
                         self.onmessage = onmessage
+                        console.log(`getDataFromUrl time : ${performance.now() - s} ms`)
+                    }
+                }*/
+                let headers = {}
+                if(start !== undefined && end !== undefined) {
+                    headers = {
+                        'range': `bytes=${start}-${end}`,
                     }
                 }
+                fetch(url, {
+                    headers: headers,
+                    method: "GET",
+                    mode: "cors",
+                })
+                    .then(response => {
+                        //console.log(`getDataFromUrl time : ${performance.now() - s} ms`)
+                        resolve(response.text())
+                    })
+                    .catch(error => reject({error: error}))
             })
 
-            self.postMessage({
+            /*self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
                     func: 'getDataFromUrl',
@@ -57,7 +74,7 @@ const worker_code = () => {
                         type : type
                     })
                 }
-            })
+            })*/
 
             return promise
         },
@@ -256,11 +273,6 @@ const worker_code = () => {
                 }
                 break
             case 'exec':
-                self.running = true
-                /*self.postMessage({
-                    action: 'running',
-                    status: self.running
-                })*/
                 try {
                     let input
                     if(!job.inline){
@@ -278,10 +290,6 @@ const worker_code = () => {
                     let executionTime = performance.now() - start
                     //console.log('End job')
 
-                   /* self.postMessage({
-                        action: 'running',
-                        status: false
-                    })*/
                     self.postMessage({
                         action: 'return',
                         results : convert(results),
@@ -289,15 +297,9 @@ const worker_code = () => {
                     })
                     input = null
                     results = null
-                    self.running = false
+                    F = null
                 } catch (err) {
                     console.log(err)
-
-                    self.running = false
-                    /*self.postMessage({
-                        action: 'running',
-                        status: false
-                    })*/
                     self.postMessage({
                         action: 'return',
                         results: {error: {

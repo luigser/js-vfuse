@@ -24,8 +24,8 @@ const PeerId = require('peer-id')
 const LZUTF8 = require('lzutf8')
 const fflate = require('fflate')
 
-const  { isNode, isBrowser } = require("browser-or-node");
-
+const  { isNode, isBrowser } = require("browser-or-node")
+const NodeFetch = isNode ? require('node-fetch') : null
 const Constants = require("./constants")
 
 class NetworkManager{
@@ -731,46 +731,20 @@ class NetworkManager{
     getDataFromUrl(url, start, end){
         return new Promise((resolve, reject) => {
             try {
-                if (isNode) {
-                    const http = require('http'), https = require('https')
-                    let client = http;
-
-                    if (url.toString().indexOf("https") === 0) {
-                        client = https;
+                let FETCH = isNode ? NodeFetch : fetch
+                let headers = {}
+                if(start !== undefined && end !== undefined) {
+                    headers = {
+                        'range': `bytes=${start}-${end}`,
                     }
-                    client.get(url, (response) => {
-                        if(start !== undefined && end !== undefined)
-                           response.setHeader("Range", `bytes=${start}-${end}`);
-                        let chunks_of_data = [];
-
-                        response.on('data', (fragments) => {
-                            chunks_of_data.push(fragments)
-                        })
-
-                        response.on('end', () => {
-                            let response_body = Buffer.concat(chunks_of_data);
-                            resolve(response_body.toString('utf-8'))
-                        })
-
-                        response.on('error', (error) => {
-                            reject({error: error});
-                        })
-                    })
-                } else if (isBrowser) {
-                    let headers = {}
-                    if(start !== undefined && end !== undefined) {
-                        headers = {
-                            'range': `bytes=${start}-${end}`,
-                        }
-                    }
-                    fetch(url, {
-                        headers: headers,
-                        method: "GET",
-                        mode: "cors",
-                    })
-                        .then(response => resolve(response.text()))
-                        .catch(error => reject({error: error}))
                 }
+                FETCH(url, {
+                    headers: headers,
+                    method: "GET",
+                    mode: "cors",
+                })
+                    .then(response => resolve(response.text()))
+                    .catch(error => reject({error: error}))
             }catch (e) {
                 reject({error : e})
             }

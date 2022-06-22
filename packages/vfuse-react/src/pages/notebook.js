@@ -148,7 +148,7 @@ export default function NotebookPage(props){
             if(vFuseNode)
                 vFuseNode.removeListener(VFuse.Constants.EVENTS.WORKFLOW_UPDATE, updateWorkflowCallback)
         }
-    },[workflow])
+    },[workflow, isPublished])
 
     const updateWorkflowCallback = (workflow) => {
         if(workflow.id === workflowId) {

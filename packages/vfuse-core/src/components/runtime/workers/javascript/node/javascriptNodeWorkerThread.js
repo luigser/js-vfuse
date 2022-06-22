@@ -1,4 +1,5 @@
 const { parentPort } = require('worker_threads')
+const fetch = require('node-fetch')
 
 const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
@@ -33,7 +34,8 @@ const VFuseAPICaller = {
         return promise
     },
 
-    getDataFromUrl : (url, start, end, type) => {
+    getDataFromUrl : (url, start, end) => {
+        const s = performance.now()
         const promise = new  Promise( (resolve, reject) => {
             parentPort.onmessage = (e) => {
                 const {action} = e.data
@@ -42,7 +44,29 @@ const VFuseAPICaller = {
                     if(func === 'getDataFromUrl')
                         resolve(e.data.data.content)
                     parentPort.onmessage = onmessage
+                    console.log(`getDataFromUrl time : ${performance.now() - s} ms`)
                 }
+                /*try {
+                    let headers = {}
+                    if (start !== undefined && end !== undefined) {
+                        headers = {
+                            'range': `bytes=${start}-${end}`,
+                        }
+                    }
+                    fetch(url, {
+                        headers: headers,
+                        method: "GET",
+                        mode: "cors",
+                    })
+                        .then(response => {
+                            console.log(`getDataFromUrl time : ${performance.now() - s} ms`)
+                            resolve(response.text())
+                        })
+                        .catch(error => reject({error: error}))
+                }catch (e){
+                    console.log(e)
+                    reject({error : e})
+                }*/
             }
         })
 
