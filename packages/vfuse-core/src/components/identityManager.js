@@ -1,6 +1,7 @@
 'use strict'
 
 const Constants = require('./constants');
+const {isNode} = require("browser-or-node");
 
 //const log = require('debug')('vfuse:profile')
 
@@ -10,8 +11,8 @@ class IdentityManager {
      * @param {Object} options
      */
     constructor ( contentManager, eventManager, peerId , options) {
-        options = options.preferences
         this.id = peerId
+        this.options = options
         this.peerId = peerId
         this.contentManager = contentManager
         this.eventManager = eventManager
@@ -19,26 +20,26 @@ class IdentityManager {
         this.rewards = 0.00
         this.preferences = {
             ENDPOINTS:{
-                SIGNAL_SERVER : options && options.SIGNAL_SERVER ? options && options.SIGNAL_SERVER : '',
-                BOOTSTRAPS: options && options.BOOTSTRAPS ? options && options.BOOTSTRAPS : [],
+                SIGNAL_SERVER : options.preferences && options.preferences.SIGNAL_SERVER ? options.preferences.SIGNAL_SERVER : '',
+                BOOTSTRAPS: options.preferences && options.preferences.BOOTSTRAPS ? options.preferences.BOOTSTRAPS : [],
                 PINNING_SERVER : {
-                    PROTOCOL : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.PROTOCOL : 'https',
-                    HOST : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.HOST : '172.16.149.150',
-                    PORT : options && options.PINNING_SERVER ? options && options.PINNING_SERVER.PORT : '9097'
+                    PROTOCOL : options.preferences && options.preferences.PINNING_SERVER ? options.preferences.PINNING_SERVER.PROTOCOL : 'https',
+                    HOST : options.preferences && options.preferences.PINNING_SERVER ? options.preferences.PINNING_SERVER.HOST : '172.16.149.150',
+                    PORT : options.preferences && options.preferences.PINNING_SERVER ? options.preferences.PINNING_SERVER.PORT : '9097'
                 },
                 DELEGATE_NODE : ''
             },
             TIMEOUTS:{
-                DISCOVERY : options && options.DISCOVERY ? options && options.DISCOVERY : 15,
-                WORKFLOWS_PUBLISHING : options && options.WORKFLOWS_PUBLISHING ? options && options.WORKFLOWS_PUBLISHING : 60,
-                JOBS_PUBLISHING : options && options.JOBS_PUBLISHING ? options && options.JOBS_PUBLISHING : 15,
-                RESULTS_PUBLISHING: options && options.RESULTS_PUBLISHING ? options && options.RESULTS_PUBLISHING : 120,
-                EXECUTION_CYCLE: options && options.EXECUTION_CYCLE ? options && options.EXECUTION_CYCLE : 1,
-                JOB_EXECUTION : options && options.JOB_EXECUTION ? options && options.JOB_EXECUTION : 300,
+                DISCOVERY : options.preferences && options.preferences.DISCOVERY ? options.preferences.DISCOVERY : 15,
+                WORKFLOWS_PUBLISHING : options.preferences && options.preferences.WORKFLOWS_PUBLISHING ?options.preferences.WORKFLOWS_PUBLISHING : 60,
+                JOBS_PUBLISHING : options.preferences && options.preferences.JOBS_PUBLISHING ? options.preferences.JOBS_PUBLISHING : 15,
+                RESULTS_PUBLISHING: options.preferences && options.preferences.RESULTS_PUBLISHING ? options.preferences.RESULTS_PUBLISHING : 120,
+                EXECUTION_CYCLE: options.preferences && options.preferences.EXECUTION_CYCLE ? options.preferences.EXECUTION_CYCLE : 1,
+                JOB_EXECUTION : options.preferences && options.preferences.JOB_EXECUTION ? options.preferences.JOB_EXECUTION : 300,
             },
             LIMITS: {
-                MAX_CONCURRENT_JOBS : options && options.MAX_CONCURRENT_JOBS ? options && options.MAX_CONCURRENT_JOBS : Constants.LIMITS.MAX_CONCURRENT_JOBS,
-                MAX_MANAGED_WORKFLOWS : options && options.MAX_MANAGED_WORKFLOWS ? options && options.MAX_MANAGED_WORKFLOWS : Constants.LIMITS.MAX_MANAGED_WORKFLOWS,
+                MAX_CONCURRENT_JOBS : options.preferences && options.preferences.MAX_CONCURRENT_JOBS ? options.preferences.MAX_CONCURRENT_JOBS : Constants.LIMITS.MAX_CONCURRENT_JOBS,
+                MAX_MANAGED_WORKFLOWS : options.preferences && options.preferences.MAX_MANAGED_WORKFLOWS ? options.preferences.MAX_MANAGED_WORKFLOWS : Constants.LIMITS.MAX_MANAGED_WORKFLOWS,
             },
             CONSTANTS:{
                 CPU_USAGE : 0.2,
@@ -65,6 +66,8 @@ class IdentityManager {
                 this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : true, profile : {...profile, ...{id : this.id}}  })
                 return profile
             }else{
+                if(isNode && this.options.localStorage)
+                    await this.createProfile()
                 this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : false })
                 return false
             }
@@ -107,6 +110,7 @@ class IdentityManager {
                 await this.contentManager.makeDir('/workflows/published/my')
                 await this.contentManager.makeDir('/workflows/running')
                 await this.contentManager.makeDir('/workflows/completed')
+                await this.contentManager.makeDir('/profiles')
                 /*new TextEncoder().encode(JSON.stringify(new_profile))*/
                 await this.contentManager.save("/profiles/" + this.peerId, new_profile)
                 this.id = this.peerId

@@ -110,14 +110,14 @@ class ContentManager{
         }
     }
 
-    async makeDir(path, options){
+    async makeDir(dirpath, options){
         try{
             if((this.options && this.options.localStorage) && (!options || (options && !options.net) )) {
                 if(!isBrowser){
-                    fs.mkdirSync(path.join(__dirname, path), {recursive : true})
+                    fs.mkdirSync(path.join(this.options.localPath ? this.options.localPath :__dirname, dirpath), {recursive : true})
                 }
             }else {
-                await this.networkManager.makeDir(path, options ? options : {parents: true, mode: parseInt('0775', 8)})
+                await this.networkManager.makeDir(dirpath, options ? options : {parents: true, mode: parseInt('0775', 8)})
             }
         }catch (e) {
             console.log('Error during directory creation : % O', e)
@@ -200,7 +200,7 @@ class ContentManager{
             if(isBrowser) {
                 list = await this.ls_get_compressed(key)
             }else{
-                fs.readdirSync(path.join(__dirname,key)).forEach(file => list.push(file));
+                fs.readdirSync(path.join(this.options.localPath ? this.options.localPath :__dirname, key)).forEach(file => list.push(file));
             }
             return list === null ? [] : list
         }catch (e) {
@@ -223,7 +223,7 @@ class ContentManager{
                 await this.ls_set_compressed(dir_key, current_dir_content)
                 await this.ls_set_compressed(key, value)
             }else{
-                fs.writeFileSync(path.join(__dirname, key), fflate.zlibSync((new TextEncoder().encode(JSON.stringify(value))), {level: 6}), {recursive  : true});
+                fs.writeFileSync(path.join(this.options.localPath ? this.options.localPath :__dirname, key), fflate.zlibSync((new TextEncoder().encode(JSON.stringify(value))), {level: 6}), {recursive  : true});
             }
             return true
         }catch (e) {
@@ -237,10 +237,10 @@ class ContentManager{
             if(isBrowser) {
                 return await this.ls_get_compressed(key)
             }else{
-                return JSON.parse(Buffer.from(fflate.unzlibSync(fs.readFileSync(path.join(__dirname, key), 'utf-8'))).toString())
+                return JSON.parse(Buffer.from(fflate.unzlibSync(fs.readFileSync(path.join(this.options.localPath ? this.options.localPath :__dirname, key)))).toString())
             }
         }catch (e) {
-            console.log('Error getting data in local storage : %O', e)
+            //console.log('Error getting data in local storage : %O', e)
             return Promise.reject(null)
         }
     }
@@ -258,11 +258,11 @@ class ContentManager{
                 await this.ls_set_compressed(dir_key, current_dir_content)
                 await this.async_ls_delete(key)
             }else{
-                fs.unlinkSync(path.join(__dirname, key));
+                fs.unlinkSync(path.join(this.options.localPath ? this.options.localPath :__dirname, key));
             }
             return true
         } catch (e) {
-            console.log('Error getting data in local storage : %O', e)
+            //console.log('Error getting data in local storage : %O', e)
             return Promise.reject(false)
         }
     }

@@ -237,6 +237,12 @@ const worker_code = () => {
         "    @staticmethod\n" +
         "    async def getDataFromUrl(url, start = None, end = None, type = None):\n" +
         "        return await JSVFuse.getDataFromUrl(url, start, end, type)\n" +
+       /* "        from pyodide.http import pyfetch\n" +
+        "        headers = {}\n" +
+        "        if start != None and end != None:\n" +
+        "           headers = {'range': 'bytes=start' + '-' + end}\n" +
+        "        file = await pyfetch(url, headers)\n" +
+        "        return await file.string()\n"*/
         "    @staticmethod\n" +
         "    async def saveOnNetwork(data, json = True):\n" +
         "        return await JSVFuse.saveOnNetwork(data, json)\n" +

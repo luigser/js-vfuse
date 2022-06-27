@@ -4,7 +4,9 @@ const VFuse  = require('vfuse-core')
 
 const main = async () => {
     let node = await VFuse.create({
-        computation: false,
+        computation: true,
+        localStorage: true,
+        localPath: __dirname,
         bootstrapNode : true,
         SignalServer: true,
         HttpAPI: true,

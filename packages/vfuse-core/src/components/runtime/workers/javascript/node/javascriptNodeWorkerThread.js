@@ -35,38 +35,39 @@ const VFuseAPICaller = {
     },
 
     getDataFromUrl : (url, start, end) => {
-        const s = performance.now()
         const promise = new  Promise( (resolve, reject) => {
             parentPort.onmessage = (e) => {
-                const {action} = e.data
+               /* const {action} = e.data
                 if (action === 'VFuse:runtime') {
                     const {func} = e.data.data
                     if(func === 'getDataFromUrl')
                         resolve(e.data.data.content)
                     parentPort.onmessage = onmessage
                     console.log(`getDataFromUrl time : ${performance.now() - s} ms`)
-                }
-                /*try {
+                }*/
+                try {
                     let headers = {}
                     if (start !== undefined && end !== undefined) {
                         headers = {
                             'range': `bytes=${start}-${end}`,
                         }
                     }
+                    const s = performance.now()
                     fetch(url, {
                         headers: headers,
                         method: "GET",
                         mode: "cors",
                     })
                         .then(response => {
-                            console.log(`getDataFromUrl time : ${performance.now() - s} ms`)
+                            response.bodyUsed = false
                             resolve(response.text())
+                            console.log(`getDataFromUrl time : ${performance.now() - s} ms`)
                         })
                         .catch(error => reject({error: error}))
                 }catch (e){
                     console.log(e)
                     reject({error : e})
-                }*/
+                }
             }
         })
 
@@ -78,7 +79,7 @@ const VFuseAPICaller = {
                     url : url,
                     start : start,
                     end : end,
-                    type : type
+                    //type : type
                 })
             }
         })

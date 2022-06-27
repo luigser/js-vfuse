@@ -414,7 +414,7 @@ class WorkflowManager{
                             if(entry.node.job.executionTime > this.maxJobExecitionTime)
                                 this.maxJobExecitionTime = entry.node.job.executionTime
                         }
-                    }.bind(this), /*(delay++) * 100*/0)
+                    }.bind(this), /*(delay++) * 200*/0)
                 }
             }
 
