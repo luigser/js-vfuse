@@ -1,7 +1,7 @@
 'use strict'
 
 const Constants = require('./constants');
-const {isNode} = require("browser-or-node");
+const {isNode, isBrowser} = require("browser-or-node");
 
 //const log = require('debug')('vfuse:profile')
 
@@ -38,7 +38,7 @@ class IdentityManager {
                 JOB_EXECUTION : options.preferences && options.preferences.JOB_EXECUTION ? options.preferences.JOB_EXECUTION : 300,
             },
             LIMITS: {
-                MAX_CONCURRENT_JOBS : options.preferences && options.preferences.MAX_CONCURRENT_JOBS ? options.preferences.MAX_CONCURRENT_JOBS : Constants.LIMITS.MAX_CONCURRENT_JOBS,
+                MAX_CONCURRENT_JOBS : options.preferences && options.preferences.MAX_CONCURRENT_JOBS ? options.preferences.MAX_CONCURRENT_JOBS : isBrowser ? window.navigator.hardwareConcurrency : require('os').cpus().length,
                 MAX_MANAGED_WORKFLOWS : options.preferences && options.preferences.MAX_MANAGED_WORKFLOWS ? options.preferences.MAX_MANAGED_WORKFLOWS : Constants.LIMITS.MAX_MANAGED_WORKFLOWS,
             },
             CONSTANTS:{
