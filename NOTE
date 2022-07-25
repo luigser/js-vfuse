@@ -121,3 +121,10 @@ user: isis pwd: clgvittorio
 
 5122-5822 193.205.161.5
 ssh -L 5901:127.0.0.1:5901 -N -f -l isis 193.205.161.5 -p 6666
+
+
+//TODO
+- Understand why javascript workers unexpectedly end execution both in node and web context
+
+- aggiungere al wf un caching rule sui dati e risultati
+- meccanismo per wf con dati sicuru

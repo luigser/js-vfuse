@@ -445,7 +445,7 @@ export default function ProfilePage(props){
                                                                 </Row>
                                                                 <Row style={{height: "30vh"}}>
                                                                     <Slider vertical
-                                                                            max={100}
+                                                                            max={window.navigator.hardwareConcurrency - 1}
                                                                             disabled={preferences === null}
                                                                             step={1}
                                                                             value={maxConcurrentJobs}

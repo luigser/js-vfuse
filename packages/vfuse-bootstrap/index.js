@@ -4,13 +4,13 @@ const VFuse  = require('vfuse-core')
 
 const main = async () => {
     let node = await VFuse.create({
-        computation: true,
+        computation: false,
         localStorage: true,
         localPath: __dirname,
         bootstrapNode : true,
         SignalServer: true,
         HttpAPI: true,
-        IPFSGateway: false,
+        IPFSGateway: true,
         /*ipfs:{
             config: {
                 Bootstrap: ['/dns4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWS8x3JoxZazS8K1zDQGKGFoWQ1JX5u7enEPAeTM84YiDY']
