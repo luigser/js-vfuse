@@ -15,6 +15,9 @@ export const useVFuse = () => {
                 let options =  {
                     localStorage: true,
                     computation: true,
+                    preferences: {
+                        MAX_CONCURRENT_JOBS : 4
+                    },
                     ipfs:{
                         config: {
                             Addresses : {
