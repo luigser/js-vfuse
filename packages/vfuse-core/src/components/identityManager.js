@@ -38,7 +38,7 @@ class IdentityManager {
                 JOB_EXECUTION : options.preferences && options.preferences.JOB_EXECUTION ? options.preferences.JOB_EXECUTION : 300,
             },
             LIMITS: {
-                MAX_CONCURRENT_JOBS : options.preferences && options.preferences.MAX_CONCURRENT_JOBS ? options.preferences.MAX_CONCURRENT_JOBS : isBrowser ? window.navigator.hardwareConcurrency : require('os').cpus().length,
+                MAX_CONCURRENT_JOBS : options.preferences && options.preferences.MAX_CONCURRENT_JOBS ? options.preferences.MAX_CONCURRENT_JOBS : isBrowser ? window.navigator.hardwareConcurrency - 1 : require('os').cpus().length - 1,
                 MAX_MANAGED_WORKFLOWS : options.preferences && options.preferences.MAX_MANAGED_WORKFLOWS ? options.preferences.MAX_MANAGED_WORKFLOWS : Constants.LIMITS.MAX_MANAGED_WORKFLOWS,
             },
             CONSTANTS:{

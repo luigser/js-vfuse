@@ -444,10 +444,11 @@ class NetworkManager{
         }
     }
 
-    async add(data){
+    async add(data, options){
         try {
             //todo delete previous version
-            let remote_data = await this.ipfs.add(data, {pin : true})
+            let remote_data = await this.ipfs.add(data, options)
+            console.log({remote_data})
             return remote_data
         }catch (e){
             console.log('Got some error during the data update: %O', e)
@@ -583,12 +584,14 @@ class NetworkManager{
     async addAndPin(data){
         try {
             //todo delete previous version
-            let added_data = await this.add(data);
-            let added_to_cluster_data = await this.cluster.add(Buffer.from(data));
-            let pinning_result = await this.cluster.pin.add(added_data.cid.toString());
+            let added_data = await this.add(Buffer.from(data))
+            /*let added_to_cluster_data = await this.cluster.add(Buffer.from(data), (err, result) => {
+                err ? console.error(err) : console.log(result)
+            })*/
+            let pinning_result = await this.pin(added_data.cid.toString());
             //il cid(hash) del pin diventa accessibile attraverso /ipfs(gateway)?
             //se si utilizzare l'api file per pubblicare su ipns il cid pinnato
-            return pinning_result.cid ? pinning_result.cid['/'] : pinning_result.toString()
+            return pinning_result/*.cid ? pinning_result.cid['/'] : pinning_result.toString()*/
         }catch (e){
             console.log('Got some error during the data adding and pinning: %O', e)
             return {error : e}

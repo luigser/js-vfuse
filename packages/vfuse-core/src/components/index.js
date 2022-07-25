@@ -96,7 +96,7 @@ class VFuse {
 
                 if (this.options.IPFSGateway) {
                     const Gateway = require('ipfs-http-gateway');
-                    this.gateway = new Gateway(this.networkManager.ipfs);
+                    this.gateway = new Gateway.HttpGateway(this.networkManager.ipfs);
                     await this.gateway.start();
                     console.log('Gateway started')
                 }

@@ -97,7 +97,7 @@ const worker_code = () => {
                 todo: {
                     func: 'saveOnNetwork',
                     params: JSON.stringify({
-                        data : data,
+                        data : convert(data),
                         json : json
                     })
                 }
