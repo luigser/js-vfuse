@@ -165,8 +165,8 @@ module.exports = {
                         DisableBandwidthMetrics: false,
                         DisableNatPortMap: false,
                         DisableRelay: false,
-                        EnableAutoRelay: false,
-                        EnableRelayHop: false,
+                        EnableAutoRelay: true,
+                        EnableRelayHop: true,
                         /* Transports: {
                              Multiplexers: {},
                              Network: {},
@@ -181,7 +181,7 @@ module.exports = {
                     },
                     Discovery: {
                         MDNS: {
-                            Enabled: false,
+                            Enabled: true,
                             Interval : 10
                         },
                         webRTCStar: {
@@ -229,7 +229,7 @@ module.exports = {
                     Bootstrap: options.ipfs.config.Bootstrap,
                     Discovery: {
                          MDNS: {
-                             Enabled: false
+                             Enabled: true
                          },
                          webRTCStar: {
                              Enabled: true
