@@ -15,7 +15,7 @@ class JavascriptWorker{
         const path = require('path')
         let lib = isBrowser ? '' : 'worker_threads'
         const {Worker} = require(lib)
-        return new Worker(path.join(__dirname, './node/javascriptNodeWorkerThread'), workerData)
+        return new Worker(path.join(__dirname, 'node/javascriptNodeWorkerThread'), workerData)
     }
 
     getDefaultPackages(){
