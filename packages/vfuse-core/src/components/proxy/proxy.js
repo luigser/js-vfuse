@@ -35,8 +35,7 @@ class VFuseProxy{
                 host: 'localhost',
                 port: props.bootstrap.wsPort,
             },*/
-            //target: 'http://localhost:4003/',
-            target: 'http://172.16.149.150:4003/',
+            target: 'http://localhost:4003/',
             ws : true,
             ssl: {
                 key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
