@@ -30,7 +30,7 @@ class VFuseProxy{
             secure: props.certs.verify
         }).listen(props.pinning.proxyPort, "0.0.0.0");
         //WSS SWARM PROXY
-        httpProxy.createServer({
+        let proxy = httpProxy.createServer({
             /*target: {
                 host: 'localhost',
                 port: props.bootstrap.wsPort,
@@ -45,6 +45,17 @@ class VFuseProxy{
             changeOrigin: true,
             secure: props.certs.verify
         }).listen(props.bootstrap.wsProxyPort, '0.0.0.0');
+        proxy.on('error', function (err, req, res) {
+            res.writeHead(500, {
+                'Content-Type': 'text/plain'
+            });
+
+            res.end('Something went wrong. And we are reporting a custom error message.');
+        });
+
+        proxy.on('proxyRes', function (proxyRes, req, res) {
+            console.log('RAW Response from the target', JSON.stringify(proxyRes.headers, true, 2));
+        });
         //console.log("Proxy listening on wss://0.0.0.0:%s", props.bootstrap.wsProxyPort)
         //SIGNAL SERVER PROXY
         httpProxy.createServer({
