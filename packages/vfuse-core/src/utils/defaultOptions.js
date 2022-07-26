@@ -174,13 +174,14 @@ module.exports = {
                          }*/
                     },
                     Pubsub:{
-                        enabled : true,
+                        Enabled : true,
+                        Router: 'gossipsub'
                         /*DisableSigning: true,
                         Router: ""*/
                     },
                     Discovery: {
                         MDNS: {
-                            Enabled: true,
+                            Enabled: false,
                             Interval : 10
                         },
                         webRTCStar: {
@@ -228,7 +229,7 @@ module.exports = {
                     Bootstrap: options.ipfs.config.Bootstrap,
                     Discovery: {
                          MDNS: {
-                             Enabled: true
+                             Enabled: false
                          },
                          webRTCStar: {
                              Enabled: true
