@@ -46,6 +46,7 @@ class VFuseProxy{
             secure: props.certs.verify
         }).listen(props.bootstrap.wsProxyPort, '0.0.0.0');
         proxy.on('error', function (err, req, res) {
+            console.log('Got some error in proxy: ' + err)
             res.writeHead(500, {
                 'Content-Type': 'text/plain'
             });
