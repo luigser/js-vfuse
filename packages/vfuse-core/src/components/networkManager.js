@@ -269,6 +269,7 @@ class NetworkManager{
 
     // processes a circuit-relay announce over pubsub
     async processAnnounce(addr) {
+        console.log(addr.from)
         let me = await this.ipfs.id();
         me = me.id;
         // not really an announcement if it's from us
