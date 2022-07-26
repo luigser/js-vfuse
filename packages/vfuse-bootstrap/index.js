@@ -11,6 +11,9 @@ const main = async () => {
         SignalServer: true,
         HttpAPI: true,
         IPFSGateway: true,
+        preferences: {
+            MAX_CONCURRENT_JOBS : 1
+        }
         /*ipfs:{
             config: {
                 Bootstrap: ['/dns4/193.205.161.5/tcp/4002/wss/p2p/12D3KooWS8x3JoxZazS8K1zDQGKGFoWQ1JX5u7enEPAeTM84YiDY']
