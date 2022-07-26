@@ -1,4 +1,6 @@
 'use strict';
+const path = require("path");
+
 class JavascriptWorker{
 
     constructor() {
@@ -15,6 +17,7 @@ class JavascriptWorker{
         const path = require('path')
         let lib = isBrowser ? '' : 'worker_threads'
         const {Worker} = require(lib)
+        console.log(path.join(__dirname, 'node/javascriptNodeWorkerThread'))
         return new Worker(path.join(__dirname, 'node/javascriptNodeWorkerThread'), workerData)
     }
 
