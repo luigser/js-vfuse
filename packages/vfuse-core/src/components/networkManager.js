@@ -218,11 +218,13 @@ class NetworkManager{
                             filter: filters.all
                         }
                     }*/
-                    /*pubsub: {
+                    pubsub: {
                         //signMessages: false,
                         //strictSigning: false
+                        emitSelf: false,
+                        signMessages: false,
                         globalSignaturePolicy: SignaturePolicy.StrictNoSign
-                    }*/
+                    }
                 },
                 ...opt.libp2p
             }
@@ -270,7 +272,7 @@ class NetworkManager{
             /*if(isNode && this.isBootstrapNode)
                await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, "peer-alive")
             await this.send({ action : Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, peer : this.peerId })*/
-            await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, "peer-alive")
+            await this.ipfs.pubsub.publish(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY, new Uint8Array("peer-alive"))
         }.bind(this), Constants.TIMEOUTS.DISCOVERY);
     }
 
@@ -279,15 +281,19 @@ class NetworkManager{
         let me = await this.ipfs.id();
         me = me.id;
         // not really an announcement if it's from us
-        if (addr.from === me) {
+        //if (addr.from === me) {
+        if (addr.receivedFrom === me) {
             return;
         }
-        console.log('Get Anoounce from %s', addr.from)
-        if (addr === "keep-alive") {
+        //console.log('Get Anoounce from %s', addr.from)
+        console.log('Get Anoounce from %s', addr.receivedFrom)
+        //if (addr === "keep-alive") {
+        if (Buffer.from(addr.data).toString() === "keep-alive") {
             return;
         }
 
-        let peer = addr.from;
+        //let peer = addr.from;
+        let peer = addr.receivedFrom;
         if (peer === me) {
             return;
         }
@@ -330,9 +336,10 @@ class NetworkManager{
                 return
             else
                 this.receivedMessages.push(message.id)*/
-            if(message.from === this.peerId) return
+            //if(message.from === this.peerId) return
+            if(message.receivedFrom === this.peerId) return
             let data = JSON.parse(Buffer.from(fflate.unzlibSync(message.data)).toString())//JSON.parse(LZUTF8.decompress(message.data));
-            //console.log(`Got Message from ${message.from} - ${data.action} - ${data.id}`)
+            console.log(`Got Message from ${message.receivedFrom} - ${data.action} - ${data.id}`)
             //console.log(data)
             switch(data.action){
                 case Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.ACTIONS.DISCOVERY:
