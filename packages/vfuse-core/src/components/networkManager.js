@@ -28,6 +28,7 @@ const  { isNode, isBrowser } = require("browser-or-node")
 const NodeFetch = isNode ? require('node-fetch') : null
 const Constants = require("./constants")
 const FloodSub = require("libp2p-floodsub");
+const { SignaturePolicy } = require('libp2p-interfaces/src/pubsub/signature-policy')
 
 class NetworkManager{
     /**
@@ -206,18 +207,22 @@ class NetworkManager{
             const transportKey = WebSockets.prototype[Symbol.toStringTag]
             opt.libp2p = {
                 modules: {
-                    pubsub: FloodSub//Gossipsub
+                    pubsub: Gossipsub
                 },
-               /* config: {
-                    transport: {
+                config: {
+                    /*transport: {
                         // This is added for local demo!
                         // In a production environment the default filter should be used
                         // where only DNS + WSS addresses will be dialed by websockets in the browser.
                         [transportKey]: {
                             filter: filters.all
                         }
+                    }*/
+                    pubsub: {
+                        signMessages: false,
+                        strictSigning: false
                     }
-                },*/
+                },
                 ...opt.libp2p
             }
         //}
