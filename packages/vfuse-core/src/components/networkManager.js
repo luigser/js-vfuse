@@ -219,8 +219,9 @@ class NetworkManager{
                         }
                     }*/
                     pubsub: {
-                        signMessages: false,
-                        strictSigning: false
+                        /*signMessages: false,
+                        strictSigning: false*/
+                        globalSignaturePolicy: SignaturePolicy.StrictNoSign
                     }
                 },
                 ...opt.libp2p
