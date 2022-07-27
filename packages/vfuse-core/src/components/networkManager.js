@@ -218,11 +218,11 @@ class NetworkManager{
                             filter: filters.all
                         }
                     }*/
-                    pubsub: {
-                        /*signMessages: false,
-                        strictSigning: false*/
+                    /*pubsub: {
+                        //signMessages: false,
+                        //strictSigning: false
                         globalSignaturePolicy: SignaturePolicy.StrictNoSign
-                    }
+                    }*/
                 },
                 ...opt.libp2p
             }
