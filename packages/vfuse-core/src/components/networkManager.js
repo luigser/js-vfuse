@@ -27,6 +27,7 @@ const fflate = require('fflate')
 const  { isNode, isBrowser } = require("browser-or-node")
 const NodeFetch = isNode ? require('node-fetch') : null
 const Constants = require("./constants")
+const FloodSub = require("libp2p-floodsub");
 
 class NetworkManager{
     /**
@@ -201,13 +202,13 @@ class NetworkManager{
         }*/
 
         //if(isBrowser){
-           /* const filters = require('libp2p-websockets/src/filters')
+            const filters = require('libp2p-websockets/src/filters')
             const transportKey = WebSockets.prototype[Symbol.toStringTag]
             opt.libp2p = {
                 modules: {
-                    pubsub: Gossipsub
+                    pubsub: FloodSub//Gossipsub
                 },
-                config: {
+               /* config: {
                     transport: {
                         // This is added for local demo!
                         // In a production environment the default filter should be used
@@ -216,9 +217,9 @@ class NetworkManager{
                             filter: filters.all
                         }
                     }
-                },
+                },*/
                 ...opt.libp2p
-            }*/
+            }
         //}
 
         let node = await IPFS.create(opt)

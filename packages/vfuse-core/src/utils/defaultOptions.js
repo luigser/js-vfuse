@@ -175,7 +175,7 @@ module.exports = {
                     },
                     Pubsub:{
                         Enabled : true,
-                        Router: 'floodsub',//'gossipsub'
+                        //Router: 'floodsub',//'gossipsub'
                         /*DisableSigning: true,
                         Router: ""*/
                     },
@@ -237,7 +237,7 @@ module.exports = {
                      },
                     Pubsub:{
                         Enabled : true,
-                        Router: 'floodsub',//'gossipsub'
+                        //Router: 'floodsub',//'gossipsub'
                     }
                 }
             },
