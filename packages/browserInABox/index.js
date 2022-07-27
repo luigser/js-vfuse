@@ -11,11 +11,15 @@ const browserInABox = async () => {
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--incognito',
-            "--full-memory-crash-report",
+            '--disable-infobars',
+            '--full-memory-crash-report',
+            '--enable-precise-memory-info',
+            '--unlimited-storage',
+            '--max_old_space_size=32768',
+            //'-shm-size=10gb',
+            '--js-flags="--max-old-space-size=32768"',//32768*/
             "--enable-precise-memory-info",
-            "--unlimited-storage",
-            "--max_old_space_size=4096",
-            /*'--js-flags="--max-old-space-size=4096"'//32768*/
+            /*'--js-flags="--expose-gc"'*/
         ]
     })
     const page = await browser.newPage()
@@ -38,7 +42,7 @@ const browserInABox = async () => {
     input = await page.waitForSelector('#bootstrap');
     await input.click({ clickCount: 3 })
     await page.keyboard.press('Backspace');
-    await input.type(`/dns4/${IP}/tcp/4002/wss/p2p/12D3KooWCDd6htkCexxsbs6HLnoqrXJ57T62sPZ5q34RShy28HVs\n`)
+    await input.type(`/dns4/${IP}/tcp/4002/wss/p2p/12D3KooWDNzDLuz5NfA44CJVPggGW9LGNELK6mucnHHoW82JdNmL\n`)
 
     let el = await page.waitForSelector('#start_node');
     await page.click(el._remoteObject.description);

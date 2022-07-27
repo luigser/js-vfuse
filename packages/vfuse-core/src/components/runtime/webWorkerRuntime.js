@@ -132,7 +132,7 @@ class WebWorkerRuntime {
     }*/
 
     async exec(job, worker, runningCallback) {
-        if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) worker.webworker = this.worker.getWebWorker()
+        //if(this.language === Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT) worker.webworker = this.worker.getWebWorker()
         const promise = new Promise((resolve, reject) => {
             worker.webworker.onmessage = async(e) => {
                 const { action, results } = e.data

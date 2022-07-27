@@ -15,6 +15,7 @@ export const useVFuse = () => {
                 let options =  {
                     localStorage: true,
                     computation: true,
+                    maintainRunningState: false,
                     preferences: {
                         MAX_CONCURRENT_JOBS : 4
                     },

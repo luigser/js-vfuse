@@ -107,7 +107,6 @@ class WorkflowManager{
                 let workflow = await this.contentManager.get('/workflows/private/' + workflows[w])
                 workflow.published = !!this.publishedWorkflows.find(wf => wf.workflow_id === workflow.id)
                 this.workflows.push(workflow)
-
             }
             await this.loadRunningWorkflows()
 
