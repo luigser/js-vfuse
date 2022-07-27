@@ -47,15 +47,21 @@ class VFuseProxy{
         }).listen(props.bootstrap.wsProxyPort, '0.0.0.0');
         proxy.on('error', function (err, req, res) {
             console.log('Got some error in proxy: ' + err)
-            res.writeHead(500, {
+            /*res.writeHead(500, {
                 'Content-Type': 'text/plain'
             });
 
-            res.end('Something went wrong. And we are reporting a custom error message.');
+            res.end('Something went wrong. And we are reporting a custom error message.');*/
         });
 
         proxy.on('proxyRes', function (proxyRes, req, res) {
             console.log('RAW Response from the target', JSON.stringify(proxyRes.headers, true, 2));
+            const bodyData = JSON.stringify(req.body);
+            // In case if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+            proxyRes.setHeader('Content-Type','application/json');
+            proxyRes.setHeader('Content-Length', Buffer.byteLength(bodyData));
+            // Stream the content
+            proxyRes.write(bodyData)
         });
         //console.log("Proxy listening on wss://0.0.0.0:%s", props.bootstrap.wsProxyPort)
         //SIGNAL SERVER PROXY
