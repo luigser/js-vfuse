@@ -1,0 +1,41 @@
+#!/usr/bin/env node
+
+var split = require('split')
+var toPull = require('stream-to-pull-stream')
+var pull = require('pull-stream')
+
+x = 0;
+max=null;
+result= new Map();
+
+
+pull(
+  toPull.source(process.stdin.pipe(split(undefined, null, { trailing: false }))),
+  pull.drain(function (chunk) {
+      json = JSON.parse(chunk)
+  
+  for (let [key, value] of Object.entries(json)){
+	if(result.has(key)){
+		tvalue = result.get(key)+value
+	} else {
+		tvalue = value
+	}
+	result.set(key, tvalue)
+  } 
+  }, function () {
+    
+  })
+)
+
+
+process.stdin.on('end', function(){
+  console.log("--------------end")
+  max = result.entries().next().value
+  
+  for(let value of result.entries()) {
+	if(value[1] > max[1])
+		max = value
+  }
+  console.log("max is " + max)
+})
+
