@@ -1,0 +1,3 @@
+#!/bin/bash
+echo 'starting square, will print 1**2, 2**2, ...'
+seq 64 | pando map.js --stdin --headless| ./reduce
