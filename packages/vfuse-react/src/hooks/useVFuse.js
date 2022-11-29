@@ -5,8 +5,6 @@ import {gStore} from "../store";
 
 export const useVFuse = () => {
 
-
-
     const getNode = async(signalServer, bootstraps, pinningServer, delegateNode) => {
         let node = null
         try {

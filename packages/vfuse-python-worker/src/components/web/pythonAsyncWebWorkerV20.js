@@ -1,5 +1,5 @@
 const worker_code = () => {
-    importScripts('https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js');
+    importScripts('https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js');
 
     self.running = false
 
@@ -256,7 +256,7 @@ const worker_code = () => {
         "    async def addJobToGroup(job_id, group):\n" +
         "        return await JSVFuse.addJobToGroup(job_id, group)\n" +
         "    @staticmethod\n" +
-        "    def execute(func, data = None):\n" +
+        "    async def execute(func, data = None):\n" +
         "        code = bytes(func.to_py().values())\n" +
         "        if data != None and type(data) != str and type(data) != int and type(data) != float:\n" +
         "            data = data.to_py()\n" +
@@ -343,7 +343,7 @@ const worker_code = () => {
                     }
 
                     let start = performance.now()
-                    let results = await self.pyodide.runPythonAsync(!job.inline ?  `VFuse.execute(function_to_run, input)` : job.code)
+                    let results = await self.pyodide.runPythonAsync(!job.inline ?  `await VFuse.execute(function_to_run, input)` : job.code)
                     let executionTime = performance.now() - start
                     self.postMessage(
                         {

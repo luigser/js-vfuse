@@ -1,7 +1,7 @@
 const matrix1 = [ [1,2],[3,4],[5,6] ]
 const matrix2 = [ [1,2,3],[4,5,6] ]
 
-function multiplyElements(input){
+function calculateElement(input){
     let row = input[0]
     let col = input[1]
     let indexes = input[2]
@@ -34,7 +34,7 @@ for(let i=0; i < matrix1.length;i++){
         for(let j=0; j < matrix2.length; j++){
             col.push(matrix2[j][k])
         }
-        let job_id = await VFuse.addJob(multiplyElements, [], [matrix1[i], col, { row: i, col: k}], 'matrix_element')
+        let job_id = await VFuse.addJob(calculateElement, [], [matrix1[i], col, { row: i, col: k}], 'matrix_element')
         row_multiply_jobs.push(job_id)
     }
     await VFuse.addJob(assembleRow, row_multiply_jobs, [], 'matrix_row')

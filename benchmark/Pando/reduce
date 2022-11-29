@@ -7,26 +7,20 @@ var pull = require('pull-stream')
 x = 0;
 max=null;
 result= new Map();
-
-
 pull(
   toPull.source(process.stdin.pipe(split(undefined, null, { trailing: false }))),
   pull.drain(function (chunk) {
       json = JSON.parse(chunk)
-  
-  for (let [key, value] of Object.entries(json)){
-	if(result.has(key)){
-		tvalue = result.get(key)+value
-	} else {
-		tvalue = value
-	}
-	result.set(key, tvalue)
-  } 
-  }, function () {
-    
-  })
+      for (let [key, value] of Object.entries(json)){
+          if(result.has(key)){
+              tvalue = result.get(key)+value
+          } else {
+              tvalue = value
+          }
+          result.set(key, tvalue)
+      }
+  }, function () {})
 )
-
 
 process.stdin.on('end', function(){
   console.log("--------------end")

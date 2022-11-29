@@ -1,6 +1,6 @@
-async function map(data){
+async function map(index){
     let mapped = new Map()
-    let input = await VFuse.getDataFromUrl("https://raw.githubusercontent.com/giusdam/data/main/wordcount1-64.txt")
+    let input = await VFuse.getDataFromUrl(`https://raw.githubusercontent.com/giusdam/data/main/wordcount${index}-64.txt`)
     input.split(/\W+/).map(word => {
         if(word !== "")
             mapped.set(word, mapped.has(word) ? mapped.get(word) + 1 : 1)
@@ -21,8 +21,8 @@ function reduce(data){
     return max
 }
 
-for(let i = 0; i < 1; i++){
-    await VFuse.addJob(map, [], null)
+for(let i = 0; i < 64; i++){
+    await VFuse.addJob(map, [], i)
 }
 
 await VFuse.addJob(reduce, ['^map'])//wait for all reduce results and call combine
