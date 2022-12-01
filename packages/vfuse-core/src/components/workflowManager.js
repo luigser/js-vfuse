@@ -388,7 +388,7 @@ class WorkflowManager{
                             JobsDAG.setNodeState(
                                 workflow_to_run.jobsDAG,
                                 entry.node,
-                                entry.node.job.status === Constants.JOB.STATUS.ENDLESS ? Constants.JOB.STATUS.ENDLESS : Constants.JOB.STATUS.COMPLETED,
+                                entry.node.job.status === Constants.JOB.STATUS.REPEATING ? Constants.JOB.STATUS.REPEATING : Constants.JOB.STATUS.COMPLETED,
                                 {results: results})
                             //let nodes_to_publish = JobsDAG.getNodesToUpdate(workflow_to_run.jobsDAG)
                             //let message_id =await PeerId.create({bits: 1024, keyType: 'RSA'})
@@ -483,7 +483,7 @@ class WorkflowManager{
                         if ((!this.jobsExecutionQueue.find( j => j === result_node.job.id)) &&
                             (local_job_node.job.status !== Constants.JOB.STATUS.COMPLETED ||
                                 (local_job_node.job.status === Constants.JOB.STATUS.WAITING && result_node.job.status === Constants.JOB.STATUS.READY))) {
-                            if(local_job_node.job.status === Constants.JOB.STATUS.ENDLESS) {
+                            if(local_job_node.job.status === Constants.JOB.STATUS.REPEATING) {
                                 JobsDAG.combineResults(result_node, local_job_node)
                             }
 

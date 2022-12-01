@@ -18,11 +18,11 @@ class JobsDAGVertex{
 
 class JobsDAG {
 
-    static getReadyNodes = (JSONJobsDAG) =>  JSONJobsDAG.nodes.filter( n => n.job && (n.job.status === Constants.JOB.STATUS.READY || n.job.status === Constants.JOB.STATUS.ENDLESS))
+    static getReadyNodes = (JSONJobsDAG) =>  JSONJobsDAG.nodes.filter( n => n.job && (n.job.status === Constants.JOB.STATUS.READY || n.job.status === Constants.JOB.STATUS.REPEATING))
 
     static getNodesToUpdate = (JSONJobsDAG) => JSONJobsDAG.nodes.filter(n => n.job &&
         (
-            (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ERROR || n.job.status === Constants.JOB.STATUS.ENDLESS) ||
+            (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ERROR || n.job.status === Constants.JOB.STATUS.REPEATING) ||
             (n.job.status === Constants.JOB.STATUS.READY && n.job.initialStatus === Constants.JOB.STATUS.WAITING)
         )
     )
@@ -32,7 +32,7 @@ class JobsDAG {
     static getOutputNodes(JSONJobDAG){
         //get all nodes with no children
         let outputNodes = JSONJobDAG.nodes.filter(n => {
-            if(n.job && (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.ENDLESS)){
+            if(n.job && (n.job.status === Constants.JOB.STATUS.COMPLETED || n.job.status === Constants.JOB.STATUS.REPEATING)){
                 let edges = JSONJobDAG.edges.filter(e => e.from === n.id)
                 if(edges.length === 0)
                     return n
@@ -80,7 +80,7 @@ class JobsDAG {
                     node.job.results = data.results.results//ResultsUtils.combine(node.job.results, data.results.results)
                     node.job.executionTime = data.results.executionTime
                     break
-                case Constants.JOB.STATUS.ENDLESS:
+                case Constants.JOB.STATUS.REPEATING:
                     node.job.results = ResultsUtils.combine(node.job.results, data.results.results)
                     break
             }
@@ -133,7 +133,7 @@ class JobsDAG {
                     if (!nx.job.results || nx.job.results.length === 0) isReady = false
                 }
             }
-            if (isReady && dependent_node.job.status !== Constants.JOB.STATUS.ENDLESS) {
+            if (isReady && dependent_node.job.status !== Constants.JOB.STATUS.REPEATING) {
                 dependent_node.job.status = Constants.JOB.STATUS.READY
                 dependent_node.color = Utils.getColor(Constants.JOB.STATUS.READY)
             }
@@ -284,9 +284,9 @@ class JobsDAG {
         try{
             let vertex = this.vertices.get(job_id)
             if(vertex){
-                vertex.job.status = Constants.JOB.STATUS.ENDLESS
-                vertex.job.initialStatus = Constants.JOB.STATUS.ENDLESS
-                vertex.color = Utils.getColor(Constants.JOB.STATUS.ENDLESS)
+                vertex.job.status = Constants.JOB.STATUS.REPEATING
+                vertex.job.initialStatus = Constants.JOB.STATUS.REPEATING
+                vertex.color = Utils.getColor(Constants.JOB.STATUS.REPEATING)
                 return vertex.job.id
             }else{
                 return null
