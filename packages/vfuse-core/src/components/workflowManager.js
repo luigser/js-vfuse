@@ -465,7 +465,7 @@ class WorkflowManager{
                                 workflow.numOfReceivedResults += node.receivedResults.length
                         }*/
                         await this.unsubmitWorkflow(workflow.id)
-                        this.eventManager.emit(Constants.EVENTS.WORKFLOW_UPDATE, workflow)
+                        this.eventManager.emit(Constants.EVENTS.WORKFLOW_COMPLETED, workflow)
 
                         let max_job_execution_time = JobsDAG.getMaxJobExecutionTime(workflow.jobsDAG)
                         console.log(`Max job execution time : ${max_job_execution_time} ms`)

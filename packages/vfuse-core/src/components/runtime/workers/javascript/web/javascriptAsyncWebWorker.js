@@ -282,6 +282,10 @@ const worker_code = () => {
                         }else{
                             job.code +=  typeof job.data !== 'number' ? `\nreturn ${job.name}(\`${job.data}\`)` :  `\nreturn ${job.name}(${job.data})`
                         }
+                    }else{
+                        input = JSON.stringify(job.data, escape)
+                        job.code = `\nlet worflow_input = JSON.parse(\`${input}\`)`+ job.code
+
                     }
                     let F = new AsyncFunction('', job.code )
                     //console.log('Run job')
