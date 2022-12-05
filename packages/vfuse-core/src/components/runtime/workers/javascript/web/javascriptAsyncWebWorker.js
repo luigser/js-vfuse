@@ -284,7 +284,8 @@ const worker_code = () => {
                         }
                     }else{
                         input = JSON.stringify(job.data, escape)
-                        job.code = `\nlet worflow_input = JSON.parse(\`${input}\`)`+ job.code
+                        if(input)
+                           job.code = `\nlet input = JSON.parse(\`${input}\`)\n`+ job.code
 
                     }
                     let F = new AsyncFunction('', job.code )
