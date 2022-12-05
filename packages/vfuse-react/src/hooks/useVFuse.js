@@ -15,7 +15,7 @@ export const useVFuse = () => {
                     computation: true,
                     maintainRunningState: false,
                     preferences: {
-                        MAX_CONCURRENT_JOBS : 4
+                        MAX_CONCURRENT_JOBS : 1
                     },
                     ipfs:{
                         config: {
