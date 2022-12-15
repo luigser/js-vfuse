@@ -4,7 +4,7 @@
 
 const PeerId = require('peer-id')
 const log = require('debug')('vfuse:workflowManager')
-const RuntimeManager = require('./runtimeManager')
+const RuntimeManager = require('./computingModule')
 const Workflow = require('./job/workflow')
 const Job = require('./job/job')
 const {JobsDAG} = require('./job/JobsDAG')
@@ -13,9 +13,9 @@ const Constants = require('./constants')
 const MathJs = require('mathjs')
 const lodash = require('lodash')
 /*
-WorkflowManager is responsible for job management and execution
+WorkflowModule is responsible for job management and execution
  */
-class WorkflowManager{
+class WorkflowModule {
     /**
      * @param {Object} networkmanager
      * @param {Object} options
@@ -755,7 +755,7 @@ class WorkflowManager{
         }
     }
 
-    async getFromNetwork(cid){
+    async getData(cid){
         try{
             return await this.contentManager.getFromNetwork(cid)
         }catch (e) {
@@ -796,9 +796,9 @@ class WorkflowManager{
         }
     }
 
-    async setEndlessJob(job_id){
+    async setRepeating(job_id){
         try{
-            let result = this.currentWorkflow.jobsDAG.setEndlessJob(job_id)
+            let result = this.currentWorkflow.jobsDAG.setRepeating(job_id)
             return result
         }catch (e){
             console.log('Got some error setting endless job: %O', e)
@@ -817,7 +817,7 @@ class WorkflowManager{
 
     async addJobToGroup(job_id, group){
         try{
-            return this.currentWorkflow.jobsDAG.addJobToGroup(job_id, group)
+            return this.currentWorkflow.jobsDAG.addToGroup(job_id, group)
         }catch (e){
             console.log('Got some error adding job to group: %O', e)
             return {error : e.message}
@@ -878,4 +878,4 @@ class WorkflowManager{
 
 }
 
-module.exports = WorkflowManager
+module.exports = WorkflowModule

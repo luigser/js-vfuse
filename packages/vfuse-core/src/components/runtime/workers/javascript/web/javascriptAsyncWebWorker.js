@@ -79,13 +79,13 @@ const worker_code = () => {
             return promise
         },
 
-        saveOnNetwork : (data, json) => {
+        saveData : (data, json) => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
-                        if(func === 'saveOnNetwork')
+                        if(func === 'saveData')
                             resolve(e.data.data.cid)
                         self.onmessage = onmessage
                     }
@@ -95,7 +95,7 @@ const worker_code = () => {
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
-                    func: 'saveOnNetwork',
+                    func: 'saveData',
                     params: JSON.stringify({
                         data : convert(data),
                         json : json
@@ -106,13 +106,13 @@ const worker_code = () => {
             return promise
         },
 
-        getFromNetwork : (cid) => {
+        getData : (cid) => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
-                        if(func === 'getFromNetwork')
+                        if(func === 'getData')
                             resolve(e.data.data.content)
                         self.onmessage = onmessage
                     }
@@ -122,7 +122,7 @@ const worker_code = () => {
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
-                    func: 'getFromNetwork',
+                    func: 'getData',
                     params: JSON.stringify({
                         cid : cid,
                     })
@@ -132,13 +132,13 @@ const worker_code = () => {
             return promise
         },
 
-        setEndlessJob : (job_id) => {
+        setRepeating : (job_id) => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
-                        if(func === 'setEndlessJob')
+                        if(func === 'setRepeating')
                             resolve(e.data.data.result)
                         self.onmessage = onmessage
                     }
@@ -148,7 +148,7 @@ const worker_code = () => {
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
-                    func: 'setEndlessJob',
+                    func: 'setRepeating',
                     params: JSON.stringify({
                         job_id : job_id,
                     })
@@ -157,13 +157,13 @@ const worker_code = () => {
 
             return promise
         },
-        addJobToGroup : (job_id, group) => {
+        addToGroup : (job_id, group) => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
-                        if(func === 'addJobToGroup')
+                        if(func === 'addToGroup')
                             resolve(e.data.data.result)
                         self.onmessage = onmessage
                     }
@@ -173,7 +173,7 @@ const worker_code = () => {
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
-                    func: 'addJobToGroup',
+                    func: 'addToGroup',
                     params: JSON.stringify({
                         job_id : job_id,
                         group: group

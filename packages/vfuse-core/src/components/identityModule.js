@@ -5,7 +5,7 @@ const {isNode, isBrowser} = require("browser-or-node");
 
 //const log = require('debug')('vfuse:profile')
 
-class IdentityManager {
+class IdentityModule {
     /**
      * @param {Object} networkManager
      * @param {Object} options
@@ -208,4 +208,4 @@ class IdentityManager {
     }
 }
 
-module.exports = IdentityManager
+module.exports = IdentityModule

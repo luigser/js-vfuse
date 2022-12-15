@@ -87,13 +87,13 @@ const VFuseAPICaller = {
         return promise
     },
 
-    saveOnNetwork : (data, json) => {
+    saveData : (data, json) => {
         const promise = new  Promise( (resolve, reject) => {
             parentPort.onmessage = (e) => {
                 const {action} = e.data
                 if (action === 'VFuse:runtime') {
                     const {func} = e.data.data
-                    if(func === 'saveOnNetwork')
+                    if(func === 'saveData')
                         resolve(e.data.data.cid)
                     parentPort.onmessage = onmessage
                 }
@@ -103,7 +103,7 @@ const VFuseAPICaller = {
         parentPort.postMessage({
             action: 'VFuse:worker',
             todo: {
-                func: 'saveOnNetwork',
+                func: 'saveData',
                 params: JSON.stringify({
                     data : data,
                     json : json
@@ -114,13 +114,13 @@ const VFuseAPICaller = {
         return promise
     },
 
-    getFromNetwork : (cid) => {
+    getData : (cid) => {
         const promise = new  Promise( (resolve, reject) => {
             parentPort.onmessage = (e) => {
                 const {action} = e.data
                 if (action === 'VFuse:runtime') {
                     const {func} = e.data.data
-                    if(func === 'getFromNetwork')
+                    if(func === 'getData')
                         resolve(e.data.data.content)
                     parentPort.onmessage = onmessage
                 }
@@ -130,7 +130,7 @@ const VFuseAPICaller = {
         parentPort.postMessage({
             action: 'VFuse:worker',
             todo: {
-                func: 'getFromNetwork',
+                func: 'getData',
                 params: JSON.stringify({
                     cid : cid,
                 })
@@ -140,13 +140,13 @@ const VFuseAPICaller = {
         return promise
     },
 
-    setEndlessJob : (job_id) => {
+    setRepeating : (job_id) => {
         const promise = new  Promise( (resolve, reject) => {
             parentPort.onmessage = (e) => {
                 const {action} = e.data
                 if (action === 'VFuse:runtime') {
                     const {func} = e.data.data
-                    if(func === 'setEndlessJob')
+                    if(func === 'setRepeating')
                         resolve(e.data.data.result)
                     parentPort.onmessage = onmessage
                 }
@@ -156,7 +156,7 @@ const VFuseAPICaller = {
         parentPort.postMessage({
             action: 'VFuse:worker',
             todo: {
-                func: 'setEndlessJob',
+                func: 'setRepeating',
                 params: JSON.stringify({
                     job_id : job_id,
                 })
@@ -165,13 +165,13 @@ const VFuseAPICaller = {
 
         return promise
     },
-    addJobToGroup : (job_id, group) => {
+    addJobGroup : (job_id, group) => {
         const promise = new  Promise( (resolve, reject) => {
             parentPort.onmessage = (e) => {
                 const {action} = e.data
                 if (action === 'VFuse:runtime') {
                     const {func} = e.data.data
-                    if(func === 'addJobToGroup')
+                    if(func === 'addJobGroup')
                         resolve(e.data.data.result)
                     parentPort.onmessage = onmessage
                 }
@@ -181,7 +181,7 @@ const VFuseAPICaller = {
         parentPort.postMessage({
             action: 'VFuse:worker',
             todo: {
-                func: 'addJobToGroup',
+                func: 'addJobGroup',
                 params: JSON.stringify({
                     job_id : job_id,
                     group: group

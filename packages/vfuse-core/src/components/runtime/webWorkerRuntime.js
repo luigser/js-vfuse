@@ -195,12 +195,12 @@ class WebWorkerRuntime {
                                 }
                                 break
                             case 'saveOnNetwork':
-                                let cid = await this.runtimeManager.saveOnNetwork(p.data, p.json)
+                                let cid = await this.runtimeManager.saveData(p.data)
                                 if(cid && !cid.error) {
                                     worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
-                                            func: "saveOnNetwork",
+                                            func: "saveData",
                                             cid: cid
                                         }
                                     })
@@ -208,20 +208,20 @@ class WebWorkerRuntime {
                                     worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
-                                            func: "saveOnNetwork",
+                                            func: "saveData",
                                             error : cid.error.toString()
                                         }
                                     })
                                     resolve({results: {error : cid.error.toString()}})
                                 }
                                 break
-                            case 'getFromNetwork':
+                            case 'getData':
                                 let data = await this.runtimeManager.getFromNetwork(p.cid)
                                 if(data && !data.error) {
                                     worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
-                                            func: "getFromNetwork",
+                                            func: "getData",
                                             content: data
                                         }
                                     })
@@ -229,20 +229,20 @@ class WebWorkerRuntime {
                                     worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
-                                            func: "getFromNetwork",
+                                            func: "getData",
                                             error : data.error.toString()
                                         }
                                     })
                                     resolve({results: {error : data.error.toString()}})
                                 }
                                 break
-                            case 'setEndlessJob':
-                                let sejResult = await this.runtimeManager.setEndlessJob(p.job_id)
+                            case 'setRepeating':
+                                let sejResult = await this.runtimeManager.setRepeating(p.job_id)
                                 if(sejResult && !sejResult.error) {
                                     worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
-                                            func: "setEndlessJob",
+                                            func: "setRepeating",
                                             result: sejResult
                                         }
                                     })
@@ -250,7 +250,7 @@ class WebWorkerRuntime {
                                     worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
-                                            func: "setEndlessJob",
+                                            func: "setRepeating",
                                             error : sejResult.error.toString()
                                         }
                                     })
@@ -278,13 +278,13 @@ class WebWorkerRuntime {
                                     resolve({results: {error : sjrtResult.error.toString()}})
                                 }
                                 break
-                            case 'addJobToGroup':
-                                let atgResult = await this.runtimeManager.addJobToGroup(p.job_id, p.group)
+                            case 'addToGroup':
+                                let atgResult = await this.runtimeManager.addToGroup(p.job_id, p.group)
                                 if(atgResult && !atgResult.error) {
                                     worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
-                                            func: "addJobToGroup",
+                                            func: "addToGroup",
                                             result: atgResult
                                         }
                                     })
@@ -292,7 +292,7 @@ class WebWorkerRuntime {
                                     worker.webworker.postMessage({
                                         action: 'VFuse:runtime',
                                         data: {
-                                            func: "addJobToGroup",
+                                            func: "addToGroup",
                                             error : atgResult.error.toString()
                                         }
                                     })

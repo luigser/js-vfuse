@@ -155,7 +155,7 @@ class NodeWorkerThreadRuntime {
                                 }
                                 break
                             case 'saveOnNetwork':
-                                let cid = await this.runtimeManager.saveOnNetwork(p.data, p.json)
+                                let cid = await this.runtimeManager.saveData(p.data)
                                 if(cid && !cid.error) {
                                     worker.worker.postMessage({
                                         action: 'VFuse:runtime',
@@ -197,7 +197,7 @@ class NodeWorkerThreadRuntime {
                                 }
                                 break
                             case 'setEndlessJob':
-                                let sejResult = await this.runtimeManager.setEndlessJob(p.job_id)
+                                let sejResult = await this.runtimeManager.setRepeating(p.job_id)
                                 if(sejResult && !sejResult.error) {
                                     worker.worker.postMessage({
                                         action: 'VFuse:runtime',
@@ -239,7 +239,7 @@ class NodeWorkerThreadRuntime {
                                 }
                                 break
                             case 'addJobToGroup':
-                                let atgResult = await this.runtimeManager.addJobToGroup(p.job_id, p.group)
+                                let atgResult = await this.runtimeManager.addToGroup(p.job_id, p.group)
                                 if(atgResult && !atgResult.error) {
                                     worker.worker.postMessage({
                                         action: 'VFuse:runtime',

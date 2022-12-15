@@ -30,7 +30,7 @@ const Constants = require("./constants")
 const FloodSub = require("libp2p-floodsub");
 const { SignaturePolicy } = require('libp2p-interfaces/src/pubsub/signature-policy')
 
-class NetworkManager{
+class NetworkComponent {
     /**
      * @param {Object} config
      * @param {Options} config.options
@@ -251,7 +251,7 @@ class NetworkManager{
     }
 
     /**
-     * @param {NetworkManager} network
+     * @param {NetworkComponent} network
      */
     async stop(){
         await this.ipfs.pubsub.unsubscribe(Constants.TOPICS.VFUSE_PUBLISH_CHANNEL.NAME, null)
@@ -776,4 +776,4 @@ class NetworkManager{
 
 }
 
-module.exports = NetworkManager
+module.exports = NetworkComponent

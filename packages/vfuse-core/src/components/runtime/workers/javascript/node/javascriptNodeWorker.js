@@ -79,11 +79,11 @@ class JavascriptNodeWorker {
             VFuse : {
                 addJob: async (name, func, deps, input, group) => await this.runtime.addJob(name, func, deps, input, group),
                 getDataFromUrl: async (url, start, end) => await this.runtime.getDataFromUrl(url, start, end),
-                saveOnNetwork: async (data, json) => await this.runtime.saveOnNetwork(data, json),
-                getFromNetwork: async (cid) => await this.runtime.getFromNetwork(cid),
-                setEndlessJob: async (job_id) => await this.runtime.setEndlessJob(job_id),
+                saveData: async (data, json) => await this.runtime.saveData(data),
+                getData: async (cid) => await this.runtime.getData(cid),
+                setRepeating: async (job_id) => await this.runtime.setRepeating(job_id),
                 setJobReturnType: async (job_id, type) => await this.runtime.setJobReturnType(job_id, type),
-                addJobToGroup: async (job_id, group) => await this.runtime.addJobToGroup(job_id, group)
+                addToGroup: async (job_id, group) => await this.runtime.addToGroup(job_id, group)
             },
             results : null
         }

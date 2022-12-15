@@ -32,8 +32,8 @@ function estimatePi(data){
 }
 
 let job_id = await VFuse.addJob(getPoints, [], 1000)
-await VFuse.setEndlessJob(job_id)
+await VFuse.setRepeating(job_id)
 
 job_id = await VFuse.addJob(estimatePi, ['getPoints'])
-await VFuse.setEndlessJob(job_id)
+await VFuse.setRepeating(job_id)
 

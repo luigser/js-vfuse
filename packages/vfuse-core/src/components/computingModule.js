@@ -3,7 +3,7 @@ const  { isNode, isWebWorker, isBrowser } = require('browser-or-node');
 const JavascriptWorker = require('./runtime/workers/javascript/javascriptWorker')
 const Constants = require('./constants')
 
-class RuntimeManager{
+class ComputingModule {
     constructor(options, workflowManager, eventManager) {
         this.workflowManager = workflowManager
         this.eventManager = eventManager
@@ -93,9 +93,9 @@ class RuntimeManager{
         }
     }
 
-    async setEndlessJob(job_id){
+    async setRepeating(job_id){
         try {
-            return this.workflowManager.setEndlessJob(job_id)
+            return this.workflowManager.setRepeating(job_id)
         }catch (e) {
             console.log(e)
         }
@@ -109,9 +109,9 @@ class RuntimeManager{
         }
     }
 
-    async addJobToGroup(job_id, group){
+    async addToGroup(job_id, group){
         try {
-            return this.workflowManager.addJobToGroup(job_id, group)
+            return this.workflowManager.addToGroup(job_id, group)
         }catch (e) {
             console.log(e)
         }
@@ -125,15 +125,15 @@ class RuntimeManager{
         }
     }
 
-    async saveOnNetwork(data){
+    async saveData(data){
         try {
-            return this.workflowManager.saveOnNetwork(data)
+            return this.workflowManager.saveData(data)
         }catch (e) {
             console.log(e)
         }
     }
 
-    async getFromNetwork(cid){
+    async getData(cid){
         try {
             return this.workflowManager.getFromNetwork(cid)
         }catch (e) {
@@ -143,4 +143,4 @@ class RuntimeManager{
 
 }
 
-module.exports = RuntimeManager
+module.exports = ComputingModule

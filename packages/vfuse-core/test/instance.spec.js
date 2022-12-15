@@ -72,7 +72,7 @@ describe('Get profile',  () => {
         options.worker = PythonWorker.getWebWorker()
         const node = await VFuse.create(options)
         expect(node).to.exist()
-        console.log('PROFILE ID: %s', node.identityManager.id)
+        console.log('PROFILE ID: %s', node.identityModule.id)
 
     }).timeout(30000)
 })

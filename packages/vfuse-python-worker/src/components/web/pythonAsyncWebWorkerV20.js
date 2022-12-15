@@ -92,13 +92,13 @@ const worker_code = () => {
             return promise
         },
 
-        saveOnNetwork : (data, json) => {
+        saveData : (data, json) => {
             const promise = new  Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data;
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
-                        if(func === 'saveOnNetwork')
+                        if(func === 'saveData')
                             resolve(e.data.data.cid)
                         self.onmessage = onmessage
                     }
@@ -108,7 +108,7 @@ const worker_code = () => {
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
-                    func: 'saveOnNetwork',
+                    func: 'saveData',
                     params: JSON.stringify({
                         data : typeof(data) !== 'string' ? data.toJs() : data,
                         json: json
@@ -119,13 +119,13 @@ const worker_code = () => {
             return promise
         },
 
-        getFromNetwork : (cid) => {
+        getData : (cid) => {
             const promise = new Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
-                        if(func === 'getFromNetwork')
+                        if(func === 'getData')
                             resolve(e.data.data.content)
                         self.onmessage = onmessage
                     }
@@ -135,7 +135,7 @@ const worker_code = () => {
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
-                    func: 'getFromNetwork',
+                    func: 'getData',
                     params: JSON.stringify({
                         cid : cid,
                     })
@@ -144,13 +144,13 @@ const worker_code = () => {
 
             return promise
         },
-        setEndlessJob : (job_id) => {
+        setRepeating : (job_id) => {
             const promise = new Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
-                        if(func === 'setEndlessJob')
+                        if(func === 'setRepeating')
                             resolve(e.data.data.result)
                         self.onmessage = onmessage
                     }
@@ -160,7 +160,7 @@ const worker_code = () => {
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
-                    func: 'setEndlessJob',
+                    func: 'setRepeating',
                     params: JSON.stringify({
                         job_id : job_id,
                     })
@@ -170,13 +170,13 @@ const worker_code = () => {
             return promise
         },
 
-        addJobToGroup : (job_id, group) => {
+        addJobGroup : (job_id, group) => {
             const promise = new Promise( (resolve, reject) => {
                 self.onmessage = (e) => {
                     const {action} = e.data
                     if (action === 'VFuse:runtime') {
                         const {func} = e.data.data
-                        if(func === 'addJobToGroup')
+                        if(func === 'addJobGroup')
                             resolve(e.data.data.result)
                         self.onmessage = onmessage
                     }
@@ -186,7 +186,7 @@ const worker_code = () => {
             self.postMessage({
                 action: 'VFuse:worker',
                 todo: {
-                    func: 'addJobToGroup',
+                    func: 'addJobGroup',
                     params: JSON.stringify({
                         job_id : job_id,
                         group: group
@@ -244,17 +244,17 @@ const worker_code = () => {
         "        file = await pyfetch(url, headers)\n" +
         "        return await file.string()\n"*/
         "    @staticmethod\n" +
-        "    async def saveOnNetwork(data, json = True):\n" +
-        "        return await JSVFuse.saveOnNetwork(data, json)\n" +
+        "    async def saveData(data, json = True):\n" +
+        "        return await JSVFuse.saveData(data, json)\n" +
         "    @staticmethod\n" +
-        "    async def getFromNetwork(cid):\n" +
-        "        return await JSVFuse.getFromNetwork(cid)\n" +
+        "    async def getData(cid):\n" +
+        "        return await JSVFuse.getData(cid)\n" +
         "    @staticmethod\n" +
-        "    async def setEndlessJob(job_id):\n" +
-        "        return await JSVFuse.setEndlessJob(job_id)\n" +
+        "    async def setRepeating(job_id):\n" +
+        "        return await JSVFuse.setRepeating(job_id)\n" +
         "    @staticmethod\n" +
-        "    async def addJobToGroup(job_id, group):\n" +
-        "        return await JSVFuse.addJobToGroup(job_id, group)\n" +
+        "    async def addToGroup(job_id, group):\n" +
+        "        return await JSVFuse.addToGroup(job_id, group)\n" +
         "    @staticmethod\n" +
         "    async def execute(func, data = None):\n" +
         "        code = bytes(func.to_py().values())\n" +

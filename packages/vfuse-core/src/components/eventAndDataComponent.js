@@ -6,7 +6,7 @@ const fflate = require('fflate')
 const fs = isBrowser ? null : require('fs');
 const path = isBrowser ? null : require('path')
 
-class ContentManager{
+class EventAndDataComponent {
     constructor(networkManager, eventManager, options){
         this.networkManager = networkManager
         this.eventManager = eventManager
@@ -282,4 +282,4 @@ class ContentManager{
     }
 }
 
-module.exports = ContentManager
+module.exports = EventAndDataComponent

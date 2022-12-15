@@ -53,7 +53,7 @@ class PythonNodeWorker {
                 this.packages.toJs()
             ),
             getDataFromUrl : async (url, start, end, type) => await this.runtime.getDataFromUrl(url, start, end, type),
-            saveOnNetwork : async (data, json) => await this.runtime.saveOnNetwork(typeof(data) !== 'string' ? data.toJs() : data, json)
+            saveOnNetwork : async (data, json) => await this.runtime.saveData(typeof (data) !== 'string' ? data.toJs() : data)
         }
         globalThis.JSVFuse = this.JSVFuse
 

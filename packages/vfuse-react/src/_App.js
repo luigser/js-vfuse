@@ -86,7 +86,7 @@ print(c)`
         }
 
         let node = await VFuse.create(options)
-        console.log("IdentityManager ID: %s",node.identityManager.id)
+        console.log("IdentityModule ID: %s",node.identityModule.id)
 
         console.log('VFuse NODE')
         console.log({node})
@@ -123,7 +123,7 @@ print(c)`,
                     </Space>
                 </Col>
                 <Col span={6} >
-                    <Input placeholder="Your IdentityManager ID here" onChange={onProfileIdChange} />
+                    <Input placeholder="Your IdentityModule ID here" onChange={onProfileIdChange} />
                 </Col>
                 <Col span={4} >
                     <Button type="primary" onClick={start}>Start</Button>

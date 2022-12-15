@@ -14,6 +14,6 @@ def estimatePi(data):
     return sum(data)/(n*1.0)*4
 
 jid = await VFuse.addJob(monteCarloPiPart, [], 10000)
-await VFuse.setEndlessJob(jid)
+await VFuse.setRepeating(jid)
 jid = await VFuse.addJob(estimatePi, [jid])
-await VFuse.setEndlessJob(jid)
+await VFuse.setRepeating(jid)

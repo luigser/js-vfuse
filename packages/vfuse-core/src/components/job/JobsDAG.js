@@ -280,7 +280,7 @@ class JobsDAG {
         }
     }
 
-    setEndlessJob(job_id){
+    setRepeating(job_id){
         try{
             let vertex = this.vertices.get(job_id)
             if(vertex){
@@ -322,7 +322,7 @@ class JobsDAG {
 
     }
 
-    addJobToGroup(job_id, group){
+    addToGroup(job_id, group){
         try{
             let vertex = this.vertices.get(job_id)
             if(vertex){

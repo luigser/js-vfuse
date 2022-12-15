@@ -2,10 +2,10 @@
 
 //const log = require('debug')('vfuse:node')
 const EventManager = require('./eventManager')
-const NetworkManager = require('./networkManager')
-const ContentManager = require('./contentManager')
-const IdentityManager = require('./identityManager')
-const WorkflowManager = require('./workflowManager')
+const NetworkComponent = require('./networkComponent')
+const EventAndDataComponent = require('./eventAndDataComponent')
+const IdentityModule = require('./identityModule')
+const WorkflowModule = require('./workflowModule')
 const Constants = require('./constants')
 const DefaultOptions = require('../utils/defaultOptions')
 const Miscellaneous = require('../utils/miscellaneous')
@@ -23,14 +23,14 @@ class VFuse {
 
     async startManagers(){
         this.eventManager = new EventManager()
-        this.networkManager = new NetworkManager(this.options, this.eventManager)
-        this.contentManager = new ContentManager(this.networkManager, this.eventManager, this.options)
-        await this.networkManager.start()
-        this.identityManager = new IdentityManager(this.contentManager, this.eventManager, this.networkManager.peerId, this.options)
-        this.workflowManager = new WorkflowManager(this.contentManager, this.identityManager, this.eventManager, this.options)
+        this.networkComponent = new NetworkComponent(this.options, this.eventManager)
+        this.eventAndDataComponent = new EventAndDataComponent(this.networkComponent, this.eventManager, this.options)
+        await this.networkComponent.start()
+        this.identityModule = new IdentityModule(this.eventAndDataComponent, this.eventManager, this.networkComponent.peerId, this.options)
+        this.workflowModule = new WorkflowModule(this.eventAndDataComponent, this.identityModule, this.eventManager, this.options)
         //TODO MANAGE IT
-        await this.workflowManager.start()
-        await this.identityManager.checkProfile()
+        await this.workflowModule.start()
+        await this.identityModule.checkProfile()
     }
 
     async start(){
@@ -96,18 +96,18 @@ class VFuse {
 
                 if (this.options.IPFSGateway) {
                     const Gateway = require('ipfs-http-gateway');
-                    this.gateway = new Gateway.HttpGateway(this.networkManager.ipfs);
+                    this.gateway = new Gateway.HttpGateway(this.networkComponent.ipfs);
                     await this.gateway.start();
                     console.log('Gateway started')
                 }
 
                 if (this.options.HttpAPI) {
                     const HttpApi = require('ipfs-http-server')
-                    this.httpApi = new HttpApi(this.networkManager.ipfs)
+                    this.httpApi = new HttpApi(this.networkComponent.ipfs)
                     await this.httpApi.start()
                     console.log('Http API Server started')
                     if (this.httpApi._apiServers.length) {
-                        await this.networkManager.ipfs.repo.setApiAddr(this.httpApi._apiServers[0].info.ma)
+                        await this.networkComponent.ipfs.repo.setApiAddr(this.httpApi._apiServers[0].info.ma)
                     }
                 }
             }
@@ -124,78 +124,78 @@ class VFuse {
     }
 
     getConnectedPeers(){
-        return this.networkManager.getConnectedPeers()
+        return this.networkComponent.getConnectedPeers()
     }
 
     registerTopicListener(callback){
-        this.networkManager.registerTopicListener(callback)
+        this.networkComponent.registerTopicListener(callback)
     }
 
     getProfile(){
-        return this.identityManager.getCurrentProfile()
+        return this.identityModule.getCurrentProfile()
     }
 
     getWorkflows(){
-        return this.workflowManager.getCurrentWorkflows()
+        return this.workflowModule.getCurrentWorkflows()
     }
 
     async getWorkflow(id){
-        return await this.workflowManager.getWorkflow(id)
+        return await this.workflowModule.getWorkflow(id)
     }
 
     async saveWorkflow(name, id, code, language, scheduling){
-       return await this.workflowManager.saveWorkflow(name, id, code, language, scheduling)
+       return await this.workflowModule.saveWorkflow(name, id, code, language, scheduling)
     }
 
     async deleteWorkflow(workflow_id){
-        return await this.workflowManager.deleteWorkflow(workflow_id)
+        return await this.workflowModule.deleteWorkflow(workflow_id)
     }
 
     async submitWorkflow(workflow_id){
-        return await this.workflowManager.submitWorkflow(workflow_id)
+        return await this.workflowModule.submitWorkflow(workflow_id)
     }
     async unsubmitWorkflow(workflow_id){
-        return await this.workflowManager.unsubmitWorkflow(workflow_id)
+        return await this.workflowModule.unsubmitWorkflow(workflow_id)
     }
 
     async getPublishedWorkflows(){
-        return await this.workflowManager.getPublishedWorkflows()
+        return await this.workflowModule.getPublishedWorkflows()
     }
 
     async checkWorkflow(code){
-        return await this.workflowManager.checkWorkflow(code)
+        return await this.workflowModule.checkWorkflow(code)
     }
 
     async testWorkflow(code, language){
-        return await this.workflowManager.testWorkflow(code, language)
+        return await this.workflowModule.testWorkflow(code, language)
     }
 
     async getRunningWorkflows(){
-        return await this.workflowManager.getRunningWorkflows()
+        return await this.workflowModule.getRunningWorkflows()
     }
 
     async getRunningWorkflow(id){
-        return await this.workflowManager.getRunningWorkflow(id)
+        return await this.workflowModule.getRunningWorkflow(id)
     }
     async removeRunningWorkflow(id){
-        await this.workflowManager.removeRunningWorkflow(id)
+        await this.workflowModule.removeRunningWorkflow(id)
     }
 
     async addJob(workflow, code, data, dependencies){
         //Todo the dependencies and data should be extracted directly from the entire code in the notebook
-        await this.workflowManager.addJob(workflow, code, data, dependencies)
+        await this.workflowModule.addJob(workflow, code, data, dependencies)
     }
 
     getWorkflowResults(wid){
-        return this.workflowManager.getWorkflowResults(wid)
+        return this.workflowModule.getWorkflowResults(wid)
     }
 
     getRunningWorkflowResults(wid){
-        return this.workflowManager.getRunningWorkflowResults(wid)
+        return this.workflowModule.getRunningWorkflowResults(wid)
     }
 
     async savePreferences(preferences){
-        return await this.identityManager.savePreferences(preferences)
+        return await this.identityModule.savePreferences(preferences)
     }
 
     addListener(event, callback){
@@ -208,7 +208,7 @@ class VFuse {
 
     async stop(){
         console.log('Stopping VFuse node...')
-        await this.networkManager.stop()
+        await this.networkComponent.stop()
         this.status = Constants.NODE_STATE.STOP
     }
 
@@ -220,7 +220,7 @@ class VFuse {
             let currentOptions = isBrowser ? DefaultOptions.getBrowserOptions(options) : DefaultOptions.getBootstrapOptions(options)
             const vfuse = new VFuse(currentOptions)
             await vfuse.start()
-            await vfuse.networkManager.send("VFuse node is ready")
+            await vfuse.networkComponent.send("VFuse node is ready")
             if(isBrowser)
                 window.VFuse = vfuse
             return vfuse
