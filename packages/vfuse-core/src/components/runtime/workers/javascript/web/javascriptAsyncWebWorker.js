@@ -294,7 +294,7 @@ const worker_code = () => {
                     let results = await(F())
                     let executionTime = performance.now() - start
                     //console.log('End job')
-
+                    debugger
                     self.postMessage({
                         action: 'return',
                         results : convert(results),

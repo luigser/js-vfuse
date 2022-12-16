@@ -346,7 +346,7 @@ class WorkflowModule {
             let workflow_to_run = this.runningWorkflowsQueue.get(workflow_to_run_id)
             //First level of scheduling
             if(workflow_to_run.suggestedScheduling) {
-                let nodes = workflow_to_run.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY)
+                let nodes = workflow_to_run.suggestedScheduling.jobs.filter(n => n.job.status === Constants.JOB.STATUS.READY || n.job.status === Constants.JOB.STATUS.REPEATING)
                 //console.log("Selecting jobs from suggested scheduling")
                 if(nodes.length > 0){
                     //console.log(`Selected node ${nodes[0].id}`)
@@ -357,7 +357,7 @@ class WorkflowModule {
                 let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
                 let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
                 if(node) {
-                    this.addJobToQueue(workflow_to_run.id, node, workflow_to_run.scheduling === Constants.WORKFLOW.SCHEDULING.BALANCED)
+                    this.addJobToQueue(workflow_to_run.id, node, workflow_to_run.scheduling === Constants.WORKFLOW.SCHEDULING.BALANCED && node.job.status !== Constants.JOB.STATUS.REPEATING)
                 }
             }
             stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
