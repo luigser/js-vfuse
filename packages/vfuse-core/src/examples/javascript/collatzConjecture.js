@@ -24,6 +24,6 @@ function tryNumber(){
 }
 
 let try_job_id = await VFuse.addJob(tryNumber, [])
-await VFuse.setEndlessJob(try_job_id)
+await VFuse.setRepeating(try_job_id)
 let sequence_job_id = await VFuse.addJob(collatzSequence, [try_job_id])
-await VFuse.setEndlessJob(sequence_job_id)
+await VFuse.setRepeating(sequence_job_id)
