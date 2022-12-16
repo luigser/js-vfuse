@@ -354,10 +354,10 @@ class WorkflowModule {
                     this.addJobToQueue(workflow_to_run.id, nodes[0], false)
                 }
             }else{
-                let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
+                let nodes = JobsDAG.getReadyNodes(workflow_to_run.jobsDAG).filter(n => !n.isInQueue && n.job.status !== Constants.JOB.STATUS.REPEATING).filter(n => !workflow_to_run.remoteSelectedJobs.find(j => j === n.id))
                 let node = MathJs.pickRandom(nodes, nodes.map( n => 1 / nodes.length))
                 if(node) {
-                    this.addJobToQueue(workflow_to_run.id, node, workflow_to_run.scheduling === Constants.WORKFLOW.SCHEDULING.BALANCED && node.job.status !== Constants.JOB.STATUS.REPEATING)
+                    this.addJobToQueue(workflow_to_run.id, node, workflow_to_run.scheduling === Constants.WORKFLOW.SCHEDULING.BALANCED)
                 }
             }
             stop = this.isAllRunningWorkflowsNodesInExecutionQueue()
