@@ -254,11 +254,11 @@ const worker_code = () => {
             case 'load':
                 try {
                     let results = null
-                    if (packages && packages.length > 0) {
+                    /*if (packages && packages.length > 0) {
                         packages.map(package => {
                             //do something
                         })
-                    }
+                    }*/
 
                     self.postMessage({
                         action: 'loaded',
@@ -294,7 +294,6 @@ const worker_code = () => {
                     let results = await(F())
                     let executionTime = performance.now() - start
                     //console.log('End job')
-                    debugger
                     self.postMessage({
                         action: 'return',
                         results : convert(results),

@@ -13,7 +13,7 @@ module.exports = () => {
             path: path.resolve(__dirname, "build"),
             filename: "bundle.js"
         },
-        target: 'web',
+        target: 'node',
         resolve: {
             extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],// other stuff
             fallback: {
