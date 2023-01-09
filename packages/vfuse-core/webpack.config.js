@@ -1,29 +1,50 @@
 // webpack.config.js
 const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
+const webpack = require('webpack');
 module.exports = () => {
     return {
         mode: "production" ,
         devServer: {
             historyApiFallback: true
         },
-        entry: "./",
+        entry: {'vfuse-core' : "./src/components/index.js"},
         output: {
-            publicPath: "/static/frontend/",
-            path: path.resolve(__dirname, "build"),
-            filename: "bundle.js"
+            //publicPath: "/static/frontend/",
+            //path: path.resolve(__dirname, "build"),
+            filename: "bundle.js",
+            library: 'VFuse',
+           /* libraryExport: 'default',
+            libraryTarget: 'umd',*/
+            globalObject: 'this',
         },
+       /* node:{
+            global: true,
+            __filename: false,
+            __dirname: false,
+        },*/
         target: 'node',
         resolve: {
             extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],// other stuff
-            fallback: {
+           /* fallback: {
+                "process": false,
+                "perf_hooks" : false,
+                "dgram" : false,
+                "tty" : false,
+                "dns": false,
+                "child_process" : false,
+                "tls" : false,
+                "net": false,
+                "os" : require.resolve('os-browserify'),
+                "timers": false,
+                "fs" : false,
                 "stream": require.resolve("stream-browserify"),
                 "zlib": require.resolve("browserify-zlib"),
                 "http": require.resolve("stream-http"),
                 "crypto": require.resolve("crypto-browserify"),
                 "https": require.resolve("https-browserify"),
                 "worker_threads" : "empty"
-            }
+            }*/
         },
         module: {
             rules: [
@@ -51,8 +72,11 @@ module.exports = () => {
                 }
             ]
         },
-        plugins: [
-        ],
+        /*plugins: [
+            new webpack.ProvidePlugin({
+                process: 'process/browser',
+            }),
+        ],*/
         optimization: {
             minimize: true,
             minimizer: [new TerserPlugin({
@@ -63,6 +87,6 @@ module.exports = () => {
                 },
                 extractComments: false,
             })],
-        },
+        }
     }
 };

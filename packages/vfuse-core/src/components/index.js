@@ -10,7 +10,7 @@ const Constants = require('./constants')
 const DefaultOptions = require('../utils/defaultOptions')
 const Miscellaneous = require('../utils/miscellaneous')
 
-const  { isNode, isBrowser } = require("browser-or-node");
+const { isNode, isBrowser } = require("browser-or-node");
 
 class VFuse {
     /**

@@ -2,9 +2,32 @@
   "name": "vfuse-core",
   "version": "1.0.0",
   "description": "vfuse-core",
-  "main": "src/index.js",
+  "main": "src/components/index.js",
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false,
+    "tls" : false,
+    "net": false,
+    "timers": false,
+    "stream": false,
+    "zlib": false,
+    "http": false,
+    "crypto": false,
+    "https": false,
+    "tty" : false,
+    "dns": false,
+    "child_process" : false,
+    "dgram" : false,
+    "process" : false
+  },
+  "node":{
+    "global": true,
+    "__filename": false,
+    "__dirname": false
+  },
   "scripts": {
-    "build": "aegir build ",
+    "build": "aegir build",
     "docs": "aegir docs",
     "lint": "aegir lint",
     "test": "aegir test",
@@ -88,14 +111,17 @@
       "@typescript-eslint/explicit-function-return-type": "warn",
       "@typescript-eslint/strict-boolean-expressions": "off"
     },
-    "ignorePatterns": []
+    "ignorePatterns": [],
+    "env": {
+      "browser": true,
+      "node": true
+    }
   },
   "contributors": [
-    "Luigi Setta <lserra@unisa.it>",
-    "Andrea Petta <apetta@unisa.it>"
+    "Luigi Setta <lserra@unisa.it>"
   ],
   "files": [
-    "src",
+    "src/components",
     "dist"
   ],
   "aegir": {
