@@ -76,12 +76,12 @@ class ComputingModule {
         return runtime ? await runtime.run(job) : { error : job.language + ' is not currently supported'}
     }
 
-    async runLocalCode(code, language){
+    async runLocalCode(code, language, data){
         let worker = this.runtimes.get(language)
         /*if(language === Constants.PROGRAMMING_LANGUAGE.PYTHON) {
             await worker.restart()
         }*/
-        return await worker.run({ code : code, inline : true, language: language})
+        return await worker.run({ code : code, inline : true, language: language,  data : data })
     }
 
     async addJob(name, func, deps, input, group, packages){

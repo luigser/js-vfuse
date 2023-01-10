@@ -17,7 +17,7 @@ class Workflow{
         COMPLETED : 2
     }*/
 
-    constructor(id, name = '', code, language, jobsDAG, scheduling) {
+    constructor(id, name = '', code, language, jobsDAG, scheduling, input) {
         this.timestamp = Date.now()
         this.ownerId = null
         this.id = id

@@ -10,11 +10,11 @@ class IdentityModule {
      * @param {Object} networkManager
      * @param {Object} options
      */
-    constructor ( contentManager, eventManager, peerId , options) {
+    constructor ( eventAndDataModule, eventManager, peerId , options) {
         this.id = peerId
         this.options = options
         this.peerId = peerId
-        this.contentManager = contentManager
+        this.eventAndDataModule = eventAndDataModule
         this.eventManager = eventManager
         this.workflows = []
         this.rewards = 0.00
@@ -58,7 +58,7 @@ class IdentityModule {
     async getProfile(id) {
         try {
             //For IPFS FILE MFS usagel
-            let profile = await this.contentManager.get('/profiles/' + (!id ? this.id : id))
+            let profile = await this.eventAndDataModule.get('/profiles/' + (!id ? this.id : id))
             if(profile){
                 this.assignProfile(profile)
                 console.log('Profile loaded : %O', profile)
@@ -97,7 +97,7 @@ class IdentityModule {
         try{
             //try to check if profile for you peerId already exist
             //if yes do not create no one but get it
-            let profile = await this.contentManager.get('/profiles/' + this.peerId)
+            let profile = await this.eventAndDataModule.get('/profiles/' + this.peerId)
             if(!profile){
                 //Todo check if profile already exist, of yes remove and create from scratch
                 let new_profile = {
@@ -105,14 +105,14 @@ class IdentityModule {
                     rewards: 10.00,
                     preferences : this.preferences
                 }
-                await this.contentManager.makeDir('/workflows/private')
-                await this.contentManager.makeDir('/workflows/published')
-                await this.contentManager.makeDir('/workflows/published/my')
-                await this.contentManager.makeDir('/workflows/running')
-                await this.contentManager.makeDir('/workflows/completed')
-                await this.contentManager.makeDir('/profiles')
+                await this.eventAndDataModule.makeDir('/workflows/private')
+                await this.eventAndDataModule.makeDir('/workflows/published')
+                await this.eventAndDataModule.makeDir('/workflows/published/my')
+                await this.eventAndDataModule.makeDir('/workflows/running')
+                await this.eventAndDataModule.makeDir('/workflows/completed')
+                await this.eventAndDataModule.makeDir('/profiles')
                 /*new TextEncoder().encode(JSON.stringify(new_profile))*/
-                await this.contentManager.save("/profiles/" + this.peerId, new_profile)
+                await this.eventAndDataModule.save("/profiles/" + this.peerId, new_profile)
                 this.id = this.peerId
                 this.rewards = 10.00
                 this.eventManager.emit(Constants.EVENTS.PROFILE_STATUS, { status : true, profile : {...new_profile, ...{id : this.id}}  })
@@ -189,7 +189,7 @@ class IdentityModule {
                 rewards: this.rewards,
                 preferences: this.preferences
             }
-            await this.contentManager.save("/profiles/" + this.id, profile)
+            await this.eventAndDataModule.save("/profiles/" + this.id, profile)
         }catch (e){
             console.log('Got some error during the profile publishing: %O', e)
         }
