@@ -1,5 +1,6 @@
-import * as VFuse from "../build/index.min.js";
-/*
+//import * as VFuse from "../build/bundle.js";
+import "../build/bundle.js";
+
 let options =  {
     localStorage: true,
     computation: true,
@@ -15,10 +16,10 @@ let options =  {
             Bootstrap : ['/dns4/localhost/tcp/4002/wss/p2p/12D3KooWDNzDLuz5NfA44CJVPggGW9LGNELK6mucnHHoW82JdNmL']
         }
     },
-    /!*workers: [{
+    /*workers: [{
         worker : PythonWorker,
         packages : []
     }],*!/
-    ipfsClusterApi : {host: '193.205.161.5', port: '9097', protocol: 'https'}
+    ipfsClusterApi : {host: '193.205.161.5', port: '9097', protocol: 'https'}*/
 }
-let node = await create(options)*/
+let node = await VFuse.create(options)

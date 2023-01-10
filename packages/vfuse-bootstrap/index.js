@@ -1,6 +1,6 @@
 const PythonWorker = require("vfuse-python-worker")
 
-const VFuse  = require('vfuse-core')
+const VFuse = require('vfuse-core')
 
 const main = async () => {
     let node = await VFuse.create({

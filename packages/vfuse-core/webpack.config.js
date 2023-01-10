@@ -8,25 +8,34 @@ module.exports = () => {
         devServer: {
             historyApiFallback: true
         },
-        entry: {'vfuse-core' : "./src/components/index.js"},
+        //entry: {'vfuse-core' : "./src/components/index.js"},
+        entry: "./src/index.js",
         output: {
             //publicPath: "/static/frontend/",
             //path: path.resolve(__dirname, "build"),
             filename: "bundle.js",
             library: 'VFuse',
-           /* libraryExport: 'default',
-            libraryTarget: 'umd',*/
-            globalObject: 'this',
+            //libraryExport: 'default',
+            libraryTarget: 'umd',
+            umdNamedDefine: true,
+            /*library: {
+                name: 'VFuse',
+                //type: 'umd',
+                export: 'default',
+                //umdNamedDefine: true
+            },*/
+            //globalObject: 'this',
+            globalObject: `(typeof self !== 'undefined' ? self : this)`
         },
-       /* node:{
+       node:{
             global: true,
             __filename: false,
             __dirname: false,
-        },*/
-        target: 'node',
+        },
+        target: 'web',
         resolve: {
             extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],// other stuff
-           /* fallback: {
+            fallback: {
                 "process": false,
                 "perf_hooks" : false,
                 "dgram" : false,
@@ -44,7 +53,7 @@ module.exports = () => {
                 "crypto": require.resolve("crypto-browserify"),
                 "https": require.resolve("https-browserify"),
                 "worker_threads" : "empty"
-            }*/
+            }
         },
         module: {
             rules: [
@@ -72,12 +81,16 @@ module.exports = () => {
                 }
             ]
         },
-        /*plugins: [
+        plugins: [
             new webpack.ProvidePlugin({
                 process: 'process/browser',
             }),
-        ],*/
+            new webpack.ProvidePlugin({
+                Buffer: ['buffer', 'Buffer'],
+            }),
+        ],
         optimization: {
+            //runtimeChunk: 'single',
             minimize: true,
             minimizer: [new TerserPlugin({
                 terserOptions: {

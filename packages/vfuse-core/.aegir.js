@@ -1,4 +1,4 @@
-'use strict'
+/*'use strict'
 const VFuse = require('./src')
 
 const options = {
@@ -23,5 +23,15 @@ module.exports = {
     hooks: {
         pre: before,
         post: after
+    }
+}*/
+// file: .aegir.js
+
+
+/** @type {import('aegir').PartialOptions} */
+module.exports = {
+    tsRepo: false,
+    release: {
+        build: false
     }
 }
