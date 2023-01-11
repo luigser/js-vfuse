@@ -2,6 +2,7 @@
   "name": "js-vfuse",
   "private": true,
   "devDependencies": {
+    "electron": "^22.0.1",
     "lerna": "^4.0.0"
   }
 }

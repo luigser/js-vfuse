@@ -1,5 +1,4 @@
-//import * as VFuse from "../build/bundle.js";
-import "../build/bundle.js";
+import "../build/vfuse-web-bundle.js";
 
 let options =  {
     localStorage: true,

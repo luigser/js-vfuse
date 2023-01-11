@@ -7,7 +7,7 @@
     "fs": false,
     "path": false,
     "os": false,
-    "tls" : false,
+    "tls": false,
     "net": false,
     "timers": false,
     "stream": false,
@@ -15,13 +15,13 @@
     "http": false,
     "crypto": false,
     "https": false,
-    "tty" : false,
+    "tty": false,
     "dns": false,
-    "child_process" : false,
-    "dgram" : false,
-    "process" : false
+    "child_process": false,
+    "dgram": false,
+    "process": false
   },
-  "node":{
+  "node": {
     "global": true,
     "__filename": false,
     "__dirname": false
@@ -39,7 +39,9 @@
     "coverage": "nyc --reporter=text --reporter=lcov npm run test:node",
     "clean": "rimraf ./dist",
     "dep-check": "aegir dep-check -i interface-ipfs-core -i ipfs-core-types -i abort-controller",
-    "prod": "webpack"
+    "prod": "webpack",
+    "node-bundle": "webpack --config webpack.config.node.js",
+    "web-bundle": "webpack --config webpack.config.web.js"
   },
   "author": "Luigi Serra",
   "license": "MIT",
@@ -64,7 +66,8 @@
     "url-loader": "^4.1.1",
     "v8": "^0.1.0",
     "webpack": "^5.72.0",
-    "webpack-cli": "^4.9.2"
+    "webpack-cli": "^4.9.2",
+    "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
     "@nftstorage/ipfs-cluster": "^3.3.1",
@@ -124,6 +127,14 @@
     "src/components",
     "dist"
   ],
+  "build": {
+    "files": [
+      {
+        "from": "node_modules/leveldown/prebuilds/${platform}-${arch}",
+        "to": "prebuilds/${platform}-${arch}"
+      }
+    ]
+  },
   "aegir": {
     "tsRepo": false
   }
