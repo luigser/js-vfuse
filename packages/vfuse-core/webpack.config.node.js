@@ -11,18 +11,23 @@ module.exports = () => {
             //path: path.resolve(__dirname, "build"),
             filename: "vfuse-node-bundle.js",
             library: 'VFuse',
-            libraryExport: 'default',
+            //libraryExport: 'default',
             libraryTarget: 'umd',
             //globalObject: 'this',
         },
         //externalsPresets: { node: true }, // in order to ignore built-in modules like path, fs, etc.
         //externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
-        externals: [/node_modules/, 'bufferutil', 'utf-8-validate', 'leveldown'],
+        //externals: [/node_modules/, 'bufferutil', 'leveldown'],
+        /*externals: {
+            //'pouchdb':"require('pouchdb')",
+            'pouchdb':"pouchdb",
+            'leveldown':"leveldown"
+        },*/
         target: 'node',
         node: {
-            global: true,
-            __dirname: false,
-            __filename: false
+            //global: true,
+            __dirname: true,
+            __filename: true
         },
         resolve: {
             extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
@@ -30,7 +35,7 @@ module.exports = () => {
         module: {
             rules: [
                 {
-                    test: /\.(txt|service|py)(\?v=\d+\.\d+\.\d+)?$/,
+                    test: /\.(txt|service|py|node)(\?v=\d+\.\d+\.\d+)?$/,
                     use: [
                         {
                             loader: 'file-loader',
@@ -52,6 +57,11 @@ module.exports = () => {
                     loader: "babel-loader"
                 }
             ]
-        }
+        },
+        /*plugins: [
+            new webpack.ExternalsPlugin('commonjs2', [
+                'leveldown'
+            ]),
+        ],*/
     }
 };

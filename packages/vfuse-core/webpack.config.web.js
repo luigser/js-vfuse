@@ -8,29 +8,13 @@ module.exports = () => {
         devServer: {
             historyApiFallback: true
         },
-        //entry: {'vfuse-core' : "./src/components/index.js"},
         entry: "./src/index.js",
         output: {
-            //publicPath: "/static/frontend/",
-            //path: path.resolve(__dirname, "build"),
             filename: "vfuse-web-bundle.js",
             library: 'VFuse',
-            //libraryExport: 'default',
             libraryTarget: 'umd',
             umdNamedDefine: true,
-            /*library: {
-                name: 'VFuse',
-                //type: 'umd',
-                export: 'default',
-                //umdNamedDefine: true
-            },*/
-            //globalObject: 'this',
             globalObject: `(typeof self !== 'undefined' ? self : this)`
-        },
-        node:{
-            global: true,
-            __filename: false,
-            __dirname: false,
         },
         target: 'web',
         resolve: {

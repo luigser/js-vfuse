@@ -13,7 +13,7 @@ module.exports = () => {
         output: {
             //publicPath: "/static/frontend/",
             //path: path.resolve(__dirname, "build"),
-            filename: "bundle.js",
+            filename: "vfuse-bundle.js",
             library: 'VFuse',
             //libraryExport: 'default',
             libraryTarget: 'umd',
