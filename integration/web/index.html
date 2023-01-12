@@ -7,12 +7,16 @@
 <body>
 <script type="module" src="./main.js"></script>
 <script>
-    function startNode(){
-        console.log("start")
+    function startExecution(){
         document.dispatchEvent(new Event("start"))
     }
+
+    function stopExecution(){
+        document.dispatchEvent(new Event("stop"))
+    }
 </script>
-<button type="button" onclick="startNode()">Start VFuse Submitting</button>
+<button type="button" onclick="startExecution()">Start VFuse Execution</button>
+<button type="button" onclick="stopExecution()">Stop VFuse Execution</button>
 
 </body>
 </html>

@@ -154,8 +154,8 @@ class VFuse {
     async submitWorkflow(workflow_id){
         return await this.workflowModule.submitWorkflow(workflow_id)
     }
-    async unsubmitWorkflow(workflow_id){
-        return await this.workflowModule.unsubmitWorkflow(workflow_id)
+    async stopWorkflow(workflow_id){
+        return await this.workflowModule.stopWorkflow(workflow_id)
     }
 
     async getPublishedWorkflows(){

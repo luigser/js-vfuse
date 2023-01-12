@@ -464,7 +464,7 @@ class WorkflowModule {
                             if(node.job)
                                 workflow.numOfReceivedResults += node.receivedResults.length
                         }*/
-                        await this.unsubmitWorkflow(workflow.id)
+                        await this.stopWorkflow(workflow.id)
                         this.eventManager.emit(Constants.EVENTS.WORKFLOW_COMPLETED, workflow)
 
                         let max_job_execution_time = JobsDAG.getMaxJobExecutionTime(workflow.jobsDAG)
@@ -662,7 +662,7 @@ class WorkflowModule {
             this.workflows.splice(this.workflows.indexOf(this.getWorkflow(workflow_id)), 1);
             //TODO UNPINNING
             let workflow = this.publishedWorkflows.find(pw => pw.workflow_id === workflow_id)
-            if(workflow) await this.unsubmitWorkflow(workflow)
+            if(workflow) await this.stopWorkflow(workflow)
             await this.eventAndDataModule.save('/workflows/completed/' + workflow_id, "completed")
             console.log('Workflow successfully removed')
             return true
@@ -716,7 +716,7 @@ class WorkflowModule {
         }
     }
 
-    async unsubmitWorkflow(workflow_id){
+    async stopWorkflow(workflow_id){
         try{
             let workflow = this.publishedWorkflows.find(pw => pw.workflow_id === workflow_id)
             if(workflow) {

@@ -32,7 +32,8 @@ await VFuse.addJob(reduce, ['^map'])//wait for all reduce results and call combi
 `
 
 async function init() {
-    let ready = false;
+    let ready = false
+    let workflow = null
 
     let options = {
         localStorage: true,
@@ -44,7 +45,7 @@ async function init() {
         ipfs: {
             config: {
                 Addresses: {
-                    Swarm: ['/dns4/127.0.0.1/tcp/2001/ws/p2p-webrtc-star/']
+                    Swarm: ['/ip4/127.0.0.1/tcp/2001/ws/p2p-webrtc-star/']
                 },
                 Bootstrap: ['/ip4/127.0.0.1/tcp/4003/ws/p2p/12D3KooWBFJGaj82urm2UzQhvsAxeKRWLS54FwH9xcaPcMf9HcuH']
             }
@@ -68,7 +69,6 @@ async function init() {
             if(ready) {
                 console.log("The start event was triggered")
                 try {
-                    let workflow
                     let wid = localStorage.getItem('wid')
                     if (wid === 'undefined') {
                         workflow = await node.saveWorkflow('Test workflow', null, workflow_code, VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
@@ -86,6 +86,22 @@ async function init() {
             }
         });
 
+        document.addEventListener("stop", async () => {
+            if(ready) {
+                console.log("The stop event was triggered")
+                try {
+                    if (workflow) {
+                        await node.stopWorkflow(workflow.id)
+                    }else{
+                       alert('There is not published workflows')
+                    }
+                }catch (e) {
+                    console.log(e)
+                }
+            }else{
+                alert("VFuse node is not started yet !!!")
+            }
+        })
     }catch (e) {
         console.log(e)
     }
