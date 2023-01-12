@@ -38,16 +38,16 @@ async function init() {
     let options = {
         localStorage: true,
         computation: true,
-        maintainRunningState: false,
+        maintainRunningState: true,
         preferences: {
             MAX_CONCURRENT_JOBS: 2
         },
         ipfs: {
             config: {
                 Addresses: {
-                    Swarm: ['/ip4/127.0.0.1/tcp/2001/ws/p2p-webrtc-star/']
+                    Swarm: ['/dns4/127.0.0.1/tcp/2001/ws/p2p-webrtc-star/']
                 },
-                Bootstrap: ['/ip4/127.0.0.1/tcp/4003/ws/p2p/12D3KooWBFJGaj82urm2UzQhvsAxeKRWLS54FwH9xcaPcMf9HcuH']
+                Bootstrap: ['/dns4/127.0.0.1/tcp/4003/ws/p2p/12D3KooWBFJGaj82urm2UzQhvsAxeKRWLS54FwH9xcaPcMf9HcuH']
             }
         },
         ipfsClusterApi : {host: '127.0.0.1', port: '9094', protocol: 'http'}
@@ -56,6 +56,8 @@ async function init() {
         let node = await VFuse.create(options)
         node.addListener(VFuse.Constants.EVENTS.WORKFLOW_COMPLETED, function (workflow) {
             console.log(`Workflow ${workflow.id} completes execution`)
+            let results_nodes = VFuse.JobsDAG.getOutputNodes(workflow.jobsDAG)
+            console.log({results_nodes})
         })
 
         node.addListener(VFuse.Constants.EVENTS.NODE_STATUS, async function(data){
@@ -70,11 +72,11 @@ async function init() {
                 console.log("The start event was triggered")
                 try {
                     let wid = localStorage.getItem('wid')
-                    if (wid === 'undefined') {
+                    if (wid === 'undefined' || !wid) {
                         workflow = await node.saveWorkflow('Test workflow', null, workflow_code, VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
                         localStorage.setItem('wid', workflow.id)
                     }else{
-                        workflow = await node.getWorkflow(wid)
+                        workflow = workflow = await node.saveWorkflow('Test workflow', wid, workflow_code, VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
                     }
                     console.log(workflow)
                     await node.submitWorkflow(workflow.id)
