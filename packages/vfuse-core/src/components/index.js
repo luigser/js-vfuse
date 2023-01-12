@@ -221,8 +221,8 @@ class VFuse {
             const vfuse = new VFuse(currentOptions)
             await vfuse.start()
             await vfuse.networkComponent.send("VFuse node is ready")
-            if(isBrowser)
-                window.VFuse = vfuse
+            /*if(isBrowser)
+                window.VFuse = vfuse*/
             return vfuse
         }catch (e) {
             return { error : e.message}

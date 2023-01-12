@@ -4,7 +4,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const webpack = require('webpack');
 module.exports = () => {
     return {
-        mode: "production" ,
+        mode: "development",//"production" ,
         devServer: {
             historyApiFallback: true
         },
@@ -78,11 +78,14 @@ module.exports = () => {
             minimize: true,
             minimizer: [new TerserPlugin({
                 terserOptions: {
+                    keep_classnames: true,
+                    keep_fnames: true,
                     format: {
                         comments: false,
                     },
                 },
                 extractComments: false,
+                exclude: /\/src/
             })],
         }
     }

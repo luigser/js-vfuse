@@ -5,8 +5,14 @@
     <title>VFuse Web integration</title>
 </head>
 <body>
-<!--<script type="module" src="../build/bundle.js"></script>-->
 <script type="module" src="./main.js"></script>
+<script>
+    function startNode(){
+        console.log("start")
+        document.dispatchEvent(new Event("start"))
+    }
+</script>
+<button type="button" onclick="startNode()">Start VFuse Submitting</button>
 
 </body>
 </html>
