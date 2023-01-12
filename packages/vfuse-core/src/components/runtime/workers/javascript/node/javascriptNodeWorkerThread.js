@@ -165,13 +165,13 @@ const VFuseAPICaller = {
 
         return promise
     },
-    addJobGroup : (job_id, group) => {
+    addToGroup : (job_id, group) => {
         const promise = new  Promise( (resolve, reject) => {
             parentPort.onmessage = (e) => {
                 const {action} = e.data
                 if (action === 'VFuse:runtime') {
                     const {func} = e.data.data
-                    if(func === 'addJobGroup')
+                    if(func === 'addToGroup')
                         resolve(e.data.data.result)
                     parentPort.onmessage = onmessage
                 }
@@ -181,7 +181,7 @@ const VFuseAPICaller = {
         parentPort.postMessage({
             action: 'VFuse:worker',
             todo: {
-                func: 'addJobGroup',
+                func: 'addToGroup',
                 params: JSON.stringify({
                     job_id : job_id,
                     group: group

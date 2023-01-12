@@ -25,7 +25,7 @@ module.exports = () => {
         },*/
         target: 'node',
         node: {
-            //global: true,
+            global: true,
             __dirname: true,
             __filename: true
         },

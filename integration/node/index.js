@@ -3,13 +3,14 @@ const VFuse  = require('../build/vfuse-node-bundle')
 
 const main = async () => {
     let node = await VFuse.create({
-        computation: false,
+        proxy: null,
+        computation: true,
         localStorage: true,
         localPath: __dirname,
         bootstrapNode : true,
         SignalServer: true,
         HttpAPI: true,
-        IPFSGateway: true,
+        IPFSGateway: false,
         preferences: {
             MAX_CONCURRENT_JOBS : 1
         }
