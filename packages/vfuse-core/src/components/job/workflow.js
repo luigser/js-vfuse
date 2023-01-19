@@ -30,7 +30,7 @@ class Workflow{
         this.completedAt = null
         this.numOfReceivedResults = 0
         this.scheduling = scheduling ? scheduling : Constants.WORKFLOW.SCHEDULING.BALANCED
-        this.input = null
+        this.input = input
     }
 }
 module.exports = Workflow

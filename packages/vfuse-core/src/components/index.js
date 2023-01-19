@@ -162,12 +162,12 @@ class VFuse {
         return await this.workflowModule.getPublishedWorkflows()
     }
 
-    async checkWorkflow(code){
-        return await this.workflowModule.checkWorkflow(code)
+    async checkWorkflow(workflow){
+        return await this.workflowModule.checkWorkflow(workflow)
     }
 
-    async testWorkflow(code, language){
-        return await this.workflowModule.testWorkflow(code, language)
+    async testWorkflow(code, language, input){
+        return await this.workflowModule.testWorkflow(code, language, input)
     }
 
     async getRunningWorkflows(){

@@ -275,7 +275,7 @@ const onmessage = async function (e) {
                         job.code +=  typeof job.data !== 'number' ? `\nreturn ${job.name}(\`${job.data}\`)` :  `\nreturn ${job.name}(${job.data})`
                     }
                 }else{
-                    input = JSON.stringify(job.data, escape)
+                    input = job.data//JSON.stringify(job.data, escape)
                     if(input)
                         job.code = `\nlet input = JSON.parse(\`${input}\`)\n`+ job.code
                 }

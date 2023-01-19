@@ -40,7 +40,7 @@ async function init() {
         computation: true,
         maintainRunningState: true,
         preferences: {
-            MAX_CONCURRENT_JOBS: 2
+            MAX_CONCURRENT_JOBS: 4
         },
         ipfs: {
             config: {

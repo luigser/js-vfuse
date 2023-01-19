@@ -565,10 +565,10 @@ class WorkflowModule {
         }
     }
 
-    async testWorkflow(code, language){
+    async testWorkflow(code, language, input){
         try{
             let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
-            let workflow = new Workflow(workflow_id._idB58String, 'Test Locally', code, language, new JobsDAG())
+            let workflow = new Workflow(workflow_id._idB58String, 'Test Locally', code, language, new JobsDAG(), Constants.WORKFLOW.SCHEDULING.AUTO, input)
             let result = await this.checkWorkflow(workflow)
             if(result.error || (result.results && result.results.error)){
                 let error = result.error ? result.error : result.results.error
@@ -605,6 +605,8 @@ class WorkflowModule {
         try{
             let isNew = false
             let workflow = this.workflows.find(w => w.id === id)
+            if(input)
+                input = JSON.stringify(input)
             if(workflow){
                 workflow.name = name
                 workflow.code = code

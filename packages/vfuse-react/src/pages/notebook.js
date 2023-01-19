@@ -107,6 +107,7 @@ export default function NotebookPage(props){
     const [code, setCode] = useState(javascriptCodeExample);
     const [language, setLanguage] = useState(VFuse.Constants.PROGRAMMING_LANGUAGE.JAVASCRIPT)
     const [name, setName] = useState(null)
+    const [input, setInput] = useState(null)
     const [dag, setDag] = useState(null)
     const [fontSize, setFontSize] = useState(14)
     const [isPublished, setIsPublished] = useState(false)
@@ -137,6 +138,7 @@ export default function NotebookPage(props){
                     setLanguage(workflow.language)
                     setIsPublished(workflow.published)
                     setScheduling(workflow.scheduling)
+                    setInput(workflow.input)
                     setResults(node.getWorkflowResults(workflowId))
                 }
             }
@@ -168,7 +170,7 @@ export default function NotebookPage(props){
             });
         }else{
             setSaveWorkflowLoading(true)
-            let workflow = await vFuseNode.saveWorkflow(workflowId, name, code, language, scheduling)
+            let workflow = await vFuseNode.saveWorkflow(workflowId, name, code, language, scheduling, input)
             if(workflow.error){
                 notification.error({
                     message : "Something went wrong",
@@ -208,9 +210,9 @@ export default function NotebookPage(props){
         }
     }
 
-    const unsubmitWorkflow = async () => {
+    const stopWorkflow = async () => {
         setStopNetworkLoading(true)
-        let result = await vFuseNode.unsubmitWorkflow(workflowId)
+        let result = await vFuseNode.stopWorkflow(workflowId)
         if(!result.error){
             setIsPublished(false)
             notification.info({
@@ -228,6 +230,8 @@ export default function NotebookPage(props){
 
     const onChaneName = (e) => setName(e.target.value)
 
+    const onChangeInput = (e) => setInput(e.target.value)
+
     const onClear = () => {
         setCode('')
         setWorkflowId(null)
@@ -240,7 +244,7 @@ export default function NotebookPage(props){
 
     const testLocally = async () => {
         setTestLocallyLoading(true)
-        let workflow = await vFuseNode.testWorkflow(code, language)
+        let workflow = await vFuseNode.testWorkflow(code, language, input)
         setTestLocallyLoading(false)
         if(workflow && workflow.error){
             notification.error({
@@ -313,7 +317,7 @@ export default function NotebookPage(props){
                             /*<Button key="3" type="secondary" disabled={!vFuseNode || !workflowId} loading={runLocalLoading} onClick={onRunLocal}>Build</Button>,*/
                             <Button key="1" type="info" disabled={!vFuseNode || isPublished} loading={saveWorkflowLoading} onClick={saveWorkflow}>Build & Save</Button>,
                             <Button key="2" type="primary" disabled={!vFuseNode && !workflowId || isPublished } loading={publishNetworkLoading} onClick={submitWorkflow}>Submit</Button>,
-                            <Button key="3" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={stopNetworkLoading} onClick={unsubmitWorkflow}>Stop</Button>,
+                            <Button key="3" danger disabled={!vFuseNode && !workflowId || !isPublished} loading={stopNetworkLoading} onClick={stopWorkflow}>Stop</Button>,
                             <><Divider type="vertical"/><Button disabled={!vFuseNode ||  isPublished} type="primary" key="4" loading={testLocallyLoading} onClick={testLocally}>Test Locally</Button></>,
                         ]}
                         //avatar={ <FontAwesomeIcon icon={faMagic} className={"anticon"} />}
@@ -379,6 +383,14 @@ export default function NotebookPage(props){
                                         <Select.Option value={VFuse.Constants.WORKFLOW.SCHEDULING.SUGGESTED}>{VFuse.Constants.WORKFLOW.SCHEDULING.SUGGESTED}</Select.Option>
                                         <Select.Option value={VFuse.Constants.WORKFLOW.SCHEDULING.AUTO}>{VFuse.Constants.WORKFLOW.SCHEDULING.AUTO}</Select.Option>
                                     </Select>
+                                </Col>
+                            </Row>
+                            <Row style={{margin: 16}}>
+                                <Col span={4}>
+                                    <Typography.Text strong>Input : </Typography.Text>
+                                </Col>
+                                <Col span={20}>
+                                    <Input placeholder="JSON object" onChange={onChangeInput} value={input} />
                                 </Col>
                             </Row>
                             <Row style={{margin: 16}}>

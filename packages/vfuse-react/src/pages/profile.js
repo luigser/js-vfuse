@@ -290,7 +290,7 @@ export default function ProfilePage(props){
                         prefs.ENDPOINTS.PINNING_SERVER.HOST = value
                     break
                 case 'ENDPOINTS.PINNING_SERVER.PORT':
-                    localStorage.setItem('pinningServerPost', value)
+                    localStorage.setItem('pinningServerPort', value)
                     setPinningServerPort(value)
                     if (vFuseNode)
                         prefs.ENDPOINTS.PINNING_SERVER.PORT = value

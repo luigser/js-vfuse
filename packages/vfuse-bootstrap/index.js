@@ -10,7 +10,7 @@ const main = async () => {
         bootstrapNode : true,
         SignalServer: true,
         HttpAPI: true,
-        IPFSGateway: true,
+        IPFSGateway: false,
         preferences: {
             MAX_CONCURRENT_JOBS : 1
         }
