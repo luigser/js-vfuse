@@ -615,7 +615,7 @@ class WorkflowModule {
                 workflow.completedAt = null
                 workflow.numOfReceivedResults = 0
                 workflow.scheduling = scheduling
-                workflow.input = input
+                workflow.input = input//JSON.stringify({url:"https://raw.githubusercontent.com/giusdam/data/main/wordcount1-64.txt"})//input
             }else {
                 //todo find a strategy to get a new workflow id
                 let workflow_id = await PeerId.create({bits: 1024, keyType: 'RSA'})
