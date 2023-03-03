@@ -15,6 +15,7 @@ class NodeWorkerThreadRuntime {
         //this.localWebworker = worker.getWebWorker()
         this.jobExecutionTimeout = options.preferences.TIMEOUTS.JOB_EXECUTION
         this.maxJobsQueueLength = options.preferences.LIMITS.MAX_CONCURRENT_JOBS
+        this.workerThreads = options.workerThreads
         this.runtimeManager = runtimeManager
         this.eventManager = eventManager
         this.executionQueue = []
@@ -42,7 +43,7 @@ class NodeWorkerThreadRuntime {
         this.executionQueue = []
         for(let i =0; i < this.maxJobsQueueLength; i++){
             console.log("Initializing Thread " + i )
-            let worker = this.worker.getNodeWorker()
+            let worker = this.worker.getNodeWorker(this.workerThreads)
             this.executionQueue.push({ id : i, worker : worker, running : false, initialized : true, numOfExecutedJobs : 0})
            /* await this.initWorker(worker)
             await this.loadWorker(worker)*/

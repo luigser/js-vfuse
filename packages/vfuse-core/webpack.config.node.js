@@ -5,7 +5,7 @@ const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 module.exports = () => {
     return {
-        mode: "production" ,
+        mode: "development",//"production" ,
         entry: "./src/index.js",
         output: {
             //path: path.resolve(__dirname, "build"),
@@ -29,6 +29,12 @@ module.exports = () => {
             __dirname: true,
             __filename: true
         },
+        externals: [
+            {
+                'utf-8-validate': 'commonjs utf-8-validate',
+                bufferutil: 'commonjs bufferutil',
+            },
+        ],
         resolve: {
             extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
         },

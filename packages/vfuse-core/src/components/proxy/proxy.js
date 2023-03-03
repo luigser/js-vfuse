@@ -10,8 +10,8 @@ class VFuseProxy{
         //HTTPS PROXY
         httpProxy.createServer({
             ssl: {
-                key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
-                cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
+                key: fs.readFileSync(props.certs?.keyPemFile ? props.certs.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
+                cert: fs.readFileSync(props.certs?.certPemFile ? props.certs.certPemFile : path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
             },
             target: 'http://localhost:80',
             ws: true,
@@ -24,8 +24,8 @@ class VFuseProxy{
                 port: props.pinning.port,
             },
             ssl: {
-                key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
-                cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
+                key: fs.readFileSync(props.certs?.keyPemFile ? props.certs.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
+                cert: fs.readFileSync(props.certs?.certPemFile ? props.certs.certPemFile : path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
             },
             secure: props.certs.verify
         }).listen(props.pinning.proxyPort, "0.0.0.0");
@@ -38,8 +38,8 @@ class VFuseProxy{
             target: 'http://localhost:4003/',
             ws : true,
             ssl: {
-                key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
-                cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
+                key: fs.readFileSync(props.certs?.keyPemFile ? props.certs.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
+                cert: fs.readFileSync(props.certs?.certPemFile ? props.certs.certPemFile : path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
             },
             xfwd: true,
             changeOrigin: true,
@@ -72,8 +72,8 @@ class VFuseProxy{
             },
             ws: true,
             ssl: {
-                key: fs.readFileSync(props.keyPemFile ? props.cert.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
-                cert: fs.readFileSync(props.certPemFile ? props.cert.certPemFile : path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
+                key: fs.readFileSync(props.certs?.keyPemFile ? props.certs.keyPemFile :  path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs', 'key.pem'), 'utf8'),
+                cert: fs.readFileSync(props.certs?.certPemFile ? props.certs.certPemFile : path.join(__dirname, '..', '..', '..', '..', 'configuration', 'certs','cert.pem'), 'utf8')
             },
             secure: props.certs.verify
         }).listen(props.signal.proxyPort, "0.0.0.0");

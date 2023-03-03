@@ -6,6 +6,7 @@ module.exports = {
     getBootstrapOptions : (options) => {
         return lodash.merge({
             maintainRunningState : true,
+            workerThreads : true,
             proxy:{
                 bootstrap: {
                     wsPort : 4003,

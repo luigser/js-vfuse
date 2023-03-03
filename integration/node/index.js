@@ -1,9 +1,15 @@
 //const PythonWorker = require("vfuse-python-worker")
 const VFuse  = require('../build/vfuse-node-bundle')
+const path = require('path')
 
 const main = async () => {
     let node = await VFuse.create({
-        proxy: null,
+        proxy: {
+            certs : {
+                keyPemFile : path.join('.', 'certs','key.pem'),
+                certPemFile : path.join('.', 'certs','cert.pem')
+            }
+        },
         computation: true,
         localStorage: true,
         localPath: __dirname,

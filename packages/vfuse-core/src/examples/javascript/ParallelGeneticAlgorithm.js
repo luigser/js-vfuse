@@ -1,5 +1,4 @@
 function GA(input){
-    console.log({input})
     let {island, target, mutationRate, generations} = input
     function random(min, max) {
         min = Math.ceil(min);
@@ -115,7 +114,7 @@ function GA(input){
 
 function mergePopulations(inputs){
     let island = []
-    inputs.map(input => [...island, ...input.island])
+    inputs.map(input => island = [...island, ...input.island])
     return {
         island : island,
         target : inputs[0].target,
@@ -124,11 +123,11 @@ function mergePopulations(inputs){
     }
 }
 
-function evaluate(island){
+function evaluate(input){
     //const membersKeys = island//island.map((m) => m.join(''));
-    const perfectCandidatesNum = island.filter((w) => w === target);
-    console.log(`${perfectCandidatesNum ? perfectCandidatesNum.length : 0} member(s) typed "${target}"`);
-    return `${perfectCandidatesNum ? perfectCandidatesNum.length : 0} member(s) typed "${target}"`
+    const perfectCandidatesNum = input.island.filter((w) => w === input.target);
+    console.log(`${perfectCandidatesNum ? perfectCandidatesNum.length : 0} member(s) typed "${input.target}"`);
+    return {result : `${perfectCandidatesNum ? perfectCandidatesNum.length : 0} member(s) typed "${input.target}"`}
 }
 
 
@@ -178,17 +177,16 @@ async function generate(populationSize, target, mutationRate, generations) {
 
     let merge_job_ids = []
     for(let i = 0; i < ga_job_ids.length; i += 2 ){
-        let job_id = await VFuse.addJob(mergePopulations, [ga_job_ids[i], ga_job_ids[i+1]])
+        let job_id = await VFuse.addJob(mergePopulations, [ga_job_ids[i], ga_job_ids[i+1]], [])
         merge_job_ids.push(job_id)
     }
 
     for(let i = 0; i < merge_job_ids.length; i++){
         let job_id = await VFuse.addJob(GA, [merge_job_ids[i]], null, 'last')
     }
-    let job_id = await VFuse.addJob(mergePopulations, ['last'])
+    let job_id = await VFuse.addJob(mergePopulations, ['last'], [])
     job_id = await VFuse.addJob(GA, [job_id])
     await VFuse.addJob(evaluate, [job_id])
 }
 
-await generate(10000, 'VFuse Parallel Genetic Algorithm', 0.05, 10);
-
+await generate(10000, 'VFuse parallel genetic Algorithm', 0.05, 20);

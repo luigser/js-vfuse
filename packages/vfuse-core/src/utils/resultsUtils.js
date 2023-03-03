@@ -5,7 +5,7 @@ module.exports = {
             if (new_results && new_results.error) return new_results
             if (_.isArray(result) && _.isArray(new_results)) return [...result, ...new_results]
             else if (_.isString(result) && _.isString(new_results)) return result + new_results
-            else if (_.isArray(result) && _.isObject(new_results)) return result.push(new_results)
+            else if (_.isArray(result) && _.isObject(new_results)){ result.push(new_results); return result }
             else if (/*parseFloat(result).toFixed(100) !== 'NaN' &&*/ parseFloat(new_results).toFixed(100) !== 'NaN') return new_results//result + new_results
             else if (!_.isArray(result) && _.isObject(result) && _.isObject(new_results)) return {...result, ...new_results}
             else if (_.isMap(result) && _.isMap(new result)) return new Map([...result, ...new_results])
